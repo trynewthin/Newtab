@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useAppStore, type Tag } from "@/lib/store";
 import { TagItem } from "./TagItem";
-import { AddTagItem } from "../add/AddTagItem";
-import { SettingsTagItem } from "../settings/SettingsTagItem";
-import { ThemeTagItem } from "../theme/ThemeTagItem";
 import { AddTagDialog } from "../add/AddTagDialog";
 import { ThemeDialog } from "../theme/ThemeDialog";
-import { SettingsDialog } from "@/components/home/settings/SettingsDialog";
+import { SettingsDialog } from "../settings/SettingsDialog";
+import { IconManagerDialog } from "../tools/IconManagerDialog";
 import {
     DndContext,
     closestCenter,
@@ -30,6 +28,7 @@ export function TagGrid() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isThemeDialogOpen, setIsThemeDialogOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isIconManagerOpen, setIsIconManagerOpen] = useState(false);
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
     const [activeTag, setActiveTag] = useState<Tag | null>(null);
 
@@ -44,12 +43,30 @@ export function TagGrid() {
         })
     );
 
-    const handleAddClick = () => {
-        setEditingTag(null);
-        setIsDialogOpen(true);
+    const handleTagClick = (tag: Tag) => {
+        // 系统图标的特殊处理
+        if (tag.isSystem) {
+            switch (tag.type) {
+                case 'settings':
+                    setIsSettingsOpen(true);
+                    break;
+                case 'theme':
+                    setIsThemeDialogOpen(true);
+                    break;
+                case 'add':
+                    setEditingTag(null);
+                    setIsDialogOpen(true);
+                    break;
+                case 'icon-manager':
+                    setIsIconManagerOpen(true);
+                    break;
+            }
+        }
     };
 
     const handleEditClick = (tag: Tag) => {
+        // 系统图标不允许编辑,只能删除
+        if (tag.isSystem) return;
         setEditingTag(tag);
         setIsDialogOpen(true);
     };
@@ -67,7 +84,6 @@ export function TagGrid() {
             const oldIndex = tags.findIndex((t) => t.id === active.id);
             const newIndex = tags.findIndex((t) => t.id === over.id);
 
-            // 实时更新状态以触发平滑动画
             if (oldIndex !== -1 && newIndex !== -1) {
                 setTags(arrayMove(tags, oldIndex, newIndex));
             }
@@ -102,13 +118,10 @@ export function TagGrid() {
                                 key={tag.id}
                                 tag={tag}
                                 onEdit={handleEditClick}
+                                onClick={handleTagClick}
                             />
                         ))}
                     </SortableContext>
-
-                    <SettingsTagItem onClick={() => setIsSettingsOpen(true)} />
-                    <ThemeTagItem onClick={() => setIsThemeDialogOpen(true)} />
-                    <AddTagItem onClick={handleAddClick} />
                 </div>
 
                 <DragOverlay adjustScale={true}>
@@ -116,6 +129,7 @@ export function TagGrid() {
                         <TagItem
                             tag={activeTag}
                             onEdit={() => { }}
+                            onClick={() => { }}
                             isOverlay
                         />
                     ) : null}
@@ -134,6 +148,10 @@ export function TagGrid() {
             <SettingsDialog
                 open={isSettingsOpen}
                 onOpenChange={setIsSettingsOpen}
+            />
+            <IconManagerDialog
+                open={isIconManagerOpen}
+                onOpenChange={setIsIconManagerOpen}
             />
         </div>
     );

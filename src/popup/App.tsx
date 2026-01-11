@@ -28,7 +28,7 @@ export default function Popup() {
         root.classList.add(effectiveTheme);
 
         // Force Popup Size
-        document.documentElement.style.width = "348px";
+        document.documentElement.style.width = "350px";
         document.documentElement.style.height = "328px";
         document.body.style.width = "348px";
         document.body.style.height = "328px";

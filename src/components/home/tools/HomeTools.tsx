@@ -1,9 +1,12 @@
 import { useAppStore } from "@/lib/store";
-import { Sun, Moon, Edit2 } from "lucide-react";
+import { Sun, Moon, Edit2, Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { IconManagerDialog } from "./IconManagerDialog";
 
 export function HomeTools() {
     const { theme, setTheme, isEditing, setEditing } = useAppStore();
+    const [isIconManagerOpen, setIsIconManagerOpen] = useState(false);
 
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -17,6 +20,13 @@ export function HomeTools() {
 
     return (
         <>
+            <button
+                onClick={() => setIsIconManagerOpen(true)}
+                className="p-2 bg-secondary/80 hover:bg-secondary text-secondary-foreground rounded-lg transition-all shadow-sm border backdrop-blur-sm"
+                title="Manage Icons"
+            >
+                <Grid3x3 size={18} />
+            </button>
             <button
                 onClick={toggleEditing}
                 className={cn(
@@ -36,6 +46,11 @@ export function HomeTools() {
             >
                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+
+            <IconManagerDialog
+                open={isIconManagerOpen}
+                onOpenChange={setIsIconManagerOpen}
+            />
         </>
     );
 }

@@ -1,5 +1,5 @@
 import { useAppStore, type Tag } from "@/lib/store";
-import { X, Edit2 } from "lucide-react";
+import { X, Edit2, Settings, Palette, Plus, Grid3x3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
 import { cn } from "@/lib/utils";
@@ -9,13 +9,14 @@ import { CSS } from "@dnd-kit/utilities";
 interface TagItemProps {
     tag: Tag;
     onEdit: (tag: Tag) => void;
+    onClick?: (tag: Tag) => void;
     isOverlay?: boolean;
 }
 
-export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
+export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     const removeTag = useAppStore((state) => state.removeTag);
     const isEditing = useAppStore((state) => state.isEditing);
-    const [bgColor, setBgColor] = useState("rgba(255, 255, 255, 0.9)");
+    const [bgColor, setBgColor] = useState("rgb(255, 255, 255)");
     const [imageDataUrl, setImageDataUrl] = useState<string>("");
 
     const {
@@ -34,14 +35,13 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
         transform: CSS.Transform.toString(transform),
         transition: transition || 'transform 500ms cubic-bezier(0.2, 0, 0, 1)',
         opacity: isDragging ? 0 : 1,
-        // Overlay 状态显示在最上层
         zIndex: isOverlay ? 100 : undefined,
     };
 
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (confirm(`Delete shortcut "${tag.title}"?`)) {
+        if (confirm(`Delete ${tag.isSystem ? 'system icon' : 'shortcut'} "${tag.title}"?`)) {
             removeTag(tag.id);
         }
     };
@@ -49,7 +49,55 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
     const handleEdit = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        // 系统图标不允许编辑
+        if (tag.isSystem) return;
         onEdit(tag);
+    };
+
+    const handleClick = (e: React.MouseEvent) => {
+        if (isEditing || isOverlay) {
+            e.preventDefault();
+            return;
+        }
+
+        if (tag.isSystem && onClick) {
+            e.preventDefault();
+            onClick(tag);
+        }
+    };
+
+    const renderIcon = () => {
+        // 系统图标渲染
+        if (tag.isSystem && tag.icon) {
+            const IconComponent = () => {
+                switch (tag.icon) {
+                    case 'Settings':
+                        return <Settings size={24} className="text-muted-foreground" />;
+                    case 'Palette':
+                        return <Palette size={24} className="text-muted-foreground" />;
+                    case 'Plus':
+                        return <Plus size={24} className="text-muted-foreground" />;
+                    case 'Grid3x3':
+                        return <Grid3x3 size={24} className="text-muted-foreground" />;
+                    default:
+                        return <span className="text-2xl">{tag.icon}</span>;
+                }
+            };
+            return <IconComponent />;
+        }
+
+        // 普通图标渲染
+        if (tag.icon && tag.icon.length < 4) {
+            return <span className="text-2xl">{tag.icon}</span>;
+        }
+
+        return (
+            <img
+                src={imageDataUrl || faviconUrl}
+                alt={tag.title}
+                className="w-9 h-9 object-contain pointer-events-none"
+            />
+        );
     };
 
     const faviconUrl = tag.icon || `https://www.google.com/s2/favicons?domain=${tag.url}&sz=128`;
@@ -101,13 +149,15 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
                 "absolute -top-2 right-2 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
                 (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
             )}>
-                <button
-                    onClick={handleEdit}
-                    className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Edit"
-                >
-                    <Edit2 size={10} />
-                </button>
+                {!tag.isSystem && (
+                    <button
+                        onClick={handleEdit}
+                        className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                        title="Edit"
+                    >
+                        <Edit2 size={10} />
+                    </button>
+                )}
                 <button
                     onClick={handleDelete}
                     className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
@@ -118,26 +168,26 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
             </div>
 
             <a
-                href={tag.url}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => (isEditing || isOverlay) && e.preventDefault()}
+                href={tag.isSystem ? '#' : tag.url}
+                target={tag.isSystem ? '_self' : '_blank'}
+                rel={tag.isSystem ? undefined : 'noreferrer'}
+                onClick={(e) => {
+                    if (isEditing || isOverlay) {
+                        e.preventDefault();
+                        return;
+                    }
+                    if (tag.isSystem) {
+                        handleClick(e);
+                    }
+                }}
                 className={cn(
                     "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden bg-white",
                     isEditing ? "cursor-move" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-xl"
                 )}
-                style={{ backgroundColor: bgColor }}
+                style={{ backgroundColor: tag.isSystem ? 'rgb(255, 255, 255)' : bgColor }}
             >
-                {tag.icon && tag.icon.length < 4 ? (
-                    <span className="text-2xl">{tag.icon}</span>
-                ) : (
-                    <img
-                        src={imageDataUrl || faviconUrl}
-                        alt={tag.title}
-                        className="w-9 h-9 object-contain pointer-events-none"
-                    />
-                )}
+                {renderIcon()}
             </a>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-foreground/80 group-hover:text-foreground">

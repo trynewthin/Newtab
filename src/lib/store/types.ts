@@ -3,6 +3,8 @@ export interface Tag {
     title: string;
     url: string;
     icon?: string;
+    isSystem?: boolean; // 标记是否为系统图标
+    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager'; // 图标类型
 }
 
 export interface ConfigState {

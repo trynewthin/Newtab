@@ -247,7 +247,7 @@ export function TagGrid() {
     };
 
     return (
-        <div className="w-full h-full pb-8 px-4 overflow-y-auto [scrollbar-gutter:stable]">
+        <div className="w-full h-full pb-8 px-4 pt-3 overflow-y-auto [scrollbar-gutter:stable]">
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}

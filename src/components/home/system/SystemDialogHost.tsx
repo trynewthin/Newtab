@@ -3,6 +3,7 @@ import { IconManagerDialog } from "../tools/IconManagerDialog";
 import { PomodoroDialog } from "../item/PomodoroDialog";
 import { SettingsDialog } from "../item/SettingsDialog";
 import { ThemeDialog } from "../item/ThemeDialog";
+import { TodoDialog } from "../item/TodoDialog";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {
@@ -30,6 +31,8 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
             return <IconManagerDialog open={true} onOpenChange={handleOpenChange} />;
         case "pomodoro":
             return <PomodoroDialog open={true} onOpenChange={handleOpenChange} />;
+        case "todo":
+            return <TodoDialog open={true} onOpenChange={handleOpenChange} />;
         default:
             return null;
     }

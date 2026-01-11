@@ -75,14 +75,14 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
 
         // 普通图标渲染
         if (tag.icon && tag.icon.length < 4) {
-            return <span className="text-2xl scale-[1.2]">{tag.icon}</span>;
+            return <span className="text-2xl scale-[1.0]">{tag.icon}</span>;
         }
 
         return (
             <img
                 src={imageDataUrl || faviconUrl}
                 alt={tag.title}
-                className="w-10 h-10 object-contain pointer-events-none scale-[1.5]"
+                className="w-10 h-10 object-contain pointer-events-none scale-[1.0]"
             />
         );
     };

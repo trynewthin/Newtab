@@ -2,6 +2,7 @@ import { SearchBar } from "@/components/home/search/SearchBar";
 import { TagGrid } from "@/components/home/tags/TagGrid";
 import { LiveActivityArea } from "@/components/home/live/LiveActivityArea";
 import { PomodoroLiveActivity } from "@/components/home/item/PomodoroDialog";
+import { TodoLiveActivity } from "@/components/home/item/TodoDialog";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,8 @@ import { HomeTools } from "@/components/home/tools/HomeTools";
 
 export function HomePage() {
     const isPomodoroRunning = useAppStore(s => s.pomodoroStatus.isRunning);
-    const hasActivities = isPomodoroRunning; // 扩展点：未来如果增加其他活动，也加入此判断
+    const pendingTodosCount = useAppStore(s => s.todos.filter(t => !t.completed).length);
+    const hasActivities = isPomodoroRunning || pendingTodosCount > 0;
 
     return (
         <BasePage className="py-0 px-0 flex flex-col items-center" tools={<HomeTools />}>
@@ -22,10 +24,11 @@ export function HomePage() {
             {/* 2. 实况区域 - 动态呼吸空间 */}
             <div className={cn(
                 "w-full flex justify-center transition-all duration-500 ease-in-out px-4",
-                hasActivities ? "mb-10" : "mb-0"
+                hasActivities ? "mb-10" : "mb-0" // 保持边距逻辑
             )}>
                 <LiveActivityArea>
                     <PomodoroLiveActivity />
+                    <TodoLiveActivity />
                 </LiveActivityArea>
             </div>
 

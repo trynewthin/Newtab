@@ -1,6 +1,6 @@
-import { Grid3x3, Palette, Plus, Settings, Timer } from "lucide-react";
+import { Grid3x3, Palette, Plus, Settings, Timer, ListTodo } from "lucide-react";
 
-export type SystemIconName = "Settings" | "Palette" | "Plus" | "Grid3x3" | "Timer";
+export type SystemIconName = "Settings" | "Palette" | "Plus" | "Grid3x3" | "Timer" | "ListTodo";
 
 export function renderSystemIcon(iconName: string, className?: string) {
     switch (iconName) {
@@ -14,6 +14,8 @@ export function renderSystemIcon(iconName: string, className?: string) {
             return <Grid3x3 size={24} className={className} />;
         case "Timer":
             return <Timer size={24} className={className} />;
+        case "ListTodo":
+            return <ListTodo size={24} className={className} />;
         default:
             return <span className={className}>{iconName}</span>;
     }

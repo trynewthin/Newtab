@@ -67,6 +67,22 @@ export interface ConfigState {
     }) => void;
 }
 
+export interface Todo {
+    id: string;
+    text: string;
+    completed: boolean;
+    createdAt: number;
+}
+
+export interface TodoState {
+    todos: Todo[];
+    addTodo: (text: string) => void;
+    toggleTodo: (id: string) => void;
+    removeTodo: (id: string) => void;
+    clearCompleted: () => void;
+    setTodos: (todos: Todo[]) => void;
+}
+
 export interface TagState {
     tags: Tag[];
     addTag: (tag: Omit<Tag, 'id'>) => void;
@@ -75,4 +91,4 @@ export interface TagState {
     setTags: (tags: Tag[]) => void;
 }
 
-export type AppState = ConfigState & TagState;
+export type AppState = ConfigState & TagState & TodoState;

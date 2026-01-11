@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { storageAdapter } from './adapter';
 import { createConfigSlice } from './slices/configSlice';
 import { createTagSlice } from './slices/tagSlice';
+import { createTodoSlice } from './slices/todoSlice';
 import { type AppState } from './types';
 
 export const useAppStore = create<AppState>()(
@@ -10,6 +11,7 @@ export const useAppStore = create<AppState>()(
         (...a) => ({
             ...createConfigSlice(...a),
             ...createTagSlice(...a),
+            ...createTodoSlice(...a),
         }),
         {
             name: 'app-storage',

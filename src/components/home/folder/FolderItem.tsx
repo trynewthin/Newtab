@@ -46,7 +46,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
             return child.icon || `https://www.google.com/s2/favicons?domain=${child.url}&sz=64`;
         });
         setChildIcons(icons);
-    }, [tag.children]);
+    }, [tag.id, tag.children]);
 
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();

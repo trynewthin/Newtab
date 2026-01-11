@@ -14,6 +14,15 @@ export interface ConfigState {
     setFirstRun: (status: boolean) => void;
     setEditing: (status: boolean) => void;
     setSearchEngine: (engine: string) => void;
+    // New theme config
+    primaryColor: string;
+    backgroundConfig: {
+        type: 'solid' | 'gradient' | 'image';
+        value: string;
+        blur?: number; // Blur intensity for image/video
+    };
+    setPrimaryColor: (color: string) => void;
+    setBackgroundConfig: (config: { type: 'solid' | 'gradient' | 'image'; value: string; blur?: number }) => void;
 }
 
 export interface TagState {

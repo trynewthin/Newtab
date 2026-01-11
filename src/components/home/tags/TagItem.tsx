@@ -14,7 +14,6 @@ interface TagItemProps {
 
 export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
     const removeTag = useAppStore((state) => state.removeTag);
-    const theme = useAppStore((state) => state.theme);
     const isEditing = useAppStore((state) => state.isEditing);
     const [bgColor, setBgColor] = useState("rgba(255, 255, 255, 0.9)");
     const [imageDataUrl, setImageDataUrl] = useState<string>("");
@@ -55,12 +54,11 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
 
     const faviconUrl = tag.icon || `https://www.google.com/s2/favicons?domain=${tag.url}&sz=128`;
 
-    // 判断是否为深色模式
-    const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
 
     useEffect(() => {
         if (tag.icon && tag.icon.length < 4) {
-            setBgColor(isDarkMode ? "rgba(0, 0, 0, 0.9)" : "rgba(255, 255, 255, 0.9)");
+            setBgColor("rgb(255, 255, 255)");
             setImageDataUrl("");
             return;
         }
@@ -72,19 +70,19 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
 
                 const img = new Image();
                 img.onload = () => {
-                    const color = extractDominantColor(img, isDarkMode);
+                    const color = extractDominantColor(img, false); // isDarkMode param is now ignored or we can remove it
                     setBgColor(color);
                 };
                 img.src = dataUrl;
             } catch (error) {
                 console.error('Failed to process image:', error);
                 setImageDataUrl(faviconUrl);
-                setBgColor(isDarkMode ? "rgba(0, 0, 0, 0.9)" : "rgba(255, 255, 255, 0.9)");
+                setBgColor("rgb(255, 255, 255)");
             }
         };
 
         loadAndAnalyze();
-    }, [tag.url, tag.icon, faviconUrl, isDarkMode]);
+    }, [tag.url, tag.icon, faviconUrl]);
 
     return (
         <div
@@ -125,7 +123,7 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
                 rel="noreferrer"
                 onClick={(e) => (isEditing || isOverlay) && e.preventDefault()}
                 className={cn(
-                    "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
+                    "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden bg-white",
                     isEditing ? "cursor-move" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-xl"
                 )}

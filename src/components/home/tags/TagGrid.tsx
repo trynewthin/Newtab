@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useAppStore, type Tag } from "@/lib/store";
 import { TagItem } from "./TagItem";
-import { AddTagItem } from "./AddTagItem";
-import { SettingsTagItem } from "./SettingsTagItem";
-import { AddTagDialog } from "./AddTagDialog";
+import { AddTagItem } from "../add/AddTagItem";
+import { SettingsTagItem } from "../settings/SettingsTagItem";
+import { ThemeTagItem } from "../theme/ThemeTagItem";
+import { AddTagDialog } from "../add/AddTagDialog";
+import { ThemeDialog } from "../theme/ThemeDialog";
+import { SettingsDialog } from "@/components/home/settings/SettingsDialog";
 import {
     DndContext,
     closestCenter,
@@ -14,7 +17,6 @@ import {
     DragOverlay,
     type DragStartEvent,
     type DragOverEvent,
-    type DragEndEvent,
 } from "@dnd-kit/core";
 import {
     arrayMove,
@@ -24,8 +26,10 @@ import {
 } from "@dnd-kit/sortable";
 
 export function TagGrid() {
-    const { tags, setTags, isEditing } = useAppStore();
+    const { tags, setTags } = useAppStore();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isThemeDialogOpen, setIsThemeDialogOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
     const [activeTag, setActiveTag] = useState<Tag | null>(null);
 
@@ -102,7 +106,8 @@ export function TagGrid() {
                         ))}
                     </SortableContext>
 
-                    <SettingsTagItem />
+                    <SettingsTagItem onClick={() => setIsSettingsOpen(true)} />
+                    <ThemeTagItem onClick={() => setIsThemeDialogOpen(true)} />
                     <AddTagItem onClick={handleAddClick} />
                 </div>
 
@@ -121,6 +126,14 @@ export function TagGrid() {
                 open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 editTag={editingTag}
+            />
+            <ThemeDialog
+                open={isThemeDialogOpen}
+                onOpenChange={setIsThemeDialogOpen}
+            />
+            <SettingsDialog
+                open={isSettingsOpen}
+                onOpenChange={setIsSettingsOpen}
             />
         </div>
     );

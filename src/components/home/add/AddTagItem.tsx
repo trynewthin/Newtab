@@ -9,9 +9,9 @@ export function AddTagItem({ onClick }: AddTagItemProps) {
         <div className="group relative flex flex-col items-center gap-1.5">
             <button
                 onClick={onClick}
-                className="flex items-center justify-center w-14 h-14 bg-white/50 border-2 border-dashed border-white/50 rounded-2xl group-hover:border-white group-hover:bg-white/80 transition-all shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="flex items-center justify-center w-14 h-14 bg-white/80 hover:bg-white border-2 border-dashed border-muted-foreground/20 rounded-2xl transition-all shadow-sm outline-none hover:shadow-md hover:border-primary/50 group-hover:scale-105"
             >
-                <Plus className="text-muted-foreground group-hover:text-primary" />
+                <Plus className="text-muted-foreground group-hover:text-primary transition-colors" />
             </button>
             <span className="text-xs text-center font-medium text-muted-foreground group-hover:text-foreground max-w-[80px]">
                 Add

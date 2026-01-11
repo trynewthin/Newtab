@@ -2,10 +2,9 @@ import { useState, useRef, useCallback } from "react";
 import { useAppStore, type Tag } from "@/lib/store";
 import { TagItem } from "./TagItem";
 import { FolderItem } from "../folder/FolderItem";
-import { AddTagDialog } from "../add/AddTagDialog";
-import { ThemeDialog } from "../theme/ThemeDialog";
-import { SettingsDialog } from "../settings/SettingsDialog";
-import { IconManagerDialog } from "../tools/IconManagerDialog";
+import { AddTagDialog } from "../item/AddTagDialog";
+import { SystemDialogHost } from "../system/SystemDialogHost";
+import type { SystemType } from "../system/systemRegistry";
 import { FolderPreview } from "../folder/FolderPreview";
 import {
     DndContext,
@@ -30,11 +29,9 @@ const HOVER_DELAY = 1000; // 悬停1000ms后判定为创建文件夹
 
 export function TagGrid() {
     const { tags, setTags } = useAppStore();
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isThemeDialogOpen, setIsThemeDialogOpen] = useState(false);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [isIconManagerOpen, setIsIconManagerOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
+    const [activeSystemDialog, setActiveSystemDialog] = useState<SystemType | null>(null);
     const [activeTag, setActiveTag] = useState<Tag | null>(null);
     const [hoverTarget, setHoverTarget] = useState<string | null>(null);
     const [openFolder, setOpenFolder] = useState<Tag | null>(null);
@@ -122,21 +119,7 @@ export function TagGrid() {
 
         // 系统图标的特殊处理
         if (tag.isSystem) {
-            switch (tag.type) {
-                case 'settings':
-                    setIsSettingsOpen(true);
-                    break;
-                case 'theme':
-                    setIsThemeDialogOpen(true);
-                    break;
-                case 'add':
-                    setEditingTag(null);
-                    setIsDialogOpen(true);
-                    break;
-                case 'icon-manager':
-                    setIsIconManagerOpen(true);
-                    break;
-            }
+            setActiveSystemDialog(tag.type as SystemType);
         }
     };
 
@@ -144,7 +127,7 @@ export function TagGrid() {
         // 系统图标和文件夹不允许编辑
         if (tag.isSystem || tag.isFolder) return;
         setEditingTag(tag);
-        setIsDialogOpen(true);
+        setIsEditDialogOpen(true);
     };
 
     const handleDragStart = (event: DragStartEvent) => {
@@ -334,21 +317,14 @@ export function TagGrid() {
             </DndContext>
 
             <AddTagDialog
-                open={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
+                open={isEditDialogOpen}
+                onOpenChange={setIsEditDialogOpen}
                 editTag={editingTag}
             />
-            <ThemeDialog
-                open={isThemeDialogOpen}
-                onOpenChange={setIsThemeDialogOpen}
-            />
-            <SettingsDialog
-                open={isSettingsOpen}
-                onOpenChange={setIsSettingsOpen}
-            />
-            <IconManagerDialog
-                open={isIconManagerOpen}
-                onOpenChange={setIsIconManagerOpen}
+
+            <SystemDialogHost
+                active={activeSystemDialog}
+                onActiveChange={setActiveSystemDialog}
             />
 
             {openFolder && (

@@ -1,10 +1,11 @@
 import { useAppStore, type Tag } from "@/lib/store";
-import { X, Edit2, Settings, Palette, Plus, Grid3x3 } from "lucide-react";
+import { X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/lib/store/backgroundStorage";
+import { renderSystemIcon } from "../system/systemIcons";
 
 interface TagItemProps {
     tag: Tag;
@@ -69,21 +70,7 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     const renderIcon = () => {
         // 系统图标渲染
         if (tag.isSystem && tag.icon) {
-            const IconComponent = () => {
-                switch (tag.icon) {
-                    case 'Settings':
-                        return <Settings size={24} className="text-muted-foreground" />;
-                    case 'Palette':
-                        return <Palette size={24} className="text-muted-foreground" />;
-                    case 'Plus':
-                        return <Plus size={24} className="text-muted-foreground" />;
-                    case 'Grid3x3':
-                        return <Grid3x3 size={24} className="text-muted-foreground" />;
-                    default:
-                        return <span className="text-2xl">{tag.icon}</span>;
-                }
-            };
-            return <IconComponent />;
+            return renderSystemIcon(tag.icon, "text-muted-foreground");
         }
 
         // 普通图标渲染

@@ -6,7 +6,7 @@ export interface Tag {
     iconDataUrl?: string; // 本地缓存的 favicon DataURL，避免重复拉取
     backgroundColor?: string; // Cache the dominant color of the icon
     isSystem?: boolean; // 标记是否为系统图标
-    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager' | 'folder'; // 图标类型
+    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager' | 'pomodoro' | 'folder'; // 图标类型
     isFolder?: boolean; // 标记是否为文件夹
     children?: Tag[]; // 文件夹内的子标签
 }
@@ -30,6 +30,13 @@ export interface ConfigState {
     };
     setPrimaryColor: (color: string) => void;
     setBackgroundConfig: (config: { type: 'solid' | 'gradient' | 'image'; value: string; blur?: number; overlay?: number }) => void;
+
+    pomodoroConfig: {
+        workMinutes: number;
+        breakMinutes: number;
+        rounds: number;
+    };
+    setPomodoroConfig: (config: { workMinutes: number; breakMinutes: number; rounds: number }) => void;
 }
 
 export interface TagState {

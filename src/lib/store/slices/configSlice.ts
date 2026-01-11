@@ -21,4 +21,11 @@ export const createConfigSlice: StateCreator<AppState, [], [], ConfigState> = (s
     setBackgroundConfig: (config) => set((state) => ({
         backgroundConfig: { ...state.backgroundConfig, ...config }
     })),
+
+    pomodoroConfig: {
+        workMinutes: 25,
+        breakMinutes: 5,
+        rounds: 4,
+    },
+    setPomodoroConfig: (config) => set({ pomodoroConfig: config }),
 });

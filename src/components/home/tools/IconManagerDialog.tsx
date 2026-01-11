@@ -2,29 +2,17 @@ import { useState } from "react";
 import { Modal } from "@/components/common/Modal";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Settings, Palette, Plus, Grid3x3 } from "lucide-react";
+import { Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SYSTEM_ITEMS } from "../system/systemRegistry";
+import { renderSystemIcon } from "../system/systemIcons";
 
 interface IconManagerDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-const SYSTEM_ICONS = [
-    { id: 'settings', title: 'Settings', icon: 'Settings', type: 'settings' as const },
-    { id: 'theme', title: 'Theme', icon: 'Palette', type: 'theme' as const },
-    { id: 'add', title: 'Add', icon: 'Plus', type: 'add' as const },
-];
-
-const IconComponent = ({ iconName }: { iconName: string }) => {
-    switch (iconName) {
-        case 'Settings': return <Settings size={24} />;
-        case 'Palette': return <Palette size={24} />;
-        case 'Plus': return <Plus size={24} />;
-        case 'Grid3x3': return <Grid3x3 size={24} />;
-        default: return <div className="w-6 h-6 bg-muted rounded" />;
-    }
-};
+const SYSTEM_ICONS = SYSTEM_ITEMS;
 
 export function IconManagerDialog({ open, onOpenChange }: IconManagerDialogProps) {
     const { tags, addTag, removeTag } = useAppStore();
@@ -56,7 +44,6 @@ export function IconManagerDialog({ open, onOpenChange }: IconManagerDialogProps
         <Modal
             open={open}
             onOpenChange={onOpenChange}
-            title="Icon Manager"
             className="sm:max-w-2xl"
             header={
                 <div className="flex items-center gap-6 px-6 py-2 border-b border-border/50">
@@ -98,7 +85,7 @@ export function IconManagerDialog({ open, onOpenChange }: IconManagerDialogProps
                                 const isAdded = hasSystemIcon(icon.type);
                                 return (
                                     <div
-                                        key={icon.id}
+                                        key={icon.type}
                                         className={cn(
                                             "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
                                             isAdded
@@ -107,7 +94,7 @@ export function IconManagerDialog({ open, onOpenChange }: IconManagerDialogProps
                                         )}
                                     >
                                         <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-muted-foreground">
-                                            <IconComponent iconName={icon.icon} />
+                                            {renderSystemIcon(icon.icon)}
                                         </div>
                                         <span className="text-sm font-medium">{icon.title}</span>
                                         <Button

@@ -84,10 +84,15 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
         const icon = childIcons[index];
         const child = tag.children?.[index];
 
+        const bg = child?.backgroundColor ?? "rgb(255, 255, 255)";
+
         // 判断是否为 emoji
         if (child?.icon && child.icon.length < 4) {
             return (
-                <div className="w-full h-full flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-md">
+                <div
+                    className="w-full h-full flex items-center justify-center rounded-md overflow-hidden"
+                    style={{ backgroundColor: bg }}
+                >
                     <span className="text-xs">{icon}</span>
                 </div>
             );
@@ -95,7 +100,10 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
 
         // 网站图标
         return (
-            <div className="w-full h-full bg-white/90 backdrop-blur-sm rounded-md overflow-hidden flex items-center justify-center">
+            <div
+                className="w-full h-full rounded-md overflow-hidden flex items-center justify-center"
+                style={{ backgroundColor: bg }}
+            >
                 <img
                     src={icon}
                     alt=""

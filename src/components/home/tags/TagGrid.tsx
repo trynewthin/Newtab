@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useAppStore, type Tag } from "@/lib/store";
 import { TagItem } from "./TagItem";
-import { FolderItem } from "./FolderItem";
+import { FolderItem } from "../folder/FolderItem";
 import { AddTagDialog } from "../add/AddTagDialog";
 import { ThemeDialog } from "../theme/ThemeDialog";
 import { SettingsDialog } from "../settings/SettingsDialog";

@@ -15,7 +15,8 @@ import {
     SortableContext,
     rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface FolderPreviewProps {
     folder: Tag;
@@ -25,6 +26,9 @@ interface FolderPreviewProps {
 export function FolderPreview({ folder, onClose }: FolderPreviewProps) {
     const { tags, setTags } = useAppStore();
     const [activeTag, setActiveTag] = useState<Tag | null>(null);
+    const [entered, setEntered] = useState(false);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [titleDraft, setTitleDraft] = useState(folder.title);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -149,7 +153,21 @@ export function FolderPreview({ folder, onClose }: FolderPreviewProps) {
 
     // 从最新的 tags 中获取文件夹数据
     const currentFolder = tags.find(t => t.id === folder.id);
+    const currentTitle = currentFolder?.title ?? folder.title;
     const children = currentFolder?.children || [];
+
+    useEffect(() => {
+        setEntered(true);
+    }, []);
+
+    const saveTitle = () => {
+        setTags(tags.map(t => t.id === folder.id ? { ...t, title: titleDraft } : t));
+        setIsEditingTitle(false);
+    };
+
+    useEffect(() => {
+        setTitleDraft(currentTitle);
+    }, [currentTitle]);
 
     return (
         <DndContext
@@ -159,16 +177,46 @@ export function FolderPreview({ folder, onClose }: FolderPreviewProps) {
             onDragEnd={handleDragEnd}
         >
             <div
-                className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/30 backdrop-blur-md gap-6"
+                className={cn(
+                    "fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/30 backdrop-blur-md gap-6 transition-opacity duration-200",
+                    entered ? "opacity-100" : "opacity-0"
+                )}
                 onClick={onClose}
             >
                 {/* Folder Title outside panel */}
-                <h2 className="text-2xl font-medium text-white drop-shadow-md tracking-wide">
-                    {folder.title}
-                </h2>
+                <div
+                    className="text-2xl font-medium text-white drop-shadow-md tracking-wide text-center"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditingTitle(true);
+                    }}
+                >
+                    {isEditingTitle ? (
+                        <input
+                            autoFocus
+                            value={titleDraft}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => setTitleDraft(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") saveTitle();
+                                if (e.key === "Escape") {
+                                    setTitleDraft(folder.title);
+                                    setIsEditingTitle(false);
+                                }
+                            }}
+                            onBlur={saveTitle}
+                            className="bg-white/10 text-white px-3 py-1 rounded-lg border border-white/30 outline-none"
+                        />
+                    ) : (
+                        <span className="cursor-text select-text">{currentTitle}</span>
+                    )}
+                </div>
 
                 <div
-                    className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-5 w-[320px] h-[320px]"
+                    className={cn(
+                        "bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-5 w-[320px] h-[320px] transition-all duration-200",
+                        entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-1"
+                    )}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Content */}

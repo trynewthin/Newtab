@@ -29,20 +29,47 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
     const addTag = useAppStore((state) => state.addTag);
     const updateTag = useAppStore((state) => state.updateTag);
 
-    // 同步编辑状态
+    // 同步编辑状态 & 打开时清理预览残留
     useEffect(() => {
         if (open) {
             if (editTag) {
                 setUrl(editTag.url);
                 setTitle(editTag.title);
                 setIcon(editTag.icon || "");
+                setPreviewBg(editTag.backgroundColor ?? "rgb(255, 255, 255)");
+                setPreviewIcon(editTag.iconDataUrl || "");
             } else {
                 setUrl("");
                 setTitle("");
                 setIcon("");
+                setPreviewBg("rgb(255, 255, 255)");
+                setPreviewIcon("");
             }
         }
     }, [open, editTag]);
+
+    // 编辑时，如 iconDataUrl 是 idb 引用，加载真实数据用于预览
+    useEffect(() => {
+        let cancelled = false;
+        const loadIcon = async () => {
+            if (!open || !editTag?.iconDataUrl) return;
+            if (editTag.iconDataUrl.startsWith("idb://")) {
+                const key = editTag.iconDataUrl.replace("idb://", "");
+                try {
+                    const data = await backgroundStorage.getIcon(key);
+                    if (!cancelled && data) {
+                        setPreviewIcon(data);
+                    }
+                } catch (e) {
+                    console.error("Failed to load icon from IDB for edit preview:", e);
+                }
+            } else {
+                setPreviewIcon(editTag.iconDataUrl);
+            }
+        };
+        loadIcon();
+        return () => { cancelled = true; };
+    }, [open, editTag?.iconDataUrl]);
 
     // 自动根据网址获取名称逻辑
     useEffect(() => {

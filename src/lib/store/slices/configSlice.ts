@@ -26,6 +26,18 @@ export const createConfigSlice: StateCreator<AppState, [], [], ConfigState> = (s
         workMinutes: 25,
         breakMinutes: 5,
         rounds: 4,
+        enablePrepare: false,
+        prepareMinutes: 1,
+        enableLongBreak: false,
+        longBreakInterval: 4,
+        longBreakMinutes: 15,
+    },
+    pomodoroStatus: {
+        isRunning: false,
+        mode: 'work',
+        endTime: null,
+        currentRound: 1,
     },
     setPomodoroConfig: (config) => set({ pomodoroConfig: config }),
+    setPomodoroStatus: (status) => set({ pomodoroStatus: status }),
 });

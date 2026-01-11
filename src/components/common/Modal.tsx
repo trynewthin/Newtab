@@ -84,6 +84,7 @@ interface ModalProps extends DialogPrimitive.Root.Props {
     className?: string; // ClassName for the Content
     header?: React.ReactNode;
     title?: React.ReactNode; // Simple title, if no complex header needed
+    actions?: React.ReactNode; // Actions to render in the header right side
 }
 
 export function Modal({ children, trigger, className, title, header, ...props }: ModalProps) {
@@ -100,8 +101,13 @@ export function Modal({ children, trigger, className, title, header, ...props }:
                 {/* 1. Header Area */}
                 {/* Simple Title */}
                 {title && !header && (
-                    <div className="px-6 py-3 border-b border-border/50 shrink-0 flex items-center justify-between">
+                    <div className="pl-6 pr-12 py-3 border-b border-border/50 shrink-0 flex items-center justify-between min-h-[50px]">
                         <div className="text-lg font-medium">{title}</div>
+                        {props.actions && (
+                            <div className="flex items-center gap-2">
+                                {props.actions}
+                            </div>
+                        )}
                     </div>
                 )}
 

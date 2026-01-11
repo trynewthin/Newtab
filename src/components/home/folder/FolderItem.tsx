@@ -93,7 +93,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
                     className="w-full h-full flex items-center justify-center rounded-md overflow-hidden"
                     style={{ backgroundColor: bg }}
                 >
-                    <span className="text-xs">{icon}</span>
+                    <span className="text-xs scale-[1.2]">{icon}</span>
                 </div>
             );
         }
@@ -107,7 +107,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
                 <img
                     src={icon}
                     alt=""
-                    className="w-3 h-3 object-contain"
+                    className="w-3 h-3 object-contain scale-[1.35]"
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><rect width="12" height="12" fill="%23ddd"/></svg>';
                     }}

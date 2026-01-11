@@ -35,8 +35,36 @@ export interface ConfigState {
         workMinutes: number;
         breakMinutes: number;
         rounds: number;
+        // Preparation
+        enablePrepare: boolean;
+        prepareMinutes: number;
+        // Long Break
+        enableLongBreak: boolean;
+        longBreakInterval: number;
+        longBreakMinutes: number;
     };
-    setPomodoroConfig: (config: { workMinutes: number; breakMinutes: number; rounds: number }) => void;
+    pomodoroStatus: {
+        isRunning: boolean;
+        mode: 'work' | 'break' | 'prepare' | 'long-break';
+        endTime: number | null;
+        currentRound: number;
+    };
+    setPomodoroConfig: (config: {
+        workMinutes: number;
+        breakMinutes: number;
+        rounds: number;
+        enablePrepare: boolean;
+        prepareMinutes: number;
+        enableLongBreak: boolean;
+        longBreakInterval: number;
+        longBreakMinutes: number;
+    }) => void;
+    setPomodoroStatus: (status: {
+        isRunning: boolean;
+        mode: 'work' | 'break' | 'prepare' | 'long-break';
+        endTime: number | null;
+        currentRound: number;
+    }) => void;
 }
 
 export interface TagState {

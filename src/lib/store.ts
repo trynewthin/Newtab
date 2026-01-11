@@ -38,15 +38,18 @@ export interface Tag {
 interface AppState {
     theme: 'light' | 'dark' | 'system';
     isFirstRun: boolean;
+    isEditing: boolean;
     searchEngine: string;
     tags: Tag[];
 
     setTheme: (theme: 'light' | 'dark' | 'system') => void;
     setFirstRun: (status: boolean) => void;
+    setEditing: (status: boolean) => void;
     setSearchEngine: (engine: string) => void;
     addTag: (tag: Omit<Tag, 'id'>) => void;
     updateTag: (id: string, tag: Partial<Omit<Tag, 'id'>>) => void;
     removeTag: (id: string) => void;
+    setTags: (tags: Tag[]) => void;
 }
 
 // 3. 创建 Store
@@ -56,6 +59,7 @@ export const useAppStore = create<AppState>()(
             // Initial State
             theme: 'system',
             isFirstRun: true,
+            isEditing: false,
             searchEngine: 'google',
             tags: [
                 { id: '1', title: 'Google', url: 'https://www.google.com' },
@@ -66,6 +70,7 @@ export const useAppStore = create<AppState>()(
             // Actions
             setTheme: (theme) => set({ theme }),
             setFirstRun: (status) => set({ isFirstRun: status }),
+            setEditing: (status) => set({ isEditing: status }),
             setSearchEngine: (engine) => set({ searchEngine: engine }),
             addTag: (tag) => set((state) => ({
                 tags: [...state.tags, { ...tag, id: crypto.randomUUID() }]
@@ -76,10 +81,15 @@ export const useAppStore = create<AppState>()(
             removeTag: (id) => set((state) => ({
                 tags: state.tags.filter((t) => t.id !== id)
             })),
+            setTags: (tags) => set({ tags }),
         }),
         {
             name: 'app-storage',
             storage: createJSONStorage(() => storageAdapter),
+            partialize: (state) => {
+                const { isEditing, ...rest } = state;
+                return rest;
+            },
         }
     )
 );

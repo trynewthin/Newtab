@@ -3,7 +3,7 @@ import { Toolbar } from "@/components/common/Toolbar";
 export function FloatLayer() {
     return (
         <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-4 right-4 pointer-events-auto">
+            <div className="absolute top-4 right-4 pointer-events-auto z-30">
                 <Toolbar />
             </div>
 

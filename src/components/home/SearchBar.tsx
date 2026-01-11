@@ -118,7 +118,7 @@ export function SearchBar() {
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto relative" ref={containerRef}>
+        <div className="w-full px-4 max-w-2xl mx-auto relative" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-20">
                 <div className="flex gap-2 items-center bg-background/80 backdrop-blur-sm rounded-2xl shadow-lg border p-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                     <Popover open={open} onOpenChange={setOpen}>
@@ -190,7 +190,7 @@ export function SearchBar() {
 
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-background/95 backdrop-blur-md rounded-2xl shadow-xl border overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute top-[calc(100%+4px)] z-20 left-4 right-4 bg-background/95 backdrop-blur-md rounded-2xl shadow-xl border overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-100">
                     <ul className="py-2">
                         {suggestions.map((suggestion, index) => (
                             <li

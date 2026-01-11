@@ -1,15 +1,18 @@
-import { SearchBar } from "@/components/home/SearchBar";
-import { TagGrid } from "@/components/home/TagGrid";
+import { SearchBar } from "@/components/home/search/SearchBar";
+import { TagGrid } from "@/components/home/tags/TagGrid";
+
+import { BasePage } from "@/components/common/BasePage";
+import { HomeTools } from "@/components/home/tools/HomeTools";
 
 export function HomePage() {
     return (
-        <div className="w-full h-full py-8 px-0 pointer-events-auto flex flex-col items-center">
+        <BasePage className="py-8 px-0 flex flex-col items-center" tools={<HomeTools />}>
             <div className="w-full max-w-4xl mt-7">
                 <SearchBar />
             </div>
             <div className="w-full flex-1 overflow-hidden">
                 <TagGrid />
             </div>
-        </div>
+        </BasePage>
     );
 }

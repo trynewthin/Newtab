@@ -1,41 +1,17 @@
-import { useAppStore } from "@/lib/store";
-import { Sun, Moon, Edit2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import React from "react";
 
-export function Toolbar() {
-    const { theme, setTheme, isEditing, setEditing } = useAppStore();
+interface ToolbarProps {
+    children?: React.ReactNode;
+    className?: string;
+}
 
-    const toggleTheme = () => {
-        setTheme(theme === 'dark' ? 'light' : 'dark');
-    };
-
-    const toggleEditing = () => {
-        setEditing(!isEditing);
-    };
-
-    const isDark = theme === 'dark';
+export function Toolbar({ children, className }: ToolbarProps) {
+    if (!children) return null;
 
     return (
-        <div className="flex gap-2">
-            <button
-                onClick={toggleEditing}
-                className={cn(
-                    "p-2 rounded-lg transition-all shadow-sm border backdrop-blur-sm",
-                    isEditing
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-secondary/80 hover:bg-secondary text-secondary-foreground"
-                )}
-                title={isEditing ? 'Exit Edit Mode' : 'Enter Edit Mode'}
-            >
-                <Edit2 size={18} />
-            </button>
-            <button
-                onClick={toggleTheme}
-                className="p-2 bg-secondary/80 hover:bg-secondary text-secondary-foreground rounded-lg transition-all shadow-sm border backdrop-blur-sm"
-                title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-                {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+        <div className={cn("flex gap-2 pointer-events-auto", className)}>
+            {children}
         </div>
     );
 }

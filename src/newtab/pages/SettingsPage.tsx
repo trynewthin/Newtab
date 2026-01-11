@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Languages } from "lucide-react";
 
+import { BasePage } from "@/components/common/BasePage";
+
 export function SettingsPage() {
     const { t, i18n } = useTranslation();
 
@@ -12,9 +14,10 @@ export function SettingsPage() {
     };
 
     return (
-        <div className="w-full h-full p-8 pointer-events-auto flex items-center justify-center overflow-hidden">
+        <BasePage className="p-8 flex items-center justify-center overflow-hidden">
             <div className="bg-card/80 backdrop-blur rounded-xl border max-w-2xl w-full p-8 shadow-xl">
                 <h2 className="text-2xl font-bold mb-6">Settings</h2>
+
 
                 <div className="space-y-6">
                     {/* 语言设置 */}
@@ -42,6 +45,6 @@ export function SettingsPage() {
                     </Link>
                 </div>
             </div>
-        </div>
+        </BasePage>
     );
 }

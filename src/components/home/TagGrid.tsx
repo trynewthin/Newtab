@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAppStore, type Tag } from "@/lib/store";
 import { TagItem } from "./TagItem";
 import { AddTagItem } from "./AddTagItem";
+import { SettingsTagItem } from "./SettingsTagItem";
 import { AddTagDialog } from "./AddTagDialog";
 
 export function TagGrid() {
@@ -20,7 +21,7 @@ export function TagGrid() {
     };
 
     return (
-        <div className="w-full h-full p-8">
+        <div className="w-full h-full py-8 px-0">
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-4">
                 {tags.map((tag) => (
                     <TagItem
@@ -30,6 +31,7 @@ export function TagGrid() {
                     />
                 ))}
 
+                <SettingsTagItem />
                 <AddTagItem onClick={handleAddClick} />
             </div>
 

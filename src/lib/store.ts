@@ -38,10 +38,12 @@ export interface Tag {
 interface AppState {
     theme: 'light' | 'dark' | 'system';
     isFirstRun: boolean;
+    searchEngine: string;
     tags: Tag[];
 
     setTheme: (theme: 'light' | 'dark' | 'system') => void;
     setFirstRun: (status: boolean) => void;
+    setSearchEngine: (engine: string) => void;
     addTag: (tag: Omit<Tag, 'id'>) => void;
     updateTag: (id: string, tag: Partial<Omit<Tag, 'id'>>) => void;
     removeTag: (id: string) => void;
@@ -54,6 +56,7 @@ export const useAppStore = create<AppState>()(
             // Initial State
             theme: 'system',
             isFirstRun: true,
+            searchEngine: 'google',
             tags: [
                 { id: '1', title: 'Google', url: 'https://www.google.com' },
                 { id: '2', title: 'GitHub', url: 'https://github.com' },
@@ -63,6 +66,7 @@ export const useAppStore = create<AppState>()(
             // Actions
             setTheme: (theme) => set({ theme }),
             setFirstRun: (status) => set({ isFirstRun: status }),
+            setSearchEngine: (engine) => set({ searchEngine: engine }),
             addTag: (tag) => set((state) => ({
                 tags: [...state.tags, { ...tag, id: crypto.randomUUID() }]
             })),

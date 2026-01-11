@@ -1,10 +1,10 @@
 import { useAppStore, type Tag } from "@/lib/store";
 import { X, Edit2, Settings, Palette, Plus, Grid3x3 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { backgroundStorage } from "@/lib/store/backgroundStorage";
 
 interface TagItemProps {
     tag: Tag;
@@ -16,7 +16,7 @@ interface TagItemProps {
 export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     const removeTag = useAppStore((state) => state.removeTag);
     const isEditing = useAppStore((state) => state.isEditing);
-    const [bgColor, setBgColor] = useState("rgb(255, 255, 255)");
+    const [bgColor, setBgColor] = useState(() => tag.backgroundColor ?? "rgb(255, 255, 255)");
     const [imageDataUrl, setImageDataUrl] = useState<string>("");
 
     const {
@@ -95,48 +95,42 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
             <img
                 src={imageDataUrl || faviconUrl}
                 alt={tag.title}
-                className="w-9 h-9 object-contain pointer-events-none"
+                className="w-10 h-10 object-contain pointer-events-none"
             />
         );
     };
 
-    const faviconUrl = tag.icon || `https://www.google.com/s2/favicons?domain=${tag.url}&sz=128`;
-
+    const faviconUrl = tag.icon || `https://www.google.com/s2/favicons?domain=${tag.url}&sz=64`;
 
 
     useEffect(() => {
-        if (tag.icon && tag.icon.length < 4) {
-            setBgColor("rgb(255, 255, 255)");
-            setImageDataUrl("");
-            return;
-        }
+        let cancelled = false;
 
-        // 如果已经有缓存的背景色，直接使用
-        if (tag.backgroundColor) {
-            setBgColor(tag.backgroundColor);
-            return;
-        }
-
-        const loadAndAnalyze = async () => {
-            try {
-                const dataUrl = await loadImageAsDataUrl(faviconUrl);
-                setImageDataUrl(dataUrl);
-
-                const img = new Image();
-                img.onload = () => {
-                    const color = extractDominantColor(img, false); // isDarkMode param is now ignored or we can remove it
-                    setBgColor(color);
-                };
-                img.src = dataUrl;
-            } catch (error) {
-                console.error('Failed to process image:', error);
-                setImageDataUrl(faviconUrl);
-                setBgColor("rgb(255, 255, 255)");
+        const resolveIcon = async () => {
+            if (tag.iconDataUrl?.startsWith("idb://")) {
+                const key = tag.iconDataUrl.replace("idb://", "");
+                try {
+                    const data = await backgroundStorage.getIcon(key);
+                    if (!cancelled && data) {
+                        setImageDataUrl(data);
+                    }
+                } catch (e) {
+                    console.error("Failed to load icon from IDB:", e);
+                }
+            } else if (tag.iconDataUrl) {
+                setImageDataUrl(tag.iconDataUrl);
+            } else {
+                setImageDataUrl("");
             }
         };
 
-        loadAndAnalyze();
-    }, [tag.url, tag.icon, faviconUrl, tag.backgroundColor]);
+        setBgColor(tag.backgroundColor ?? "rgb(255, 255, 255)");
+        resolveIcon();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [tag.iconDataUrl, tag.backgroundColor]);
 
     return (
         <div
@@ -187,7 +181,7 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
                     }
                 }}
                 className={cn(
-                    "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden bg-white",
+                    "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
                     isEditing ? "cursor-move" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-xl"
                 )}

@@ -1,16 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Globe } from "lucide-react";
+import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
+import { backgroundStorage, getIconKey, isDataURL } from "@/lib/store/backgroundStorage";
 
 export default function Popup() {
     const [url, setUrl] = useState("");
     const [title, setTitle] = useState("");
     const [iconStr, setIconStr] = useState(""); // Avoid collision with Lucide component
+    const [initialIcon, setInitialIcon] = useState("");
     const [isExisting, setIsExisting] = useState(false);
     const [existingId, setExistingId] = useState<string | null>(null);
+    const [previewBg, setPreviewBg] = useState<string>("rgb(255, 255, 255)");
+    const [previewIcon, setPreviewIcon] = useState<string>("");
+    const [validIcons, setValidIcons] = useState<string[]>([]);
 
     const tags = useAppStore((state) => state.tags);
     const addTag = useAppStore((state) => state.addTag);
@@ -50,6 +55,7 @@ export default function Popup() {
                     setUrl(tabUrl);
                     setTitle(tabTitle);
                     setIconStr(tabIcon);
+                    setInitialIcon(tabIcon);
 
                     // Check if already exists
                     // We need to wait for store hydration, but since we are in a popup, maybe it's fresh.
@@ -97,10 +103,24 @@ export default function Popup() {
         e.preventDefault();
         if (!url || !title) return;
 
+        let iconDataUrl: string | undefined;
+        let backgroundColor: string | undefined = previewBg;
+
+        // 如果预览里已有 dataURL，尝试下沉到 IndexedDB
+        if (previewIcon && isDataURL(previewIcon)) {
+            const key = getIconKey();
+            await backgroundStorage.saveIcon(key, previewIcon);
+            iconDataUrl = `idb://${key}`;
+        } else if (previewIcon) {
+            iconDataUrl = previewIcon; // 可能是 http/https data，不下沉
+        }
+
         const data = {
             title,
             url,
             icon: iconStr || undefined,
+            iconDataUrl,
+            backgroundColor,
         };
 
         if (isExisting && existingId) {
@@ -116,24 +136,155 @@ export default function Popup() {
         }, 800);
     };
 
-    const faviconUrl = (url && !iconStr) ? `https://www.google.com/s2/favicons?domain=${url}&sz=128` : (iconStr || "");
-    const isImage = faviconUrl.startsWith("http") || faviconUrl.startsWith("data:");
+    const hostname = useMemo(() => {
+        try {
+            const u = url.startsWith("http") ? url : `https://${url}`;
+            return new URL(u).hostname.replace("www.", "");
+        } catch {
+            return "";
+        }
+    }, [url]);
+
+    const iconCandidates = useMemo(() => {
+        const list = [
+            initialIcon || "",
+            hostname ? `https://www.google.com/s2/favicons?domain=${hostname}&sz=256` : "",
+            hostname ? `https://www.google.com/s2/favicons?domain=${hostname}&sz=128` : "",
+            hostname ? `https://logo.clearbit.com/${hostname}` : "",
+            hostname ? `https://icons.duckduckgo.com/ip3/${hostname}.ico` : "",
+        ].filter(Boolean);
+        return Array.from(new Set(list));
+    }, [initialIcon, hostname]);
+
+    // 预筛选可用 icon，剔除加载失败；默认选用列表第一项（高分辨率在前），不因选择变化而重排
+    useEffect(() => {
+        let cancelled = false;
+        const validate = async () => {
+            const results: string[] = [];
+            await Promise.all(
+                iconCandidates.map(
+                    (src) =>
+                        new Promise<void>((resolve) => {
+                            if (!src) return resolve();
+                            const img = new Image();
+                            img.crossOrigin = "Anonymous";
+                            img.onload = () => {
+                                if (!cancelled) results.push(src);
+                                resolve();
+                            };
+                            img.onerror = () => resolve();
+                            img.src = src;
+                            setTimeout(resolve, 1500);
+                        })
+                )
+            );
+            if (cancelled) return;
+            setValidIcons(results);
+            // 如果当前未选或当前选中无效，则选第一个有效（最高分辨率）
+            if (results.length && (!iconStr || !results.includes(iconStr))) {
+                setIconStr(results[0]);
+            }
+        };
+        validate();
+        return () => { cancelled = true; };
+        // 仅依赖候选列表，避免因选择变化触发重排
+    }, [iconCandidates]);
+
+    // 选中后立即取色，更新预览
+    useEffect(() => {
+        let cancelled = false;
+        const extract = async () => {
+            if (!iconStr) return;
+            // 先展示原链接作为占位
+            setPreviewIcon(iconStr);
+
+            const runExtraction = (src: string) =>
+                new Promise<void>((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = src;
+                    img.onload = () => {
+                        try {
+                            const color = extractDominantColor(img);
+                            if (!cancelled) {
+                                setPreviewBg(color);
+                            }
+                        } catch {
+                            if (!cancelled) setPreviewBg("rgb(255, 255, 255)");
+                        }
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        if (!cancelled) setPreviewBg("rgb(255, 255, 255)");
+                        resolve();
+                    };
+                    setTimeout(() => resolve(), 1500);
+                });
+
+            try {
+                if (iconStr.startsWith("data:")) {
+                    await runExtraction(iconStr);
+                    if (!cancelled) setPreviewIcon(iconStr);
+                    return;
+                }
+
+                // 先尝试直接用原链接取色（避免 fetch 失败）
+                await runExtraction(iconStr);
+                if (cancelled) return;
+
+                // 再尝试拉取 dataURL，提升成功率
+                const dataUrl = await loadImageAsDataUrl(iconStr);
+                if (cancelled) return;
+                setPreviewIcon(dataUrl);
+                await runExtraction(dataUrl);
+            } catch {
+                if (!cancelled) {
+                    setPreviewBg("rgb(255, 255, 255)");
+                }
+            }
+        };
+        extract();
+        return () => { cancelled = true; };
+    }, [iconStr]);
 
     return (
         <div className="w-[350px] h-[380px] bg-background text-foreground overflow-hidden flex flex-col relative">
             {isSuccess && checkIcon}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5 p-5">
-                {/* Preview Section */}
-                <div className="flex justify-center mt-2">
-                    <div className="w-16 h-16 flex items-center justify-center bg-muted/30 rounded-xl border border-transparent shadow-sm overflow-hidden relative group">
-                        {isImage ? (
-                            <img src={faviconUrl} alt="Preview" className="w-8 h-8 object-contain" />
-                        ) : (
-                            <Globe className="w-8 h-8 text-muted-foreground/20" />
-                        )}
-                        {/* Optional: Allow icon url edit? Maybe too complex for popup. */}
+                {/* 单行选择 + 预览（无独立背景框） */}
+                {validIcons.length > 0 ? (
+                    <div className="flex justify-center">
+                        <div className="flex gap-3 py-2 px-1 flex-nowrap no-scrollbar overflow-x-auto">
+                            {validIcons.map((src) => {
+                                const active = src === iconStr;
+                                return (
+                                    <button
+                                        key={src}
+                                        type="button"
+                                        onClick={() => setIconStr(src)}
+                                        className={`relative shrink-0 w-12 h-12 rounded-lg border bg-card flex items-center justify-center transition-all duration-300 ${
+                                            active ? "border-primary shadow-md scale-110" : "border-border hover:shadow-sm"
+                                        }`}
+                                        title={src}
+                                    >
+                                        <img src={src} alt="cand" className="w-10 h-10 object-contain" />
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="flex justify-center">
+                        <div className="flex gap-3 py-2 px-1 flex-nowrap">
+                            {Array.from({ length: 4 }).map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className="w-12 h-12 rounded-lg border border-border bg-muted/30 animate-pulse"
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Form Fields */}
                 <div className="grid gap-4">
@@ -142,7 +293,7 @@ export default function Popup() {
                         <Input
                             id="title"
                             value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                             className="h-9 text-sm rounded-lg"
                         />
                     </div>
@@ -151,7 +302,7 @@ export default function Popup() {
                         <Input
                             id="url"
                             value={url}
-                            onChange={(e) => setUrl(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                             className="h-9 text-sm rounded-lg text-muted-foreground"
                         />
                     </div>

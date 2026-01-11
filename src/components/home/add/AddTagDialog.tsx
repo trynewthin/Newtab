@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Globe } from "lucide-react";
-import { extractDominantColor } from "@/lib/colorExtractor";
+import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
+import { backgroundStorage, getIconKey, isDataURL } from "@/lib/store/backgroundStorage";
 
 interface AddTagDialogProps {
     open: boolean;
@@ -22,6 +23,8 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
     const [title, setTitle] = useState("");
     const [icon, setIcon] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [previewBg, setPreviewBg] = useState<string>("rgb(255, 255, 255)");
+    const [previewIcon, setPreviewIcon] = useState<string>("");
 
     const addTag = useAppStore((state) => state.addTag);
     const updateTag = useAppStore((state) => state.updateTag);
@@ -60,39 +63,50 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
 
         setIsSubmitting(true);
         let backgroundColor = editTag?.backgroundColor;
+        let iconDataUrl = editTag?.iconDataUrl;
 
-        // Determine image URL
-        // Prioritize custom icon, then favicon
-        // Only re-calc if URL/Icon changed or if no background color exists
+        // 仅在添加/弹窗内计算图标与背景色，其他地方直接读存储
         const imgUrl = icon || (url ? `https://www.google.com/s2/favicons?domain=${url}&sz=128` : "");
-        const shouldExtract = !backgroundColor || (editTag && (editTag.url !== url || editTag.icon !== icon));
+        const shouldExtract = (!backgroundColor || !iconDataUrl) || (editTag && (editTag.url !== url || editTag.icon !== icon));
 
         if (imgUrl && shouldExtract) {
             try {
-                backgroundColor = await new Promise<string | undefined>((resolve) => {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.src = imgUrl;
+                const runExtraction = (src: string) =>
+                    new Promise<void>((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.src = src;
+                        img.onload = () => {
+                            try {
+                                const color = extractDominantColor(img);
+                                backgroundColor = color;
+                                setPreviewBg(color);
+                                setPreviewIcon(src);
+                            } catch (e) {
+                                console.warn("Color extraction failed (likely CORS):", e);
+                            }
+                            resolve();
+                        };
+                        img.onerror = () => resolve();
+                        setTimeout(() => resolve(), 2000);
+                    });
 
-                    img.onload = () => {
-                        try {
-                            const color = extractDominantColor(img);
-                            resolve(color);
-                        } catch (e) {
-                            console.warn("Color extraction failed (likely CORS):", e);
-                            resolve(undefined);
-                        }
-                    };
+                // 先尝试直接用原地址取色
+                await runExtraction(imgUrl);
 
-                    img.onerror = () => {
-                        resolve(undefined);
-                    };
+                // 拉取并转 dataURL，提高成功率并便于缓存
+                const dataUrl = await loadImageAsDataUrl(imgUrl);
+                iconDataUrl = dataUrl;
+                await runExtraction(dataUrl);
 
-                    // Timeout to prevent hanging
-                    setTimeout(() => resolve(undefined), 2000);
-                });
+                // 下沉到 IndexedDB，tag 里存引用
+                if (iconDataUrl && isDataURL(iconDataUrl)) {
+                    const key = getIconKey();
+                    await backgroundStorage.saveIcon(key, iconDataUrl);
+                    iconDataUrl = `idb://${key}`;
+                }
             } catch (error) {
-                console.error("Color extraction process failed:", error);
+                console.error("Icon load/extract failed:", error);
             }
         }
 
@@ -101,6 +115,7 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
             url: url.startsWith("http") ? url : `https://${url}`,
             icon: icon || undefined,
             backgroundColor,
+            iconDataUrl,
         };
 
         if (editTag) {
@@ -121,14 +136,17 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
                 <form onSubmit={handleSubmit} className="flex flex-col gap-8 p-8 pt-12">
                     {/* 顶部：居中图标预览 */}
                     <div className="flex justify-center">
-                        <div className="w-24 h-24 flex items-center justify-center bg-muted/30 rounded-3xl border-2 border-transparent shadow-inner overflow-hidden">
+                        <div
+                            className="w-24 h-24 flex items-center justify-center rounded-3xl border-2 border-transparent shadow-inner overflow-hidden transition-colors duration-300"
+                            style={{ backgroundColor: previewBg }}
+                        >
                             <div className="text-5xl">
                                 {icon && icon.length < 4 ? (
                                     icon
                                 ) : icon ? (
-                                    <img src={icon} alt="Preview" className="w-14 h-14 object-contain" />
+                                    <img src={previewIcon || icon} alt="Preview" className="w-14 h-14 object-contain" />
                                 ) : faviconUrl ? (
-                                    <img src={faviconUrl} alt="Preview" className="w-14 h-14 object-contain" />
+                                    <img src={previewIcon || faviconUrl} alt="Preview" className="w-14 h-14 object-contain" />
                                 ) : (
                                     <Globe className="w-12 h-12 text-muted-foreground/20" />
                                 )}

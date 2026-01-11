@@ -3,6 +3,7 @@ export interface Tag {
     title: string;
     url: string;
     icon?: string;
+    iconDataUrl?: string; // 本地缓存的 favicon DataURL，避免重复拉取
     backgroundColor?: string; // Cache the dominant color of the icon
     isSystem?: boolean; // 标记是否为系统图标
     type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager' | 'folder'; // 图标类型

@@ -28,7 +28,7 @@ export function TagItem({ tag, onEdit, isOverlay }: TagItemProps) {
         isDragging,
     } = useSortable({
         id: tag.id,
-        disabled: !isEditing || !!isOverlay,
+        disabled: !!isOverlay,
     });
 
     const style = {

@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { Modal } from "@/components/common/Modal";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, Upload } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface ThemeDialogProps {
     open: boolean;
@@ -75,33 +77,180 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
             <div className="p-6">
                 {activeTab === 'background' && (
                     <div className="space-y-6">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {BACKGROUND_PRESETS.map((preset) => (
-                                <button
-                                    key={preset.name}
-                                    onClick={() => setBackgroundConfig({
-                                        type: preset.type as 'solid' | 'gradient',
-                                        value: preset.value
-                                    })}
-                                    className={cn(
-                                        "group relative h-28 rounded-xl overflow-hidden border-2 transition-all",
-                                        backgroundConfig.value === preset.value
-                                            ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
-                                            : "border-transparent hover:scale-[1.02] hover:shadow-md"
-                                    )}
+                        {/* Presets */}
+                        <div>
+                            <h3 className="text-sm font-medium text-muted-foreground mb-3">Presets</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {BACKGROUND_PRESETS.map((preset) => (
+                                    <button
+                                        key={preset.name}
+                                        onClick={() => setBackgroundConfig({
+                                            type: preset.type as 'solid' | 'gradient',
+                                            value: preset.value
+                                        })}
+                                        className={cn(
+                                            "group relative h-28 rounded-xl overflow-hidden border-2 transition-all",
+                                            backgroundConfig.value === preset.value
+                                                ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
+                                                : "border-transparent hover:scale-[1.02] hover:shadow-md"
+                                        )}
+                                    >
+                                        <div className={cn("absolute inset-0", preset.preview)} />
+                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                                        <span className="absolute bottom-2 left-3 text-sm font-medium text-white drop-shadow-md">
+                                            {preset.name}
+                                        </span>
+                                        {backgroundConfig.value === preset.value && (
+                                            <div className="absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shadow-sm">
+                                                <Check size={14} strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Custom Image */}
+                        <div className="space-y-3">
+                            <h3 className="text-sm font-medium text-muted-foreground">Custom Image</h3>
+
+                            {/* Upload Button */}
+                            <div className="flex gap-2">
+                                <label className="flex-1 cursor-pointer">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                const reader = new FileReader();
+                                                reader.onload = (event) => {
+                                                    const dataUrl = event.target?.result as string;
+                                                    setBackgroundConfig({
+                                                        type: 'image',
+                                                        value: dataUrl,
+                                                        blur: backgroundConfig.blur || 0,
+                                                        overlay: backgroundConfig.overlay || 0
+                                                    });
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                    />
+                                    <div className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors border">
+                                        <Upload size={16} />
+                                        <span className="text-sm font-medium">Upload Image</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {/* URL Input */}
+                            <div className="flex gap-2">
+                                <Input
+                                    type="url"
+                                    placeholder="Or enter image URL..."
+                                    className="flex-1"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            const url = e.currentTarget.value.trim();
+                                            if (url) {
+                                                setBackgroundConfig({
+                                                    type: 'image',
+                                                    value: url,
+                                                    blur: backgroundConfig.blur || 0,
+                                                    overlay: backgroundConfig.overlay || 0
+                                                });
+                                            }
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    size="sm"
+                                    onClick={(e) => {
+                                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                        const url = input?.value.trim();
+                                        if (url) {
+                                            setBackgroundConfig({
+                                                type: 'image',
+                                                value: url,
+                                                blur: backgroundConfig.blur || 0,
+                                                overlay: backgroundConfig.overlay || 0
+                                            });
+                                            input.value = '';
+                                        }
+                                    }}
                                 >
-                                    <div className={cn("absolute inset-0", preset.preview)} />
-                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-                                    <span className="absolute bottom-2 left-3 text-sm font-medium text-white drop-shadow-md">
-                                        {preset.name}
-                                    </span>
-                                    {backgroundConfig.value === preset.value && (
-                                        <div className="absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shadow-sm">
-                                            <Check size={14} strokeWidth={3} />
+                                    Apply
+                                </Button>
+                            </div>
+
+                            {/* Blur Control - Only show when image is active */}
+                            {backgroundConfig.type === 'image' && (
+                                <div className="space-y-4 pt-2">
+                                    {/* Blur */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-sm font-medium text-muted-foreground">
+                                                Blur: {backgroundConfig.blur || 0}px
+                                            </label>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => setBackgroundConfig({
+                                                    ...backgroundConfig,
+                                                    blur: 0
+                                                })}
+                                            >
+                                                Reset
+                                            </Button>
                                         </div>
-                                    )}
-                                </button>
-                            ))}
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="20"
+                                            step="1"
+                                            value={backgroundConfig.blur || 0}
+                                            onChange={(e) => setBackgroundConfig({
+                                                ...backgroundConfig,
+                                                blur: parseInt(e.target.value)
+                                            })}
+                                            className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
+                                        />
+                                    </div>
+
+                                    {/* Overlay Opacity */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-sm font-medium text-muted-foreground">
+                                                Overlay: {backgroundConfig.overlay || 0}%
+                                            </label>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => setBackgroundConfig({
+                                                    ...backgroundConfig,
+                                                    overlay: 0
+                                                })}
+                                            >
+                                                Reset
+                                            </Button>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="80"
+                                            step="5"
+                                            value={backgroundConfig.overlay || 0}
+                                            onChange={(e) => setBackgroundConfig({
+                                                ...backgroundConfig,
+                                                overlay: parseInt(e.target.value)
+                                            })}
+                                            className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

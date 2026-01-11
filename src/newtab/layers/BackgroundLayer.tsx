@@ -16,21 +16,28 @@ export function BackgroundLayer() {
     }, [primaryColor]);
 
     const getBackgroundStyle = () => {
-        const { type, value } = backgroundConfig;
+        const { type, value, blur } = backgroundConfig;
+        const baseStyle: React.CSSProperties = {};
+
         if (type === 'solid') {
-            return { backgroundColor: value };
+            baseStyle.backgroundColor = value;
+        } else if (type === 'gradient') {
+            baseStyle.backgroundImage = value;
+        } else if (type === 'image') {
+            baseStyle.backgroundImage = `url(${value})`;
+            baseStyle.backgroundSize = 'cover';
+            baseStyle.backgroundPosition = 'center';
+            baseStyle.backgroundRepeat = 'no-repeat';
+
+            // Apply blur if specified
+            if (blur && blur > 0) {
+                baseStyle.filter = `blur(${blur}px)`;
+                // Scale up slightly to hide blur edges
+                baseStyle.transform = 'scale(1.1)';
+            }
         }
-        if (type === 'gradient') {
-            return { backgroundImage: value };
-        }
-        if (type === 'image') {
-            return {
-                backgroundImage: `url(${value})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-            };
-        }
-        return {};
+
+        return baseStyle;
     };
 
     return (
@@ -38,8 +45,16 @@ export function BackgroundLayer() {
             className="absolute inset-0 z-0 transition-all duration-500 ease-in-out"
             style={getBackgroundStyle()}
         >
-            {/* Optional overlay or pattern can go here */}
-            <div className="w-full h-full opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+            {/* Overlay mask for dimming effect */}
+            {backgroundConfig.overlay != null && backgroundConfig.overlay > 0 && (
+                <div
+                    className="absolute inset-0 bg-black transition-opacity duration-500"
+                    style={{ opacity: backgroundConfig.overlay / 100 }}
+                />
+            )}
+
+            {/* Optional pattern overlay */}
+            <div className="absolute inset-0 w-full h-full opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
         </div>
     );
 }

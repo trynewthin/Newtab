@@ -22,9 +22,10 @@ export interface ConfigState {
         type: 'solid' | 'gradient' | 'image';
         value: string;
         blur?: number; // Blur intensity for image/video
+        overlay?: number; // Overlay opacity (0-100) for dimming effect
     };
     setPrimaryColor: (color: string) => void;
-    setBackgroundConfig: (config: { type: 'solid' | 'gradient' | 'image'; value: string; blur?: number }) => void;
+    setBackgroundConfig: (config: { type: 'solid' | 'gradient' | 'image'; value: string; blur?: number; overlay?: number }) => void;
 }
 
 export interface TagState {

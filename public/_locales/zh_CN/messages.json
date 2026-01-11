@@ -1,0 +1,14 @@
+{
+    "appName": {
+        "message": "新标签页",
+        "description": "扩展名称"
+    },
+    "appDesc": {
+        "message": "基于 Shadcn UI 和 Vite 构建的精美新标签页",
+        "description": "扩展描述"
+    },
+    "newTabTitle": {
+        "message": "新标签页",
+        "description": "新标签页的标题"
+    }
+}

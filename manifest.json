@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,
+    "name": "__MSG_appName__",
+    "default_locale": "en",
+    "version": "1.0.0",
+    "description": "__MSG_appDesc__",
+    "chrome_url_overrides": {
+        "newtab": "index.html"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": "newtab.png"
+    },
+    "icons": {
+        "16": "newtab.png",
+        "48": "newtab.png",
+        "128": "newtab.png"
+    },
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://www.google.com/*",
+        "https://*/*"
+    ]
+}

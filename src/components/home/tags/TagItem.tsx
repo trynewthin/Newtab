@@ -32,8 +32,8 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition: transition || 'transform 500ms cubic-bezier(0.2, 0, 0, 1)',
+        transform: isOverlay ? undefined : CSS.Transform.toString(transform),
+        transition: isOverlay ? undefined : transition,
         opacity: isDragging ? 0 : 1,
         zIndex: isOverlay ? 100 : undefined,
     };
@@ -111,6 +111,12 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
             return;
         }
 
+        // 如果已经有缓存的背景色，直接使用
+        if (tag.backgroundColor) {
+            setBgColor(tag.backgroundColor);
+            return;
+        }
+
         const loadAndAnalyze = async () => {
             try {
                 const dataUrl = await loadImageAsDataUrl(faviconUrl);
@@ -130,7 +136,7 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
         };
 
         loadAndAnalyze();
-    }, [tag.url, tag.icon, faviconUrl]);
+    }, [tag.url, tag.icon, faviconUrl, tag.backgroundColor]);
 
     return (
         <div
@@ -190,7 +196,7 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
                 {renderIcon()}
             </a>
 
-            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-foreground/80 group-hover:text-foreground">
+            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white">
                 {tag.title}
             </span>
         </div>

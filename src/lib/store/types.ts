@@ -3,8 +3,11 @@ export interface Tag {
     title: string;
     url: string;
     icon?: string;
+    backgroundColor?: string; // Cache the dominant color of the icon
     isSystem?: boolean; // 标记是否为系统图标
-    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager'; // 图标类型
+    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager' | 'folder'; // 图标类型
+    isFolder?: boolean; // 标记是否为文件夹
+    children?: Tag[]; // 文件夹内的子标签
 }
 
 export interface ConfigState {

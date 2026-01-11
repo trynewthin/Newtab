@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Globe } from "lucide-react";
+import { extractDominantColor } from "@/lib/colorExtractor";
 
 interface AddTagDialogProps {
     open: boolean;
@@ -20,6 +21,7 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
     const [url, setUrl] = useState("");
     const [title, setTitle] = useState("");
     const [icon, setIcon] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const addTag = useAppStore((state) => state.addTag);
     const updateTag = useAppStore((state) => state.updateTag);
@@ -52,14 +54,53 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
         }
     }, [url, title]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!url || !title) return;
+
+        setIsSubmitting(true);
+        let backgroundColor = editTag?.backgroundColor;
+
+        // Determine image URL
+        // Prioritize custom icon, then favicon
+        // Only re-calc if URL/Icon changed or if no background color exists
+        const imgUrl = icon || (url ? `https://www.google.com/s2/favicons?domain=${url}&sz=128` : "");
+        const shouldExtract = !backgroundColor || (editTag && (editTag.url !== url || editTag.icon !== icon));
+
+        if (imgUrl && shouldExtract) {
+            try {
+                backgroundColor = await new Promise<string | undefined>((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = imgUrl;
+
+                    img.onload = () => {
+                        try {
+                            const color = extractDominantColor(img);
+                            resolve(color);
+                        } catch (e) {
+                            console.warn("Color extraction failed (likely CORS):", e);
+                            resolve(undefined);
+                        }
+                    };
+
+                    img.onerror = () => {
+                        resolve(undefined);
+                    };
+
+                    // Timeout to prevent hanging
+                    setTimeout(() => resolve(undefined), 2000);
+                });
+            } catch (error) {
+                console.error("Color extraction process failed:", error);
+            }
+        }
 
         const data = {
             title,
             url: url.startsWith("http") ? url : `https://${url}`,
             icon: icon || undefined,
+            backgroundColor,
         };
 
         if (editTag) {
@@ -68,6 +109,7 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
             addTag(data);
         }
 
+        setIsSubmitting(false);
         onOpenChange(false);
     };
 
@@ -121,11 +163,11 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
                     </div>
 
                     <DialogFooter className="gap-2 sm:justify-end">
-                        <Button type="button" variant="ghost" className="text-muted-foreground h-11 px-6 rounded-xl" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="ghost" className="text-muted-foreground h-11 px-6 rounded-xl" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                             取消
                         </Button>
-                        <Button type="submit" className="font-bold h-11 px-8 rounded-xl shadow-lg shadow-primary/10">
-                            {editTag ? "保存修改" : "确认添加"}
+                        <Button type="submit" className="font-bold h-11 px-8 rounded-xl shadow-lg shadow-primary/10" disabled={isSubmitting}>
+                            {isSubmitting ? "保存中..." : (editTag ? "保存修改" : "确认添加")}
                         </Button>
                     </DialogFooter>
                 </form>

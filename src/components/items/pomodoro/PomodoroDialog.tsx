@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { BaseModal, ModalButton } from "@/components/base";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { usePomodoroStore } from "@/store/modules/pomodoro";
@@ -8,37 +7,32 @@ import { cn } from "@/lib/utils";
 import { Play, RotateCcw } from "lucide-react";
 import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
 import { PomodoroLiveCard } from "@/components/home/live/PomodoroLiveCard";
+import { useTranslation } from "react-i18next";
 
 interface PomodoroDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-/**
- * The main configuration dialog for Pomodoro
- */
 export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
+    const { t } = useTranslation();
     const config = usePomodoroStore((s) => s.config);
     const setConfig = usePomodoroStore((s) => s.setConfig);
     const status = usePomodoroStore((s) => s.status);
     const setStatus = usePomodoroStore((s) => s.setStatus);
 
-    // Simple Settings
     const [workMinutes, setWorkMinutes] = useState(config.workMinutes);
     const [breakMinutes, setBreakMinutes] = useState(config.breakMinutes);
     const [rounds, setRounds] = useState(config.rounds);
 
-    // Advanced Settings
     const [enablePrepare, setEnablePrepare] = useState(config.enablePrepare);
     const [prepareMinutes, setPrepareMinutes] = useState(config.prepareMinutes);
     const [enableLongBreak, setEnableLongBreak] = useState(config.enableLongBreak);
     const [longBreakInterval, setLongBreakInterval] = useState(config.longBreakInterval);
     const [longBreakMinutes, setLongBreakMinutes] = useState(config.longBreakMinutes);
 
-    // Timer display state
     const [timeLeft, setTimeLeft] = useState("");
 
-    // Sync local state with store when opening, if not running
     useEffect(() => {
         if (!open) return;
         setWorkMinutes(config.workMinutes);
@@ -51,7 +45,6 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
         setLongBreakMinutes(config.longBreakMinutes);
     }, [open, config]);
 
-    // Timer Logic
     useEffect(() => {
         if (!status.isRunning || !status.endTime) {
             return;
@@ -62,18 +55,13 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             const diff = status.endTime! - now;
 
             if (diff <= 0) {
-                // Current stage finished - handle transition
                 if (status.mode === 'prepare') {
-                    // Prepare -> Work
                     setStatus({
                         ...status,
                         mode: 'work',
                         endTime: Date.now() + config.workMinutes * 60 * 1000
                     });
                 } else if (status.mode === 'work') {
-                    // Work -> Break or Long Break
-                    // Check if it's time for a long break
-                    // Long break happens if enabled AND round is multiple of interval
                     const isLongBreak = config.enableLongBreak && (status.currentRound % config.longBreakInterval === 0);
 
                     if (isLongBreak) {
@@ -90,7 +78,6 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                         });
                     }
                 } else {
-                    // Break / Long Break -> Next Work or Finish
                     if (status.currentRound < config.rounds) {
                         setStatus({
                             ...status,
@@ -99,7 +86,6 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                             endTime: Date.now() + config.workMinutes * 60 * 1000
                         });
                     } else {
-                        // All rounds finished
                         setStatus({
                             ...status,
                             isRunning: false,
@@ -116,7 +102,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             }
         };
 
-        tick(); // Initial call
+        tick();
         const interval = setInterval(tick, 1000);
         return () => clearInterval(interval);
     }, [status, config, setStatus]);
@@ -160,7 +146,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             isIcon
             className="hover:bg-destructive/10 hover:text-destructive"
             onClick={handleReset}
-            title="Reset Timer"
+            title={t('reset_timer')}
         >
             <RotateCcw className="w-4 h-4" />
         </ModalButton>
@@ -171,7 +157,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             onClick={handleStart}
         >
             <Play className="w-3 h-3 fill-current" />
-            Start
+            {t('start')}
         </ModalButton>
     );
 
@@ -187,11 +173,11 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
 
     const getStatusText = () => {
         switch (status.mode) {
-            case 'work': return 'Building';
-            case 'break': return 'Chilling';
-            case 'long-break': return 'Recharging';
-            case 'prepare': return 'Ready?';
-            default: return 'Focus';
+            case 'work': return t('building');
+            case 'break': return t('chilling');
+            case 'long-break': return t('recharging');
+            case 'prepare': return t('ready');
+            default: return t('focus');
         }
     };
 
@@ -209,7 +195,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
         <BaseModal
             open={open}
             onOpenChange={onOpenChange}
-            title="Pomodoro"
+            title={t('sys_pomodoro')}
             actions={headerActions}
             className="sm:max-w-[360px]"
         >
@@ -231,7 +217,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                 {getStatusText()}
                             </span>
                             <span className="text-[10px] font-medium text-muted-foreground/60">
-                                Round {status.currentRound} of {rounds}
+                                {t('round_of', { current: status.currentRound, total: rounds })}
                             </span>
                         </div>
                     </div>
@@ -241,12 +227,12 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                         {/* Section 1: Focus Cycle */}
                         <div className="space-y-3">
                             <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
-                                Focus Cycle
+                                {t('focus_cycle')}
                             </h4>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-secondary/30 rounded-xl p-3 flex flex-col gap-1.5 border border-transparent hover:border-primary/10 transition-colors">
                                     <Label htmlFor="pomodoro-work" className="text-xs font-medium text-foreground">
-                                        Work
+                                        {t('work')}
                                     </Label>
                                     <div className="relative">
                                         <Input
@@ -258,13 +244,13 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                             className="h-8 text-sm font-semibold border-0 bg-background/50 focus:bg-background rounded-lg pr-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none">
-                                            min
+                                            {t('min')}
                                         </span>
                                     </div>
                                 </div>
                                 <div className="bg-secondary/30 rounded-xl p-3 flex flex-col gap-1.5 border border-transparent hover:border-primary/10 transition-colors">
                                     <Label htmlFor="pomodoro-rounds" className="text-xs font-medium text-foreground">
-                                        Rounds
+                                        {t('rounds')}
                                     </Label>
                                     <Input
                                         id="pomodoro-rounds"
@@ -281,13 +267,13 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                         {/* Section 2: Breaks */}
                         <div className="space-y-3">
                             <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
-                                Breaks
+                                {t('breaks')}
                             </h4>
                             <div className="bg-secondary/30 rounded-xl divide-y divide-border/40 border border-transparent">
                                 {/* Short Break */}
                                 <div className="p-3 flex items-center justify-between">
                                     <Label htmlFor="pomodoro-break" className="text-xs font-medium text-foreground">
-                                        Short Break
+                                        {t('short_break')}
                                     </Label>
                                     <div className="relative w-20">
                                         <Input
@@ -299,7 +285,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                             className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md pr-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                         <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none bg-transparent">
-                                            min
+                                            {t('min')}
                                         </span>
                                     </div>
                                 </div>
@@ -316,7 +302,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                                 className="w-3.5 h-3.5 rounded border-muted-foreground/30 text-primary focus:ring-primary/20"
                                             />
                                             <Label htmlFor="enable-long-break" className="text-xs font-medium text-foreground cursor-pointer select-none">
-                                                Long Break
+                                                {t('long_break')}
                                             </Label>
                                         </div>
                                     </div>
@@ -324,7 +310,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                     {enableLongBreak && (
                                         <div className="flex items-center gap-3 pl-5.5 animate-in fade-in slide-in-from-top-1 duration-200">
                                             <div className="flex-1 flex items-center gap-2">
-                                                <span className="text-[10px] text-muted-foreground">Every</span>
+                                                <span className="text-[10px] text-muted-foreground">{t('every')}</span>
                                                 <div className="relative w-12">
                                                     <Input
                                                         type="number"
@@ -334,7 +320,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                                         className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                     />
                                                 </div>
-                                                <span className="text-[10px] text-muted-foreground">rounds</span>
+                                                <span className="text-[10px] text-muted-foreground">{t('rounds')}</span>
                                             </div>
                                             <div className="relative w-16">
                                                 <Input
@@ -345,7 +331,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                                     className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md pr-6 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 />
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none bg-transparent">
-                                                    min
+                                                    {t('min')}
                                                 </span>
                                             </div>
                                         </div>
@@ -357,7 +343,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                         {/* Section 3: Extras */}
                         <div className="space-y-3">
                             <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
-                                Extras
+                                {t('extras')}
                             </h4>
                             <div className="bg-secondary/30 rounded-xl border border-transparent">
                                 <div className="p-3 flex items-center justify-between">
@@ -370,7 +356,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                             className="w-3.5 h-3.5 rounded border-muted-foreground/30 text-primary focus:ring-primary/20"
                                         />
                                         <Label htmlFor="enable-prepare" className="text-xs font-medium text-foreground cursor-pointer select-none">
-                                            Preparation Mode
+                                            {t('preparation_mode')}
                                         </Label>
                                     </div>
 
@@ -384,7 +370,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                                 className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md pr-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             />
                                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none bg-transparent">
-                                                min
+                                                {t('min')}
                                             </span>
                                         </div>
                                     )}
@@ -399,14 +385,10 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     );
 }
 
-/**
- * Implementation of Pomodoro as a Live Activity
- */
 export function PomodoroLiveActivity() {
     const isRunning = usePomodoroStore(s => s.status.isRunning);
     const [showDialog, setShowDialog] = useState(false);
 
-    // Register this activity with the LiveActivityArea
     useLiveActivity("pomodoro", isRunning);
 
     if (!isRunning) return null;

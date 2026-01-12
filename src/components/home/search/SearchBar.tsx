@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useSettingsStore } from "@/store/modules/settings";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const searchEngines = [
     {
@@ -33,6 +34,7 @@ const searchEngines = [
 ];
 
 export function SearchBar() {
+    const { t } = useTranslation();
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeIndex, setActiveIndex] = useState(-1);
@@ -56,7 +58,6 @@ export function SearchBar() {
             try {
                 const response = await fetch(`https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}`);
                 const data = await response.json();
-                // Google returned format: [query, [suggestions], ...]
                 if (Array.isArray(data) && data[1]) {
                     setSuggestions(data[1].slice(0, 8));
                     setShowSuggestions(true);
@@ -124,7 +125,7 @@ export function SearchBar() {
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger
                             className="p-2 hover:bg-muted rounded-lg transition-colors flex items-center justify-center cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                            aria-label="Select search engine"
+                            aria-label={t('select_engine')}
                         >
                             <img
                                 src={currentEngine.icon}
@@ -174,13 +175,13 @@ export function SearchBar() {
                             }}
                             onKeyDown={handleKeyDown}
                             onFocus={() => query.trim() && setShowSuggestions(true)}
-                            placeholder="Search the web..."
+                            placeholder={t('search_placeholder')}
                             className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
                         />
                         <button
                             type="submit"
                             className="p-2 hover:bg-muted rounded-lg transition-colors"
-                            aria-label="Search"
+                            aria-label={t('search')}
                         >
                             <Search size={20} className="text-muted-foreground" />
                         </button>
@@ -190,7 +191,7 @@ export function SearchBar() {
 
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-[calc(100%+4px)] z-20 left-4 right-4 bg-background/95 backdrop-blur-md rounded-2xl shadow-xl border overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute top-[calc(100%+4px)] z-20 left-4 right-4 bg-background/95 backdrop-blur-md rounded-2xl shadow-xl border overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                     <ul className="py-2">
                         {suggestions.map((suggestion, index) => (
                             <li

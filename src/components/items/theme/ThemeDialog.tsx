@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { BACKGROUND_PRESETS, PRIMARY_COLORS } from "./themeConfig";
+import { useTranslation } from "react-i18next";
 
 interface ThemeDialogProps {
     open: boolean;
@@ -15,6 +16,7 @@ interface ThemeDialogProps {
 }
 
 export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'background' | 'appearance'>('background');
     const {
         primaryColor,
@@ -29,18 +31,10 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
     // 渐变预设
     const gradientPresets = BACKGROUND_PRESETS.filter(p => p.type === 'gradient');
 
-    // 检查是否正在编辑自定义颜色（不是已保存的列表中的颜色，且是纯色类型）
-    // 但这里我们希望所有纯色都是"自定义"的，或者说列表中的就是全部可选项
-    // 所以逻辑调整为：
-    // 1. 渲染 solidColors 列表
-    // 2. 提供一个添加按钮
-
     const handleAddColor = (e: React.ChangeEvent<HTMLInputElement>) => {
         const color = e.target.value;
-        // 简单的去重检查
         if (!solidColors.includes(color)) {
             addSolidColor(color);
-            // 自动选中新添加的颜色
             setBackgroundConfig({
                 type: 'solid',
                 value: color
@@ -54,7 +48,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
             onOpenChange={onOpenChange}
             className="sm:max-w-2xl"
             background={<div className="absolute inset-0 bg-background/95 backdrop-blur-xl" />}
-            title="Theme Settings"
+            title={t('theme_settings')}
             header={
                 <div className="flex items-center justify-between px-2 w-full">
                     <div className="flex items-center gap-2 bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm">
@@ -67,7 +61,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                             )}
                         >
-                            Background
+                            {t('background')}
                         </button>
                         <button
                             onClick={() => setActiveTab('appearance')}
@@ -78,13 +72,13 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                             )}
                         >
-                            Appearance
+                            {t('appearance')}
                         </button>
                     </div>
 
                     <ModalButton onClick={() => onOpenChange(false)}>
                         <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
-                        <span className="sr-only">Close</span>
+                        <span className="sr-only">{t('close')}</span>
                     </ModalButton>
                 </div>
             }
@@ -95,7 +89,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
 
                         {/* 1. Custom Image */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-medium text-muted-foreground px-1">Custom Image</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground px-1">{t('custom_image')}</h3>
 
                             {/* Upload Button */}
                             <div className="flex gap-2">
@@ -126,8 +120,8 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                             <Upload size={20} className="text-primary" />
                                         </div>
                                         <div className="text-center">
-                                            <span className="text-sm font-medium block">Upload Image</span>
-                                            <span className="text-xs text-muted-foreground">Support JPG, PNG, WebP</span>
+                                            <span className="text-sm font-medium block">{t('upload_image')}</span>
+                                            <span className="text-xs text-muted-foreground">{t('support_formats')}</span>
                                         </div>
                                     </div>
                                 </label>
@@ -137,7 +131,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                             <div className="flex gap-2 items-center bg-secondary/30 p-1.5 rounded-xl border border-white/5">
                                 <Input
                                     type="url"
-                                    placeholder="Or paste image URL..."
+                                    placeholder={t('paste_url')}
                                     className="flex-1 border-none bg-transparent shadow-none focus-visible:ring-0 h-9"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
@@ -170,7 +164,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                         }
                                     }}
                                 >
-                                    Apply
+                                    {t('apply')}
                                 </Button>
                             </div>
 
@@ -181,7 +175,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between px-1">
                                             <label className="text-sm font-medium text-muted-foreground">
-                                                Blur Intensity
+                                                {t('blur_intensity')}
                                             </label>
                                             <span className="text-xs font-mono bg-secondary/50 px-2 py-0.5 rounded text-foreground">
                                                 {backgroundConfig.blur || 0}px
@@ -208,7 +202,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                                     ...backgroundConfig,
                                                     blur: 0
                                                 })}
-                                                title="Reset Blur"
+                                                title={t('reset_blur')}
                                             >
                                                 <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
                                             </Button>
@@ -219,7 +213,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between px-1">
                                             <label className="text-sm font-medium text-muted-foreground">
-                                                Overlay Opacity
+                                                {t('overlay_opacity')}
                                             </label>
                                             <span className="text-xs font-mono bg-secondary/50 px-2 py-0.5 rounded text-foreground">
                                                 {backgroundConfig.overlay || 0}%
@@ -246,7 +240,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                                     ...backgroundConfig,
                                                     overlay: 0
                                                 })}
-                                                title="Reset Overlay"
+                                                title={t('reset_overlay')}
                                             >
                                                 <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
                                             </Button>
@@ -261,7 +255,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                         {/* 2. Solid Colors */}
                         <div>
                             <div className="flex items-center justify-between mb-4 px-1">
-                                <h3 className="text-sm font-medium text-muted-foreground">Solid Colors</h3>
+                                <h3 className="text-sm font-medium text-muted-foreground">{t('solid_colors')}</h3>
                             </div>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {/* Saved Solid Colors */}
@@ -302,7 +296,6 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 removeSolidColor(color);
-                                                // 如果删除了当前选中的颜色，切换回默认（第一个）或保持不变（取决于需求，这里简单做不处理或切回第一个）
                                             }}
                                             className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/40 hover:bg-destructive text-white opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm"
                                             title="Remove color"
@@ -323,14 +316,14 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     <div className="p-1.5 rounded-full bg-background shadow-sm group-hover:scale-110 transition-transform">
                                         <Plus size={16} className="text-muted-foreground" />
                                     </div>
-                                    <span className="text-xs font-medium text-muted-foreground">Add Custom</span>
+                                    <span className="text-xs font-medium text-muted-foreground">{t('add_custom')}</span>
                                 </label>
                             </div>
                         </div>
 
                         {/* 3. Gradients */}
                         <div>
-                            <h3 className="text-sm font-medium text-muted-foreground mb-4 px-1">Gradients</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground mb-4 px-1">{t('gradients')}</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {gradientPresets.map((preset) => (
                                     <button
@@ -366,7 +359,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                 {activeTab === 'appearance' && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-300">
                         <div>
-                            <label className="text-sm font-medium text-muted-foreground mb-4 block px-1">Primary Color System</label>
+                            <label className="text-sm font-medium text-muted-foreground mb-4 block px-1">{t('primary_color_system')}</label>
                             <div className="grid grid-cols-6 gap-3 sm:gap-4 justify-items-center bg-secondary/20 p-6 rounded-3xl border border-white/5">
                                 {PRIMARY_COLORS.map((color) => (
                                     <button
@@ -388,7 +381,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     </button>
                                 ))}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-3 px-1 text-center">Select an accent color to apply throughout the interface.</p>
+                            <p className="text-xs text-muted-foreground mt-3 px-1 text-center">{t('select_accent_color')}</p>
                         </div>
                     </div>
                 )}

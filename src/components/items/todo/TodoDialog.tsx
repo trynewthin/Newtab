@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Trash2, Plus, Check, ChevronUp, ChevronDown, X } from "lucide-react";
 import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
 import { TodoLiveCard } from "@/components/home/live/TodoLiveCard";
+import { useTranslation } from "react-i18next";
 
 interface TodoDialogProps {
     open: boolean;
@@ -13,6 +14,7 @@ interface TodoDialogProps {
 }
 
 export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
+    const { t } = useTranslation();
     const todos = useTodoStore((s) => s.todos);
     const addTodo = useTodoStore((s) => s.addTodo);
     const toggleTodo = useTodoStore((s) => s.toggleTodo);
@@ -49,7 +51,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
         <BaseModal
             open={open}
             onOpenChange={onOpenChange}
-            title="Todo List"
+            title={t('todo_list')}
             className="sm:max-w-[480px]"
         >
             <div className="py-2 space-y-4">
@@ -58,7 +60,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
                     <Input
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Add a new task..."
+                        placeholder={t('add_task_placeholder')}
                         className="h-10 bg-secondary/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/20 rounded-lg"
                         autoFocus
                     />
@@ -79,7 +81,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
                             className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-destructive/10"
                         >
                             <X size={12} />
-                            Clear {completedCount} completed
+                            {t('clear_completed', { count: completedCount })}
                         </button>
                     </div>
                 )}
@@ -88,7 +90,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
                     {todos.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground/50 text-sm">
-                            No tasks yet. Start by adding one above!
+                            {t('no_tasks')}
                         </div>
                     ) : (
                         todos.map((todo, index) => (
@@ -105,7 +107,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
                                         onClick={() => moveUp(index)}
                                         disabled={index === 0}
                                         className="p-0.5 text-muted-foreground/40 hover:text-muted-foreground disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                                        title="Move up"
+                                        title={t('move_up')}
                                     >
                                         <ChevronUp size={14} />
                                     </button>
@@ -113,7 +115,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
                                         onClick={() => moveDown(index)}
                                         disabled={index === todos.length - 1}
                                         className="p-0.5 text-muted-foreground/40 hover:text-muted-foreground disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                                        title="Move down"
+                                        title={t('move_down')}
                                     >
                                         <ChevronDown size={14} />
                                     </button>
@@ -160,7 +162,6 @@ export function TodoLiveActivity() {
 
     const pendingTodos = todos.filter(t => !t.completed);
 
-    // Always show if there are pending todos
     useLiveActivity("todo", pendingTodos.length > 0);
 
     if (pendingTodos.length === 0) return null;

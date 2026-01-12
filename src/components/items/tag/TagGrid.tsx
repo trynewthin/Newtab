@@ -6,6 +6,7 @@ import { FolderItem } from "@/components/items/folder/FolderItem";
 import { ConfigDialog } from "@/components/items/config-dialog";
 import { SystemDialogHost, type SystemType } from "@/components/items";
 import { FolderPreview } from "@/components/items/folder/FolderPreview";
+import { useTranslation } from "react-i18next";
 import {
     DndContext,
     closestCenter,
@@ -41,6 +42,7 @@ const DETECTION_RADIUS = 75;
 const MERGE_RADIUS = 48;
 
 export function TagGrid() {
+    const { t } = useTranslation();
     const { tags, setTags, removeTag, ungroupFolder } = useTagStore();
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
@@ -100,10 +102,10 @@ export function TagGrid() {
         const folderId = `folder_${Date.now()}`;
         const newFolder: Tag = {
             id: folderId,
-            title: 'New Folder',
-            url: '#',
+            title: "New Folder",
+            url: "#",
             isFolder: true,
-            type: 'folder',
+            type: "folder",
             children: [tag1, tag2],
         };
 
@@ -351,17 +353,17 @@ export function TagGrid() {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            {deleteTarget?.isFolder ? 'Manage Folder' : 'Delete Shortcut'}
+                            {deleteTarget?.isFolder ? t('manage_folder') : t('delete_shortcut')}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             {deleteTarget?.isFolder
-                                ? `Do you want to delete "${deleteTarget.title}" entirely, or just release the items back to the grid?`
-                                : `Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+                                ? t('delete_folder_desc', { title: deleteTarget.title })
+                                : t('delete_shortcut_confirm', { title: deleteTarget?.title })}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="sm:justify-between gap-y-2">
                         <div className="flex gap-2 w-full sm:w-auto">
-                            <AlertDialogCancel className="flex-1 sm:flex-none">Cancel</AlertDialogCancel>
+                            <AlertDialogCancel className="flex-1 sm:flex-none">{t('cancel')}</AlertDialogCancel>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             {deleteTarget?.isFolder && (
@@ -370,7 +372,7 @@ export function TagGrid() {
                                     className="bg-primary hover:bg-primary/90 flex-1 sm:flex-none"
                                 >
                                     <UnfoldVertical className="mr-2 size-4" />
-                                    Ungroup
+                                    {t('ungroup')}
                                 </AlertDialogAction>
                             )}
                             <AlertDialogAction
@@ -378,7 +380,7 @@ export function TagGrid() {
                                 className="bg-destructive hover:bg-destructive/90 text-destructive-foreground flex-1 sm:flex-none"
                             >
                                 <Trash2 className="mr-2 size-4" />
-                                {deleteTarget?.isFolder ? 'Delete All' : 'Delete'}
+                                {deleteTarget?.isFolder ? t('delete_all') : t('delete')}
                             </AlertDialogAction>
                         </div>
                     </AlertDialogFooter>

@@ -115,7 +115,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                                     {t('language')}
                                 </h3>
                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                    {i18n.language === 'zh' ? '当前：简体中文' : 'Current: English'}
+                                    {t('current_lang')}
                                 </p>
                             </div>
                         </div>

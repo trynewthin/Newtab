@@ -4,8 +4,11 @@ import { useSettingsStore } from "@/store/modules/settings";
 import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/components/items/tag";
 import { type Tag } from "@/store/core/types";
+import { useTranslation } from "react-i18next";
+import "@/lib/i18n"; // Ensure i18n is initialized
 
 export default function Popup() {
+    const { t } = useTranslation();
     const [url, setUrl] = useState("");
     const [title, setTitle] = useState("");
     const [iconStr, setIconStr] = useState("");
@@ -89,7 +92,7 @@ export default function Popup() {
                 </svg>
             </div>
             <p className="mt-4 text-lg font-bold text-foreground animate-in slide-in-from-bottom-2 duration-300">
-                {existingTag ? "Updated!" : "Added!"}
+                {existingTag ? t('updated') : t('added')}
             </p>
         </div>
     );
@@ -137,13 +140,13 @@ export default function Popup() {
                                 className="w-full h-10 px-6 rounded-xl shadow-lg shadow-primary/10 font-bold"
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? "Saving..." : (existingTag ? "Update Bookmark" : "Add Bookmark")}
+                                {isSubmitting ? t('saving') : (existingTag ? t('update_bookmark') : t('add_bookmark'))}
                             </Button>
                         </div>
                     </TagConfigForm>
                 ) : (
                     <div className="flex items-center justify-center h-40">
-                        <span className="text-muted-foreground animate-pulse">Loading...</span>
+                        <span className="text-muted-foreground animate-pulse">{t('loading')}</span>
                     </div>
                 )}
             </div>

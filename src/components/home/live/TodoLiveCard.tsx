@@ -2,20 +2,20 @@ import { useState } from "react";
 import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";
 import { ListTodo } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TodoLiveCardProps {
     onOpenDialog: () => void;
 }
 
 export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
+    const { t } = useTranslation();
     const todos = useTodoStore((s) => s.todos);
     const toggleTodo = useTodoStore((s) => s.toggleTodo);
     const pendingTodos = todos.filter((t) => !t.completed);
 
-    // Local state for animation
     const [completingIds, setCompletingIds] = useState<string[]>([]);
 
-    // Max items to display inline
     const MAX_DISPLAY = 2;
     const itemsToShow = pendingTodos.slice(0, MAX_DISPLAY);
     const overflow = pendingTodos.length - MAX_DISPLAY;
@@ -23,13 +23,10 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
     const handleComplete = (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
 
-        // Prevent double clicking
         if (completingIds.includes(id)) return;
 
-        // Start animation
         setCompletingIds(prev => [...prev, id]);
 
-        // Updates state after animation
         setTimeout(() => {
             toggleTodo(id);
             setCompletingIds(prev => prev.filter(cid => cid !== id));
@@ -47,7 +44,6 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
                 "flex items-center gap-4"
             )}
         >
-            {/* Icon */}
             <div className={cn(
                 "relative flex items-center justify-center w-11 h-11 rounded-[14px] shrink-0",
                 "bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-sm shadow-indigo-500/20"
@@ -60,7 +56,6 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
                 )}
             </div>
 
-            {/* List Content */}
             <div className="flex flex-col justify-center gap-1.5 min-w-[140px] max-w-[200px]">
                 {itemsToShow.length > 0 ? (
                     itemsToShow.map((todo) => {
@@ -71,7 +66,7 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
                                 onClick={(e) => handleComplete(e, todo.id)}
                                 className={cn(
                                     "flex items-center gap-2 border border-border/40 bg-background/40 rounded-[8px] px-2.5 py-1 transition-all duration-300",
-                                    "hover:bg-background/80 hover:scale-[1.02] active:scale-95 cursor-pointer", // Interaction styles
+                                    "hover:bg-background/80 hover:scale-[1.02] active:scale-95 cursor-pointer",
                                     isCompleting && "opacity-50 bg-secondary/50"
                                 )}
                             >
@@ -90,7 +85,7 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
                     })
                 ) : (
                     <span className="text-xs font-medium text-muted-foreground italic px-1">
-                        All caught up!
+                        {t('all_caught_up')}
                     </span>
                 )}
             </div>

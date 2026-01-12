@@ -12,7 +12,7 @@ interface TagState {
     removeTag: (id: string) => void;
     batchRemoveTags: (ids: string[]) => void;
     setTags: (tags: Tag[]) => void;
-    batchGroupTags: (ids: string[]) => void;
+    batchGroupTags: (ids: string[], title?: string) => void;
     ungroupFolder: (id: string) => void;
 }
 
@@ -115,7 +115,7 @@ export const useTagStore = create<TagState>()(
 
             setTags: (tags) => set({ tags }),
 
-            batchGroupTags: (ids) => set((state) => {
+            batchGroupTags: (ids, title) => set((state) => {
                 if (ids.length <= 1) return state;
 
                 const selectedItems = state.tags.filter(t => ids.includes(t.id));
@@ -135,7 +135,7 @@ export const useTagStore = create<TagState>()(
                 } else {
                     targetFolder = {
                         id: `folder_${Date.now()}`,
-                        title: 'New Folder',
+                        title: title || 'New Folder',
                         url: '#',
                         isFolder: true,
                         type: 'folder',

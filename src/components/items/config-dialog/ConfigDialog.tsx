@@ -7,6 +7,7 @@ import { type Tag } from "@/store/core/types";
 import { AddTagTab } from "./AddTagTab";
 import { IconManagerTab } from "./IconManagerTab";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ConfigDialogProps {
     open: boolean;
@@ -18,6 +19,7 @@ interface ConfigDialogProps {
 type TabType = 'custom' | 'system';
 
 export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom' }: ConfigDialogProps) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<TabType>(defaultTab);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,7 +34,6 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
             open={open}
             onOpenChange={onOpenChange}
             className={cn(
-                // Remove transition to prevent flickering during close animation
                 activeTab === 'system' ? "sm:max-w-3xl" : "sm:max-w-[440px]"
             )}
             header={
@@ -44,13 +45,13 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
                                 active={activeTab === 'custom'}
                                 onClick={() => setActiveTab('custom')}
                             >
-                                Shortcut
+                                {t('shortcut')}
                             </TabButton>
                             <TabButton
                                 active={activeTab === 'system'}
                                 onClick={() => setActiveTab('system')}
                             >
-                                Market
+                                {t('market')}
                             </TabButton>
                         </div>
                     </div>
@@ -64,7 +65,7 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
                                 form="tag-config-form"
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? "Saving..." : (editTag ? "Save" : "Add")}
+                                {isSubmitting ? t('saving') : (editTag ? t('save') : t('add'))}
                             </ModalButton>
                         )}
 
@@ -72,7 +73,7 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
                             render={
                                 <ModalButton>
                                     <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
-                                    <span className="sr-only">Close</span>
+                                    <span className="sr-only">{t('close')}</span>
                                 </ModalButton>
                             }
                         />
@@ -81,7 +82,6 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
             }
             background={<div className="absolute inset-0 bg-background" />}
         >
-            {/* Remove extra padding, rely on BaseModal's default p-6 */}
             <div className="pt-2">
                 {activeTab === 'custom' && (
                     <AddTagTab

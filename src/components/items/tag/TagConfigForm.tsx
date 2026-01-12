@@ -6,6 +6,7 @@ import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
 import { backgroundStorage, getIconKey, isDataURL } from "@/store/core/backgroundStorage";
 import { cn, parseColor } from "@/lib/utils";
 import { type Tag } from "@/store/core/types";
+import { useTranslation } from "react-i18next";
 
 export interface TagConfigData {
     title: string;
@@ -31,6 +32,7 @@ export function TagConfigForm({
     autoFocus = false,
     children
 }: TagConfigFormProps) {
+    const { t } = useTranslation();
     // Form States
     const [url, setUrl] = useState(defaultValues?.url || "");
     const [title, setTitle] = useState(defaultValues?.title || "");
@@ -41,7 +43,6 @@ export function TagConfigForm({
     const { hex: initHex, alpha: initAlpha } = parseColor(defaultValues?.backgroundColor || "rgb(255, 255, 255)");
     const [colorHex, setColorHex] = useState(initHex);
     const [colorAlpha, setColorAlpha] = useState(initAlpha);
-
 
     // Derived States
     const [validIcons, setValidIcons] = useState<string[]>([]);
@@ -125,10 +126,6 @@ export function TagConfigForm({
             }
         };
 
-        // Slight debounce or just start
-        // iconCandidates changes often while typing url? 
-        // Logic relies on hostname which comes from URL.
-        // Actually hostname is memoized from URL.
         if (iconCandidates.length > 0) {
             validate();
         } else {
@@ -139,13 +136,12 @@ export function TagConfigForm({
         return () => { cancelled = true; };
     }, [iconCandidates]);
 
-    // Auto-extract color when icon changes (only if panel closed - heuristic)
+    // Auto-extract color when icon changes
     useEffect(() => {
         let cancelled = false;
         if (!iconStr) return;
 
         const extract = async () => {
-            // Update preview immediately with url (while extraction happens)
             setPreviewIcon(iconStr);
 
             try {
@@ -173,15 +169,10 @@ export function TagConfigForm({
         e.preventDefault();
         if (!title || (!url && showUrlField)) return;
 
-        // Final icon processing
-        let iconDataUrl = defaultValues?.iconDataUrl; // Keep existing by default
-
-        // If icon changed or new, process saving
+        let iconDataUrl = defaultValues?.iconDataUrl;
         const isIconChanged = iconStr !== defaultValues?.icon;
 
-        // Always try to cache if we have a valid icon string
         if (iconStr) {
-            // Only process if it changed or if we don't have a cached version yet
             if (isIconChanged || !iconDataUrl) {
                 try {
                     const dataUrl = await loadImageAsDataUrl(iconStr);
@@ -193,7 +184,6 @@ export function TagConfigForm({
                         iconDataUrl = iconStr; // Fallback
                     }
                 } catch {
-                    // Keep as url string if fetch fails
                     iconDataUrl = iconStr;
                 }
             }
@@ -262,18 +252,18 @@ export function TagConfigForm({
                                     <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                                 </div>
                             ) : (
-                                "No icons found"
+                                t('no_icons_found')
                             )}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* 2. Appearance Config - Moved here and simplified */}
+            {/* 2. Appearance Config */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 border border-border/50 rounded-xl p-3 overflow-hidden">
                     <div className="flex justify-between items-center">
-                        <Label className="text-[10px] uppercase font-bold text-muted-foreground/70">Scale</Label>
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground/70">{t('scale')}</Label>
                         <span className="text-[10px] font-mono opacity-50">{Math.round(iconSize * 100)}%</span>
                     </div>
                     <input
@@ -288,7 +278,7 @@ export function TagConfigForm({
                 </div>
                 <div className="space-y-2 border border-border/50 rounded-xl p-3 overflow-hidden">
                     <div className="flex justify-between items-center">
-                        <Label className="text-[10px] uppercase font-bold text-muted-foreground/70">Background</Label>
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground/70">{t('background')}</Label>
                         <span className="text-[10px] font-mono opacity-50">{colorAlpha}%</span>
                     </div>
                     <div className="flex gap-2 items-center">
@@ -318,34 +308,33 @@ export function TagConfigForm({
             {/* 3. Basic Fields */}
             <div className="grid gap-4">
                 <div className="grid gap-1.5">
-                    <Label htmlFor="title" className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold ml-1">Name</Label>
+                    <Label htmlFor="title" className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold ml-1">{t('name')}</Label>
                     <Input
                         id="title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
                         className="h-9 bg-secondary/30"
-                        placeholder="Site Name"
+                        placeholder={t('site_name_placeholder')}
                         autoFocus={autoFocus}
                     />
                 </div>
 
                 {showUrlField && (
                     <div className="grid gap-1.5">
-                        <Label htmlFor="url" className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold ml-1">URL</Label>
+                        <Label htmlFor="url" className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold ml-1">{t('url')}</Label>
                         <Input
                             id="url"
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             required
                             className="h-9 bg-secondary/30 text-muted-foreground font-mono text-xs"
-                            placeholder="https://example.com"
+                            placeholder={t('url_placeholder')}
                         />
                     </div>
                 )}
             </div>
 
-            {/* Actions - 由父组件通过 children 传入 */}
             {children}
         </form>
     );

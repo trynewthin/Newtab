@@ -7,6 +7,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/store/core/backgroundStorage";
 import { renderSystemIcon } from "@/components/items";
+import { useTranslation } from "react-i18next";
 
 interface TagItemProps {
     tag: Tag;
@@ -19,6 +20,7 @@ interface TagItemProps {
 }
 
 export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: TagItemProps) {
+    const { t } = useTranslation();
     const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
     const isSelected = selectedTagIds.includes(tag.id);
 
@@ -157,7 +159,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                         <button
                             onClick={handleEdit}
                             className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                            title="Edit"
+                            title={t('edit')}
                         >
                             <Edit2 size={10} />
                         </button>
@@ -165,7 +167,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                     <button
                         onClick={handleDelete}
                         className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                        title="Remove"
+                        title={t('remove')}
                     >
                         <X size={10} />
                     </button>

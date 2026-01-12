@@ -4,6 +4,7 @@ import { Edit2, Grid3x3, FolderPlus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ConfigDialog } from "@/components/items/config-dialog";
+import { useTranslation } from "react-i18next";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function HomeTools() {
+    const { t } = useTranslation();
     const { isEditing, toggleEditing, selectedTagIds, clearSelection } = useUIStore();
     const { batchGroupTags, batchRemoveTags } = useTagStore();
     const [isIconManagerOpen, setIsIconManagerOpen] = useState(false);
@@ -24,7 +26,7 @@ export function HomeTools() {
     const handleBatchGroup = () => {
         if (selectedTagIds.length <= 1) return;
 
-        batchGroupTags(selectedTagIds);
+        batchGroupTags(selectedTagIds, t('new_folder'));
         clearSelection();
         toggleEditing();
     };
@@ -45,20 +47,24 @@ export function HomeTools() {
                         <button
                             onClick={handleBatchGroup}
                             className="flex items-center gap-2 px-3 py-2 bg-primary text-primary-foreground rounded-lg transition-all shadow-lg border border-primary hover:brightness-110 active:scale-95"
-                            title="Group Selected Items"
+                            title={t('group_selected')}
                         >
                             <FolderPlus size={18} />
-                            <span className="hidden sm:inline text-sm font-medium">Group ({selectedTagIds.length})</span>
+                            <span className="hidden sm:inline text-sm font-medium">
+                                {t('group_button', { count: selectedTagIds.length })}
+                            </span>
                         </button>
                     )}
 
                     <button
                         onClick={() => setIsDeleteDialogOpen(true)}
                         className="flex items-center gap-2 px-3 py-2 bg-destructive text-destructive-foreground rounded-lg transition-all shadow-lg border border-destructive hover:brightness-110 active:scale-95"
-                        title="Delete Selected Items"
+                        title={t('delete_selected')}
                     >
                         <Trash2 size={18} />
-                        <span className="hidden sm:inline text-sm font-medium">Delete ({selectedTagIds.length})</span>
+                        <span className="hidden sm:inline text-sm font-medium">
+                            {t('delete_button', { count: selectedTagIds.length })}
+                        </span>
                     </button>
                 </div>
             )}
@@ -66,7 +72,7 @@ export function HomeTools() {
             <button
                 onClick={() => setIsIconManagerOpen(true)}
                 className="p-2 bg-secondary/80 hover:bg-secondary text-secondary-foreground rounded-lg transition-all shadow-sm border backdrop-blur-sm active:scale-95"
-                title="Manage Icons"
+                title={t('manage_icons')}
             >
                 <Grid3x3 size={18} />
             </button>
@@ -79,7 +85,7 @@ export function HomeTools() {
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-secondary/80 hover:bg-secondary text-secondary-foreground"
                 )}
-                title={isEditing ? 'Exit Edit Mode' : 'Enter Edit Mode'}
+                title={isEditing ? t('exit_edit_mode') : t('enter_edit_mode')}
             >
                 <Edit2 size={18} />
             </button>
@@ -94,19 +100,18 @@ export function HomeTools() {
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Multiple Items</AlertDialogTitle>
+                        <AlertDialogTitle>{t('delete_multiple_title')}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure you want to delete these {selectedTagIds.length} items?
-                            This action cannot be undone and will permanently remove all selected shortcuts and folder contents.
+                            {t('delete_multiple_desc', { count: selectedTagIds.length })}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleBatchDelete}
                             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                         >
-                            Delete All
+                            {t('delete_all')}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

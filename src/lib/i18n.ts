@@ -3,36 +3,46 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 // 翻译资源
-// 实际开发中，建议将翻译文件拆分为独立的 JSON 文件
 const resources = {
     en: {
         translation: {
-            "welcome": "Welcome to React",
-            "subtitle": "Edit src/App.tsx and save to see HMR",
-            "switch_lang": "Switch to Chinese"
+            "settings": "Settings",
+            "language": "Language",
+            "switch_lang": "Switch Language",
+            "data_management": "Data Management",
+            "backup_restore_desc": "Backup and restore your tags, todos and settings.",
+            "export": "Export Data",
+            "import": "Import Data",
+            "restore_success": "Data restored successfully!",
+            "restore_fail": "Failed to import data. Please check the file format.",
+            "invalid_format": "Invalid backup file format."
         }
     },
     zh: {
         translation: {
-            "welcome": "欢迎使用 React",
-            "subtitle": "编辑 src/App.tsx 并保存以查看热更新",
-            "switch_lang": "切换为英文"
+            "settings": "设置",
+            "language": "语言",
+            "switch_lang": "切换语言",
+            "data_management": "数据管理",
+            "backup_restore_desc": "备份和恢复你的图标、待办事项及外观设置。",
+            "export": "导出数据",
+            "import": "导入数据",
+            "restore_success": "数据恢复成功！",
+            "restore_fail": "导入失败，请检查文件格式是否正确。",
+            "invalid_format": "无效的备份文件格式。"
         }
     }
 };
 
 i18n
-    // 检测用户语言
     .use(LanguageDetector)
-    // 注入 react-i18next 实例
     .use(initReactI18next)
     .init({
         resources,
-        fallbackLng: 'en', // 默认语言
-        debug: true,
-
+        fallbackLng: 'zh',
+        debug: false,
         interpolation: {
-            escapeValue: false, // React 已经处理了 XSS
+            escapeValue: false,
         }
     });
 

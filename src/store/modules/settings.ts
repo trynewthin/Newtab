@@ -29,15 +29,15 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
     persist(
         (set) => ({
-            theme: 'system',
+            theme: 'dark',
             setTheme: (theme) => set({ theme }),
 
-            primaryColor: 'hsl(221.2 83.2% 53.3%)',
+            primaryColor: 'hsl(217 91% 60%)', // Blue as default
             setPrimaryColor: (color) => set({ primaryColor: color }),
 
             backgroundConfig: {
-                type: 'solid',
-                value: 'hsl(240 10% 3.9%)',
+                type: 'gradient',
+                value: 'linear-gradient(to bottom right, #1e3a8a, #06b6d4)', // Ocean as default
             },
             setBackgroundConfig: (config) => set((state) => ({
                 backgroundConfig: { ...state.backgroundConfig, ...config }

@@ -32,6 +32,21 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@store/*": [
+        "./src/store/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@newtab/*": [
+        "./src/newtab/*"
+      ],
+      "@popup/*": [
+        "./src/popup/*"
       ]
     }
   },

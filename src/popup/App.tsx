@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
-import { backgroundStorage, getIconKey, isDataURL } from "@/lib/store/backgroundStorage";
+import { backgroundStorage, getIconKey, isDataURL } from "@/store/core/backgroundStorage";
 
 export default function Popup() {
     const [url, setUrl] = useState("");
@@ -262,9 +262,8 @@ export default function Popup() {
                                         key={src}
                                         type="button"
                                         onClick={() => setIconStr(src)}
-                                        className={`relative shrink-0 w-12 h-12 rounded-lg border bg-card flex items-center justify-center transition-all duration-300 ${
-                                            active ? "border-primary shadow-md scale-110" : "border-border hover:shadow-sm"
-                                        }`}
+                                        className={`relative shrink-0 w-12 h-12 rounded-lg border bg-card flex items-center justify-center transition-all duration-300 ${active ? "border-primary shadow-md scale-110" : "border-border hover:shadow-sm"
+                                            }`}
                                         title={src}
                                     >
                                         <img src={src} alt="cand" className="w-10 h-10 object-contain" />

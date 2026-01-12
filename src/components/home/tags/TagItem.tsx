@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { backgroundStorage } from "@/lib/store/backgroundStorage";
+import { backgroundStorage } from "@/store/core/backgroundStorage";
 import { renderSystemIcon } from "../system/systemIcons";
 
 interface TagItemProps {

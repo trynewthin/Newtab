@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Globe } from "lucide-react";
 import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
-import { backgroundStorage, getIconKey, isDataURL } from "@/lib/store/backgroundStorage";
+import { backgroundStorage, getIconKey, isDataURL } from "@/store/core/backgroundStorage";
 
 interface AddTagDialogProps {
     open: boolean;

@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import { backgroundStorage } from '../backgroundStorage';
+import { backgroundStorage } from '@/store/core/backgroundStorage';
 import { type AppState, type TagState } from '../types';
 
 export const createTagSlice: StateCreator<AppState, [], [], TagState> = (set) => ({

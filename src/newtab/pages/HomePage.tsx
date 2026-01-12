@@ -4,16 +4,9 @@ import { TagGrid } from "@/components/items/tag";
 import { LiveActivityArea } from "@/components/home/live/LiveActivityArea";
 import { PomodoroLiveActivity } from "@/components/items/pomodoro/PomodoroDialog";
 import { TodoLiveActivity } from "@/components/items/todo/TodoDialog";
-import { usePomodoroStore } from "@/store/modules/pomodoro";
-import { useTodoStore } from "@/store/modules/todo";
-import { cn } from "@/lib/utils";
 import { HomeTools } from "@/components/home/tools/HomeTools";
 
 export function HomePage() {
-    const isPomodoroRunning = usePomodoroStore(s => s.status.isRunning);
-    const pendingTodosCount = useTodoStore(s => s.todos.filter(t => !t.completed).length);
-    const hasActivities = isPomodoroRunning || pendingTodosCount > 0;
-
     return (
         <BasePage className="py-0 px-0 flex flex-col items-center" tools={<HomeTools />}>
             {/* 1. 搜索区域 - 页面顶部的视觉锚点 */}
@@ -21,11 +14,8 @@ export function HomePage() {
                 <SearchBar />
             </div>
 
-            {/* 2. 实况区域 - 动态呼吸空间 */}
-            <div className={cn(
-                "w-full flex justify-center transition-all duration-500 ease-in-out px-4",
-                hasActivities ? "mb-10" : "mb-0" // 保持边距逻辑
-            )}>
+            {/* 2. 实况区域 - 动态呼吸空间 (由组件内部控制间距) */}
+            <div className="w-full flex justify-center px-4 shrink-0 transition-all duration-500">
                 <LiveActivityArea>
                     <PomodoroLiveActivity />
                     <TodoLiveActivity />

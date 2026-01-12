@@ -3,6 +3,8 @@ import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { cn } from "@/lib/utils";
 import { Coffee, Square, Target, Zap, BatteryCharging } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BaseLiveCard } from "./BaseLiveCard";
+import { useLiveActivity } from "./LiveActivityArea";
 
 interface PomodoroLiveCardProps {
     onOpenDialog: () => void;
@@ -13,6 +15,10 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
     const status = usePomodoroStore((s) => s.status);
     const setStatus = usePomodoroStore((s) => s.setStatus);
     const [timeLeft, setTimeLeft] = useState("");
+    const [showCompletion, setShowCompletion] = useState(false);
+
+    // 注册活跃状态
+    useLiveActivity('pomodoro', status.isRunning);
 
     useEffect(() => {
         if (!status.isRunning || !status.endTime) {
@@ -39,12 +45,17 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
 
     const handleStop = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setStatus({
-            isRunning: false,
-            mode: 'work',
-            endTime: null,
-            currentRound: 1
-        });
+        setShowCompletion(true);
+        setTimeout(() => {
+            // 1.5秒后结束动画并重置状态，这将导致useLiveActivity感知到isActive=false
+            setStatus({
+                isRunning: false,
+                mode: 'work',
+                endTime: null,
+                currentRound: 1
+            });
+            setShowCompletion(false);
+        }, 1500);
     };
 
     if (!status.isRunning) {
@@ -96,24 +107,25 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
     const config = getModeConfig();
 
     return (
-        <div
+        <BaseLiveCard
             onClick={onOpenDialog}
-            className={cn(
-                "group relative overflow-hidden rounded-[24px] py-3.5 px-6 cursor-pointer",
-                "min-w-fit bg-secondary border border-border shadow-sm",
-                "hover:border-primary/40 hover:shadow-md transition-all duration-300 ease-out",
-                "animate-in slide-in-from-top-4 fade-in duration-500",
-                "flex items-center gap-5"
-            )}
+            icon={config.icon}
+            iconBgGradient={config.bgGradient}
+            className="gap-5"
+            showCompletion={showCompletion}
+            action={
+                <button
+                    onClick={handleStop}
+                    className={cn(
+                        "flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-95 shadow-sm border",
+                        "bg-white border-destructive/20 text-destructive hover:bg-destructive hover:text-white"
+                    )}
+                    title={t('stop_pomodoro')}
+                >
+                    <Square className="w-3.5 h-3.5 fill-current" />
+                </button>
+            }
         >
-            <div className={cn(
-                "flex items-center justify-center w-11 h-11 rounded-[14px] shrink-0",
-                "bg-gradient-to-br shadow-sm",
-                config.bgGradient
-            )}>
-                {config.icon}
-            </div>
-
             <div className="flex items-center gap-3">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2 mb-1.5">
@@ -132,17 +144,6 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
                     </div>
                 </div>
             </div>
-
-            <button
-                onClick={handleStop}
-                className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-full transition-all ml-1 active:scale-95 shadow-sm border",
-                    "bg-white border-destructive/20 text-destructive hover:bg-destructive hover:text-white"
-                )}
-                title={t('stop_pomodoro')}
-            >
-                <Square className="w-3.5 h-3.5 fill-current" />
-            </button>
-        </div>
+        </BaseLiveCard>
     );
 }

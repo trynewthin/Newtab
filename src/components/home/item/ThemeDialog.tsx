@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useAppStore } from "@/lib/store";
-import { Modal } from "@/components/common/Modal";
+import { BaseModal, ModalButton } from "@/components/base/modal";
 import { cn } from "@/lib/utils";
 import { Check, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Cancel01Icon } from "@hugeicons/core-free-icons"
 
 interface ThemeDialogProps {
     open: boolean;
@@ -40,46 +42,52 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
     const { primaryColor, setPrimaryColor, backgroundConfig, setBackgroundConfig } = useAppStore();
 
     return (
-        <Modal
+        <BaseModal
             open={open}
             onOpenChange={onOpenChange}
-            className="sm:max-w-2xl bg-background/95 backdrop-blur-xl border-white/10"
+            className="sm:max-w-2xl"
+            background={<div className="absolute inset-0 bg-background/95 backdrop-blur-xl" />}
+            title="Theme Settings"
             header={
-                <div className="flex items-center gap-6 px-6 py-2 border-b border-border/50">
-                    <button
-                        onClick={() => setActiveTab('background')}
-                        className={cn(
-                            "text-base font-medium transition-colors relative py-2",
-                            activeTab === 'background' ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        Background
-                        {activeTab === 'background' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                        )}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('appearance')}
-                        className={cn(
-                            "text-base font-medium transition-colors relative py-2",
-                            activeTab === 'appearance' ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        Appearance
-                        {activeTab === 'appearance' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                        )}
-                    </button>
+                <div className="flex items-center justify-between px-2 w-full">
+                    <div className="flex items-center gap-2 bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm">
+                        <button
+                            onClick={() => setActiveTab('background')}
+                            className={cn(
+                                "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
+                                activeTab === 'background'
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                            )}
+                        >
+                            Background
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('appearance')}
+                            className={cn(
+                                "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
+                                activeTab === 'appearance'
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                            )}
+                        >
+                            Appearance
+                        </button>
+                    </div>
+
+                    <ModalButton onClick={() => onOpenChange(false)}>
+                        <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
+                        <span className="sr-only">Close</span>
+                    </ModalButton>
                 </div>
             }
         >
-
-            <div className="p-6">
+            <div className="py-2">
                 {activeTab === 'background' && (
-                    <div className="space-y-6">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         {/* Presets */}
                         <div>
-                            <h3 className="text-sm font-medium text-muted-foreground mb-3">Presets</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground mb-4 px-1">Presets</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {BACKGROUND_PRESETS.map((preset) => (
                                     <button
@@ -89,19 +97,19 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                             value: preset.value
                                         })}
                                         className={cn(
-                                            "group relative h-28 rounded-xl overflow-hidden border-2 transition-all",
+                                            "group relative h-28 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer",
                                             backgroundConfig.value === preset.value
                                                 ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
-                                                : "border-transparent hover:scale-[1.02] hover:shadow-md"
+                                                : "border-transparent ring-1 ring-border/50 hover:scale-[1.02] hover:shadow-md"
                                         )}
                                     >
                                         <div className={cn("absolute inset-0", preset.preview)} />
                                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-                                        <span className="absolute bottom-2 left-3 text-sm font-medium text-white drop-shadow-md">
+                                        <span className="absolute bottom-3 left-3 text-sm font-semibold text-white drop-shadow-md tracking-wide">
                                             {preset.name}
                                         </span>
                                         {backgroundConfig.value === preset.value && (
-                                            <div className="absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shadow-sm">
+                                            <div className="absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shadow-sm animate-in zoom-in spin-in-90 duration-300">
                                                 <Check size={14} strokeWidth={3} />
                                             </div>
                                         )}
@@ -111,12 +119,12 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                         </div>
 
                         {/* Custom Image */}
-                        <div className="space-y-3">
-                            <h3 className="text-sm font-medium text-muted-foreground">Custom Image</h3>
+                        <div className="space-y-4 pt-2 border-t border-border/50">
+                            <h3 className="text-sm font-medium text-muted-foreground mt-4 px-1">Custom Image</h3>
 
                             {/* Upload Button */}
                             <div className="flex gap-2">
-                                <label className="flex-1 cursor-pointer">
+                                <label className="flex-1 cursor-pointer group">
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -138,19 +146,24 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                             }
                                         }}
                                     />
-                                    <div className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors border">
-                                        <Upload size={16} />
-                                        <span className="text-sm font-medium">Upload Image</span>
+                                    <div className="flex items-center justify-center gap-3 px-4 py-8 bg-secondary/30 hover:bg-secondary/50 rounded-2xl transition-all border border-dashed border-border/50 hover:border-primary/50 group-hover:scale-[1.01]">
+                                        <div className="p-3 bg-background rounded-full shadow-sm">
+                                            <Upload size={20} className="text-primary" />
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-sm font-medium block">Upload Image</span>
+                                            <span className="text-xs text-muted-foreground">Support JPG, PNG, WebP</span>
+                                        </div>
                                     </div>
                                 </label>
                             </div>
 
                             {/* URL Input */}
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 items-center bg-secondary/30 p-1.5 rounded-xl border border-white/5">
                                 <Input
                                     type="url"
-                                    placeholder="Or enter image URL..."
-                                    className="flex-1"
+                                    placeholder="Or paste image URL..."
+                                    className="flex-1 border-none bg-transparent shadow-none focus-visible:ring-0 h-9"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             const url = e.currentTarget.value.trim();
@@ -167,6 +180,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                 />
                                 <Button
                                     size="sm"
+                                    className="rounded-lg px-4 h-8"
                                     onClick={(e) => {
                                         const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                                         const url = input?.value.trim();
@@ -187,67 +201,81 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
 
                             {/* Blur Control - Only show when image is active */}
                             {backgroundConfig.type === 'image' && (
-                                <div className="space-y-4 pt-2">
+                                <div className="space-y-6 pt-6 animate-in fade-in slide-in-from-bottom-2">
                                     {/* Blur */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between">
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between px-1">
                                             <label className="text-sm font-medium text-muted-foreground">
-                                                Blur: {backgroundConfig.blur || 0}px
+                                                Blur Intensity
                                             </label>
+                                            <span className="text-xs font-mono bg-secondary/50 px-2 py-0.5 rounded text-foreground">
+                                                {backgroundConfig.blur || 0}px
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-4 items-center">
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="20"
+                                                step="1"
+                                                value={backgroundConfig.blur || 0}
+                                                onChange={(e) => setBackgroundConfig({
+                                                    ...backgroundConfig,
+                                                    blur: parseInt(e.target.value)
+                                                })}
+                                                className="flex-1 h-1.5 bg-secondary rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125"
+                                            />
                                             <Button
-                                                size="sm"
+                                                size="icon-sm"
                                                 variant="ghost"
+                                                className="h-8 w-8 rounded-full"
                                                 onClick={() => setBackgroundConfig({
                                                     ...backgroundConfig,
                                                     blur: 0
                                                 })}
+                                                title="Reset Blur"
                                             >
-                                                Reset
+                                                <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
                                             </Button>
                                         </div>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="20"
-                                            step="1"
-                                            value={backgroundConfig.blur || 0}
-                                            onChange={(e) => setBackgroundConfig({
-                                                ...backgroundConfig,
-                                                blur: parseInt(e.target.value)
-                                            })}
-                                            className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
-                                        />
                                     </div>
 
                                     {/* Overlay Opacity */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between">
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between px-1">
                                             <label className="text-sm font-medium text-muted-foreground">
-                                                Overlay: {backgroundConfig.overlay || 0}%
+                                                Overlay Opacity
                                             </label>
+                                            <span className="text-xs font-mono bg-secondary/50 px-2 py-0.5 rounded text-foreground">
+                                                {backgroundConfig.overlay || 0}%
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-4 items-center">
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="80"
+                                                step="5"
+                                                value={backgroundConfig.overlay || 0}
+                                                onChange={(e) => setBackgroundConfig({
+                                                    ...backgroundConfig,
+                                                    overlay: parseInt(e.target.value)
+                                                })}
+                                                className="flex-1 h-1.5 bg-secondary rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125"
+                                            />
                                             <Button
-                                                size="sm"
+                                                size="icon-sm"
                                                 variant="ghost"
+                                                className="h-8 w-8 rounded-full"
                                                 onClick={() => setBackgroundConfig({
                                                     ...backgroundConfig,
                                                     overlay: 0
                                                 })}
+                                                title="Reset Overlay"
                                             >
-                                                Reset
+                                                <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
                                             </Button>
                                         </div>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="80"
-                                            step="5"
-                                            value={backgroundConfig.overlay || 0}
-                                            onChange={(e) => setBackgroundConfig({
-                                                ...backgroundConfig,
-                                                overlay: parseInt(e.target.value)
-                                            })}
-                                            className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
-                                        />
                                     </div>
                                 </div>
                             )}
@@ -256,18 +284,20 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                 )}
 
                 {activeTab === 'appearance' && (
-                    <div className="space-y-6">
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-300">
                         <div>
-                            <label className="text-base font-medium text-muted-foreground mb-4 block">Primary Color</label>
-                            <div className="flex flex-wrap gap-4">
+                            <label className="text-sm font-medium text-muted-foreground mb-4 block px-1">Primary Color System</label>
+                            <div className="grid grid-cols-6 gap-3 sm:gap-4 justify-items-center bg-secondary/20 p-6 rounded-3xl border border-white/5">
                                 {PRIMARY_COLORS.map((color) => (
                                     <button
                                         key={color.name}
                                         onClick={() => setPrimaryColor(color.value)}
                                         className={cn(
-                                            "w-12 h-12 rounded-full flex items-center justify-center transition-transform",
-                                            "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 ring-primary",
-                                            primaryColor === color.value && "scale-110 ring-2 ring-offset-2 ring-offset-background"
+                                            "w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm",
+                                            "hover:scale-110 focus:outline-none",
+                                            primaryColor === color.value
+                                                ? "scale-110 ring-4 ring-primary/20 shadow-lg shadow-primary/30"
+                                                : "hover:shadow-md"
                                         )}
                                         style={{ backgroundColor: color.value }}
                                         title={color.name}
@@ -278,11 +308,12 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     </button>
                                 ))}
                             </div>
+                            <p className="text-xs text-muted-foreground mt-3 px-1 text-center">Select an accent color to apply throughout the interface.</p>
                         </div>
                     </div>
                 )}
 
             </div>
-        </Modal >
+        </BaseModal >
     );
 }

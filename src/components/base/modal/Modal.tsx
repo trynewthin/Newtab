@@ -24,7 +24,7 @@ function ModalOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
         <DialogPrimitive.Backdrop
             data-slot="modal-overlay"
             className={cn(
-                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 duration-100 fixed inset-0 z-[999]",
+                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 backdrop-blur-sm duration-100 fixed inset-0 z-[999]",
                 className
             )}
             {...props}
@@ -92,7 +92,7 @@ function BaseModal({
 
                         {/* === Layer 3: Background === */}
                         <div className="absolute inset-0 z-0 pointer-events-none">
-                            {background ? background : <div className="absolute inset-0 bg-background" />}
+                            {background ? background : <div className="absolute inset-0 bg-background/80 backdrop-blur-xl" />}
                         </div>
 
                         {/* === Layer 2: Content === */}
@@ -115,7 +115,7 @@ function BaseModal({
                                     OR if the user hasn't opted out of layout management.
                                 */}
                                 {scrollable && (showTitle || showCloseButton || actions || header) && (
-                                    <div className="h-10 w-full shrink-0 mb-4" />
+                                    <div className="h-10 w-full shrink-0 mb-1" />
                                 )}
                                 {children}
                             </div>

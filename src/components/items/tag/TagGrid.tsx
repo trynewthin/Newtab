@@ -2,11 +2,10 @@ import { useState, useRef, useCallback } from "react";
 import { useTagStore } from "@/store/modules/tag";
 import { type Tag } from "@/store/core/types";
 import { TagItem } from "./TagItem";
-import { FolderItem } from "@/components/home/folder/FolderItem";
-import { AddTagDialog } from "@/components/items/add-tag/AddTagDialog";
-import { SystemDialogHost } from "@/components/home/system/SystemDialogHost";
-import type { SystemType } from "@/components/home/system/systemRegistry";
-import { FolderPreview } from "@/components/home/folder/FolderPreview";
+import { FolderItem } from "@/components/items/folder/FolderItem";
+import { ConfigDialog } from "@/components/items/config-dialog";
+import { SystemDialogHost, type SystemType } from "@/components/items";
+import { FolderPreview } from "@/components/items/folder/FolderPreview";
 import {
     DndContext,
     closestCenter,
@@ -317,7 +316,7 @@ export function TagGrid() {
                 </DragOverlay>
             </DndContext>
 
-            <AddTagDialog
+            <ConfigDialog
                 open={isEditDialogOpen}
                 onOpenChange={setIsEditDialogOpen}
                 editTag={editingTag}

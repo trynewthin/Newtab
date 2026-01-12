@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useTagStore } from "@/store/modules/tag";
 import { useSettingsStore } from "@/store/modules/settings";
 import { Button } from "@/components/ui/button";
-import { TagConfigForm, type TagConfigData } from "@/components/common";
+import { TagConfigForm, type TagConfigData } from "@/components/items/tag";
 import { type Tag } from "@/store/core/types";
 
 export default function Popup() {

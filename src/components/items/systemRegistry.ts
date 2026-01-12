@@ -11,7 +11,7 @@ export interface SystemItem {
 export const SYSTEM_ITEMS: SystemItem[] = [
     { type: "settings", title: "Settings", icon: "Settings" },
     { type: "theme", title: "Theme", icon: "Palette" },
-    { type: "add", title: "Add", icon: "Plus" },
+
     { type: "icon-manager", title: "Icon Manager", icon: "Grid3x3" },
     { type: "pomodoro", title: "Pomodoro", icon: "Timer" },
     { type: "todo", title: "Todo List", icon: "ListTodo" },

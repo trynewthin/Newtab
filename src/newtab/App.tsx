@@ -3,7 +3,7 @@ import { useTagStore } from "@/store/modules/tag";
 import { useTodoStore } from "@/store/modules/todo";
 import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { useSettingsStore } from "@/store/modules/settings";
-import { useUIStore } from "@/store/modules/ui";
+
 import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { ContentLayer } from "./layers/ContentLayer";
 import { FloatLayer } from "./layers/FloatLayer";
@@ -17,7 +17,7 @@ export function App() {
             if (e.key === 'app-todos') useTodoStore.persist.rehydrate();
             if (e.key === 'app-pomodoro') usePomodoroStore.persist.rehydrate();
             if (e.key === 'app-settings') useSettingsStore.persist.rehydrate();
-            if (e.key === 'app-ui') useUIStore.persist.rehydrate();
+
         };
 
         window.addEventListener('storage', handleStorageChange);

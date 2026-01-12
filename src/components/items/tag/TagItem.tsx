@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/store/core/backgroundStorage";
-import { renderSystemIcon } from "@/components/home/system/systemIcons";
+import { renderSystemIcon } from "@/components/items";
 
 interface TagItemProps {
     tag: Tag;

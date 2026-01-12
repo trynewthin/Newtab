@@ -1,9 +1,8 @@
-import { AddTagDialog } from "@/components/items/add-tag/AddTagDialog";
-import { IconManagerDialog } from "../tools/IconManagerDialog";
-import { PomodoroDialog } from "@/components/items/pomodoro/PomodoroDialog";
-import { SettingsDialog } from "@/components/items/setting/SettingsDialog";
-import { ThemeDialog } from "@/components/items/theme/ThemeDialog";
-import { TodoDialog } from "@/components/items/todo/TodoDialog";
+import { ConfigDialog } from "./config-dialog";
+import { PomodoroDialog } from "./pomodoro/PomodoroDialog";
+import { SettingsDialog } from "./setting/SettingsDialog";
+import { ThemeDialog } from "./theme/ThemeDialog";
+import { TodoDialog } from "./todo/TodoDialog";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {
@@ -26,9 +25,9 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
         case "theme":
             return <ThemeDialog open={true} onOpenChange={handleOpenChange} />;
         case "add":
-            return <AddTagDialog open={true} onOpenChange={handleOpenChange} editTag={null} />;
+            return <ConfigDialog open={true} onOpenChange={handleOpenChange} editTag={null} defaultTab="custom" />;
         case "icon-manager":
-            return <IconManagerDialog open={true} onOpenChange={handleOpenChange} />;
+            return <ConfigDialog open={true} onOpenChange={handleOpenChange} defaultTab="system" />;
         case "pomodoro":
             return <PomodoroDialog open={true} onOpenChange={handleOpenChange} />;
         case "todo":

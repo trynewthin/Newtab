@@ -1,5 +1,6 @@
 import { SearchBar } from "@/components/home/search/SearchBar";
-import { BasePage, TagGrid } from "@/components/common";
+import { BasePage } from "@/components/common";
+import { TagGrid } from "@/components/items/tag";
 import { LiveActivityArea } from "@/components/home/live/LiveActivityArea";
 import { PomodoroLiveActivity } from "@/components/items/pomodoro/PomodoroDialog";
 import { TodoLiveActivity } from "@/components/items/todo/TodoDialog";

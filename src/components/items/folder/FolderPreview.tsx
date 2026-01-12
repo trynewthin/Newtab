@@ -1,6 +1,6 @@
 import { useTagStore } from "@/store/modules/tag";
 import { type Tag } from "@/store/core/types";
-import { TagItem } from "@/components/common";
+import { TagItem } from "@/components/items/tag/TagItem";
 import {
     DndContext,
     rectIntersection,

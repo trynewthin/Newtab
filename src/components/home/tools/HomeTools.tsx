@@ -2,7 +2,7 @@ import { useUIStore } from "@/store/modules/ui";
 import { Edit2, Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { IconManagerDialog } from "./IconManagerDialog";
+import { ConfigDialog } from "@/components/items/config-dialog";
 
 export function HomeTools() {
     const { isEditing, toggleEditing } = useUIStore();
@@ -30,9 +30,10 @@ export function HomeTools() {
                 <Edit2 size={18} />
             </button>
 
-            <IconManagerDialog
+            <ConfigDialog
                 open={isIconManagerOpen}
                 onOpenChange={setIsIconManagerOpen}
+                defaultTab="system"
             />
         </>
     );

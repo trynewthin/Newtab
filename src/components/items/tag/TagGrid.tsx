@@ -24,20 +24,37 @@ import {
     sortableKeyboardCoordinates,
     rectSortingStrategy,
 } from "@dnd-kit/sortable";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { Trash2, UnfoldVertical } from "lucide-react";
 
-const HOVER_DELAY = 1000; // 悬停1000ms后判定为创建文件夹
+const HOVER_DELAY = 1000;
+const DETECTION_RADIUS = 75;
+const MERGE_RADIUS = 48;
 
 export function TagGrid() {
-    const { tags, setTags } = useTagStore();
+    const { tags, setTags, removeTag, ungroupFolder } = useTagStore();
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
     const [activeSystemDialog, setActiveSystemDialog] = useState<SystemType | null>(null);
     const [activeTag, setActiveTag] = useState<Tag | null>(null);
     const [hoverTarget, setHoverTarget] = useState<string | null>(null);
+    const [nearTarget, setNearTarget] = useState<string | null>(null);
     const [openFolder, setOpenFolder] = useState<Tag | null>(null);
 
+    // 删除相关的状态
+    const [deleteTarget, setDeleteTarget] = useState<Tag | null>(null);
+
     const hoverTimerRef = useRef<number | null>(null);
-    const lastOverIdRef = useRef<string | null>(null);
+    const scoringTargetRef = useRef<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -53,45 +70,33 @@ export function TagGrid() {
     const addToFolder = useCallback((tagId: string, folderId: string) => {
         const tag = tags.find(t => t.id === tagId);
         const folder = tags.find(t => t.id === folderId);
-
-        if (!tag || !folder || !folder.isFolder || tag.isSystem) return;
-
-        // 如果拖拽的也是文件夹,不允许嵌套
+        if (!tag || !folder || !folder.isFolder) return;
         if (tag.isFolder) return;
 
-        // 将标签添加到文件夹
         const updatedFolder: Tag = {
             ...folder,
             children: [...(folder.children || []), tag],
         };
-
-        // 移除原标签,更新文件夹
         const newTags = tags.map(t =>
             t.id === folderId ? updatedFolder : t
         ).filter(t => t.id !== tagId);
-
         setTags(newTags);
     }, [tags, setTags]);
 
     const createFolder = useCallback((tag1Id: string, tag2Id: string) => {
         const tag1 = tags.find(t => t.id === tag1Id);
         const tag2 = tags.find(t => t.id === tag2Id);
+        if (!tag1 || !tag2) return;
 
-        if (!tag1 || !tag2 || tag1.isSystem || tag2.isSystem) return;
-
-        // 如果 tag2 是文件夹,将 tag1 添加到文件夹中
         if (tag2.isFolder) {
             addToFolder(tag1Id, tag2Id);
             return;
         }
-
-        // 如果 tag1 是文件夹,将 tag2 添加到文件夹中
         if (tag1.isFolder) {
             addToFolder(tag2Id, tag1Id);
             return;
         }
 
-        // 两个都是普通标签,创建新文件夹
         const folderId = `folder_${Date.now()}`;
         const newFolder: Tag = {
             id: folderId,
@@ -102,148 +107,142 @@ export function TagGrid() {
             children: [tag1, tag2],
         };
 
-        // 移除原标签,添加文件夹
         const newTags = tags.filter(t => t.id !== tag1Id && t.id !== tag2Id);
         const tag2Index = tags.findIndex(t => t.id === tag2Id);
         newTags.splice(tag2Index, 0, newFolder);
-
         setTags(newTags);
     }, [tags, setTags, addToFolder]);
 
     const handleTagClick = (tag: Tag) => {
-        // 文件夹点击打开预览
         if (tag.isFolder) {
             setOpenFolder(tag);
             return;
         }
-
-        // 系统图标的特殊处理
         if (tag.isSystem) {
             setActiveSystemDialog(tag.type as SystemType);
         }
     };
 
     const handleEditClick = (tag: Tag) => {
-        // 系统图标和文件夹不允许编辑
         if (tag.isSystem || tag.isFolder) return;
         setEditingTag(tag);
         setIsEditDialogOpen(true);
+    };
+
+    const handleDeletePrompt = (tag: Tag) => {
+        setDeleteTarget(tag);
+    };
+
+    const confirmDeleteItems = () => {
+        if (!deleteTarget) return;
+        removeTag(deleteTarget.id);
+        setDeleteTarget(null);
+    };
+
+    const confirmUngroupItems = () => {
+        if (!deleteTarget || !deleteTarget.isFolder) return;
+        ungroupFolder(deleteTarget.id);
+        setDeleteTarget(null);
     };
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
         const tag = tags.find(t => t.id === active.id);
         if (tag) setActiveTag(tag);
+        cancelMergeTimer();
+    };
 
-        // 清除任何现有的定时器
+    const cancelMergeTimer = useCallback(() => {
         if (hoverTimerRef.current) {
             clearTimeout(hoverTimerRef.current);
             hoverTimerRef.current = null;
         }
-        lastOverIdRef.current = null;
         setHoverTarget(null);
-    };
+        setNearTarget(null);
+        scoringTargetRef.current = null;
+    }, []);
 
     const handleDragOver = (event: DragOverEvent) => {
         const { active, over } = event;
 
         if (!over || active.id === over.id) {
-            // 清除悬停状态
-            if (hoverTimerRef.current) {
-                clearTimeout(hoverTimerRef.current);
-                hoverTimerRef.current = null;
+            cancelMergeTimer();
+            return;
+        }
+
+        if (nearTarget && nearTarget !== over.id) {
+            cancelMergeTimer();
+        }
+
+        const activeRect = active.rect.current.translated;
+        const overRect = over.rect;
+
+        let distance = Infinity;
+        if (activeRect && overRect) {
+            const activeCenter = {
+                x: activeRect.left + activeRect.width / 2,
+                y: activeRect.top + activeRect.height / 2,
+            };
+            const overCenter = {
+                x: overRect.left + overRect.width / 2,
+                y: overRect.top + overRect.height / 2,
+            };
+
+            distance = Math.sqrt(
+                Math.pow(activeCenter.x - overCenter.x, 2) +
+                Math.pow(activeCenter.y - overCenter.y, 2)
+            );
+        }
+
+        const isActuallyNear = distance < DETECTION_RADIUS;
+        const isCoreMerge = distance < MERGE_RADIUS;
+
+        if (isActuallyNear) {
+            setNearTarget(over.id as string);
+
+            if (isCoreMerge) {
+                if (scoringTargetRef.current !== over.id) {
+                    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+                    scoringTargetRef.current = over.id as string;
+                    setHoverTarget(null);
+
+                    hoverTimerRef.current = setTimeout(() => {
+                        setHoverTarget(over.id as string);
+                    }, HOVER_DELAY) as unknown as number;
+                }
+            } else {
+                if (hoverTimerRef.current) {
+                    clearTimeout(hoverTimerRef.current);
+                    hoverTimerRef.current = null;
+                }
+                setHoverTarget(null);
+                scoringTargetRef.current = null;
             }
-            lastOverIdRef.current = null;
-            setHoverTarget(null);
-            return;
+        } else {
+            cancelMergeTimer();
         }
-
-        const activeTag = tags.find(t => t.id === active.id);
-        const overTag = tags.find(t => t.id === over.id);
-
-        // 系统图标不参与文件夹创建,直接返回
-        if (activeTag?.isSystem || overTag?.isSystem) {
-            if (hoverTimerRef.current) {
-                clearTimeout(hoverTimerRef.current);
-                hoverTimerRef.current = null;
-            }
-            lastOverIdRef.current = null;
-            setHoverTarget(null);
-            return;
-        }
-
-        // 检查是否持续悬停在同一个目标上
-        if (lastOverIdRef.current === over.id) {
-            // 持续悬停在同一目标,不执行任何操作,等待创建文件夹
-            return;
-        }
-
-        // 目标改变了
-        if (hoverTimerRef.current) {
-            clearTimeout(hoverTimerRef.current);
-        }
-
-        lastOverIdRef.current = over.id as string;
-        setHoverTarget(null);
-
-        // 设置新的定时器
-        hoverTimerRef.current = setTimeout(() => {
-            // 悬停时间足够,标记为准备创建文件夹
-            setHoverTarget(over.id as string);
-        }, HOVER_DELAY) as unknown as number;
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
 
-        // 清除定时器
-        if (hoverTimerRef.current) {
-            clearTimeout(hoverTimerRef.current);
-            hoverTimerRef.current = null;
-        }
-
         if (over && active.id !== over.id) {
             const activeTag = tags.find(t => t.id === active.id);
             const overTag = tags.find(t => t.id === over.id);
 
-            // 检查是否应该创建文件夹
-            // 必须满足: hoverTarget 已设置 且 最终松手位置就是 hoverTarget
-            const shouldCreateFolder =
-                hoverTarget === over.id &&
-                lastOverIdRef.current === over.id &&
-                activeTag &&
-                overTag &&
-                !activeTag.isSystem &&
-                !overTag.isSystem;
-
-            if (shouldCreateFolder) {
-                // 创建文件夹或添加到文件夹
+            if (hoverTarget === over.id && activeTag && overTag) {
                 createFolder(active.id as string, over.id as string);
             } else {
-                // 普通排序
                 const oldIndex = tags.findIndex((t) => t.id === active.id);
                 const newIndex = tags.findIndex((t) => t.id === over.id);
-
                 if (oldIndex !== -1 && newIndex !== -1) {
                     setTags(arrayMove(tags, oldIndex, newIndex));
                 }
             }
         }
 
-        // 清除所有状态
+        cancelMergeTimer();
         setActiveTag(null);
-        setHoverTarget(null);
-        lastOverIdRef.current = null;
-    };
-
-    const handleDragCancel = () => {
-        if (hoverTimerRef.current) {
-            clearTimeout(hoverTimerRef.current);
-            hoverTimerRef.current = null;
-        }
-        setActiveTag(null);
-        setHoverTarget(null);
-        lastOverIdRef.current = null;
     };
 
     return (
@@ -254,7 +253,10 @@ export function TagGrid() {
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
-                onDragCancel={handleDragCancel}
+                onDragCancel={() => {
+                    cancelMergeTimer();
+                    setActiveTag(null);
+                }}
             >
                 <div className="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 lg:grid-cols-10 xl:grid-cols-12 gap-4">
                     <SortableContext
@@ -263,31 +265,34 @@ export function TagGrid() {
                     >
                         {tags.map((tag) => {
                             const isHoverTarget = hoverTarget === tag.id;
+                            const isNearTarget = nearTarget === tag.id && !isHoverTarget;
 
-                            if (tag.isFolder) {
-                                return (
-                                    <div key={tag.id} className="relative">
+                            return (
+                                <div key={tag.id} className="relative">
+                                    {tag.isFolder ? (
                                         <FolderItem
                                             tag={tag}
                                             onEdit={handleEditClick}
                                             onClick={handleTagClick}
+                                            onDeletePrompt={handleDeletePrompt}
+                                            isNearTarget={isNearTarget || isHoverTarget}
+                                            isHoverTarget={isHoverTarget}
                                         />
-                                        {isHoverTarget && (
-                                            <div className="absolute inset-0 w-14 h-14 rounded-2xl border-2 border-white/40 bg-white/5 pointer-events-none" />
-                                        )}
-                                    </div>
-                                );
-                            }
-
-                            return (
-                                <div key={tag.id} className="relative">
-                                    <TagItem
-                                        tag={tag}
-                                        onEdit={handleEditClick}
-                                        onClick={handleTagClick}
-                                    />
+                                    ) : (
+                                        <TagItem
+                                            tag={tag}
+                                            onEdit={handleEditClick}
+                                            onClick={handleTagClick}
+                                            onDeletePrompt={handleDeletePrompt}
+                                            isNearTarget={isNearTarget || isHoverTarget}
+                                            isHoverTarget={isHoverTarget}
+                                        />
+                                    )}
+                                    {isNearTarget && (
+                                        <div className="absolute inset-x-0 -inset-y-1 rounded-2xl bg-white/5 border border-dashed border-white/20 pointer-events-none z-0 transition-opacity duration-150" />
+                                    )}
                                     {isHoverTarget && (
-                                        <div className="absolute inset-0 w-14 h-14 rounded-2xl border-2 border-white/40 bg-white/5 pointer-events-none" />
+                                        <div className="absolute inset-0 rounded-2xl bg-white/20 ring-4 ring-white/40 animate-pulse pointer-events-none z-10 scale-105 transition-all duration-200" />
                                     )}
                                 </div>
                             );
@@ -295,13 +300,14 @@ export function TagGrid() {
                     </SortableContext>
                 </div>
 
-                <DragOverlay adjustScale={true}>
+                <DragOverlay dropAnimation={null}>
                     {activeTag ? (
                         activeTag.isFolder ? (
                             <FolderItem
                                 tag={activeTag}
                                 onEdit={() => { }}
                                 onClick={() => { }}
+                                onDeletePrompt={() => { }}
                                 isOverlay
                             />
                         ) : (
@@ -309,6 +315,7 @@ export function TagGrid() {
                                 tag={activeTag}
                                 onEdit={() => { }}
                                 onClick={() => { }}
+                                onDeletePrompt={() => { }}
                                 isOverlay
                             />
                         )
@@ -316,23 +323,67 @@ export function TagGrid() {
                 </DragOverlay>
             </DndContext>
 
+            {/* 编辑对话框 */}
             <ConfigDialog
                 open={isEditDialogOpen}
                 onOpenChange={setIsEditDialogOpen}
                 editTag={editingTag}
             />
 
+            {/* 系统对话框 */}
             <SystemDialogHost
                 active={activeSystemDialog}
                 onActiveChange={setActiveSystemDialog}
             />
 
+            {/* 文件夹预览 */}
             {openFolder && (
                 <FolderPreview
                     folder={openFolder}
                     onClose={() => setOpenFolder(null)}
+                    onClickTag={handleTagClick}
+                    onDeletePrompt={handleDeletePrompt}
                 />
             )}
+
+            {/* 全局删除/取消组合确认对话框 */}
+            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            {deleteTarget?.isFolder ? 'Manage Folder' : 'Delete Shortcut'}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {deleteTarget?.isFolder
+                                ? `Do you want to delete "${deleteTarget.title}" entirely, or just release the items back to the grid?`
+                                : `Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="sm:justify-between gap-y-2">
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <AlertDialogCancel className="flex-1 sm:flex-none">Cancel</AlertDialogCancel>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            {deleteTarget?.isFolder && (
+                                <AlertDialogAction
+                                    onClick={confirmUngroupItems}
+                                    className="bg-primary hover:bg-primary/90 flex-1 sm:flex-none"
+                                >
+                                    <UnfoldVertical className="mr-2 size-4" />
+                                    Ungroup
+                                </AlertDialogAction>
+                            )}
+                            <AlertDialogAction
+                                onClick={confirmDeleteItems}
+                                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground flex-1 sm:flex-none"
+                            >
+                                <Trash2 className="mr-2 size-4" />
+                                {deleteTarget?.isFolder ? 'Delete All' : 'Delete'}
+                            </AlertDialogAction>
+                        </div>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

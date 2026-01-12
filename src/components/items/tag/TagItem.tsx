@@ -1,7 +1,6 @@
 import { type Tag } from "@/store/core/types";
 import { useUIStore } from "@/store/modules/ui";
-import { useTagStore } from "@/store/modules/tag";
-import { X, Edit2 } from "lucide-react";
+import { X, Edit2, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
@@ -12,13 +11,17 @@ import { renderSystemIcon } from "@/components/items";
 interface TagItemProps {
     tag: Tag;
     onEdit: (tag: Tag) => void;
+    onDeletePrompt: (tag: Tag) => void;
     onClick?: (tag: Tag) => void;
     isOverlay?: boolean;
+    isNearTarget?: boolean;
+    isHoverTarget?: boolean;
 }
 
-export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
-    const removeTag = useTagStore((state) => state.removeTag);
-    const isEditing = useUIStore((state) => state.isEditing);
+export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: TagItemProps) {
+    const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
+    const isSelected = selectedTagIds.includes(tag.id);
+
     const [bgColor, setBgColor] = useState(() => tag.backgroundColor ?? "rgb(255, 255, 255)");
     const [imageDataUrl, setImageDataUrl] = useState<string>("");
 
@@ -35,8 +38,8 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     });
 
     const style = {
-        transform: isOverlay ? undefined : CSS.Transform.toString(transform),
-        transition: isOverlay ? undefined : transition,
+        transform: (isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
+        transition: isDragging ? undefined : transition,
         opacity: isDragging ? 0 : 1,
         zIndex: isOverlay ? 100 : undefined,
     };
@@ -44,36 +47,33 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (confirm(`Delete ${tag.isSystem ? 'system icon' : 'shortcut'} "${tag.title}"?`)) {
-            removeTag(tag.id);
-        }
+        onDeletePrompt(tag);
     };
 
     const handleEdit = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        // 系统图标不允许编辑
         if (tag.isSystem) return;
         onEdit(tag);
     };
 
-    const handleSystemClick = (e: React.MouseEvent) => {
-        if (tag.isSystem && onClick) {
-            e.preventDefault();
-            onClick(tag);
-        }
-    };
-
     const handleItemClick = (e: React.MouseEvent) => {
-        if (isEditing || isOverlay) {
+        if (isOverlay) {
             e.preventDefault();
             return;
         }
 
-        if (tag.isSystem) {
-            handleSystemClick(e);
+        if (isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleTagSelection(tag.id);
+            return;
+        }
+
+        if (tag.isSystem && onClick) {
+            e.preventDefault();
+            onClick(tag);
         } else if (tag.url) {
-            // 使用 window.open 替代 <a> 标签行为，避免浏览器左下角显示 URL
             window.open(tag.url, '_blank');
         }
     };
@@ -82,10 +82,7 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
         const scale = tag.iconSize || 1;
         const iconStyle = { transform: `scale(${scale})` };
 
-        // 系统图标渲染
         if (tag.isSystem && tag.icon) {
-            // 系统图标通常是 react node，这里 renderSystemIcon 返回的是 JSX
-            // 我们可以在外层包裹并 scale
             return (
                 <div style={iconStyle} className="text-muted-foreground flex items-center justify-center">
                     {renderSystemIcon(tag.icon, "")}
@@ -93,12 +90,10 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
             );
         }
 
-        // 普通图标渲染 - Emoji
         if (tag.icon && tag.icon.length < 4) {
             return <span className="text-2xl select-none" style={iconStyle}>{tag.icon}</span>;
         }
 
-        // 图片图标
         return (
             <img
                 src={imageDataUrl || faviconUrl}
@@ -110,7 +105,6 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     };
 
     const faviconUrl = tag.icon || `https://www.google.com/s2/favicons?domain=${tag.url}&sz=64`;
-
 
     useEffect(() => {
         let cancelled = false;
@@ -188,17 +182,32 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
                     }}
                     className={cn(
                         "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden relative",
-                        isEditing ? "cursor-move" : "cursor-pointer",
-                        isOverlay && "cursor-grabbing shadow-xl"
+                        isEditing ? "cursor-pointer" : "cursor-pointer",
+                        isOverlay && "cursor-grabbing shadow-xl",
+                        isSelected && "ring-2 ring-primary ring-offset-2"
                     )}
                     style={{ backgroundColor: tag.isSystem ? 'rgb(255, 255, 255)' : bgColor }}
                 >
-                    {/* 棋盘格背景，用于展示透明效果。放在最底层 */}
-
-
                     <div className="relative z-10 flex items-center justify-center w-full h-full">
                         {renderIcon()}
                     </div>
+
+                    {/* 选中态遮罩 - 中心显示圆形框 */}
+                    {isEditing && (
+                        <div className={cn(
+                            "absolute inset-0 z-30 flex items-center justify-center transition-all bg-black/5",
+                            isSelected ? "opacity-100" : "opacity-0 hover:opacity-100"
+                        )}>
+                            <div className={cn(
+                                "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                                isSelected
+                                    ? "bg-primary border-primary scale-110 shadow-lg text-white"
+                                    : "border-white/50 bg-black/20"
+                            )}>
+                                {isSelected && <Check size={14} strokeWidth={3} />}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

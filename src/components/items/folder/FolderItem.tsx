@@ -1,22 +1,26 @@
 import { type Tag } from "@/store/core/types";
 import { useUIStore } from "@/store/modules/ui";
-import { useTagStore } from "@/store/modules/tag";
-import { X, Edit2 } from "lucide-react";
+import { X, Edit2, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { renderSystemIcon } from "@/components/items";
 
 interface FolderItemProps {
     tag: Tag;
     onEdit: (tag: Tag) => void;
+    onDeletePrompt: (tag: Tag) => void;
     onClick?: (tag: Tag) => void;
     isOverlay?: boolean;
+    isNearTarget?: boolean;
+    isHoverTarget?: boolean;
 }
 
-export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps) {
-    const removeTag = useTagStore((state) => state.removeTag);
-    const isEditing = useUIStore((state) => state.isEditing);
+export function FolderItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: FolderItemProps) {
+    const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
+    const isSelected = selectedTagIds.includes(tag.id);
+
     const [childIcons, setChildIcons] = useState<string[]>([]);
 
     const {
@@ -32,8 +36,8 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
     });
 
     const style = {
-        transform: isOverlay ? undefined : CSS.Transform.toString(transform),
-        transition: isOverlay ? undefined : transition,
+        transform: (isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
+        transition: isDragging ? undefined : transition,
         opacity: isDragging ? 0 : 1,
         zIndex: isOverlay ? 100 : undefined,
     };
@@ -42,6 +46,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
     useEffect(() => {
         const children = tag.children || [];
         const icons = children.slice(0, 4).map(child => {
+            if (child.isSystem) return child.icon || ""; // 返回系统图标 ID
             if (child.icon && child.icon.length < 4) {
                 return child.icon; // emoji
             }
@@ -53,9 +58,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (confirm(`Delete folder "${tag.title}" and all its contents?`)) {
-            removeTag(tag.id);
-        }
+        onDeletePrompt(tag);
     };
 
     const handleEdit = (e: React.MouseEvent) => {
@@ -65,8 +68,15 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
     };
 
     const handleClick = (e: React.MouseEvent) => {
-        if (isEditing || isOverlay) {
+        if (isOverlay) {
             e.preventDefault();
+            return;
+        }
+
+        if (isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleTagSelection(tag.id);
             return;
         }
 
@@ -79,18 +89,31 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
     // 渲染四宫格中的单个图标
     const renderGridIcon = (index: number) => {
         if (index >= childIcons.length) {
-            // 空位不显示任何内容
             return null;
         }
 
         const icon = childIcons[index];
         const child = tag.children?.[index];
+        if (!child) return null;
 
-        const bg = child?.backgroundColor ?? "rgb(255, 255, 255)";
-        const userScale = child?.iconSize || 1;
+        const bg = child.isSystem ? 'rgb(255, 255, 255)' : (child.backgroundColor ?? "rgb(255, 255, 255)");
+        const userScale = child.iconSize || 1;
+
+        // 系统图标处理
+        if (child.isSystem && child.icon) {
+            return (
+                <div
+                    className="w-full h-full flex items-center justify-center rounded-sm overflow-hidden relative bg-white"
+                >
+                    <div style={{ transform: `scale(${0.6 * userScale})` }} className="text-muted-foreground flex items-center justify-center">
+                        {renderSystemIcon(child.icon, "")}
+                    </div>
+                </div>
+            )
+        }
 
         // 判断是否为 emoji
-        if (child?.icon && child.icon.length < 4) {
+        if (child.icon && child.icon.length < 4) {
             const scale = 1.2 * userScale;
             return (
                 <div
@@ -159,8 +182,9 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
                 className={cn(
                     "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
                     "bg-white/10 backdrop-blur-md border border-white/20",
-                    isEditing ? "cursor-move" : "cursor-pointer",
-                    isOverlay && "cursor-grabbing shadow-xl"
+                    isEditing ? "cursor-pointer" : "cursor-pointer",
+                    isOverlay && "cursor-grabbing shadow-xl",
+                    isSelected && "ring-2 ring-primary ring-offset-2"
                 )}
             >
                 {/* 高斯模糊背景层 */}
@@ -174,6 +198,23 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
                         </div>
                     ))}
                 </div>
+
+                {/* 选中态遮罩 - 中心显示圆形框 */}
+                {isEditing && (
+                    <div className={cn(
+                        "absolute inset-0 z-30 flex items-center justify-center transition-all bg-black/5",
+                        isSelected ? "opacity-100" : "opacity-0 hover:opacity-100"
+                    )}>
+                        <div className={cn(
+                            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                            isSelected
+                                ? "bg-primary border-primary scale-110 shadow-lg text-white"
+                                : "border-white/50 bg-black/20"
+                        )}>
+                            {isSelected && <Check size={14} strokeWidth={3} />}
+                        </div>
+                    </div>
+                )}
             </button>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">

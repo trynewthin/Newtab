@@ -1,0 +1,22 @@
+export const PRIMARY_COLORS = [
+    { name: 'Blue', value: 'hsl(217 91% 60%)' },
+    { name: 'Purple', value: 'hsl(270 95% 65%)' },
+    { name: 'Green', value: 'hsl(150 90% 45%)' },
+    { name: 'Orange', value: 'hsl(30 95% 60%)' },
+    { name: 'Red', value: 'hsl(350 90% 60%)' },
+    { name: 'Pink', value: 'hsl(330 90% 65%)' },
+];
+
+export const BACKGROUND_PRESETS = [
+
+    { name: 'Midnight', type: 'gradient', value: 'linear-gradient(to bottom right, #0f172a, #334155)', preview: 'bg-gradient-to-br from-slate-900 to-slate-700' },
+    { name: 'Sunset', type: 'gradient', value: 'linear-gradient(to bottom right, #4c1d95, #be185d)', preview: 'bg-gradient-to-br from-violet-900 to-pink-700' },
+    { name: 'Ocean', type: 'gradient', value: 'linear-gradient(to bottom right, #1e3a8a, #06b6d4)', preview: 'bg-gradient-to-br from-blue-900 to-cyan-500' },
+    { name: 'Forest', type: 'gradient', value: 'linear-gradient(to bottom right, #022c22, #10b981)', preview: 'bg-gradient-to-br from-emerald-950 to-emerald-500' },
+    { name: 'Aurora', type: 'gradient', value: 'linear-gradient(to bottom right, #000000, #1e1b4b, #4c1d95)', preview: 'bg-gradient-to-br from-black via-indigo-950 to-violet-800' },
+    { name: 'Nebula', type: 'gradient', value: 'linear-gradient(to top right, #312e81, #be185d, #f59e0b)', preview: 'bg-gradient-to-tr from-indigo-900 via-pink-700 to-amber-500' },
+    { name: 'Peach', type: 'gradient', value: 'linear-gradient(to bottom right, #ea580c, #f472b6)', preview: 'bg-gradient-to-br from-orange-600 to-pink-400' },
+    { name: 'Royal', type: 'gradient', value: 'linear-gradient(to bottom right, #172554, #1e1b4b, #000000)', preview: 'bg-gradient-to-br from-blue-950 via-indigo-950 to-black' },
+    { name: 'Lavender', type: 'gradient', value: 'linear-gradient(to bottom right, #5b21b6, #a78bfa)', preview: 'bg-gradient-to-br from-violet-800 to-violet-400' },
+    { name: 'Cotton Candy', type: 'gradient', value: 'linear-gradient(to bottom right, #ec4899, #8b5cf6, #3b82f6)', preview: 'bg-gradient-to-br from-pink-500 via-violet-500 to-blue-500' },
+];

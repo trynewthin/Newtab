@@ -1,8 +1,8 @@
 import { SearchBar } from "@/components/home/search/SearchBar";
 import { TagGrid } from "@/components/home/tags/TagGrid";
 import { LiveActivityArea } from "@/components/home/live/LiveActivityArea";
-import { PomodoroLiveActivity } from "@/components/home/item/PomodoroDialog";
-import { TodoLiveActivity } from "@/components/home/item/TodoDialog";
+import { PomodoroLiveActivity } from "@/components/items/pomodoro/PomodoroDialog";
+import { TodoLiveActivity } from "@/components/items/todo/TodoDialog";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 

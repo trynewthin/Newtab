@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { useAppStore, type Tag } from "@/lib/store";
 import { TagItem } from "./TagItem";
 import { FolderItem } from "../folder/FolderItem";
-import { AddTagDialog } from "../item/AddTagDialog";
+import { AddTagDialog } from "@/components/items/add-tag/AddTagDialog";
 import { SystemDialogHost } from "../system/SystemDialogHost";
 import type { SystemType } from "../system/systemRegistry";
 import { FolderPreview } from "../folder/FolderPreview";

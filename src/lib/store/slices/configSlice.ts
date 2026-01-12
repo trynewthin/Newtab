@@ -17,6 +17,16 @@ export const createConfigSlice: StateCreator<AppState, [], [], ConfigState> = (s
         type: 'solid',
         value: 'hsl(240 10% 3.9%)', // Default background
     },
+    solidColors: [
+        'hsl(224 71% 4%)', // Default Deep Blue/Black
+        'hsl(0 0% 5%)',    // Minimal Black
+    ],
+    addSolidColor: (color) => set((state) => ({
+        solidColors: [...state.solidColors, color]
+    })),
+    removeSolidColor: (color) => set((state) => ({
+        solidColors: state.solidColors.filter(c => c !== color)
+    })),
     setPrimaryColor: (color) => set({ primaryColor: color }),
     setBackgroundConfig: (config) => set((state) => ({
         backgroundConfig: { ...state.backgroundConfig, ...config }

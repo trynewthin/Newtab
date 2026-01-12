@@ -1,9 +1,9 @@
-import { AddTagDialog } from "../item/AddTagDialog";
+import { AddTagDialog } from "@/components/items/add-tag/AddTagDialog";
 import { IconManagerDialog } from "../tools/IconManagerDialog";
-import { PomodoroDialog } from "../item/PomodoroDialog";
-import { SettingsDialog } from "../item/SettingsDialog";
-import { ThemeDialog } from "../item/ThemeDialog";
-import { TodoDialog } from "../item/TodoDialog";
+import { PomodoroDialog } from "@/components/items/pomodoro/PomodoroDialog";
+import { SettingsDialog } from "@/components/items/setting/SettingsDialog";
+import { ThemeDialog } from "@/components/items/theme/ThemeDialog";
+import { TodoDialog } from "@/components/items/todo/TodoDialog";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {

@@ -2,44 +2,51 @@ import { useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { BaseModal, ModalButton } from "@/components/base/modal";
 import { cn } from "@/lib/utils";
-import { Check, Upload } from "lucide-react";
+import { Check, Upload, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
+import { BACKGROUND_PRESETS, PRIMARY_COLORS } from "./themeConfig";
 
 interface ThemeDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-const PRIMARY_COLORS = [
-    { name: 'Blue', value: 'hsl(217 91% 60%)' },
-    { name: 'Purple', value: 'hsl(270 95% 65%)' },
-    { name: 'Green', value: 'hsl(150 90% 45%)' },
-    { name: 'Orange', value: 'hsl(30 95% 60%)' },
-    { name: 'Red', value: 'hsl(350 90% 60%)' },
-    { name: 'Pink', value: 'hsl(330 90% 65%)' },
-];
-
-const BACKGROUND_PRESETS = [
-    { name: 'Default', type: 'solid', value: 'hsl(224 71% 4%)', preview: 'bg-[hsl(224,71%,4%)]' }, // Deep Blue/Black
-    { name: 'Midnight', type: 'gradient', value: 'linear-gradient(to bottom right, #0f172a, #334155)', preview: 'bg-gradient-to-br from-slate-900 to-slate-700' },
-    { name: 'Sunset', type: 'gradient', value: 'linear-gradient(to bottom right, #4c1d95, #be185d)', preview: 'bg-gradient-to-br from-violet-900 to-pink-700' },
-    { name: 'Ocean', type: 'gradient', value: 'linear-gradient(to bottom right, #1e3a8a, #06b6d4)', preview: 'bg-gradient-to-br from-blue-900 to-cyan-500' },
-    { name: 'Forest', type: 'gradient', value: 'linear-gradient(to bottom right, #022c22, #10b981)', preview: 'bg-gradient-to-br from-emerald-950 to-emerald-500' },
-    { name: 'Aurora', type: 'gradient', value: 'linear-gradient(to bottom right, #000000, #1e1b4b, #4c1d95)', preview: 'bg-gradient-to-br from-black via-indigo-950 to-violet-800' },
-    { name: 'Nebula', type: 'gradient', value: 'linear-gradient(to top right, #312e81, #be185d, #f59e0b)', preview: 'bg-gradient-to-tr from-indigo-900 via-pink-700 to-amber-500' },
-    { name: 'Peach', type: 'gradient', value: 'linear-gradient(to bottom right, #ea580c, #f472b6)', preview: 'bg-gradient-to-br from-orange-600 to-pink-400' },
-    { name: 'Royal', type: 'gradient', value: 'linear-gradient(to bottom right, #172554, #1e1b4b, #000000)', preview: 'bg-gradient-to-br from-blue-950 via-indigo-950 to-black' },
-    { name: 'Lavender', type: 'gradient', value: 'linear-gradient(to bottom right, #5b21b6, #a78bfa)', preview: 'bg-gradient-to-br from-violet-800 to-violet-400' },
-    { name: 'Cotton Candy', type: 'gradient', value: 'linear-gradient(to bottom right, #ec4899, #8b5cf6, #3b82f6)', preview: 'bg-gradient-to-br from-pink-500 via-violet-500 to-blue-500' },
-    { name: 'Minimal', type: 'solid', value: 'hsl(0 0% 5%)', preview: 'bg-neutral-950' },
-];
-
 export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
     const [activeTab, setActiveTab] = useState<'background' | 'appearance'>('background');
-    const { primaryColor, setPrimaryColor, backgroundConfig, setBackgroundConfig } = useAppStore();
+    const {
+        primaryColor,
+        setPrimaryColor,
+        backgroundConfig,
+        setBackgroundConfig,
+        solidColors,
+        addSolidColor,
+        removeSolidColor
+    } = useAppStore();
+
+    // 渐变预设
+    const gradientPresets = BACKGROUND_PRESETS.filter(p => p.type === 'gradient');
+
+    // 检查是否正在编辑自定义颜色（不是已保存的列表中的颜色，且是纯色类型）
+    // 但这里我们希望所有纯色都是"自定义"的，或者说列表中的就是全部可选项
+    // 所以逻辑调整为：
+    // 1. 渲染 solidColors 列表
+    // 2. 提供一个添加按钮
+
+    const handleAddColor = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const color = e.target.value;
+        // 简单的去重检查
+        if (!solidColors.includes(color)) {
+            addSolidColor(color);
+            // 自动选中新添加的颜色
+            setBackgroundConfig({
+                type: 'solid',
+                value: color
+            });
+        }
+    };
 
     return (
         <BaseModal
@@ -85,42 +92,10 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
             <div className="py-2">
                 {activeTab === 'background' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        {/* Presets */}
-                        <div>
-                            <h3 className="text-sm font-medium text-muted-foreground mb-4 px-1">Presets</h3>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                {BACKGROUND_PRESETS.map((preset) => (
-                                    <button
-                                        key={preset.name}
-                                        onClick={() => setBackgroundConfig({
-                                            type: preset.type as 'solid' | 'gradient',
-                                            value: preset.value
-                                        })}
-                                        className={cn(
-                                            "group relative h-28 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer",
-                                            backgroundConfig.value === preset.value
-                                                ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
-                                                : "border-transparent ring-1 ring-border/50 hover:scale-[1.02] hover:shadow-md"
-                                        )}
-                                    >
-                                        <div className={cn("absolute inset-0", preset.preview)} />
-                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-                                        <span className="absolute bottom-3 left-3 text-sm font-semibold text-white drop-shadow-md tracking-wide">
-                                            {preset.name}
-                                        </span>
-                                        {backgroundConfig.value === preset.value && (
-                                            <div className="absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground shadow-sm animate-in zoom-in spin-in-90 duration-300">
-                                                <Check size={14} strokeWidth={3} />
-                                            </div>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
 
-                        {/* Custom Image */}
-                        <div className="space-y-4 pt-2 border-t border-border/50">
-                            <h3 className="text-sm font-medium text-muted-foreground mt-4 px-1">Custom Image</h3>
+                        {/* 1. Custom Image */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium text-muted-foreground px-1">Custom Image</h3>
 
                             {/* Upload Button */}
                             <div className="flex gap-2">
@@ -279,6 +254,111 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                     </div>
                                 </div>
                             )}
+                        </div>
+
+                        <div className="border-t border-border/50" />
+
+                        {/* 2. Solid Colors */}
+                        <div>
+                            <div className="flex items-center justify-between mb-4 px-1">
+                                <h3 className="text-sm font-medium text-muted-foreground">Solid Colors</h3>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {/* Saved Solid Colors */}
+                                {solidColors.map((color) => (
+                                    <div
+                                        key={color}
+                                        className={cn(
+                                            "group relative h-16 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer",
+                                            backgroundConfig.value === color && backgroundConfig.type === 'solid'
+                                                ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
+                                                : "border-transparent ring-1 ring-border/50 hover:scale-[1.02] hover:shadow-md"
+                                        )}
+                                        onClick={() => setBackgroundConfig({
+                                            type: 'solid',
+                                            value: color
+                                        })}
+                                    >
+                                        <div
+                                            className="absolute inset-0"
+                                            style={{ backgroundColor: color }}
+                                        />
+                                        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+
+                                        {/* Color Value Label */}
+                                        <span className="absolute bottom-2 left-3 text-[10px] font-mono font-medium text-white/80 drop-shadow-md tracking-wider uppercase">
+                                            {color}
+                                        </span>
+
+                                        {/* Check Indicator */}
+                                        {backgroundConfig.value === color && backgroundConfig.type === 'solid' && (
+                                            <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground shadow-sm animate-in zoom-in spin-in-90 duration-300">
+                                                <Check size={12} strokeWidth={3} />
+                                            </div>
+                                        )}
+
+                                        {/* Delete Button - Only show via hover */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeSolidColor(color);
+                                                // 如果删除了当前选中的颜色，切换回默认（第一个）或保持不变（取决于需求，这里简单做不处理或切回第一个）
+                                            }}
+                                            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/40 hover:bg-destructive text-white opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm"
+                                            title="Remove color"
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
+                                ))}
+
+                                {/* Add Custom Color Button */}
+                                <label className="group relative h-16 rounded-2xl overflow-hidden border-2 border-dashed border-border/50 hover:border-primary/50 transition-all cursor-pointer bg-secondary/30 hover:bg-secondary/50 flex flex-col items-center justify-center gap-1">
+                                    <input
+                                        type="color"
+                                        className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
+                                        onChange={handleAddColor}
+                                        value={backgroundConfig.type === "solid" ? backgroundConfig.value : "#000000"}
+                                    />
+                                    <div className="p-1.5 rounded-full bg-background shadow-sm group-hover:scale-110 transition-transform">
+                                        <Plus size={16} className="text-muted-foreground" />
+                                    </div>
+                                    <span className="text-xs font-medium text-muted-foreground">Add Custom</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* 3. Gradients */}
+                        <div>
+                            <h3 className="text-sm font-medium text-muted-foreground mb-4 px-1">Gradients</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {gradientPresets.map((preset) => (
+                                    <button
+                                        key={preset.name}
+                                        onClick={() => setBackgroundConfig({
+                                            type: preset.type as 'solid' | 'gradient',
+                                            value: preset.value
+                                        })}
+                                        className={cn(
+                                            "group relative h-20 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer",
+                                            backgroundConfig.value === preset.value
+                                                ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]"
+                                                : "border-transparent ring-1 ring-border/50 hover:scale-[1.02] hover:shadow-md"
+                                        )}
+                                    >
+                                        <div className={cn("absolute inset-0", preset.preview)} />
+                                        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                                        <span className="absolute bottom-2 left-3 text-sm font-semibold text-white drop-shadow-md tracking-wide">
+                                            {preset.name}
+                                        </span>
+                                        {backgroundConfig.value === preset.value && (
+                                            <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground shadow-sm animate-in zoom-in spin-in-90 duration-300">
+                                                <Check size={12} strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 )}

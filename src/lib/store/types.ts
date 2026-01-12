@@ -6,7 +6,7 @@ export interface Tag {
     iconDataUrl?: string; // 本地缓存的 favicon DataURL，避免重复拉取
     backgroundColor?: string; // Cache the dominant color of the icon
     isSystem?: boolean; // 标记是否为系统图标
-    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager' | 'pomodoro' | 'folder'; // 图标类型
+    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager' | 'pomodoro' | 'todo' | 'folder'; // 图标类型
     isFolder?: boolean; // 标记是否为文件夹
     children?: Tag[]; // 文件夹内的子标签
 }
@@ -28,6 +28,9 @@ export interface ConfigState {
         blur?: number; // Blur intensity for image/video
         overlay?: number; // Overlay opacity (0-100) for dimming effect
     };
+    solidColors: string[]; // List of user-defined solid colors
+    addSolidColor: (color: string) => void;
+    removeSolidColor: (color: string) => void;
     setPrimaryColor: (color: string) => void;
     setBackgroundConfig: (config: { type: 'solid' | 'gradient' | 'image'; value: string; blur?: number; overlay?: number }) => void;
 

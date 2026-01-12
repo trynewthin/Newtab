@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Modal } from "@/components/common/Modal";
-import { Button } from "@/components/ui/button";
+import { BaseModal, ModalButton } from "@/components/base/modal";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Play, RotateCcw } from "lucide-react";
-import { useLiveActivity } from "../live/LiveActivityArea";
-import { PomodoroLiveCard } from "../live/PomodoroLiveCard";
+import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
+import { PomodoroLiveCard } from "@/components/home/live/PomodoroLiveCard";
 
 interface PomodoroDialogProps {
     open: boolean;
@@ -156,24 +156,23 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     };
 
     const headerActions = pomodoroStatus.isRunning ? (
-        <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+        <ModalButton
+            isIcon
+            className="hover:bg-destructive/10 hover:text-destructive"
             onClick={handleReset}
             title="Reset Timer"
         >
             <RotateCcw className="w-4 h-4" />
-        </Button>
+        </ModalButton>
     ) : (
-        <Button
-            size="sm"
-            className="h-8 px-4 rounded-full text-xs font-bold shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all gap-1.5"
+        <ModalButton
+            isIcon={false}
+            className="text-xs font-bold shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all gap-1.5"
             onClick={handleStart}
         >
             <Play className="w-3 h-3 fill-current" />
             Start
-        </Button>
+        </ModalButton>
     );
 
     const getStatusColor = () => {
@@ -207,14 +206,14 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     };
 
     return (
-        <Modal
+        <BaseModal
             open={open}
             onOpenChange={onOpenChange}
             title="Pomodoro"
             actions={headerActions}
             className="sm:max-w-[360px]"
         >
-            <div className="relative p-6">
+            <div className="relative py-2">
                 {pomodoroStatus.isRunning ? (
                     <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in zoom-in duration-300 w-full">
                         <div className={cn(
@@ -396,7 +395,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                     </div>
                 )}
             </div>
-        </Modal>
+        </BaseModal>
     );
 }
 

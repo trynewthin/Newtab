@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Modal } from "@/components/common/Modal";
+import { BaseModal } from "@/components/base/modal";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Trash2, Plus, Check, ChevronUp, ChevronDown, X } from "lucide-react";
-import { useLiveActivity } from "../live/LiveActivityArea";
-import { TodoLiveCard } from "../live/TodoLiveCard";
-import type { Todo } from "@/lib/store/types";
+import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
+import { TodoLiveCard } from "@/components/home/live/TodoLiveCard";
 
 interface TodoDialogProps {
     open: boolean;
@@ -47,13 +46,13 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
     const completedCount = todos.filter(t => t.completed).length;
 
     return (
-        <Modal
+        <BaseModal
             open={open}
             onOpenChange={onOpenChange}
             title="Todo List"
             className="sm:max-w-[480px]"
         >
-            <div className="p-6 space-y-4">
+            <div className="py-2 space-y-4">
                 {/* Add Form */}
                 <form onSubmit={handleAdd} className="flex gap-2">
                     <Input
@@ -151,7 +150,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
                     )}
                 </div>
             </div>
-        </Modal>
+        </BaseModal>
     );
 }
 

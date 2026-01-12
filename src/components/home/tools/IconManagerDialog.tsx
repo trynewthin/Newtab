@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal } from "@/components/common/Modal";
+import { Modal } from "@/components/common";
 import { useTagStore } from "@/store/modules/tag";
 import { Button } from "@/components/ui/button";
 import { Grid3x3 } from "lucide-react";

@@ -1,4 +1,4 @@
-import { BaseModal } from "@/components/base/modal";
+import { BaseModal } from "@/components/base";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Languages } from "lucide-react";

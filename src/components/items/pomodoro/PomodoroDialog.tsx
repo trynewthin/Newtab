@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BaseModal, ModalButton } from "@/components/base/modal";
+import { BaseModal, ModalButton } from "@/components/base";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

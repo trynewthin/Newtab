@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BaseModal } from "@/components/base/modal";
+import { BaseModal } from "@/components/base";
 import { Input } from "@/components/ui/input";
 import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";

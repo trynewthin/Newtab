@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSettingsStore } from "@/store/modules/settings";
-import { BaseModal, ModalButton } from "@/components/base/modal";
+import { BaseModal, ModalButton } from "@/components/base";
 import { cn } from "@/lib/utils";
 import { Check, Upload, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";

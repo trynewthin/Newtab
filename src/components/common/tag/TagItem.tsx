@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/store/core/backgroundStorage";
-import { renderSystemIcon } from "../system/systemIcons";
+import { renderSystemIcon } from "@/components/home/system/systemIcons";
 
 interface TagItemProps {
     tag: Tag;
@@ -70,21 +70,32 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
     };
 
     const renderIcon = () => {
+        const scale = tag.iconSize || 1;
+        const iconStyle = { transform: `scale(${scale})` };
+
         // 系统图标渲染
         if (tag.isSystem && tag.icon) {
-            return renderSystemIcon(tag.icon, "text-muted-foreground");
+            // 系统图标通常是 react node，这里 renderSystemIcon 返回的是 JSX
+            // 我们可以在外层包裹并 scale
+            return (
+                <div style={iconStyle} className="text-muted-foreground flex items-center justify-center">
+                    {renderSystemIcon(tag.icon, "")}
+                </div>
+            );
         }
 
-        // 普通图标渲染
+        // 普通图标渲染 - Emoji
         if (tag.icon && tag.icon.length < 4) {
-            return <span className="text-2xl scale-[1.0]">{tag.icon}</span>;
+            return <span className="text-2xl select-none" style={iconStyle}>{tag.icon}</span>;
         }
 
+        // 图片图标
         return (
             <img
                 src={imageDataUrl || faviconUrl}
                 alt={tag.title}
-                className="w-10 h-10 object-contain pointer-events-none scale-[1.0]"
+                className="w-10 h-10 object-contain pointer-events-none select-none"
+                style={iconStyle}
             />
         );
     };
@@ -170,16 +181,21 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
                     }
                 }}
                 className={cn(
-                    "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
+                    "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden relative",
                     isEditing ? "cursor-move" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-xl"
                 )}
                 style={{ backgroundColor: tag.isSystem ? 'rgb(255, 255, 255)' : bgColor }}
             >
-                {renderIcon()}
+                {/* 棋盘格背景，用于展示透明效果。放在最底层 */}
+
+
+                <div className="relative z-10 flex items-center justify-center w-full h-full">
+                    {renderIcon()}
+                </div>
             </a>
 
-            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white">
+            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">
                 {tag.title}
             </span>
         </div>

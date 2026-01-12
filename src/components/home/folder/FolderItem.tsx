@@ -32,8 +32,8 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
     });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
+        transform: isOverlay ? undefined : CSS.Transform.toString(transform),
+        transition: isOverlay ? undefined : transition,
         opacity: isDragging ? 0 : 1,
         zIndex: isOverlay ? 100 : undefined,
     };
@@ -87,15 +87,17 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
         const child = tag.children?.[index];
 
         const bg = child?.backgroundColor ?? "rgb(255, 255, 255)";
+        const userScale = child?.iconSize || 1;
 
         // 判断是否为 emoji
         if (child?.icon && child.icon.length < 4) {
+            const scale = 1.2 * userScale;
             return (
                 <div
-                    className="w-full h-full flex items-center justify-center rounded-md overflow-hidden"
+                    className="w-full h-full flex items-center justify-center rounded-md overflow-hidden relative"
                     style={{ backgroundColor: bg }}
                 >
-                    <span className="text-xs scale-[1.2]">{icon}</span>
+                    <span className="text-xs select-none" style={{ transform: `scale(${scale})` }}>{icon}</span>
                 </div>
             );
         }
@@ -103,13 +105,14 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
         // 网站图标
         return (
             <div
-                className="w-full h-full rounded-md overflow-hidden flex items-center justify-center"
+                className="w-full h-full rounded-md overflow-hidden flex items-center justify-center relative"
                 style={{ backgroundColor: bg }}
             >
                 <img
                     src={icon}
                     alt=""
-                    className="w-3 h-3 object-contain scale-[1.35]"
+                    className="w-3 h-3 object-contain select-none"
+                    style={{ transform: `scale(${1.35 * userScale})` }}
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><rect width="12" height="12" fill="%23ddd"/></svg>';
                     }}
@@ -173,7 +176,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
                 </div>
             </button>
 
-            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white">
+            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">
                 {tag.title}
             </span>
         </div>

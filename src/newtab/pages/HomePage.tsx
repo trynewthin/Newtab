@@ -1,13 +1,11 @@
 import { SearchBar } from "@/components/home/search/SearchBar";
-import { TagGrid } from "@/components/home/tags/TagGrid";
+import { BasePage, TagGrid } from "@/components/common";
 import { LiveActivityArea } from "@/components/home/live/LiveActivityArea";
 import { PomodoroLiveActivity } from "@/components/items/pomodoro/PomodoroDialog";
 import { TodoLiveActivity } from "@/components/items/todo/TodoDialog";
 import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";
-
-import { BasePage } from "@/components/common/BasePage";
 import { HomeTools } from "@/components/home/tools/HomeTools";
 
 export function HomePage() {

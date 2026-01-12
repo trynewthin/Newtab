@@ -1,12 +1,12 @@
-﻿import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useTagStore } from "@/store/modules/tag";
 import { type Tag } from "@/store/core/types";
 import { TagItem } from "./TagItem";
-import { FolderItem } from "../folder/FolderItem";
+import { FolderItem } from "@/components/home/folder/FolderItem";
 import { AddTagDialog } from "@/components/items/add-tag/AddTagDialog";
-import { SystemDialogHost } from "../system/SystemDialogHost";
-import type { SystemType } from "../system/systemRegistry";
-import { FolderPreview } from "../folder/FolderPreview";
+import { SystemDialogHost } from "@/components/home/system/SystemDialogHost";
+import type { SystemType } from "@/components/home/system/systemRegistry";
+import { FolderPreview } from "@/components/home/folder/FolderPreview";
 import {
     DndContext,
     closestCenter,

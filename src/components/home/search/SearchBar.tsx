@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useAppStore } from "@/lib/store";
+import { useSettingsStore } from "@/store/modules/settings";
 import { cn } from "@/lib/utils";
 
 const searchEngines = [
@@ -38,8 +38,8 @@ export function SearchBar() {
     const [activeIndex, setActiveIndex] = useState(-1);
     const [open, setOpen] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const searchEngine = useAppStore((state) => state.searchEngine);
-    const setSearchEngine = useAppStore((state) => state.setSearchEngine);
+    const searchEngine = useSettingsStore((state) => state.searchEngine);
+    const setSearchEngine = useSettingsStore((state) => state.setSearchEngine);
     const containerRef = useRef<HTMLDivElement>(null);
 
     const currentEngine = searchEngines.find(se => se.value === searchEngine) || searchEngines[0];

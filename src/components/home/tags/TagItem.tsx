@@ -1,4 +1,6 @@
-import { useAppStore, type Tag } from "@/lib/store";
+import { type Tag } from "@/store/core/types";
+import { useUIStore } from "@/store/modules/ui";
+import { useTagStore } from "@/store/modules/tag";
 import { X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -15,8 +17,8 @@ interface TagItemProps {
 }
 
 export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
-    const removeTag = useAppStore((state) => state.removeTag);
-    const isEditing = useAppStore((state) => state.isEditing);
+    const removeTag = useTagStore((state) => state.removeTag);
+    const isEditing = useUIStore((state) => state.isEditing);
     const [bgColor, setBgColor] = useState(() => tag.backgroundColor ?? "rgb(255, 255, 255)");
     const [imageDataUrl, setImageDataUrl] = useState<string>("");
 

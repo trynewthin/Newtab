@@ -1,4 +1,5 @@
-import { useAppStore, type Tag } from "@/lib/store";
+import { useTagStore } from "@/store/modules/tag";
+import { type Tag } from "@/store/core/types";
 import { TagItem } from "../tags/TagItem";
 import {
     DndContext,
@@ -24,7 +25,7 @@ interface FolderPreviewProps {
 }
 
 export function FolderPreview({ folder, onClose }: FolderPreviewProps) {
-    const { tags, setTags } = useAppStore();
+    const { tags, setTags } = useTagStore();
     const [activeTag, setActiveTag] = useState<Tag | null>(null);
     const [entered, setEntered] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);

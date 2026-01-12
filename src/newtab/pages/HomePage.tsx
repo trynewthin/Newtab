@@ -3,15 +3,16 @@ import { TagGrid } from "@/components/home/tags/TagGrid";
 import { LiveActivityArea } from "@/components/home/live/LiveActivityArea";
 import { PomodoroLiveActivity } from "@/components/items/pomodoro/PomodoroDialog";
 import { TodoLiveActivity } from "@/components/items/todo/TodoDialog";
-import { useAppStore } from "@/lib/store";
+import { usePomodoroStore } from "@/store/modules/pomodoro";
+import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";
 
 import { BasePage } from "@/components/common/BasePage";
 import { HomeTools } from "@/components/home/tools/HomeTools";
 
 export function HomePage() {
-    const isPomodoroRunning = useAppStore(s => s.pomodoroStatus.isRunning);
-    const pendingTodosCount = useAppStore(s => s.todos.filter(t => !t.completed).length);
+    const isPomodoroRunning = usePomodoroStore(s => s.status.isRunning);
+    const pendingTodosCount = useTodoStore(s => s.todos.filter(t => !t.completed).length);
     const hasActivities = isPomodoroRunning || pendingTodosCount > 0;
 
     return (

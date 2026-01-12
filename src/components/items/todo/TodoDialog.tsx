@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BaseModal } from "@/components/base/modal";
 import { Input } from "@/components/ui/input";
-import { useAppStore } from "@/lib/store";
+import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";
 import { Trash2, Plus, Check, ChevronUp, ChevronDown, X } from "lucide-react";
 import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
@@ -13,12 +13,12 @@ interface TodoDialogProps {
 }
 
 export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
-    const todos = useAppStore((s) => s.todos);
-    const addTodo = useAppStore((s) => s.addTodo);
-    const toggleTodo = useAppStore((s) => s.toggleTodo);
-    const removeTodo = useAppStore((s) => s.removeTodo);
-    const clearCompleted = useAppStore((s) => s.clearCompleted);
-    const setTodos = useAppStore((s) => s.setTodos);
+    const todos = useTodoStore((s) => s.todos);
+    const addTodo = useTodoStore((s) => s.addTodo);
+    const toggleTodo = useTodoStore((s) => s.toggleTodo);
+    const removeTodo = useTodoStore((s) => s.removeTodo);
+    const clearCompleted = useTodoStore((s) => s.clearCompleted);
+    const setTodos = useTodoStore((s) => s.setTodos);
 
     const [inputValue, setInputValue] = useState("");
 
@@ -155,7 +155,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
 }
 
 export function TodoLiveActivity() {
-    const todos = useAppStore(s => s.todos);
+    const todos = useTodoStore(s => s.todos);
     const [showDialog, setShowDialog] = useState(false);
 
     const pendingTodos = todos.filter(t => !t.completed);

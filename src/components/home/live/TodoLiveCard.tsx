@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAppStore } from "@/lib/store";
+import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";
 import { ListTodo } from "lucide-react";
 
@@ -8,8 +8,8 @@ interface TodoLiveCardProps {
 }
 
 export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
-    const todos = useAppStore((s) => s.todos);
-    const toggleTodo = useAppStore((s) => s.toggleTodo);
+    const todos = useTodoStore((s) => s.todos);
+    const toggleTodo = useTodoStore((s) => s.toggleTodo);
     const pendingTodos = todos.filter((t) => !t.completed);
 
     // Local state for animation

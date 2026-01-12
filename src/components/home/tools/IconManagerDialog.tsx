@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal } from "@/components/common/Modal";
-import { useAppStore } from "@/lib/store";
+import { useTagStore } from "@/store/modules/tag";
 import { Button } from "@/components/ui/button";
 import { Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ interface IconManagerDialogProps {
 const SYSTEM_ICONS = SYSTEM_ITEMS;
 
 export function IconManagerDialog({ open, onOpenChange }: IconManagerDialogProps) {
-    const { tags, addTag, removeTag } = useAppStore();
+    const { tags, addTag, removeTag } = useTagStore();
     const [activeTab, setActiveTab] = useState<'system' | 'custom'>('system');
 
     const systemTags = tags.filter(t => t.isSystem);

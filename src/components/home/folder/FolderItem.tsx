@@ -1,4 +1,6 @@
-import { useAppStore, type Tag } from "@/lib/store";
+import { type Tag } from "@/store/core/types";
+import { useUIStore } from "@/store/modules/ui";
+import { useTagStore } from "@/store/modules/tag";
 import { X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -13,8 +15,8 @@ interface FolderItemProps {
 }
 
 export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps) {
-    const removeTag = useAppStore((state) => state.removeTag);
-    const isEditing = useAppStore((state) => state.isEditing);
+    const removeTag = useTagStore((state) => state.removeTag);
+    const isEditing = useUIStore((state) => state.isEditing);
     const [childIcons, setChildIcons] = useState<string[]>([]);
 
     const {

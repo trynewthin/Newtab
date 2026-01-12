@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAppStore } from "@/lib/store";
+import { useSettingsStore } from "@/store/modules/settings";
 import { BaseModal, ModalButton } from "@/components/base/modal";
 import { cn } from "@/lib/utils";
 import { Check, Upload, Plus, Trash2 } from "lucide-react";
@@ -24,7 +24,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
         solidColors,
         addSolidColor,
         removeSolidColor
-    } = useAppStore();
+    } = useSettingsStore();
 
     // 渐变预设
     const gradientPresets = BACKGROUND_PRESETS.filter(p => p.type === 'gradient');

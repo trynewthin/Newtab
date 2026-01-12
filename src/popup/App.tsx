@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useMemo } from "react";
-import { useAppStore } from "@/lib/store";
+import { useTagStore } from "@/store/modules/tag";
+import { useSettingsStore } from "@/store/modules/settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,10 +18,8 @@ export default function Popup() {
     const [previewIcon, setPreviewIcon] = useState<string>("");
     const [validIcons, setValidIcons] = useState<string[]>([]);
 
-    const tags = useAppStore((state) => state.tags);
-    const addTag = useAppStore((state) => state.addTag);
-    const updateTag = useAppStore((state) => state.updateTag);
-    const theme = useAppStore((state) => state.theme);
+    const { tags, addTag, updateTag } = useTagStore();
+    const theme = useSettingsStore((state) => state.theme);
 
     // Sync Theme
     useEffect(() => {

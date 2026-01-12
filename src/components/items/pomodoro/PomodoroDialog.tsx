@@ -3,7 +3,7 @@ import { BaseModal, ModalButton } from "@/components/base/modal";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAppStore } from "@/lib/store";
+import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { cn } from "@/lib/utils";
 import { Play, RotateCcw } from "lucide-react";
 import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
@@ -18,22 +18,22 @@ interface PomodoroDialogProps {
  * The main configuration dialog for Pomodoro
  */
 export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
-    const pomodoroConfig = useAppStore((s) => s.pomodoroConfig);
-    const setPomodoroConfig = useAppStore((s) => s.setPomodoroConfig);
-    const pomodoroStatus = useAppStore((s) => s.pomodoroStatus);
-    const setPomodoroStatus = useAppStore((s) => s.setPomodoroStatus);
+    const config = usePomodoroStore((s) => s.config);
+    const setConfig = usePomodoroStore((s) => s.setConfig);
+    const status = usePomodoroStore((s) => s.status);
+    const setStatus = usePomodoroStore((s) => s.setStatus);
 
     // Simple Settings
-    const [workMinutes, setWorkMinutes] = useState(pomodoroConfig.workMinutes);
-    const [breakMinutes, setBreakMinutes] = useState(pomodoroConfig.breakMinutes);
-    const [rounds, setRounds] = useState(pomodoroConfig.rounds);
+    const [workMinutes, setWorkMinutes] = useState(config.workMinutes);
+    const [breakMinutes, setBreakMinutes] = useState(config.breakMinutes);
+    const [rounds, setRounds] = useState(config.rounds);
 
     // Advanced Settings
-    const [enablePrepare, setEnablePrepare] = useState(pomodoroConfig.enablePrepare);
-    const [prepareMinutes, setPrepareMinutes] = useState(pomodoroConfig.prepareMinutes);
-    const [enableLongBreak, setEnableLongBreak] = useState(pomodoroConfig.enableLongBreak);
-    const [longBreakInterval, setLongBreakInterval] = useState(pomodoroConfig.longBreakInterval);
-    const [longBreakMinutes, setLongBreakMinutes] = useState(pomodoroConfig.longBreakMinutes);
+    const [enablePrepare, setEnablePrepare] = useState(config.enablePrepare);
+    const [prepareMinutes, setPrepareMinutes] = useState(config.prepareMinutes);
+    const [enableLongBreak, setEnableLongBreak] = useState(config.enableLongBreak);
+    const [longBreakInterval, setLongBreakInterval] = useState(config.longBreakInterval);
+    const [longBreakMinutes, setLongBreakMinutes] = useState(config.longBreakMinutes);
 
     // Timer display state
     const [timeLeft, setTimeLeft] = useState("");
@@ -41,67 +41,67 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     // Sync local state with store when opening, if not running
     useEffect(() => {
         if (!open) return;
-        setWorkMinutes(pomodoroConfig.workMinutes);
-        setBreakMinutes(pomodoroConfig.breakMinutes);
-        setRounds(pomodoroConfig.rounds);
-        setEnablePrepare(pomodoroConfig.enablePrepare);
-        setPrepareMinutes(pomodoroConfig.prepareMinutes);
-        setEnableLongBreak(pomodoroConfig.enableLongBreak);
-        setLongBreakInterval(pomodoroConfig.longBreakInterval);
-        setLongBreakMinutes(pomodoroConfig.longBreakMinutes);
-    }, [open, pomodoroConfig]);
+        setWorkMinutes(config.workMinutes);
+        setBreakMinutes(config.breakMinutes);
+        setRounds(config.rounds);
+        setEnablePrepare(config.enablePrepare);
+        setPrepareMinutes(config.prepareMinutes);
+        setEnableLongBreak(config.enableLongBreak);
+        setLongBreakInterval(config.longBreakInterval);
+        setLongBreakMinutes(config.longBreakMinutes);
+    }, [open, config]);
 
     // Timer Logic
     useEffect(() => {
-        if (!pomodoroStatus.isRunning || !pomodoroStatus.endTime) {
+        if (!status.isRunning || !status.endTime) {
             return;
         }
 
         const tick = () => {
             const now = Date.now();
-            const diff = pomodoroStatus.endTime! - now;
+            const diff = status.endTime! - now;
 
             if (diff <= 0) {
                 // Current stage finished - handle transition
-                if (pomodoroStatus.mode === 'prepare') {
+                if (status.mode === 'prepare') {
                     // Prepare -> Work
-                    setPomodoroStatus({
-                        ...pomodoroStatus,
+                    setStatus({
+                        ...status,
                         mode: 'work',
-                        endTime: Date.now() + pomodoroConfig.workMinutes * 60 * 1000
+                        endTime: Date.now() + config.workMinutes * 60 * 1000
                     });
-                } else if (pomodoroStatus.mode === 'work') {
+                } else if (status.mode === 'work') {
                     // Work -> Break or Long Break
                     // Check if it's time for a long break
                     // Long break happens if enabled AND round is multiple of interval
-                    const isLongBreak = pomodoroConfig.enableLongBreak && (pomodoroStatus.currentRound % pomodoroConfig.longBreakInterval === 0);
+                    const isLongBreak = config.enableLongBreak && (status.currentRound % config.longBreakInterval === 0);
 
                     if (isLongBreak) {
-                        setPomodoroStatus({
-                            ...pomodoroStatus,
+                        setStatus({
+                            ...status,
                             mode: 'long-break',
-                            endTime: Date.now() + pomodoroConfig.longBreakMinutes * 60 * 1000
+                            endTime: Date.now() + config.longBreakMinutes * 60 * 1000
                         });
                     } else {
-                        setPomodoroStatus({
-                            ...pomodoroStatus,
+                        setStatus({
+                            ...status,
                             mode: 'break',
-                            endTime: Date.now() + pomodoroConfig.breakMinutes * 60 * 1000
+                            endTime: Date.now() + config.breakMinutes * 60 * 1000
                         });
                     }
                 } else {
                     // Break / Long Break -> Next Work or Finish
-                    if (pomodoroStatus.currentRound < pomodoroConfig.rounds) {
-                        setPomodoroStatus({
-                            ...pomodoroStatus,
+                    if (status.currentRound < config.rounds) {
+                        setStatus({
+                            ...status,
                             mode: 'work',
-                            currentRound: pomodoroStatus.currentRound + 1,
-                            endTime: Date.now() + pomodoroConfig.workMinutes * 60 * 1000
+                            currentRound: status.currentRound + 1,
+                            endTime: Date.now() + config.workMinutes * 60 * 1000
                         });
                     } else {
                         // All rounds finished
-                        setPomodoroStatus({
-                            ...pomodoroStatus,
+                        setStatus({
+                            ...status,
                             isRunning: false,
                             endTime: null,
                             currentRound: 1,
@@ -119,7 +119,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
         tick(); // Initial call
         const interval = setInterval(tick, 1000);
         return () => clearInterval(interval);
-    }, [pomodoroStatus, pomodoroConfig, setPomodoroStatus]);
+    }, [status, config, setStatus]);
 
     const handleStart = () => {
         const nextConfig = {
@@ -132,13 +132,13 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             longBreakInterval: Math.max(1, Number.isFinite(longBreakInterval) ? longBreakInterval : 2),
             longBreakMinutes: Math.max(1, Number.isFinite(longBreakMinutes) ? longBreakMinutes : 15),
         };
-        setPomodoroConfig(nextConfig);
+        setConfig(nextConfig);
 
         const initialMode = nextConfig.enablePrepare ? 'prepare' : 'work';
         const initialDuration = nextConfig.enablePrepare ? nextConfig.prepareMinutes : nextConfig.workMinutes;
         const endTime = Date.now() + initialDuration * 60 * 1000;
 
-        setPomodoroStatus({
+        setStatus({
             isRunning: true,
             mode: initialMode,
             endTime,
@@ -147,7 +147,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     };
 
     const handleReset = () => {
-        setPomodoroStatus({
+        setStatus({
             isRunning: false,
             mode: 'work',
             endTime: null,
@@ -155,7 +155,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
         });
     };
 
-    const headerActions = pomodoroStatus.isRunning ? (
+    const headerActions = status.isRunning ? (
         <ModalButton
             isIcon
             className="hover:bg-destructive/10 hover:text-destructive"
@@ -176,7 +176,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     );
 
     const getStatusColor = () => {
-        switch (pomodoroStatus.mode) {
+        switch (status.mode) {
             case 'work': return "text-primary";
             case 'break': return "text-green-500";
             case 'long-break': return "text-blue-500";
@@ -186,7 +186,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     };
 
     const getStatusText = () => {
-        switch (pomodoroStatus.mode) {
+        switch (status.mode) {
             case 'work': return 'Building';
             case 'break': return 'Chilling';
             case 'long-break': return 'Recharging';
@@ -196,7 +196,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     };
 
     const getStatusBg = () => {
-        switch (pomodoroStatus.mode) {
+        switch (status.mode) {
             case 'work': return "bg-primary/10 text-primary border-primary/20";
             case 'break': return "bg-green-500/10 text-green-600 border-green-500/20";
             case 'long-break': return "bg-blue-500/10 text-blue-600 border-blue-500/20";
@@ -214,7 +214,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             className="sm:max-w-[360px]"
         >
             <div className="relative py-2">
-                {pomodoroStatus.isRunning ? (
+                {status.isRunning ? (
                     <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in zoom-in duration-300 w-full">
                         <div className={cn(
                             "text-8xl font-black tracking-tighter tabular-nums drop-shadow-sm transition-colors duration-500 leading-none select-none",
@@ -231,7 +231,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
                                 {getStatusText()}
                             </span>
                             <span className="text-[10px] font-medium text-muted-foreground/60">
-                                Round {pomodoroStatus.currentRound} of {rounds}
+                                Round {status.currentRound} of {rounds}
                             </span>
                         </div>
                     </div>
@@ -403,7 +403,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
  * Implementation of Pomodoro as a Live Activity
  */
 export function PomodoroLiveActivity() {
-    const isRunning = useAppStore(s => s.pomodoroStatus.isRunning);
+    const isRunning = usePomodoroStore(s => s.status.isRunning);
     const [showDialog, setShowDialog] = useState(false);
 
     // Register this activity with the LiveActivityArea

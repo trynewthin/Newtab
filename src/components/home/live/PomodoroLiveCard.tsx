@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAppStore } from "@/lib/store";
+import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { cn } from "@/lib/utils";
 import { Coffee, Square, Target, Zap, BatteryCharging } from "lucide-react";
 
@@ -8,18 +8,18 @@ interface PomodoroLiveCardProps {
 }
 
 export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
-    const pomodoroStatus = useAppStore((s) => s.pomodoroStatus);
-    const setPomodoroStatus = useAppStore((s) => s.setPomodoroStatus);
+    const status = usePomodoroStore((s) => s.status);
+    const setStatus = usePomodoroStore((s) => s.setStatus);
     const [timeLeft, setTimeLeft] = useState("");
 
     useEffect(() => {
-        if (!pomodoroStatus.isRunning || !pomodoroStatus.endTime) {
+        if (!status.isRunning || !status.endTime) {
             return;
         }
 
         const tick = () => {
             const now = Date.now();
-            const diff = pomodoroStatus.endTime! - now;
+            const diff = status.endTime! - now;
 
             if (diff <= 0) {
                 setTimeLeft("00:00");
@@ -33,11 +33,11 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
         tick(); // Initial call
         const interval = setInterval(tick, 1000);
         return () => clearInterval(interval);
-    }, [pomodoroStatus.isRunning, pomodoroStatus.endTime]);
+    }, [status.isRunning, status.endTime]);
 
     const handleStop = (e: React.MouseEvent) => {
         e.stopPropagation(); // 防止触发打开对话框
-        setPomodoroStatus({
+        setStatus({
             isRunning: false,
             mode: 'work',
             endTime: null,
@@ -45,14 +45,14 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
         });
     };
 
-    if (!pomodoroStatus.isRunning) {
+    if (!status.isRunning) {
         return null;
     }
 
-    const { rounds } = useAppStore.getState().pomodoroConfig;
+    const { rounds } = usePomodoroStore.getState().config;
 
     const getModeConfig = () => {
-        switch (pomodoroStatus.mode) {
+        switch (status.mode) {
             case 'work':
                 return {
                     icon: <Target className="w-6 h-6 text-white" />,
@@ -121,7 +121,7 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
                             {config.label}
                         </span>
                         <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground leading-none">
-                            {pomodoroStatus.currentRound}/{rounds}
+                            {status.currentRound}/{rounds}
                         </span>
                     </div>
                     <div className={cn(

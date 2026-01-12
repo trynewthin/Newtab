@@ -1,5 +1,6 @@
-import { useState, useRef, useCallback } from "react";
-import { useAppStore, type Tag } from "@/lib/store";
+﻿import { useState, useRef, useCallback } from "react";
+import { useTagStore } from "@/store/modules/tag";
+import { type Tag } from "@/store/core/types";
 import { TagItem } from "./TagItem";
 import { FolderItem } from "../folder/FolderItem";
 import { AddTagDialog } from "@/components/items/add-tag/AddTagDialog";
@@ -28,7 +29,7 @@ import {
 const HOVER_DELAY = 1000; // 悬停1000ms后判定为创建文件夹
 
 export function TagGrid() {
-    const { tags, setTags } = useAppStore();
+    const { tags, setTags } = useTagStore();
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
     const [activeSystemDialog, setActiveSystemDialog] = useState<SystemType | null>(null);

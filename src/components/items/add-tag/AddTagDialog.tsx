@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useAppStore, type Tag } from "@/lib/store";
+import { type Tag } from "@/store/core/types";
+import { useTagStore } from "@/store/modules/tag";
 import { BaseModal } from "@/components/base/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,8 +23,8 @@ export function AddTagDialog({ open, onOpenChange, editTag }: AddTagDialogProps)
     const [previewBg, setPreviewBg] = useState<string>("rgb(255, 255, 255)");
     const [previewIcon, setPreviewIcon] = useState<string>("");
 
-    const addTag = useAppStore((state) => state.addTag);
-    const updateTag = useAppStore((state) => state.updateTag);
+    const addTag = useTagStore((state) => state.addTag);
+    const updateTag = useTagStore((state) => state.updateTag);
 
     // 同步编辑状态 & 打开时清理预览残留
     useEffect(() => {

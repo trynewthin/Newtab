@@ -1,16 +1,12 @@
-import { useAppStore } from "@/lib/store";
+import { useUIStore } from "@/store/modules/ui";
 import { Edit2, Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { IconManagerDialog } from "./IconManagerDialog";
 
 export function HomeTools() {
-    const { isEditing, setEditing } = useAppStore();
+    const { isEditing, toggleEditing } = useUIStore();
     const [isIconManagerOpen, setIsIconManagerOpen] = useState(false);
-
-    const toggleEditing = () => {
-        setEditing(!isEditing);
-    };
 
     return (
         <>

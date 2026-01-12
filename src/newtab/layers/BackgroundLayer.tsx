@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useAppStore } from "@/lib/store";
+import { useSettingsStore } from "@/store/modules/settings";
 
 export function BackgroundLayer() {
-    const { backgroundConfig, primaryColor } = useAppStore();
+    const { backgroundConfig, primaryColor } = useSettingsStore();
 
     // Apply global primary color
     useEffect(() => {

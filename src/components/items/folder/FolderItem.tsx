@@ -94,7 +94,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
             const scale = 1.2 * userScale;
             return (
                 <div
-                    className="w-full h-full flex items-center justify-center rounded-md overflow-hidden relative"
+                    className="w-full h-full flex items-center justify-center rounded-sm overflow-hidden relative"
                     style={{ backgroundColor: bg }}
                 >
                     <span className="text-xs select-none" style={{ transform: `scale(${scale})` }}>{icon}</span>
@@ -105,14 +105,14 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
         // 网站图标
         return (
             <div
-                className="w-full h-full rounded-md overflow-hidden flex items-center justify-center relative"
+                className="w-full h-full rounded-sm overflow-hidden flex items-center justify-center relative"
                 style={{ backgroundColor: bg }}
             >
                 <img
                     src={icon}
                     alt=""
-                    className="w-3 h-3 object-contain select-none"
-                    style={{ transform: `scale(${1.35 * userScale})` }}
+                    className="w-full h-full object-cover select-none"
+                    style={{ transform: `scale(${0.7 * userScale})` }}
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><rect width="12" height="12" fill="%23ddd"/></svg>';
                     }}
@@ -135,7 +135,7 @@ export function FolderItem({ tag, onEdit, onClick, isOverlay }: FolderItemProps)
         >
             {/* 操作按钮容器 */}
             <div className={cn(
-                "absolute -top-2 right-2 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
+                "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
                 (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
             )}>
                 <button

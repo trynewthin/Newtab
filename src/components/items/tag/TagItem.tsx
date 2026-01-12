@@ -57,15 +57,24 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
         onEdit(tag);
     };
 
-    const handleClick = (e: React.MouseEvent) => {
+    const handleSystemClick = (e: React.MouseEvent) => {
+        if (tag.isSystem && onClick) {
+            e.preventDefault();
+            onClick(tag);
+        }
+    };
+
+    const handleItemClick = (e: React.MouseEvent) => {
         if (isEditing || isOverlay) {
             e.preventDefault();
             return;
         }
 
-        if (tag.isSystem && onClick) {
-            e.preventDefault();
-            onClick(tag);
+        if (tag.isSystem) {
+            handleSystemClick(e);
+        } else if (tag.url) {
+            // 使用 window.open 替代 <a> 标签行为，避免浏览器左下角显示 URL
+            window.open(tag.url, '_blank');
         }
     };
 
@@ -137,63 +146,61 @@ export function TagItem({ tag, onEdit, onClick, isOverlay }: TagItemProps) {
             ref={setNodeRef}
             style={style}
             className={cn(
-                "group relative flex flex-col items-center gap-1.5",
+                "group flex flex-col items-center gap-1.5",
                 isEditing && !isDragging && !isOverlay && "animate-[shake_0.5s_ease-in-out_infinite]",
                 isOverlay && "scale-110 rotate-3 cursor-grabbing"
             )}
             {...(isOverlay ? {} : attributes)}
             {...(isOverlay ? {} : listeners)}
         >
-            {/* 操作按钮容器 */}
-            <div className={cn(
-                "absolute -top-2 right-2 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
-                (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-            )}>
-                {!tag.isSystem && (
+            <div className="relative">
+                {/* 操作按钮容器 */}
+                <div className={cn(
+                    "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
+                    (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                )}>
+                    {!tag.isSystem && (
+                        <button
+                            onClick={handleEdit}
+                            className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                            title="Edit"
+                        >
+                            <Edit2 size={10} />
+                        </button>
+                    )}
                     <button
-                        onClick={handleEdit}
-                        className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                        title="Edit"
+                        onClick={handleDelete}
+                        className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                        title="Remove"
                     >
-                        <Edit2 size={10} />
+                        <X size={10} />
                     </button>
-                )}
-                <button
-                    onClick={handleDelete}
-                    className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Remove"
-                >
-                    <X size={10} />
-                </button>
-            </div>
-
-            <a
-                href={tag.isSystem ? '#' : tag.url}
-                target={tag.isSystem ? '_self' : '_blank'}
-                rel={tag.isSystem ? undefined : 'noreferrer'}
-                onClick={(e) => {
-                    if (isEditing || isOverlay) {
-                        e.preventDefault();
-                        return;
-                    }
-                    if (tag.isSystem) {
-                        handleClick(e);
-                    }
-                }}
-                className={cn(
-                    "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden relative",
-                    isEditing ? "cursor-move" : "cursor-pointer",
-                    isOverlay && "cursor-grabbing shadow-xl"
-                )}
-                style={{ backgroundColor: tag.isSystem ? 'rgb(255, 255, 255)' : bgColor }}
-            >
-                {/* 棋盘格背景，用于展示透明效果。放在最底层 */}
-
-
-                <div className="relative z-10 flex items-center justify-center w-full h-full">
-                    {renderIcon()}
                 </div>
-            </a>
+
+                <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={handleItemClick}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            handleItemClick(e as any);
+                        }
+                    }}
+                    className={cn(
+                        "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden relative",
+                        isEditing ? "cursor-move" : "cursor-pointer",
+                        isOverlay && "cursor-grabbing shadow-xl"
+                    )}
+                    style={{ backgroundColor: tag.isSystem ? 'rgb(255, 255, 255)' : bgColor }}
+                >
+                    {/* 棋盘格背景，用于展示透明效果。放在最底层 */}
+
+
+                    <div className="relative z-10 flex items-center justify-center w-full h-full">
+                        {renderIcon()}
+                    </div>
+                </div>
+            </div>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">
                 {tag.title}

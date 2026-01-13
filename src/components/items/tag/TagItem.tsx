@@ -188,7 +188,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                         isOverlay && "cursor-grabbing shadow-xl",
                         isSelected && "ring-2 ring-primary ring-offset-2"
                     )}
-                    style={{ backgroundColor: tag.isSystem ? 'rgb(255, 255, 255)' : bgColor }}
+                    style={{ backgroundColor: (tag.isSystem && (tag.icon?.includes('/') || tag.icon?.includes('.'))) ? 'transparent' : (tag.isSystem ? 'rgb(255, 255, 255)' : bgColor) }}
                 >
                     <div className="relative z-10 flex items-center justify-center w-full h-full">
                         {renderIcon()}

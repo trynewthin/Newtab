@@ -24,7 +24,8 @@
         "sidePanel",
         "scripting",
         "tabs",
-        "activeTab"
+        "activeTab",
+        "debugger"
     ],
     "host_permissions": [
         "https://www.google.com/*",

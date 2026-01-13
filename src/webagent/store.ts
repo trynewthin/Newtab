@@ -1,48 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
-
-export interface TaskStep {
-    description: string;
-    dependsOn?: number;
-}
-
-export interface TaskPlan {
-    type: 'chain' | 'parallel';
-    steps: TaskStep[];
-    currentIndex: number;
-}
-
-export interface Message {
-    id?: string;
-    role: 'user' | 'assistant' | 'system' | 'tool';
-    content: string;
-    timestamp: number;
-    tool_calls?: any[];
-    tool_call_id?: string;
-    tool_name?: string;
-    plan?: TaskPlan;
-    stepSummary?: string; // 步骤执行后的精简结论
-    isIntermediate?: boolean; // 标记是否为执行过程中的中间消息（工具调用、分步日志等）
-    isSummary?: boolean; // 标记是否为任务完成后的最终汇总消息
-}
-
-export interface ModelConfig {
-    id: string;
-    name: string;
-    apiKey: string;
-    baseUrl: string;
-    model: string;
-    systemPrompt?: string;
-    temperature?: number;
-}
-
-export interface ChatSession {
-    id: string;
-    title: string;
-    messages: Message[];
-    updatedAt: number;
-}
+import type { Message, ModelConfig, ChatSession, MessageContent } from './types';
+import { getTextContent } from './types';
 
 interface AiState {
     models: ModelConfig[];
@@ -68,34 +28,48 @@ interface AiState {
     getActiveModelConfig: () => ModelConfig | undefined;
 }
 
-const SYSTEM_PROMPT = `You are a world-class Multimodal Web Agent.
-You complete tasks through a workflow of [Intent Recognition -> Structured Planning -> Controlled Execution].
+// 视觉 Web Agent 系统提示
+const VISION_AGENT_SYSTEM_PROMPT = `You are a Visual Web Agent that interacts with web pages using screenshots and precise coordinate-based actions.
 
-### Core Capabilities & Strategies:
-1. **Visual Perception (\`capture_page_screenshot\`)**: When the page contains complex icons, captchas, dynamic dashboards, or CSS layouts that make text extraction difficult, you MUST use this tool to capture a snapshot and make decisions based on visual context.
-2. **Structured Planning (\`set_task_plan\`)**: You must decompose the task first.
-   - **chain**: Sequential steps with strong dependencies (later steps depend on earlier conclusions).
-   - **parallel**: Independent steps that can be completed in sequence efficiently.
-3. **Precision Interaction**: Use \`get_page_structure\` to build an element index, and use \`click_element\` and \`scroll_page\` for navigation.
+## Core Capabilities:
+1. **Visual Understanding**: You receive screenshots and analyze them to understand page layout, UI elements, and their positions.
+2. **Coordinate-Based Interaction**: You click at specific (x, y) pixel coordinates based on visual analysis.
+3. **Structured Planning**: You decompose complex tasks into executable steps.
 
-### Web Interaction Principles:
-- **Vision Strategy**: Screenshots only capture the current viewport. For long pages, follow the [Scroll -> Observe -> Decide] loop.
-- **Action Verification**: Web pages are dynamic. After every action (click, navigation), verify the page state using \`get_page_structure\` or screenshots.
-- **Error Handling**: If an expected element is missing, try scrolling or check if you need to switch tabs/open menus first.
+## Available Tools:
+- \`capture_screenshot\`: Take a screenshot to see the current page
+- \`click_at(x, y)\`: Click at specific pixel coordinates
+- \`type_text(text)\`: Type text at the current cursor position
+- \`scroll(direction, amount)\`: Scroll the page
+- \`navigate(url)\`: Go to a URL
+- \`press_key(key)\`: Press a keyboard key
+- \`set_task_plan\`: Define your execution plan
 
-### Output Rules:
-- **Language**: ALWAYS respond in **Chinese** (Simplified) to the user.
-- **Step Feedback**: Reply with "DONE_STEP" followed by a concise conclusion after achieving a step's goal.
-- **Finality**: Final responses must be precise summaries based ONLY on execution results. DO NOT hallucinate.`;
+## Workflow:
+1. ALWAYS capture a screenshot first to understand the page
+2. Analyze the screenshot to identify elements and estimate their coordinates
+3. Click at the center of the target element
+4. Verify results with another screenshot
+
+## Coordinate Guidelines:
+- Coordinates are pixels from top-left corner (0, 0)
+- Typical viewport: ~1280x720 pixels
+- Estimate the CENTER of clickable elements
+- Be precise - small errors may click wrong elements
+
+## Output Rules:
+- Respond in **Chinese** (Simplified)
+- Say "STEP_COMPLETE" after finishing each step
+- Never hallucinate - only report what you actually see/do`;
 
 const DEFAULT_MODEL: ModelConfig = {
     id: 'default',
-    name: 'Gemini 3 Flash (Vision Ready)',
+    name: 'Vision Agent Model',
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
-    model: 'gpt-4o-mini', // or 'gemini-1.5-flash-latest' depending on provider
-    systemPrompt: SYSTEM_PROMPT,
-    temperature: 0.2,
+    model: 'gpt-4o-mini',
+    systemPrompt: VISION_AGENT_SYSTEM_PROMPT,
+    temperature: 0.1,
 };
 
 export const useAiStore = create<AiState>()(
@@ -115,9 +89,11 @@ export const useAiStore = create<AiState>()(
                     activeModelId: state.models.length === 0 ? newModel.id : state.activeModelId
                 };
             }),
+
             updateModel: (id, updates) => set((state) => ({
                 models: state.models.map(m => m.id === id ? { ...m, ...updates } : m)
             })),
+
             deleteModel: (id) => set((state) => {
                 const newModels = state.models.filter(m => m.id !== id);
                 let newActiveId = state.activeModelId;
@@ -126,6 +102,7 @@ export const useAiStore = create<AiState>()(
                 }
                 return { models: newModels, activeModelId: newActiveId };
             }),
+
             setActiveModel: (id) => set({ activeModelId: id }),
 
             createSession: () => set((state) => {
@@ -142,6 +119,7 @@ export const useAiStore = create<AiState>()(
                     messages: []
                 };
             }),
+
             deleteSession: (id) => set((state) => {
                 const newSessions = state.sessions.filter(s => s.id !== id);
                 if (state.currentSessionId === id) {
@@ -150,19 +128,27 @@ export const useAiStore = create<AiState>()(
                         return { sessions: newSessions, currentSessionId: next.id, messages: next.messages };
                     } else {
                         const newId = uuidv4();
-                        return { sessions: [{ id: newId, title: 'New Chat', messages: [], updatedAt: Date.now() }], currentSessionId: newId, messages: [] };
+                        const defaultSession: ChatSession = { id: newId, title: 'New Chat', messages: [], updatedAt: Date.now() };
+                        return {
+                            sessions: [defaultSession],
+                            currentSessionId: newId,
+                            messages: []
+                        };
                     }
                 }
                 return { sessions: newSessions };
             }),
+
             switchSession: (id) => set((state) => {
                 const target = state.sessions.find(s => s.id === id);
                 if (!target) return {};
-                return { currentSessionId: id, messages: target.messages };
+                return { currentSessionId: id, messages: target.messages || [] };
             }),
+
             updateSessionTitle: (id, title) => set((state) => ({
                 sessions: state.sessions.map(s => s.id === id ? { ...s, title } : s)
             })),
+
             getActiveModelConfig: () => {
                 const state = get();
                 return state.models.find(m => m.id === state.activeModelId);
@@ -171,36 +157,49 @@ export const useAiStore = create<AiState>()(
             addMessage: (msg) => {
                 const msgId = msg.id || uuidv4();
                 set((state) => {
+                    // 处理内容 - 支持多模态
+                    let content: string | MessageContent[] = msg.content || '';
+
                     const newMessage: Message = {
                         id: msgId,
-                        content: '',
+                        content,
                         timestamp: Date.now(),
                         ...msg
                     };
                     const newMessages = [...state.messages, newMessage];
 
                     let newSessions = [...state.sessions];
-                    const sessionIndex = newSessions.findIndex(s => s.id === state.currentSessionId);
+                    let sessionIndex = newSessions.findIndex(s => s.id === state.currentSessionId);
 
-                    if (sessionIndex >= 0) {
-                        const session = newSessions[sessionIndex];
-                        newSessions[sessionIndex] = {
-                            ...session,
-                            messages: newMessages,
-                            updatedAt: Date.now(),
-                            title: (session.messages.length === 0 && msg.role === 'user')
-                                ? (msg.content?.slice(0, 30) || 'New Chat')
-                                : session.title
-                        };
-                    } else {
+                    // 如果没找到当前会话，新建一个兜底
+                    if (sessionIndex === -1) {
                         const newId = state.currentSessionId || uuidv4();
-                        newSessions = [{
+                        const newSession: ChatSession = {
                             id: newId,
-                            title: msg.role === 'user' ? (msg.content?.slice(0, 30) || 'New Chat') : 'New Chat',
-                            messages: newMessages,
+                            title: 'New Chat',
+                            messages: [],
                             updatedAt: Date.now()
-                        }, ...newSessions];
+                        };
+                        newSessions = [newSession, ...newSessions];
+                        sessionIndex = 0;
                     }
+
+                    const session = newSessions[sessionIndex];
+
+                    // 只有在标题是默认值且是用户第一条消息时，才进行基础标题提取
+                    // 后续会有 useAiChat 使用 AI 进行更精准的标题替换
+                    let newTitle = session.title;
+                    if ((session.title === 'New Chat' || !session.title) && msg.role === 'user') {
+                        const text = typeof content === 'string' ? content : getTextContent(content);
+                        newTitle = text.slice(0, 30) || 'New Chat';
+                    }
+
+                    newSessions[sessionIndex] = {
+                        ...session,
+                        messages: newMessages,
+                        updatedAt: Date.now(),
+                        title: newTitle
+                    };
 
                     return {
                         messages: newMessages,
@@ -225,6 +224,7 @@ export const useAiStore = create<AiState>()(
                 );
                 return { messages: [], sessions: newSessions };
             }),
+
             setLoading: (isLoading) => set({ isLoading }),
         }),
         {

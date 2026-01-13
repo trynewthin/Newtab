@@ -1,5 +1,5 @@
 
-import { useAiStore } from "@/store/modules/ai";
+import { useAiStore } from "@/webagent";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { useTranslation } from "react-i18next";

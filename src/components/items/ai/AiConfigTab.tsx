@@ -1,4 +1,4 @@
-import { useAiStore } from "@/store/modules/ai";
+import { useAiStore } from "@/webagent";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Cpu, Check } from "lucide-react";

@@ -121,7 +121,7 @@ export function SearchBar() {
     return (
         <div className="w-full px-4 max-w-2xl mx-auto relative" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-20">
-                <div className="flex gap-2 items-center bg-background/80 backdrop-blur-sm rounded-2xl shadow-lg border p-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                <div className="flex gap-2 items-center bg-background rounded-2xl shadow-lg border p-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger
                             className="p-2 hover:bg-muted rounded-lg transition-colors flex items-center justify-center cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"

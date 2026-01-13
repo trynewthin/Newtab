@@ -163,6 +163,16 @@
   ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
   }
+
+  /* Remove blue autofill background */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 100px var(--background) inset !important;
+    -webkit-text-fill-color: var(--foreground) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 }
 
 @layer utilities {

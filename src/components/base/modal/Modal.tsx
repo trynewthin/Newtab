@@ -36,7 +36,6 @@ interface BaseModalProps extends DialogPrimitive.Root.Props {
     // Basic
     trigger?: React.ReactNode
     children?: React.ReactNode
-    className?: string // For the outer modal dimensions/wrapper
     contentClassName?: string // For the inner content container
 
     // Layer 1: Header (Floating)
@@ -52,12 +51,17 @@ interface BaseModalProps extends DialogPrimitive.Root.Props {
 
     // Layout Options
     scrollable?: boolean // Default true. If false, content area is overflow-hidden and takes full height without padding.
+
+    // NOTE: 'size' prop is intentionally removed from external API to enforce strict uniformity.
+    // All modals now use the single standard size defined internally.
 }
+
+// THE SINGLE SOURCE OF TRUTH FOR MODAL SIZE
+const UNIFIED_SIZE_CLASS = "w-[80vw] h-[80vh]";
 
 function BaseModal({
     children,
     trigger,
-    className,
     contentClassName,
     // Layer 1 props
     title,
@@ -72,6 +76,7 @@ function BaseModal({
     scrollable = true,
     ...props
 }: BaseModalProps) {
+
     return (
         <ModalRoot {...props}>
             {trigger && <ModalTrigger>{trigger}</ModalTrigger>}
@@ -80,40 +85,38 @@ function BaseModal({
                 <DialogPrimitive.Popup
                     data-slot="modal-content"
                     className={cn(
-                        // Base positioning and animations
-                        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 duration-100 fixed top-1/2 left-1/2 z-[1000] -translate-x-1/2 -translate-y-1/2 outline-none",
-                        // Layout wrapper
-                        "w-full max-w-[calc(100%-2rem)] sm:max-w-[90vw] md:max-w-[80vw] lg:max-w-[70vw] h-[80vh]",
-                        className
+                        // Positioning
+                        "fixed top-1/2 left-1/2 z-[1000] -translate-x-1/2 -translate-y-1/2 outline-none",
+                        // Animations
+                        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 duration-100",
+                        // Base Responsive Limits (Max width/height relative to viewport)
+                        "max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]",
+                        // Apply STRICT UNIFIED SIZE
+                        UNIFIED_SIZE_CLASS
                     )}
                 >
-                    {/* Container for the 3 layers */}
+                    {/* 
+                        Structure:
+                        We have a fixed W/H container (Popup).
+                        Inside, we use absolute positioning for layers to fill this fixed container exactly.
+                        This guarantees the "Background Layer" is absolutely static and fixed size.
+                        Content scrolls strictly within this frame.
+                    */}
                     <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 isolate">
 
-                        {/* === Layer 3: Background === */}
+                        {/* === Layer 3: Background (Fixed) === */}
                         <div className="absolute inset-0 z-0 pointer-events-none">
                             {background ? background : <div className="absolute inset-0 bg-background/80 backdrop-blur-xl" />}
                         </div>
 
-                        {/* === Layer 2: Content === */}
+                        {/* === Layer 2: Content (Scrolls within Fixed Frame) === */}
                         <div className="absolute inset-0 z-10 flex flex-col">
-                            {/* 
-                                Logic for 'scrollable':
-                                - true: uses overflow-y-auto, adds default padding.
-                                - false: overflow-hidden (or auto handled by child), no padding.
-                            */}
                             <div className={cn(
                                 "flex-1 w-full h-full",
                                 scrollable ? "overflow-y-auto scrollbar-hide px-6 py-6 pb-20" : "overflow-hidden relative",
                                 contentClassName
                             )}>
-                                {/* 
-                                    Header Spacer Logic:
-                                    If we have a floating header (Layer 1), content in Layer 2 starts at top:0.
-                                    To avoid content being hidden behind the header initially, we add a spacer.
-                                    This spacer is ONLY needed if scrollable is true (so it scrolls away) 
-                                    OR if the user hasn't opted out of layout management.
-                                */}
+                                {/* Spacer for Header */}
                                 {scrollable && (showTitle || showCloseButton || actions || header) && (
                                     <div className="h-10 w-full shrink-0 mb-1" />
                                 )}
@@ -121,17 +124,17 @@ function BaseModal({
                             </div>
                         </div>
 
-                        {/* === Layer 1: Header (Floating) === */}
-                        <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none">
-                            {/* Top Gradient Shadow (Decor) */}
+                        {/* === Layer 1: Header (Fixed Overlay) === */}
+                        <div className="absolute inset-0 z-20 pointer-events-none">
+                            {/* Top Gradient */}
                             {showGradientShadow && (
                                 <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/5 to-transparent z-[-1]" />
                             )}
 
-                            <div className="p-4">
-                                {header ? (
-                                    <div className="pointer-events-auto">{header}</div>
-                                ) : (
+                            {header ? (
+                                header
+                            ) : (
+                                <div className="p-4">
                                     <div className="flex items-start justify-between gap-4">
                                         {/* Left: Title */}
                                         <div className="pointer-events-auto min-w-0 flex-1">
@@ -157,8 +160,8 @@ function BaseModal({
                                             )}
                                         </div>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </div>
 
                     </div>

@@ -16,8 +16,15 @@
         "48": "newtab.png",
         "128": "newtab.png"
     },
+    "side_panel": {
+        "default_path": "src/sidepanel/index.html"
+    },
     "permissions": [
-        "storage"
+        "storage",
+        "sidePanel",
+        "scripting",
+        "tabs",
+        "activeTab"
     ],
     "host_permissions": [
         "https://www.google.com/*",

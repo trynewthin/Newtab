@@ -46,18 +46,18 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
         <BaseModal
             open={open}
             onOpenChange={onOpenChange}
-            className="sm:max-w-2xl"
+
             background={<div className="absolute inset-0 bg-background/95 backdrop-blur-xl" />}
             title={t('theme_settings')}
             header={
-                <div className="flex items-center justify-between px-2 w-full">
-                    <div className="flex items-center gap-2 bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm">
+                <div className="flex items-center justify-between px-6 py-5 w-full">
+                    <div className="pointer-events-auto flex items-center gap-2 bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm">
                         <button
                             onClick={() => setActiveTab('background')}
                             className={cn(
                                 "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
                                 activeTab === 'background'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-primary text-primary-foreground shadow-sm"
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                             )}
                         >
@@ -68,7 +68,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                             className={cn(
                                 "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
                                 activeTab === 'appearance'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-primary text-primary-foreground shadow-sm"
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                             )}
                         >
@@ -76,10 +76,12 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                         </button>
                     </div>
 
-                    <ModalButton onClick={() => onOpenChange(false)}>
-                        <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
-                        <span className="sr-only">{t('close')}</span>
-                    </ModalButton>
+                    <div className="pointer-events-auto">
+                        <ModalButton onClick={() => onOpenChange(false)}>
+                            <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
+                            <span className="sr-only">{t('close')}</span>
+                        </ModalButton>
+                    </div>
                 </div>
             }
         >
@@ -380,6 +382,32 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                                         )}
                                     </button>
                                 ))}
+
+                                {/* Custom Primary Color Input */}
+                                <label className={cn(
+                                    "w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm cursor-pointer relative overflow-hidden group",
+                                    "hover:scale-110",
+                                    !PRIMARY_COLORS.some(c => c.value === primaryColor)
+                                        ? "scale-110 ring-4 ring-primary/20 shadow-lg shadow-primary/30"
+                                        : "hover:shadow-md bg-secondary/50 border border-border/50"
+                                )}>
+                                    <input
+                                        type="color"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        value={primaryColor}
+                                        onChange={(e) => setPrimaryColor(e.target.value)}
+                                    />
+                                    {/* Show multicolor icon or the actual selected custom color */}
+                                    {!PRIMARY_COLORS.some(c => c.value === primaryColor) ? (
+                                        <div className="w-full h-full" style={{ backgroundColor: primaryColor }}>
+                                            <div className="flex items-center justify-center h-full">
+                                                <Check className="text-white drop-shadow-sm" size={20} strokeWidth={3} />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Plus size={20} className="text-muted-foreground group-hover:text-foreground" />
+                                    )}
+                                </label>
                             </div>
                             <p className="text-xs text-muted-foreground mt-3 px-1 text-center">{t('select_accent_color')}</p>
                         </div>

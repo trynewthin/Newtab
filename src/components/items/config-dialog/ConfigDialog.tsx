@@ -33,14 +33,13 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
         <BaseModal
             open={open}
             onOpenChange={onOpenChange}
-            className={cn(
-                activeTab === 'system' ? "sm:max-w-3xl" : "sm:max-w-[440px]"
-            )}
+            // Use standardized size prop instead of className
+
             header={
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-4 px-6 py-5">
                     {/* Tabs / Title Area */}
                     <div className="pointer-events-auto min-w-0 flex-1">
-                        <div className="flex items-center p-1 bg-background/80 backdrop-blur-md border border-border/40 shadow-sm rounded-full w-fit">
+                        <div className="flex items-center p-1 bg-secondary/50 backdrop-blur-md border border-white/5 shadow-sm rounded-xl w-fit">
                             <TabButton
                                 active={activeTab === 'custom'}
                                 onClick={() => setActiveTab('custom')}
@@ -103,10 +102,10 @@ function TabButton({ children, active, onClick }: { children: React.ReactNode; a
         <button
             onClick={onClick}
             className={cn(
-                "px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-200",
+                "px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200",
                 active
-                    ? "bg-foreground text-background shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
         >
             {children}

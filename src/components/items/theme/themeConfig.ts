@@ -5,6 +5,12 @@ export const PRIMARY_COLORS = [
     { name: 'Orange', value: 'hsl(30 95% 60%)' },
     { name: 'Red', value: 'hsl(350 90% 60%)' },
     { name: 'Pink', value: 'hsl(330 90% 65%)' },
+    { name: 'Cyan', value: 'hsl(190 90% 50%)' },
+    { name: 'Teal', value: 'hsl(170 90% 40%)' },
+    { name: 'Lime', value: 'hsl(84 81% 44%)' },
+    { name: 'Yellow', value: 'hsl(50 95% 50%)' },
+    { name: 'Indigo', value: 'hsl(240 80% 60%)' },
+    { name: 'Slate', value: 'hsl(215 16% 47%)' },
 ];
 
 export const BACKGROUND_PRESETS = [

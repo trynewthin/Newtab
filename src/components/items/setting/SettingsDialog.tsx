@@ -99,7 +99,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             open={open}
             onOpenChange={onOpenChange}
             title={t('settings')}
-            className="sm:max-w-md"
+
             background={<div className="absolute inset-0 bg-background" />}
         >
             <div className="py-2 space-y-4">

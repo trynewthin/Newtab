@@ -3,8 +3,9 @@ import pomodoroIcon from "@/assets/pomodoro-icon.png";
 import todoIcon from "@/assets/todo-icon.png";
 import settingsIcon from "@/assets/settings-icon.png";
 import themeIcon from "@/assets/theme-icon.png";
+import aiIcon from "@/assets/ai-icon.png";
 
-export type SystemType = "settings" | "theme" | "add" | "icon-manager" | "pomodoro" | "todo";
+export type SystemType = "settings" | "theme" | "add" | "icon-manager" | "pomodoro" | "todo" | "ai";
 
 export interface SystemItem {
     type: SystemType;
@@ -19,4 +20,5 @@ export const SYSTEM_ITEMS: SystemItem[] = [
     { type: "icon-manager", title: "Icon Manager", icon: "Grid3x3" },
     { type: "pomodoro", title: "Pomodoro", icon: pomodoroIcon },
     { type: "todo", title: "Todo List", icon: todoIcon },
+    { type: "ai", title: "AI Assistant", icon: aiIcon },
 ];

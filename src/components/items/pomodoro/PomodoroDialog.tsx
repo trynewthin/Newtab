@@ -197,7 +197,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             onOpenChange={onOpenChange}
             title={t('sys_pomodoro')}
             actions={headerActions}
-            className="sm:max-w-[360px]"
+
         >
             <div className="relative py-2">
                 {status.isRunning ? (

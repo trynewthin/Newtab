@@ -52,7 +52,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
             open={open}
             onOpenChange={onOpenChange}
             title={t('todo_list')}
-            className="sm:max-w-[480px]"
+
         >
             <div className="py-2 space-y-4">
                 {/* Add Form */}
@@ -87,7 +87,7 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
                 )}
 
                 {/* Todo List */}
-                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                <div className="space-y-2">
                     {todos.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground/50 text-sm">
                             {t('no_tasks')}

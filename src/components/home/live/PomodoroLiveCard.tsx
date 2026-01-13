@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { cn } from "@/lib/utils";
-import { Coffee, Square, Target, Zap, BatteryCharging } from "lucide-react";
+import { Coffee, Square, Target, BatteryCharging } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import pomodoroIcon from "@/assets/pomodoro-icon.png";
 import { BaseLiveCard } from "./BaseLiveCard";
 import { useLiveActivity } from "./LiveActivityArea";
 
@@ -15,7 +16,7 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
     const status = usePomodoroStore((s) => s.status);
     const setStatus = usePomodoroStore((s) => s.setStatus);
     const [timeLeft, setTimeLeft] = useState("");
-    const [showCompletion, setShowCompletion] = useState(false);
+    const [isFinishing, setIsFinishing] = useState(false);
 
     // 注册活跃状态
     useLiveActivity('pomodoro', status.isRunning);
@@ -45,17 +46,17 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
 
     const handleStop = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setShowCompletion(true);
-        setTimeout(() => {
-            // 1.5秒后结束动画并重置状态，这将导致useLiveActivity感知到isActive=false
-            setStatus({
-                isRunning: false,
-                mode: 'work',
-                endTime: null,
-                currentRound: 1
-            });
-            setShowCompletion(false);
-        }, 1500);
+        setIsFinishing(true);
+    };
+
+    const handleFinish = () => {
+        setStatus({
+            isRunning: false,
+            mode: 'work',
+            endTime: null,
+            currentRound: 1
+        });
+        setIsFinishing(false);
     };
 
     if (!status.isRunning) {
@@ -66,40 +67,20 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
 
     const getModeConfig = () => {
         switch (status.mode) {
-            case 'work':
-                return {
-                    icon: <Target className="w-6 h-6 text-white" />,
-                    bgGradient: "from-primary to-primary/80 shadow-primary/20",
-                    label: t('focus').toUpperCase(),
-                    textColor: "text-primary"
-                };
             case 'break':
                 return {
                     icon: <Coffee className="w-6 h-6 text-white" />,
-                    bgGradient: "from-green-500 to-green-600 shadow-green-500/20",
-                    label: t('chilling').toUpperCase(),
-                    textColor: "text-green-500"
+                    bgGradient: "from-emerald-500 to-emerald-600 shadow-emerald-500/20"
                 };
             case 'long-break':
                 return {
                     icon: <BatteryCharging className="w-6 h-6 text-white" />,
-                    bgGradient: "from-blue-500 to-blue-600 shadow-blue-500/20",
-                    label: t('recharging').toUpperCase(),
-                    textColor: "text-blue-500"
-                };
-            case 'prepare':
-                return {
-                    icon: <Zap className="w-6 h-6 text-white" />,
-                    bgGradient: "from-orange-500 to-orange-600 shadow-orange-500/20",
-                    label: t('ready').toUpperCase(),
-                    textColor: "text-orange-500"
+                    bgGradient: "from-teal-500 to-teal-600 shadow-teal-500/20"
                 };
             default:
                 return {
-                    icon: <Target className="w-6 h-6 text-white" />,
-                    bgGradient: "from-primary to-primary/80 shadow-primary/20",
-                    label: t('focus').toUpperCase(),
-                    textColor: "text-primary"
+                    icon: <img src={pomodoroIcon} alt="Pomodoro" className="w-full h-full object-cover rounded-[14px]" />,
+                    bgGradient: "bg-transparent shadow-none"
                 };
         }
     };
@@ -112,7 +93,8 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
             icon={config.icon}
             iconBgGradient={config.bgGradient}
             className="gap-5"
-            showCompletion={showCompletion}
+            isFinishing={isFinishing}
+            onFinish={handleFinish}
             action={
                 <button
                     onClick={handleStop}
@@ -126,23 +108,22 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
                 </button>
             }
         >
-            <div className="flex items-center gap-3">
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70 leading-none">
-                            {config.label}
-                        </span>
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground leading-none">
-                            {status.currentRound}/{rounds}
-                        </span>
+            <div className="flex flex-col items-start justify-center gap-0.5">
+                <span className="text-xl font-bold font-mono tracking-wider tabular-nums leading-none">
+                    {timeLeft}
+                </span>
+
+                {status.mode === 'work' && (
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                        <Target className="w-3 h-3" />
+                        <span>Round {status.currentRound}/{rounds}</span>
                     </div>
-                    <div className={cn(
-                        "text-3xl font-black tabular-nums tracking-tighter leading-none transition-colors duration-300",
-                        config.textColor
-                    )}>
-                        {timeLeft}
-                    </div>
-                </div>
+                )}
+                {status.mode !== 'work' && (
+                    <span className="text-xs font-medium text-muted-foreground">
+                        {status.mode === 'break' ? 'Short Break' : 'Long Break'}
+                    </span>
+                )}
             </div>
         </BaseLiveCard>
     );

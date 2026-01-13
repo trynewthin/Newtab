@@ -17,6 +17,9 @@ export function renderSystemIcon(iconName: string, className?: string) {
         case "ListTodo":
             return <ListTodo size={24} className={className} />;
         default:
+            if (iconName.includes('/') || iconName.includes('.')) {
+                return <img src={iconName} className={className} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} alt="" />;
+            }
             return <span className={className}>{iconName}</span>;
     }
 }

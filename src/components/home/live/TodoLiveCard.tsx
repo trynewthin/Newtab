@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";
-import { ListTodo, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import todoIcon from "@/assets/todo-icon.png";
 import { BaseLiveCard } from "./BaseLiveCard";
 import { useLiveActivity } from "./LiveActivityArea";
 
@@ -18,7 +19,10 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
 
     const [completingIds, setCompletingIds] = useState<string[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [showCompletion, setShowCompletion] = useState(false);
+    const [isFinishing, setIsFinishing] = useState(false);
+
+    // 用于保存正在结束时要处理的那个任务ID
+    const [finishingId, setFinishingId] = useState<string | null>(null);
 
     // 注册活跃状态
     useLiveActivity('todo', pendingTodos.length > 0);
@@ -28,16 +32,10 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
 
         if (completingIds.includes(id)) return;
 
-        // 如果是最后一个任务，触发完成动画流程
+        // 如果是最后一个任务，启动完成流程
         if (pendingTodos.length === 1) {
-            setShowCompletion(true);
-
-            // 1.5秒后执行完成逻辑
-            setTimeout(() => {
-                toggleTodo(id);
-                setShowCompletion(false);
-                setCurrentIndex(0);
-            }, 1500);
+            setFinishingId(id);
+            setIsFinishing(true);
             return;
         }
 
@@ -55,6 +53,15 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
         }, 500);
     };
 
+    const handleFinish = () => {
+        if (finishingId) {
+            toggleTodo(finishingId);
+            setFinishingId(null);
+        }
+        setIsFinishing(false);
+        setCurrentIndex(0);
+    };
+
     const handleNext = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (pendingTodos.length > 0) {
@@ -69,18 +76,19 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
     return (
         <BaseLiveCard
             onClick={onOpenDialog}
-            showCompletion={showCompletion}
+            isFinishing={isFinishing}
+            onFinish={handleFinish}
             icon={
-                <>
-                    <ListTodo className="w-5 h-5 text-white" />
+                <div className="relative w-full h-full">
+                    <img src={todoIcon} alt="Todo" className="w-full h-full object-cover rounded-[14px]" />
                     {totalCount > 1 && (
-                        <div className="absolute -top-1.5 -right-1.5 flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-red-500 text-white ring-2 ring-background text-[10px] font-bold shadow-sm">
+                        <div className="absolute -top-1 -right-1 flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-red-500 text-white ring-2 ring-background text-[10px] font-bold shadow-sm z-10">
                             {totalCount}
                         </div>
                     )}
-                </>
+                </div>
             }
-            iconBgGradient="from-blue-500 to-blue-600 shadow-blue-500/20"
+            iconBgGradient="bg-transparent shadow-none"
             action={
                 totalCount > 1 ? (
                     <button

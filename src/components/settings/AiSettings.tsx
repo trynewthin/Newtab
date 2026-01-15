@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp } from "lucide-react";
+import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp, Box } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarHeader } from "@/components/base";
 import { useAiStore } from "@/webagent";
@@ -86,7 +86,7 @@ function AiConfigContent() {
             baseUrl: "https://api.openai.com/v1",
             model: "gpt-3.5-turbo",
             visionEnabled: true,
-            enabledTools: ['get_semantic_map', 'click_by_id', 'scroll']
+            enabledTools: ['get_semantic_map', 'click_by_id', 'scroll', 'get_time']
         };
         addModel(newModel);
         // Set editing to the last model (newly added)
@@ -288,6 +288,24 @@ function AiPreferencesContent() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* System Tools Section */}
+            <SettingsSection
+                icon={Box}
+                iconColor="text-blue-500"
+                title={t('system_tools')}
+                description={t('system_tools_desc')}
+            >
+                <SettingsItem
+                    label={t('get_time')}
+                    description={t('get_time_desc')}
+                >
+                    <Switch
+                        checked={activeModel.enabledTools?.includes('get_time')}
+                        onCheckedChange={() => toggleTool('get_time')}
+                    />
+                </SettingsItem>
+            </SettingsSection>
+
             {/* Web Skills Section */}
             <SettingsSection
                 icon={Wrench}

@@ -4,8 +4,9 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { BaseModal, ModalButton } from "@/components/base";
 import { type Tag } from "@/store/core/types";
-import { AddTagTab } from "./AddTagTab";
 import { useTranslation } from "react-i18next";
+import { useTagStore } from "@/store/modules/tag";
+import { TagConfigForm, type TagConfigData } from "./TagConfigForm";
 
 interface ShortcutDialogProps {
     open: boolean;
@@ -16,6 +17,25 @@ interface ShortcutDialogProps {
 export function ShortcutDialog({ open, onOpenChange, editTag }: ShortcutDialogProps) {
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const addTag = useTagStore((state) => state.addTag);
+    const updateTag = useTagStore((state) => state.updateTag);
+
+    const handleSubmit = async (data: TagConfigData) => {
+        setIsSubmitting(true);
+        try {
+            if (editTag) {
+                updateTag(editTag.id, data);
+            } else {
+                addTag(data);
+            }
+            onOpenChange(false);
+        } catch (error) {
+            console.error("Failed to save tag:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <BaseModal
@@ -53,11 +73,13 @@ export function ShortcutDialog({ open, onOpenChange, editTag }: ShortcutDialogPr
             }
             background={<div className="absolute inset-0 bg-background" />}
         >
-            <div className="pt-2">
-                <AddTagTab
-                    editTag={editTag}
-                    onSuccess={() => onOpenChange(false)}
-                    setIsSubmitting={setIsSubmitting}
+            <div className="pt-2 px-1">
+                <TagConfigForm
+                    key={editTag?.id || 'new'}
+                    defaultValues={editTag || {}}
+                    onSubmit={handleSubmit}
+                    showUrlField={true}
+                    autoFocus={!editTag}
                 />
             </div>
         </BaseModal>

@@ -51,9 +51,9 @@ export function ChatInput({
 
     return (
         <div className={cn(
-            "relative flex items-end gap-2 p-1.5 rounded-[24px] transition-all duration-300",
-            "bg-secondary/40 border border-border/40 shadow-sm",
-            "focus-within:bg-secondary/60 focus-within:shadow-md focus-within:border-primary/20"
+            "relative flex items-end gap-2 p-1.5 rounded-[22px] transition-all duration-300",
+            "bg-background/40 backdrop-blur-md border border-white/10 shadow-lg ring-1 ring-black/5",
+            "focus-within:bg-background/60 focus-within:ring-primary/20 focus-within:border-primary/30"
         )}>
             {/* Model Switcher */}
             <div className="pb-0.5">
@@ -99,7 +99,7 @@ export function ChatInput({
                 onKeyDown={handleKeyDown}
                 placeholder={isLoading ? "Agent is working..." : (activeModel ? `Message ${activeModel.name}...` : "Type a message...")}
                 disabled={isLoading}
-                className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 px-2 py-2.5 text-sm min-h-[40px] placeholder:text-muted-foreground/40 font-medium"
+                className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 px-3 py-2.5 text-sm min-h-[40px] placeholder:text-muted-foreground/30 font-medium"
                 autoComplete="off"
             />
 

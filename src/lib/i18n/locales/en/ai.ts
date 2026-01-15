@@ -1,6 +1,10 @@
 export const ai = {
     ai_assistant: "AI Assistant",
     ai_settings_desc: "Configure models, capabilities, and system preferences.",
+    system_tools: "System Tools",
+    system_tools_desc: "Basic utility tools for general tasks",
+    get_time: "Get Time",
+    get_time_desc: "Allow AI to check the current time and date",
     sessions: "Sessions",
     new_chat: "New Chat",
     new_conversation: "New Conversation",

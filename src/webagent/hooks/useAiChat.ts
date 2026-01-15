@@ -5,6 +5,7 @@
 import { useCallback, useRef } from 'react';
 import { useAiStore } from '../store';
 import { VISION_TOOLS, executeVisionTool } from '../vision';
+import { SYSTEM_TOOLS, executeSystemTool } from '../tools/system';
 import { prepareApiMessages } from '../utils';
 
 export function useAiChat() {
@@ -21,6 +22,8 @@ export function useAiChat() {
     const stopSignalRef = useRef(false);
     const abortControllerRef = useRef<AbortController | null>(null);
 
+    const ALL_TOOLS = [...VISION_TOOLS, ...SYSTEM_TOOLS];
+
     const stopGeneration = useCallback(() => {
         stopSignalRef.current = true;
         abortControllerRef.current?.abort();
@@ -31,10 +34,13 @@ export function useAiChat() {
         const config = getActiveModelConfig();
         if (!config) throw new Error("No model configured");
 
-        // 🔥 首先检查总开关，如果关闭则不传任何工具
-        const isVisionEnabled = config.visionEnabled ?? true;
-        const enabledToolNames = isVisionEnabled ? (config.enabledTools || []) : [];
-        const activeTools = VISION_TOOLS.filter(t => enabledToolNames.includes(t.function.name));
+        // 🔥 过滤已启用的工具
+        const enabledToolNames = config.enabledTools || [];
+
+        const activeTools = ALL_TOOLS.filter(t => {
+            // 系统工具也需要在这个列表里
+            return enabledToolNames.includes(t.function.name);
+        });
 
         const response = await fetch(`${config.baseUrl}/chat/completions`, {
             method: 'POST',
@@ -61,9 +67,8 @@ export function useAiChat() {
             const systemPrompt = getDynamicSystemPrompt(config);
 
             let step = 0;
-            // 只有开启了总开关且有子工具时，才进入 ReAct 循环
-            const isVisionEnabled = config.visionEnabled ?? true;
-            const hasTools = isVisionEnabled && (config.enabledTools?.length ?? 0) > 0;
+            const enabledToolNames = config.enabledTools || [];
+            const hasTools = enabledToolNames.length > 0;
             const maxSteps = hasTools ? 10 : 1;
 
             while (step < maxSteps && !stopSignalRef.current) {
@@ -83,17 +88,30 @@ export function useAiChat() {
                 if (!msg.tool_calls) break;
 
                 for (const tool of msg.tool_calls) {
+                    const toolName = tool.function.name;
+                    const toolArgs = JSON.parse(tool.function.arguments);
+
                     const toolMsgId = await addMessage({
                         role: 'tool',
-                        content: `📡 Delegating [${tool.function.name}] to Vision Agent...`,
-                        tool_name: tool.function.name,
+                        content: `📡 Executing [${toolName}]...`,
+                        tool_name: toolName,
                         tool_call_id: tool.id
                     });
 
-                    const visionConfig = getActiveVisionModelConfig();
-                    const result = await executeVisionTool(tool.function.name, JSON.parse(tool.function.arguments), visionConfig);
+                    let result;
+                    // 判断工具类型
+                    if (VISION_TOOLS.some(t => t.function.name === toolName)) {
+                        const visionConfig = getActiveVisionModelConfig();
+                        result = await executeVisionTool(toolName, toolArgs, visionConfig);
+                    } else if (SYSTEM_TOOLS.some(t => t.function.name === toolName)) {
+                        result = await executeSystemTool(toolName, toolArgs);
+                    } else {
+                        result = `Error: Unknown tool ${toolName}`;
+                    }
 
-                    await updateMessage(toolMsgId, { content: result });
+                    await updateMessage(toolMsgId, {
+                        content: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
+                    });
                 }
             }
         } catch (e: any) {

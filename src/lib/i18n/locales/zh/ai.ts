@@ -1,6 +1,10 @@
 export const ai = {
     ai_assistant: "AI 助手",
     ai_settings_desc: "配置模型、功能和系统偏好。",
+    system_tools: "系统工具",
+    system_tools_desc: "用于处理通用任务的基础工具",
+    get_time: "获取时间",
+    get_time_desc: "允许 AI 查看当前的本地时间和日期",
     sessions: "会话列表",
     new_chat: "开启新话题",
     new_conversation: "新会话",

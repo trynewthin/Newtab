@@ -2,8 +2,6 @@ import { Download, History, MessageSquarePlus, Trash2, MessageSquare } from "luc
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useTranslation } from "react-i18next";
-import { useSettingsStore } from "@/store/modules/settings";
-import { useEffect } from "react";
 import type { Message } from "@/webagent";
 import React from "react";
 
@@ -29,19 +27,6 @@ export function Header({
     switchSession
 }: HeaderProps) {
     const { t } = useTranslation();
-    const theme = useSettingsStore((state) => state.theme);
-
-    // Apply theme to sidepanel
-    useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark");
-        if (theme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-            root.classList.add(systemTheme);
-        } else {
-            root.classList.add(theme);
-        }
-    }, [theme]);
 
     const handleExport = () => {
         const data = JSON.stringify(messages, null, 2);

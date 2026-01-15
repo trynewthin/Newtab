@@ -1,4 +1,4 @@
-import { ShortcutDialog } from "./config-dialog";
+import { ShortcutDialog } from "./tag";
 import { PomodoroDialog } from "./pomodoro/PomodoroDialog";
 import { SettingsDialog } from "@/components/settings";
 import { TodoDialog } from "./todo/TodoDialog";

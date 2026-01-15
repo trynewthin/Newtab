@@ -4,7 +4,7 @@ import { useUIStore } from "@/store/modules/ui";
 import { type Tag } from "@/store/core/types";
 import { TagItem } from "./TagItem";
 import { FolderItem } from "@/components/items/folder/FolderItem";
-import { ShortcutDialog } from "@/components/items/config-dialog";
+import { ShortcutDialog } from "./ShortcutDialog";
 import { SystemDialogHost, type SystemType } from "@/components/items";
 import { FolderPreview } from "@/components/items/folder/FolderPreview";
 import { useTranslation } from "react-i18next";

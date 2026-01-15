@@ -65,7 +65,7 @@ export function IconManagerTab() {
                             <div className={cn(
                                 "absolute right-0 inset-y-0 w-24 rounded-r-xl flex items-center justify-end px-4",
                                 "opacity-0 group-hover:opacity-100 transition-all duration-300",
-                                "bg-gradient-to-l from-background via-background/90 to-transparent"
+                                "bg-linear-to-l from-background via-background/90 to-transparent"
                             )}>
                                 <div className={cn(
                                     "w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white shadow-md transition-transform duration-200 hover:scale-110",

@@ -28,7 +28,6 @@
         "debugger"
     ],
     "host_permissions": [
-        "https://www.google.com/*",
-        "https://*/*"
+        "<all_urls>"
     ]
 }

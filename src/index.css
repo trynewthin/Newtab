@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/jetbrains-mono";
 
-@custom-variant dark (&:is(.dark *));
+@variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: oklch(1 0 0);
@@ -118,7 +118,8 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--color-border);
+    outline-color: color-mix(in srgb, var(--color-ring) 50%, transparent);
   }
 
   html,
@@ -132,11 +133,13 @@
   }
 
   body {
-    @apply font-sans bg-background text-foreground;
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 
   html {
-    @apply font-sans;
+    font-family: var(--font-sans);
   }
 
   /* Premium Scrollbar */
@@ -196,5 +199,19 @@
     100% {
       transform: rotate(0deg);
     }
+  }
+
+  .bg-paper {
+    background-color: #fffef2;
+    background-image:
+      linear-gradient(rgba(0, 0, 0, .04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, .04) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .paper-shadow {
+    box-shadow:
+      2px 2px 0 rgba(0, 0, 0, 0.05),
+      5px 5px 15px rgba(0, 0, 0, 0.1);
   }
 }

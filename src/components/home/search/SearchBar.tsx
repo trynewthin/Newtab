@@ -203,7 +203,7 @@ export function SearchBar() {
                                     index === activeIndex ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
                                 )}
                             >
-                                <Search size={14} className="flex-shrink-0 opacity-50" />
+                                <Search size={14} className="shrink-0 opacity-50" />
                                 <span className="text-sm truncate">{suggestion}</span>
                             </li>
                         ))}

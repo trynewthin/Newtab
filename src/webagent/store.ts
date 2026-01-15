@@ -1,66 +1,62 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
-import type { Message, ModelConfig, ChatSession, MessageContent } from './types';
+import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
+import type { Message, ModelConfig } from './types';
 import { getTextContent } from './types';
+
+interface SessionMetadata {
+    id: string;
+    title: string;
+    updatedAt: number;
+    preview?: string;
+}
 
 interface AiState {
     models: ModelConfig[];
     activeModelId: string | null;
-    sessions: ChatSession[];
-    currentSessionId: string;
+    activeVisionModelId: string | null;
+
+    sessions: SessionMetadata[];
+    currentSessionId: string | null;
+
     messages: Message[];
     isLoading: boolean;
+    isRestoring: boolean;
 
-    createSession: () => void;
-    deleteSession: (id: string) => void;
-    switchSession: (id: string) => void;
+    createSession: () => Promise<void>;
+    deleteSession: (id: string) => Promise<void>;
+    switchSession: (id: string) => Promise<void>;
     updateSessionTitle: (id: string, title: string) => void;
+
     addModel: (model: Omit<ModelConfig, 'id'>) => void;
     updateModel: (id: string, updates: Partial<ModelConfig>) => void;
     deleteModel: (id: string) => void;
     setActiveModel: (id: string) => void;
+    setActiveVisionModel: (id: string | null) => void;
 
-    addMessage: (message: Partial<Message> & { role: Message['role'] }) => string;
-    updateMessage: (id: string, updates: Partial<Message>) => void;
-    clearMessages: () => void;
+    addMessage: (message: Partial<Message> & { role: Message['role'] }) => Promise<string>;
+    updateMessage: (id: string, updates: Partial<Message>) => Promise<void>;
+    clearMessages: () => Promise<void>;
     setLoading: (loading: boolean) => void;
     getActiveModelConfig: () => ModelConfig | undefined;
+    getActiveVisionModelConfig: () => ModelConfig | undefined;
+
+    getDynamicSystemPrompt: (config: ModelConfig) => string;
+
+    hydrateSession: () => Promise<void>;
 }
 
-// 视觉 Web Agent 系统提示
-const VISION_AGENT_SYSTEM_PROMPT = `You are a Visual Web Agent that interacts with web pages using screenshots and precise coordinate-based actions.
+const BASE_AGENT_PROMPT = `你是一个强大的 Web 助手。请根据用户的需求，选择合适的工具来完成任务。`;
 
-## Core Capabilities:
-1. **Visual Understanding**: You receive screenshots and analyze them to understand page layout, UI elements, and their positions.
-2. **Coordinate-Based Interaction**: You click at specific (x, y) pixel coordinates based on visual analysis.
-3. **Structured Planning**: You decompose complex tasks into executable steps.
-
-## Available Tools:
-- \`capture_screenshot\`: Take a screenshot to see the current page
-- \`click_at(x, y)\`: Click at specific pixel coordinates
-- \`type_text(text)\`: Type text at the current cursor position
-- \`scroll(direction, amount)\`: Scroll the page
-- \`navigate(url)\`: Go to a URL
-- \`press_key(key)\`: Press a keyboard key
-- \`set_task_plan\`: Define your execution plan
-
-## Workflow:
-1. ALWAYS capture a screenshot first to understand the page
-2. Analyze the screenshot to identify elements and estimate their coordinates
-3. Click at the center of the target element
-4. Verify results with another screenshot
-
-## Coordinate Guidelines:
-- Coordinates are pixels from top-left corner (0, 0)
-- Typical viewport: ~1280x720 pixels
-- Estimate the CENTER of clickable elements
-- Be precise - small errors may click wrong elements
-
-## Output Rules:
-- Respond in **Chinese** (Simplified)
-- Say "STEP_COMPLETE" after finishing each step
-- Never hallucinate - only report what you actually see/do`;
+const VISION_TOOL_PROMPT = `
+## 视觉代理功能 (VISION ENABLED):
+你拥有“视觉双眼”，可以查看并操作网页。
+1. 首先调用 \`get_semantic_map\` 来获取当前页面的实体和 ID 映射。
+2. 根据返回的实体信息（如视频卡片、按钮），使用 \`click_by_id\` 进行精准操作。
+3. 如果需要翻页或查看更多内容，使用 \`scroll\` 工具。
+4. 如果页面发生滚动或内容变化，请务必重新调用 \`get_semantic_map\` 以更新你的视觉感知。
+`;
 
 const DEFAULT_MODEL: ModelConfig = {
     id: 'default',
@@ -68,8 +64,10 @@ const DEFAULT_MODEL: ModelConfig = {
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-4o-mini',
-    systemPrompt: VISION_AGENT_SYSTEM_PROMPT,
+    systemPrompt: '请以专业友好的中文回答。',
     temperature: 0.1,
+    visionEnabled: true, // 默认开启视觉包
+    enabledTools: ['get_semantic_map', 'click_by_id', 'scroll']
 };
 
 export const useAiStore = create<AiState>()(
@@ -77,16 +75,43 @@ export const useAiStore = create<AiState>()(
         (set, get) => ({
             models: [DEFAULT_MODEL],
             activeModelId: 'default',
+            activeVisionModelId: 'default',
             sessions: [],
-            currentSessionId: 'default-session',
+            currentSessionId: null,
             messages: [],
             isLoading: false,
+            isRestoring: false,
+
+            getDynamicSystemPrompt: (config: ModelConfig) => {
+                let prompt = BASE_AGENT_PROMPT;
+
+                // 🔥 只有总开关开启时，才注入任何视觉指令
+                if (config.visionEnabled) {
+                    const enabledTools = config.enabledTools || [];
+                    const hasVision = enabledTools.some(t =>
+                        ['get_semantic_map', 'click_by_id', 'scroll'].includes(t)
+                    );
+                    if (hasVision) prompt += VISION_TOOL_PROMPT;
+                }
+
+                if (config.systemPrompt) {
+                    prompt += `\n## 用户追加指令:\n${config.systemPrompt}`;
+                }
+
+                return prompt;
+            },
 
             addModel: (modelData) => set((state) => {
-                const newModel = { ...modelData, id: uuidv4() };
+                const newModel = {
+                    ...modelData,
+                    id: uuidv4(),
+                    visionEnabled: modelData.visionEnabled ?? true,
+                    enabledTools: modelData.enabledTools || []
+                };
                 return {
                     models: [...state.models, newModel],
-                    activeModelId: state.models.length === 0 ? newModel.id : state.activeModelId
+                    activeModelId: state.models.length === 0 ? newModel.id : state.activeModelId,
+                    activeVisionModelId: state.models.length === 0 ? newModel.id : state.activeVisionModelId
                 };
             }),
 
@@ -97,142 +122,113 @@ export const useAiStore = create<AiState>()(
             deleteModel: (id) => set((state) => {
                 const newModels = state.models.filter(m => m.id !== id);
                 let newActiveId = state.activeModelId;
-                if (state.activeModelId === id) {
-                    newActiveId = newModels.length > 0 ? newModels[0].id : null;
-                }
-                return { models: newModels, activeModelId: newActiveId };
+                let newVisionId = state.activeVisionModelId;
+                if (state.activeModelId === id) newActiveId = newModels.length > 0 ? newModels[0].id : null;
+                if (state.activeVisionModelId === id) newVisionId = newModels.length > 0 ? newModels[0].id : null;
+                return { models: newModels, activeModelId: newActiveId, activeVisionModelId: newVisionId };
             }),
 
             setActiveModel: (id) => set({ activeModelId: id }),
-
-            createSession: () => set((state) => {
-                const newId = uuidv4();
-                const newSession: ChatSession = {
-                    id: newId,
-                    title: 'New Chat',
-                    messages: [],
-                    updatedAt: Date.now()
-                };
-                return {
-                    sessions: [newSession, ...state.sessions],
-                    currentSessionId: newId,
-                    messages: []
-                };
-            }),
-
-            deleteSession: (id) => set((state) => {
-                const newSessions = state.sessions.filter(s => s.id !== id);
-                if (state.currentSessionId === id) {
-                    if (newSessions.length > 0) {
-                        const next = newSessions[0];
-                        return { sessions: newSessions, currentSessionId: next.id, messages: next.messages };
-                    } else {
-                        const newId = uuidv4();
-                        const defaultSession: ChatSession = { id: newId, title: 'New Chat', messages: [], updatedAt: Date.now() };
-                        return {
-                            sessions: [defaultSession],
-                            currentSessionId: newId,
-                            messages: []
-                        };
-                    }
-                }
-                return { sessions: newSessions };
-            }),
-
-            switchSession: (id) => set((state) => {
-                const target = state.sessions.find(s => s.id === id);
-                if (!target) return {};
-                return { currentSessionId: id, messages: target.messages || [] };
-            }),
-
-            updateSessionTitle: (id, title) => set((state) => ({
-                sessions: state.sessions.map(s => s.id === id ? { ...s, title } : s)
-            })),
+            setActiveVisionModel: (id) => set({ activeVisionModelId: id }),
 
             getActiveModelConfig: () => {
                 const state = get();
                 return state.models.find(m => m.id === state.activeModelId);
             },
 
-            addMessage: (msg) => {
+            getActiveVisionModelConfig: () => {
+                const state = get();
+                const visionId = state.activeVisionModelId || state.activeModelId;
+                return state.models.find(m => m.id === visionId);
+            },
+
+            hydrateSession: async () => {
+                const state = get();
+                if (state.sessions.length === 0) await get().createSession();
+                else if (state.currentSessionId) await get().switchSession(state.currentSessionId);
+                else await get().switchSession(state.sessions[0].id);
+            },
+
+            createSession: async () => {
+                const newId = uuidv4();
+                const newSession: SessionMetadata = { id: newId, title: 'New Chat', updatedAt: Date.now(), preview: 'Start a new conversation...' };
+                set(state => ({ sessions: [newSession, ...state.sessions], currentSessionId: newId, messages: [] }));
+                await idbSet(newId, []);
+            },
+
+            deleteSession: async (id) => {
+                try { await idbDel(id); } catch (e) { }
+                set(state => {
+                    const newSessions = state.sessions.filter(s => s.id !== id);
+                    if (state.currentSessionId === id) return { sessions: newSessions, currentSessionId: null, messages: [] };
+                    return { sessions: newSessions };
+                });
+                const state = get();
+                if (!state.currentSessionId && state.sessions.length > 0) await get().switchSession(state.sessions[0].id);
+                else if (state.sessions.length === 0) await get().createSession();
+            },
+
+            switchSession: async (id) => {
+                const state = get();
+                if (state.currentSessionId === id && state.messages.length > 0) return;
+                set({ isRestoring: true, currentSessionId: id, messages: [] });
+                try {
+                    const messages = await idbGet<Message[]>(id) || [];
+                    set({ messages, isRestoring: false });
+                } catch (e) { set({ messages: [], isRestoring: false }); }
+            },
+
+            updateSessionTitle: (id, title) => set((state) => ({
+                sessions: state.sessions.map(s => s.id === id ? { ...s, title } : s)
+            })),
+
+            addMessage: async (msg) => {
                 const msgId = msg.id || uuidv4();
-                set((state) => {
-                    // 处理内容 - 支持多模态
-                    let content: string | MessageContent[] = msg.content || '';
-
-                    const newMessage: Message = {
-                        id: msgId,
-                        content,
-                        timestamp: Date.now(),
-                        ...msg
-                    };
-                    const newMessages = [...state.messages, newMessage];
-
-                    let newSessions = [...state.sessions];
-                    let sessionIndex = newSessions.findIndex(s => s.id === state.currentSessionId);
-
-                    // 如果没找到当前会话，新建一个兜底
-                    if (sessionIndex === -1) {
-                        const newId = state.currentSessionId || uuidv4();
-                        const newSession: ChatSession = {
-                            id: newId,
-                            title: 'New Chat',
-                            messages: [],
-                            updatedAt: Date.now()
-                        };
-                        newSessions = [newSession, ...newSessions];
-                        sessionIndex = 0;
+                const newMessage: Message = { id: msgId, content: msg.content || '', timestamp: Date.now(), ...msg } as Message;
+                set(state => ({ messages: [...state.messages, newMessage] }));
+                const state = get();
+                const sessionId = state.currentSessionId;
+                if (!sessionId) return msgId;
+                try { await idbSet(sessionId, [...state.messages]); } catch (e) { }
+                set(s => {
+                    let newTitle = undefined;
+                    const session = s.sessions.find(abc => abc.id === sessionId);
+                    if (session && (session.title === 'New Chat') && msg.role === 'user') {
+                        const text = typeof msg.content === 'string' ? msg.content : getTextContent(msg.content);
+                        if (text) newTitle = text.slice(0, 30);
                     }
-
-                    const session = newSessions[sessionIndex];
-
-                    // 只有在标题是默认值且是用户第一条消息时，才进行基础标题提取
-                    // 后续会有 useAiChat 使用 AI 进行更精准的标题替换
-                    let newTitle = session.title;
-                    if ((session.title === 'New Chat' || !session.title) && msg.role === 'user') {
-                        const text = typeof content === 'string' ? content : getTextContent(content);
-                        newTitle = text.slice(0, 30) || 'New Chat';
-                    }
-
-                    newSessions[sessionIndex] = {
-                        ...session,
-                        messages: newMessages,
-                        updatedAt: Date.now(),
-                        title: newTitle
-                    };
-
                     return {
-                        messages: newMessages,
-                        sessions: newSessions,
-                        currentSessionId: state.currentSessionId || newSessions[0].id
+                        sessions: s.sessions.map(sess => sess.id === sessionId ? {
+                            ...sess,
+                            updatedAt: Date.now(),
+                            preview: typeof msg.content === 'string' ? msg.content.slice(0, 50) : '[Multimodal]',
+                            title: newTitle || sess.title
+                        } : sess)
                     };
                 });
                 return msgId;
             },
 
-            updateMessage: (id, updates) => set((state) => {
-                const newMessages = state.messages.map(m => m.id === id ? { ...m, ...updates } : m);
-                const newSessions = state.sessions.map(s =>
-                    s.id === state.currentSessionId ? { ...s, messages: newMessages } : s
-                );
-                return { messages: newMessages, sessions: newSessions };
-            }),
+            updateMessage: async (id, updates) => {
+                set(state => ({ messages: state.messages.map(m => m.id === id ? { ...m, ...updates } : m) }));
+                const state = get();
+                if (state.currentSessionId) await idbSet(state.currentSessionId, state.messages);
+            },
 
-            clearMessages: () => set((state) => {
-                const newSessions = state.sessions.map(s =>
-                    s.id === state.currentSessionId ? { ...s, messages: [], updatedAt: Date.now() } : s
-                );
-                return { messages: [], sessions: newSessions };
-            }),
+            clearMessages: async () => {
+                set({ messages: [] });
+                const state = get();
+                if (state.currentSessionId) await idbSet(state.currentSessionId, []);
+            },
 
             setLoading: (isLoading) => set({ isLoading }),
         }),
         {
-            name: 'app-ai-storage',
+            name: 'app-ai-meta-storage',
             partialize: (state) => ({
                 models: state.models,
                 activeModelId: state.activeModelId,
-                messages: state.messages,
+                activeVisionModelId: state.activeVisionModelId,
                 sessions: state.sessions,
                 currentSessionId: state.currentSessionId
             }),

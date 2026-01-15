@@ -24,7 +24,7 @@ function ModalOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
         <DialogPrimitive.Backdrop
             data-slot="modal-overlay"
             className={cn(
-                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 backdrop-blur-sm duration-100 fixed inset-0 z-[999]",
+                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 backdrop-blur-sm duration-100 fixed inset-0 z-999",
                 className
             )}
             {...props}
@@ -86,7 +86,7 @@ function BaseModal({
                     data-slot="modal-content"
                     className={cn(
                         // Positioning
-                        "fixed top-1/2 left-1/2 z-[1000] -translate-x-1/2 -translate-y-1/2 outline-none",
+                        "fixed top-1/2 left-1/2 z-1000 -translate-x-1/2 -translate-y-1/2 outline-none",
                         // Animations
                         "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 duration-100",
                         // Base Responsive Limits (Max width/height relative to viewport)
@@ -128,7 +128,7 @@ function BaseModal({
                         <div className="absolute inset-0 z-20 pointer-events-none">
                             {/* Top Gradient */}
                             {showGradientShadow && (
-                                <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/5 to-transparent z-[-1]" />
+                                <div className="absolute top-0 left-0 right-0 h-24 bg-linear-to-b from-black/5 to-transparent z-[-1]" />
                             )}
 
                             {header ? (

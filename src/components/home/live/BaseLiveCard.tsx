@@ -96,7 +96,7 @@ export function BaseLiveCard({
             {/* 左侧图标区域 */}
             <div className={cn(
                 "relative flex items-center justify-center w-11 h-11 rounded-[14px] shrink-0",
-                "bg-gradient-to-br shadow-sm",
+                "bg-linear-to-br shadow-sm",
                 iconBgGradient
             )}>
                 {icon}

@@ -1,12 +1,12 @@
-import { Download, History, MessageSquarePlus, Trash2 } from "lucide-react";
+import { Download, History, MessageSquarePlus, Trash2, Settings, MessageSquare, Sliders } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import type { Message } from "@/webagent";
 import React from "react";
 
 interface HeaderProps {
-    activeTab: 'chat' | 'config' | 'preferences';
-    setActiveTab: (tab: 'chat' | 'config' | 'preferences') => void;
+    activeTab: 'chat' | 'config' | 'preferences' | 'test';
+    setActiveTab: (tab: 'chat' | 'config' | 'preferences' | 'test') => void;
     messages: Message[];
     sessions: any[];
     currentSessionId: string;
@@ -36,37 +36,45 @@ export function Header({
         URL.revokeObjectURL(url);
     };
 
+    const TABS = [
+        { id: 'chat', label: 'Chat', icon: MessageSquare },
+        { id: 'config', label: 'Models', icon: Settings },
+        { id: 'preferences', label: 'Prefs', icon: Sliders },
+        { id: 'test', label: 'Test', icon: Settings },
+    ] as const;
+
     return (
-        <div className="flex-none flex items-center justify-between px-4 py-3 border-b border-border/40 bg-background/50 backdrop-blur-md sticky top-0 z-10">
-            {/* Tab Switcher */}
-            <div className="flex bg-secondary/50 p-1 rounded-xl">
-                {(['chat', 'config', 'preferences'] as const).map(t => (
-                    <button
-                        key={t}
-                        onClick={() => setActiveTab(t)}
-                        className={cn(
-                            "px-4 py-1.5 text-[11px] font-bold rounded-lg transition-all uppercase tracking-widest",
-                            activeTab === t
-                                ? "bg-background text-primary shadow-sm"
-                                : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        {t.slice(0, 4)}
-                    </button>
-                ))}
+        <div className="flex-none flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5">
+            {/* Tab Switcher - Modern Pill Style */}
+            <div className="flex gap-1 p-1 bg-secondary/30 rounded-xl border border-white/5">
+                {TABS.map(t => {
+                    const isActive = activeTab === t.id;
+                    const Icon = t.icon;
+                    return (
+                        <button
+                            key={t.id}
+                            onClick={() => setActiveTab(t.id)}
+                            className={cn(
+                                "relative px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1.5",
+                                isActive
+                                    ? "bg-background text-foreground shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+                                    : "text-muted-foreground/60 hover:text-foreground hover:bg-white/5"
+                            )}
+                        >
+                            <Icon size={13} strokeWidth={2.5} />
+                            <span className={cn(
+                                "text-[11px] font-bold tracking-wide uppercase transition-all",
+                                isActive ? "opacity-100" : "opacity-0 w-0 overflow-hidden"
+                            )}>
+                                {t.label}
+                            </span>
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Action Buttons */}
             <div className="flex items-center gap-1">
-                {/* Export Button */}
-                <button
-                    onClick={handleExport}
-                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
-                    title="Export Messages"
-                >
-                    <Download size={15} />
-                </button>
-
                 {/* Session Manager */}
                 {activeTab === 'chat' && (
                     <SessionManager
@@ -77,6 +85,15 @@ export function Header({
                         switchSession={switchSession}
                     />
                 )}
+
+                {/* Export Button */}
+                <button
+                    onClick={handleExport}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground/60 hover:text-foreground transition-all"
+                    title="Export Debug Data"
+                >
+                    <Download size={15} />
+                </button>
             </div>
         </div>
     );
@@ -101,21 +118,27 @@ function SessionManager({
 
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors">
+            <PopoverTrigger className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground/60 hover:text-foreground transition-all">
                 <History size={15} />
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-[240px] p-2 bg-background/95 backdrop-blur-xl border-border/50 shadow-2xl rounded-2xl">
+            <PopoverContent align="end" className="w-[260px] p-3 bg-background/90 backdrop-blur-xl border-border/50 shadow-2xl rounded-2xl ring-1 ring-black/5">
+                <div className="flex items-center justify-between mb-3 px-1">
+                    <span className="text-[11px] font-black uppercase text-muted-foreground tracking-widest">Chat History</span>
+                    <span className="text-[10px] text-muted-foreground/50 font-mono">{sessions.length} sessions</span>
+                </div>
+
                 <button
                     onClick={() => {
                         createSession();
                         setIsOpen(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-all text-xs font-bold mb-2"
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground hover:brightness-110 active:scale-[0.98] transition-all text-xs font-bold mb-3 shadow-lg shadow-primary/20"
                 >
                     <MessageSquarePlus size={14} />
                     <span>New Chat</span>
                 </button>
-                <div className="max-h-[300px] overflow-y-auto space-y-1">
+
+                <div className="max-h-[280px] overflow-y-auto custom-scrollbar space-y-1 pr-1">
                     {sessions.map(s => (
                         <div
                             key={s.id}
@@ -124,21 +147,26 @@ function SessionManager({
                                 setIsOpen(false);
                             }}
                             className={cn(
-                                "group flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs cursor-pointer",
+                                "group cursor-pointer flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-xs transition-all border border-transparent",
                                 currentSessionId === s.id
-                                    ? "bg-secondary text-foreground"
-                                    : "hover:bg-muted text-muted-foreground"
+                                    ? "bg-secondary text-foreground border-border/50 shadow-sm"
+                                    : "hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
                             )}
                         >
-                            <span className="truncate flex-1 font-medium">
-                                {typeof s.title === 'string' ? s.title : "New Chat"}
-                            </span>
+                            <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                                <span className={cn("truncate font-medium", currentSessionId === s.id && "font-bold")}>
+                                    {typeof s.title === 'string' ? s.title : "New Chat"}
+                                </span>
+                                <span className="text-[9px] text-muted-foreground/40 font-mono">
+                                    {new Date(s.updatedAt || Date.now()).toLocaleDateString()}
+                                </span>
+                            </div>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     deleteSession(s.id);
                                 }}
-                                className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive"
+                                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
                             >
                                 <Trash2 size={12} />
                             </button>

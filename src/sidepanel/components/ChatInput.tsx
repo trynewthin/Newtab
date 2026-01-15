@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Send, Sparkles, Check, Square } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Send, Sparkles, Check, Square, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -26,6 +26,14 @@ export function ChatInput({
 }: ChatInputProps) {
     const [inputValue, setInputValue] = useState("");
     const [isModelOpen, setIsModelOpen] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // Auto-focus logic
+    useEffect(() => {
+        if (!isLoading) {
+            setTimeout(() => inputRef.current?.focus(), 50);
+        }
+    }, [isLoading]);
 
     const handleSend = async () => {
         if (!inputValue.trim() || isLoading) return;
@@ -42,15 +50,26 @@ export function ChatInput({
     };
 
     return (
-        <div className="flex-none p-4 pb-8 border-t border-border/40 bg-background/50 backdrop-blur-md">
-            <div className="relative flex items-end gap-2 bg-secondary/20 border border-border/40 rounded-[24px] p-2 px-3 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+        <div className="flex-none p-4 pb-6 bg-linear-to-t from-background via-background/95 to-transparent z-20">
+            <div className={cn(
+                "relative flex items-end gap-2 p-2 rounded-[28px] transition-all duration-300",
+                "bg-background/40 backdrop-blur-md border border-white/10 shadow-lg ring-1 ring-black/5",
+                "focus-within:bg-background/80 focus-within:shadow-xl focus-within:ring-primary/20 focus-within:border-primary/20"
+            )}>
                 {/* Model Switcher */}
-                <div className="pb-1">
+                <div className="pb-0.5">
                     <Popover open={isModelOpen} onOpenChange={setIsModelOpen}>
-                        <PopoverTrigger className="p-2 text-muted-foreground hover:text-primary transition-all">
-                            <Sparkles size={18} className={cn(isLoading && "text-primary")} />
+                        <PopoverTrigger className={cn(
+                            "flex items-center gap-1.5 pl-3 pr-2 py-2 rounded-full transition-all duration-300 outline-none",
+                            "hover:bg-secondary/80 text-muted-foreground hover:text-foreground",
+                            isModelOpen && "bg-secondary text-foreground",
+                            isLoading && "text-primary animate-pulse"
+                        )}>
+                            <Sparkles size={16} className={cn(isLoading && "animate-spin-slow")} />
+                            <ChevronUp size={12} className={cn("transition-transform duration-300 opacity-50", isModelOpen ? "rotate-180" : "")} />
                         </PopoverTrigger>
-                        <PopoverContent align="start" side="top" className="w-[180px] p-1 bg-background/95 shadow-2xl rounded-xl border-border/50">
+                        <PopoverContent align="start" side="top" className="w-[200px] p-1.5 bg-background/90 backdrop-blur-2xl shadow-2xl rounded-2xl border-white/10 ring-1 ring-black/5 mb-2">
+                            <div className="px-2 py-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Select Model</div>
                             {models.map(m => (
                                 <button
                                     key={m.id}
@@ -59,14 +78,14 @@ export function ChatInput({
                                         setIsModelOpen(false);
                                     }}
                                     className={cn(
-                                        "w-full text-left px-3 py-2 rounded-lg text-[11px] font-bold flex items-center justify-between",
+                                        "w-full text-left px-3 py-2.5 rounded-xl text-[12px] font-medium flex items-center justify-between transition-all group",
                                         activeModelId === m.id
-                                            ? "bg-primary/10 text-primary"
-                                            : "hover:bg-muted text-muted-foreground"
+                                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                                            : "hover:bg-secondary text-muted-foreground hover:text-foreground"
                                     )}
                                 >
                                     <span className="truncate">{m.name}</span>
-                                    {activeModelId === m.id && <Check size={12} strokeWidth={4} />}
+                                    {activeModelId === m.id && <Check size={14} strokeWidth={3} />}
                                 </button>
                             ))}
                         </PopoverContent>
@@ -75,37 +94,46 @@ export function ChatInput({
 
                 {/* Input Field */}
                 <Input
+                    ref={inputRef}
                     value={inputValue}
                     onChange={e => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={activeModel ? `Command ${activeModel.name}...` : "Command AI..."}
+                    placeholder={isLoading ? "Agent is working..." : (activeModel ? `Message ${activeModel.name}...` : "Type a message...")}
                     disabled={isLoading}
-                    className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 px-1 py-1 text-[14px] min-h-[40px]"
-                    autoFocus
+                    className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 px-2 py-3 text-[14px] min-h-[44px] placeholder:text-muted-foreground/40 font-medium"
+                    autoComplete="off"
                 />
 
                 {/* Send/Stop Button */}
-                {isLoading ? (
-                    <button
-                        onClick={onStop}
-                        className="p-2 mb-1 rounded-full bg-destructive text-white shadow-lg hover:scale-105 active:scale-95 transition-all w-8 h-8 flex items-center justify-center"
-                    >
-                        <Square size={12} fill="currentColor" />
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleSend}
-                        disabled={!inputValue.trim()}
-                        className={cn(
-                            "p-2 mb-1 rounded-full transition-all w-8 h-8 flex items-center justify-center",
-                            inputValue.trim()
-                                ? "bg-primary text-white shadow-lg hover:scale-105 active:scale-95"
-                                : "bg-muted text-muted-foreground/30"
-                        )}
-                    >
-                        <Send size={15} strokeWidth={2.5} />
-                    </button>
-                )}
+                <div className="pb-0.5 pr-0.5">
+                    {isLoading ? (
+                        <button
+                            onClick={onStop}
+                            className="w-10 h-10 rounded-full bg-destructive text-white shadow-lg shadow-destructive/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
+                            title="Stop Generation"
+                        >
+                            <Square size={14} fill="currentColor" className="group-hover:opacity-80 transition-opacity" />
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleSend}
+                            disabled={!inputValue.trim()}
+                            className={cn(
+                                "w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center",
+                                inputValue.trim()
+                                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 hover:brightness-110"
+                                    : "bg-secondary text-muted-foreground/30 cursor-not-allowed"
+                            )}
+                        >
+                            <Send size={18} className={cn(inputValue.trim() ? "ml-0.5" : "")} />
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Input Context Hint (Optional) */}
+            <div className="absolute bottom-1 left-0 right-0 text-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+                <span className="text-[9px] text-muted-foreground/30 font-medium tracking-wide">Enter to send • Shift+Enter for new line</span>
             </div>
         </div>
     );

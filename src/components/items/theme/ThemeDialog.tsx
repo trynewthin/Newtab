@@ -51,11 +51,11 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
             title={t('theme_settings')}
             header={
                 <div className="flex items-center justify-between px-6 py-5 w-full">
-                    <div className="pointer-events-auto flex items-center gap-2 bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm">
+                    <div className="pointer-events-auto flex items-center gap-1 bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm">
                         <button
                             onClick={() => setActiveTab('background')}
                             className={cn(
-                                "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
+                                "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
                                 activeTab === 'background'
                                     ? "bg-primary text-primary-foreground shadow-sm"
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
@@ -66,7 +66,7 @@ export function ThemeDialog({ open, onOpenChange }: ThemeDialogProps) {
                         <button
                             onClick={() => setActiveTab('appearance')}
                             className={cn(
-                                "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
+                                "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
                                 activeTab === 'appearance'
                                     ? "bg-primary text-primary-foreground shadow-sm"
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"

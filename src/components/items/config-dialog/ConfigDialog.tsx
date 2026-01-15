@@ -33,13 +33,11 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
         <BaseModal
             open={open}
             onOpenChange={onOpenChange}
-            // Use standardized size prop instead of className
-
             header={
                 <div className="flex items-start justify-between gap-4 px-6 py-5">
                     {/* Tabs / Title Area */}
                     <div className="pointer-events-auto min-w-0 flex-1">
-                        <div className="flex items-center p-1 bg-secondary/50 backdrop-blur-md border border-white/5 shadow-sm rounded-xl w-fit">
+                        <div className="flex items-center p-1 bg-secondary/50 backdrop-blur-md border border-white/5 shadow-sm rounded-xl w-fit gap-1">
                             <TabButton
                                 active={activeTab === 'custom'}
                                 onClick={() => setActiveTab('custom')}
@@ -63,6 +61,7 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
                                 type="submit"
                                 form="tag-config-form"
                                 disabled={isSubmitting}
+                                className="px-6 h-9 text-[11px] font-black uppercase tracking-widest rounded-xl"
                             >
                                 {isSubmitting ? t('saving') : (editTag ? t('save') : t('add'))}
                             </ModalButton>
@@ -70,7 +69,7 @@ export function ConfigDialog({ open, onOpenChange, editTag, defaultTab = 'custom
 
                         <DialogPrimitive.Close
                             render={
-                                <ModalButton>
+                                <ModalButton className="w-9 h-9 rounded-xl">
                                     <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
                                     <span className="sr-only">{t('close')}</span>
                                 </ModalButton>
@@ -102,7 +101,7 @@ function TabButton({ children, active, onClick }: { children: React.ReactNode; a
         <button
             onClick={onClick}
             className={cn(
-                "px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200",
+                "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all duration-200",
                 active
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"

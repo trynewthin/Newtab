@@ -19,31 +19,31 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
     const customOverlayLayer = (
         <div className="flex flex-col justify-between h-full w-full pointer-events-none select-none">
             {/* Top Bar: Tabs + Close */}
-            <div className="flex items-center justify-between px-6 py-5 pointer-events-auto bg-gradient-to-b from-background via-background/60 to-transparent z-30">
+            <div className="flex items-center justify-between px-6 py-5 pointer-events-auto bg-linear-to-b from-background via-background/60 to-transparent z-30">
                 {/* Tabs Switcher */}
-                <div className="bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm flex items-center gap-2">
+                <div className="bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm flex items-center gap-1">
                     <button
                         onClick={() => setActiveTab('config')}
                         className={cn(
-                            "px-4 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2",
+                            "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-2",
                             activeTab === 'config'
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                         )}
                     >
-                        <Settings size={16} />
+                        <Settings size={14} />
                         <span>{t('models')}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('preferences')}
                         className={cn(
-                            "px-4 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2",
+                            "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-2",
                             activeTab === 'preferences'
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                         )}
                     >
-                        <Sliders size={16} />
+                        <Sliders size={14} />
                         <span>{t('preferences')}</span>
                     </button>
                 </div>

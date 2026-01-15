@@ -21,7 +21,9 @@ export function AiConfigTab() {
             name: `New Model ${models.length + 1}`,
             apiKey: "",
             baseUrl: "https://api.openai.com/v1",
-            model: "gpt-3.5-turbo"
+            model: "gpt-3.5-turbo",
+            visionEnabled: true,
+            enabledTools: ['get_semantic_map', 'click_by_id', 'scroll']
         });
     };
 

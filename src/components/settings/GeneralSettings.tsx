@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { SidebarHeader } from "@/components/base";
-import { SettingsSection } from "./base/SettingsSection";
-import { Sun, Moon, Globe, Download, Upload, Monitor } from "lucide-react";
+import { SettingsSection, SettingsItem, SettingsActionButtons } from "./base/SettingComponents";
+import { Settings as SettingsIcon, Globe, Database, Download, Upload } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/store/modules/settings";
-import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 
 interface GeneralSettingsProps {
@@ -53,7 +53,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
     };
 
     const handleImportData = () => {
-        if (!confirm(t('restore_confirm') || "Importing data will overwrite all current settings. Continue?")) {
+        if (!confirm(t('restore_confirm'))) {
             return;
         }
 
@@ -78,7 +78,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                     window.location.reload();
                 } catch (error) {
                     console.error('Import failed:', error);
-                    alert(t('restore_fail') || "Failed to import data. Please check the file format.");
+                    alert(t('restore_fail'));
                 }
             };
             reader.readAsText(file);
@@ -86,10 +86,20 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
         input.click();
     };
 
-    const changeLanguage = (lang: string) => {
-        i18n.changeLanguage(lang);
-        localStorage.setItem('i18nextLng', lang);
+    // Theme options with display names
+    const themeOptions = {
+        light: t('light'),
+        dark: t('dark'),
+        system: t('system')
     };
+
+    // Language options with display names
+    const languageOptions = {
+        zh: '简体中文',
+        en: 'English'
+    };
+
+    const currentLanguage = i18n.language.startsWith('zh') ? 'zh' : 'en';
 
     return (
         <div className="h-full flex flex-col">
@@ -101,84 +111,73 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
             />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-8">
-                    {/* Theme Mode */}
+                <div className="max-w-3xl mx-auto p-6 space-y-8">
+                    {/* System Preferences Section */}
                     <SettingsSection
-                        title={t('theme_mode')}
+                        icon={SettingsIcon}
+                        iconColor="text-blue-500"
+                        title={t('general_settings')}
                         description={t('theme_mode_desc')}
                     >
-                        <div className="flex gap-2">
-                            {[
-                                { id: 'light', icon: Sun, label: t('light') },
-                                { id: 'dark', icon: Moon, label: t('dark') },
-                                { id: 'system', icon: Monitor, label: t('system') }
-                            ].map((item) => (
-                                <button
-                                    key={item.id}
-                                    //@ts-ignore
-                                    onClick={() => setTheme(item.id)}
-                                    className={cn(
-                                        "flex-1 flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border-2 transition-all",
-                                        theme === item.id
-                                            ? "border-primary bg-primary/5 text-primary shadow-sm ring-1 ring-primary/20"
-                                            : "border-border/20 hover:border-primary/30 hover:bg-secondary/20 text-muted-foreground"
-                                    )}
-                                >
-                                    <item.icon size={18} strokeWidth={theme === item.id ? 3 : 2} />
-                                    <span className="font-bold text-[10px] uppercase tracking-wider">{item.label}</span>
-                                </button>
-                            ))}
-                        </div>
+                        <SettingsItem label={t('theme_mode')}>
+                            <Select value={theme} onValueChange={(value) => setTheme(value as any)}>
+                                <SelectTrigger className="w-[180px] h-9 bg-background/40 border-border/30">
+                                    <SelectValue>
+                                        {themeOptions[theme as keyof typeof themeOptions]}
+                                    </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="light">{t('light')}</SelectItem>
+                                    <SelectItem value="dark">{t('dark')}</SelectItem>
+                                    <SelectItem value="system">{t('system')}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </SettingsItem>
                     </SettingsSection>
 
-                    {/* Language */}
+                    {/* Language Section */}
                     <SettingsSection
+                        icon={Globe}
+                        iconColor="text-green-500"
                         title={t('language')}
                         description={t('language_desc')}
                     >
-                        <div className="flex gap-2">
-                            {[
-                                { id: 'zh', label: '简体中文' },
-                                { id: 'en', label: 'English' }
-                            ].map((item) => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => changeLanguage(item.id)}
-                                    className={cn(
-                                        "flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl border-2 transition-all",
-                                        i18n.language.startsWith(item.id)
-                                            ? "border-primary bg-primary/5 text-primary shadow-sm ring-1 ring-primary/20"
-                                            : "border-border/20 hover:border-primary/30 hover:bg-secondary/20 text-muted-foreground"
-                                    )}
-                                >
-                                    <Globe size={18} strokeWidth={i18n.language.startsWith(item.id) ? 3 : 2} />
-                                    <span className="font-bold text-sm tracking-tight">{item.label}</span>
-                                </button>
-                            ))}
-                        </div>
+                        <SettingsItem label={t('language')}>
+                            <Select
+                                value={currentLanguage}
+                                onValueChange={(lang) => {
+                                    i18n.changeLanguage(lang);
+                                    localStorage.setItem('i18nextLng', lang);
+                                }}
+                            >
+                                <SelectTrigger className="w-[180px] h-9 bg-background/40 border-border/30">
+                                    <SelectValue>
+                                        {languageOptions[currentLanguage as keyof typeof languageOptions]}
+                                    </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="zh">简体中文</SelectItem>
+                                    <SelectItem value="en">English</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </SettingsItem>
                     </SettingsSection>
 
-                    {/* Data Management */}
+                    {/* Data Management Section */}
                     <SettingsSection
+                        icon={Database}
+                        iconColor="text-orange-500"
                         title={t('data_management')}
                         description={t('data_management_desc')}
                     >
-                        <div className="flex gap-3">
-                            <button
-                                onClick={handleExportData}
-                                className="flex-1 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 border-border/20 hover:border-primary/30 hover:bg-primary/5 transition-all text-foreground/80"
-                            >
-                                <Download size={20} />
-                                <span className="font-bold text-sm">{t('export')}</span>
-                            </button>
-                            <button
-                                onClick={handleImportData}
-                                className="flex-1 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 border-border/20 hover:border-primary/30 hover:bg-primary/5 transition-all text-foreground/80"
-                            >
-                                <Upload size={20} />
-                                <span className="font-bold text-sm">{t('import')}</span>
-                            </button>
-                        </div>
+                        <SettingsItem label={t('data_management')}>
+                            <SettingsActionButtons
+                                actions={[
+                                    { id: 'export', icon: Download, label: t('export'), onClick: handleExportData },
+                                    { id: 'import', icon: Upload, label: t('import'), onClick: handleImportData }
+                                ]}
+                            />
+                        </SettingsItem>
                     </SettingsSection>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sliders, Cpu, Sparkles, Thermometer, Eye, Wrench, Plus, Trash2, Check } from "lucide-react";
+import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarHeader } from "@/components/base";
 import { useAiStore } from "@/webagent";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { SettingsSection, SettingsItem } from "./base/SettingComponents";
 
 interface AiSettingsProps {
     onOpenMobileMenu?: () => void;
@@ -53,12 +54,12 @@ export function AiSettings({ onOpenMobileMenu, onClose }: AiSettingsProps) {
 
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
                 {activeTab === 'config' ? (
-                    <div className="flex-1 min-h-0 animate-in fade-in slide-in-from-bottom-2 duration-500 p-6 md:p-8">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                         <AiConfigContent />
                     </div>
                 ) : (
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="max-w-4xl mx-auto">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                        <div className="max-w-3xl mx-auto">
                             <AiPreferencesContent />
                         </div>
                     </div>
@@ -76,147 +77,169 @@ function AiConfigContent() {
     const addModel = useAiStore(s => s.addModel);
     const updateModel = useAiStore(s => s.updateModel);
     const deleteModel = useAiStore(s => s.deleteModel);
-
-    const selectedModel = models.find(m => m.id === activeModelId) || models[0];
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     const handleAddModel = () => {
-        addModel({
+        const newModel = {
             name: `${t('new_model')} ${models.length + 1}`,
             apiKey: "",
             baseUrl: "https://api.openai.com/v1",
             model: "gpt-3.5-turbo",
             visionEnabled: true,
             enabledTools: ['get_semantic_map', 'click_by_id', 'scroll']
-        });
+        };
+        addModel(newModel);
+        // Set editing to the last model (newly added)
+        setTimeout(() => {
+            const newModels = useAiStore.getState().models;
+            if (newModels.length > 0) {
+                setEditingId(newModels[newModels.length - 1].id);
+            }
+        }, 0);
     };
 
     return (
-        <div className="flex h-full gap-6 animate-in fade-in zoom-in-95 duration-200">
-            {/* Left Sidebar: Model List */}
-            <div className="w-1/3 min-w-[200px] flex flex-col gap-3 h-full rounded-4xl border border-border/40 bg-background/20 backdrop-blur-md shadow-sm p-4">
-                <div className="flex items-center justify-between mb-1 shrink-0 px-1">
-                    <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{t('available_models')}</h3>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleAddModel}
-                        className="h-6 w-6 rounded-full hover:bg-primary/10 hover:text-primary transition-all active:scale-95"
-                    >
-                        <Plus size={14} />
-                    </Button>
-                </div>
-
-                <div className="space-y-1.5 overflow-y-auto flex-1 min-h-0 custom-scrollbar pr-1">
-                    {models.map(model => (
-                        <button
-                            key={model.id}
-                            onClick={() => setActiveModel(model.id)}
-                            className={cn(
-                                "w-full text-left px-4 py-3 rounded-xl text-sm transition-all flex items-center justify-between group shrink-0 relative overflow-hidden",
-                                activeModelId === model.id
-                                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 font-bold"
-                                    : "hover:bg-background/40 text-muted-foreground hover:text-foreground border border-transparent hover:border-border/20"
-                            )}
-                        >
-                            <span className="truncate relative z-10">{model.name}</span>
-                            {activeModelId === model.id && <Check size={14} strokeWidth={3} className="relative z-10 opacity-90 shrink-0 ml-2" />}
-                        </button>
-                    ))}
-                    {models.length === 0 && (
-                        <div className="text-xs text-muted-foreground text-center py-10 italic opacity-50">
-                            {t('no_models_configured')}
-                        </div>
-                    )}
-                </div>
+        <div className="max-w-3xl mx-auto space-y-3 animate-in fade-in zoom-in-95 duration-200">
+            {/* Add Model Button */}
+            <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">{t('available_models')}</h3>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddModel}
+                    className="h-8 rounded-xl hover:bg-primary/5 hover:text-primary hover:border-primary/40 transition-all"
+                >
+                    <Plus size={14} className="mr-1.5" />
+                    {t('add_model')}
+                </Button>
             </div>
 
-            {/* Right Panel: Edit Form */}
-            <div className="flex-1 flex flex-col h-full rounded-4xl border border-border/40 bg-background/20 backdrop-blur-md shadow-sm overflow-hidden">
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8">
-                    {selectedModel ? (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                            <div className="flex items-center justify-between pb-4 border-b border-border/20 shrink-0">
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-bold tracking-tight">{t('configuration')}</h3>
-                                    <p className="text-xs text-muted-foreground/60">{t('configuration_desc')}</p>
+            {/* Model List */}
+            <div className="space-y-2">
+                {models.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground/50">
+                        <p className="text-sm">{t('no_models_configured')}</p>
+                        <p className="text-xs mt-1">{t('click_add_to_start')}</p>
+                    </div>
+                ) : (
+                    models.map(model => (
+                        <div
+                            key={model.id}
+                            className={cn(
+                                "border rounded-xl transition-all",
+                                editingId === model.id
+                                    ? "border-primary/40 bg-primary/5"
+                                    : "border-border/20 bg-background/10"
+                            )}
+                        >
+                            {/* Model Header */}
+                            <div className="flex items-center justify-between p-3">
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                    {/* Active Indicator */}
+                                    <button
+                                        onClick={() => setActiveModel(model.id)}
+                                        className={cn(
+                                            "shrink-0 w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center",
+                                            activeModelId === model.id
+                                                ? "border-primary bg-primary"
+                                                : "border-border/40 hover:border-primary/60"
+                                        )}
+                                    >
+                                        {activeModelId === model.id && (
+                                            <Check size={12} strokeWidth={3} className="text-primary-foreground" />
+                                        )}
+                                    </button>
+
+                                    {/* Model Name */}
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-sm font-semibold text-foreground truncate">{model.name}</h4>
+                                        <p className="text-xs text-muted-foreground truncate">{model.model}</p>
+                                    </div>
                                 </div>
-                                {models.length > 1 && (
+
+                                {/* Actions */}
+                                <div className="flex items-center gap-1">
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        onClick={() => deleteModel(selectedModel.id)}
-                                        className="h-9 w-9 rounded-xl text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all"
+                                        onClick={() => setEditingId(editingId === model.id ? null : model.id)}
+                                        className={cn(
+                                            "h-8 w-8 rounded-lg transition-all",
+                                            editingId === model.id && "bg-primary/10 text-primary"
+                                        )}
                                     >
-                                        <Trash2 size={16} />
+                                        {editingId === model.id ? <ChevronUp size={16} /> : <Edit2 size={14} />}
                                     </Button>
-                                )}
+                                    {models.length > 1 && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => {
+                                                if (confirm(t('confirm_delete_model'))) {
+                                                    deleteModel(model.id);
+                                                    if (editingId === model.id) setEditingId(null);
+                                                }
+                                            }}
+                                            className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all"
+                                        >
+                                            <Trash2 size={14} />
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">{t('display_name')}</label>
-                                    <Input
-                                        value={selectedModel.name}
-                                        onChange={e => updateModel(selectedModel.id, { name: e.target.value })}
-                                        placeholder={t('display_name_placeholder')}
-                                        className="h-11 rounded-xl bg-background/40 border-border/30 focus:border-primary/50 transition-all px-4"
-                                    />
-                                </div>
+                            {/* Expanded Edit Form */}
+                            {editingId === model.id && (
+                                <div className="px-3 pb-3 space-y-3 animate-in slide-in-from-top-2 duration-300">
+                                    <div className="h-px bg-border/20" />
 
-                                <div className="space-y-2 group">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">{t('provider_base_url')}</label>
-                                    <Input
-                                        value={selectedModel.baseUrl}
-                                        onChange={e => updateModel(selectedModel.id, { baseUrl: e.target.value })}
-                                        placeholder={t('provider_base_url_placeholder')}
-                                        className="h-11 font-mono text-xs bg-background/40 border-border/30 focus:border-primary/50 transition-all px-4"
-                                    />
-                                </div>
+                                    <div className="grid gap-3">
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-semibold text-muted-foreground">{t('display_name')}</label>
+                                            <Input
+                                                value={model.name}
+                                                onChange={e => updateModel(model.id, { name: e.target.value })}
+                                                placeholder={t('display_name_placeholder')}
+                                                className="h-9 bg-background/40 border-border/30"
+                                            />
+                                        </div>
 
-                                <div className="space-y-2">
-                                    <div className="flex items-baseline justify-between ml-1">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{t('api_key')}</label>
-                                        <span className="text-[10px] font-bold text-primary/60 bg-primary/5 px-2 py-0.5 rounded-full">{t('secure')}</span>
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-semibold text-muted-foreground">{t('provider_base_url')}</label>
+                                            <Input
+                                                value={model.baseUrl}
+                                                onChange={e => updateModel(model.id, { baseUrl: e.target.value })}
+                                                placeholder={t('provider_base_url_placeholder')}
+                                                className="h-9 font-mono text-xs bg-background/40 border-border/30"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-semibold text-muted-foreground">{t('api_key')}</label>
+                                            <Input
+                                                type="password"
+                                                value={model.apiKey}
+                                                onChange={e => updateModel(model.id, { apiKey: e.target.value })}
+                                                placeholder={t('api_key_placeholder')}
+                                                className="h-9 font-mono text-xs bg-background/40 border-border/30"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-semibold text-muted-foreground">{t('model_id')}</label>
+                                            <Input
+                                                value={model.model}
+                                                onChange={e => updateModel(model.id, { model: e.target.value })}
+                                                placeholder={t('model_id_placeholder')}
+                                                className="h-9 font-mono text-xs bg-background/40 border-border/30"
+                                            />
+                                        </div>
                                     </div>
-                                    <Input
-                                        type="password"
-                                        value={selectedModel.apiKey}
-                                        onChange={e => updateModel(selectedModel.id, { apiKey: e.target.value })}
-                                        placeholder={t('api_key_placeholder')}
-                                        className="h-11 font-mono text-xs bg-background/40 border-border/30 focus:border-primary/50 transition-all px-4"
-                                    />
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">{t('model_id')}</label>
-                                    <Input
-                                        value={selectedModel.model}
-                                        onChange={e => updateModel(selectedModel.id, { model: e.target.value })}
-                                        placeholder={t('model_id_placeholder')}
-                                        className="h-11 font-mono text-xs bg-background/40 border-border/30 focus:border-primary/50 transition-all px-4"
-                                    />
-                                </div>
-                            </div>
+                            )}
                         </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground/20 space-y-4 animate-in fade-in duration-700">
-                            <Cpu size={64} strokeWidth={1} />
-                            <div className="text-center">
-                                <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60">{t('no_model_selected_title')}</p>
-                                <p className="text-xs text-muted-foreground/40 mt-1">{t('no_model_selected_desc')}</p>
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleAddModel}
-                                className="rounded-full px-6 border-primary/20 hover:border-primary/50 transition-all"
-                            >
-                                <Plus size={14} className="mr-2" />
-                                {t('add_model')}
-                            </Button>
-                        </div>
-                    )}
-                </div>
+                    ))
+                )}
             </div>
         </div>
     );
@@ -261,135 +284,114 @@ function AiPreferencesContent() {
         updateModel(activeModelId, { enabledTools: newTools });
     };
 
+    const isVisionDisabled = !activeModel.visionEnabled && activeModel.visionEnabled !== undefined;
+
     return (
-        <div className="h-full overflow-y-auto px-1 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300 pb-10">
-            {/* Model Skills Section */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
-                            <Wrench size={18} />
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-medium text-foreground">{t('web_skills')}</h3>
-                            <p className="text-xs text-muted-foreground">{t('web_skills_desc')}</p>
-                        </div>
-                    </div>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* Web Skills Section */}
+            <SettingsSection
+                icon={Wrench}
+                iconColor="text-purple-500"
+                title={t('web_skills')}
+                description={t('web_skills_desc')}
+            >
+                <SettingsItem label={t('web_skills')}>
                     <Switch
                         checked={activeModel.visionEnabled ?? true}
                         onCheckedChange={toggleVisionMaster}
                         className="data-[state=checked]:bg-purple-500"
                     />
-                </div>
+                </SettingsItem>
 
-                <div className={`bg-secondary/20 p-4 rounded-2xl border border-white/5 space-y-4 transition-all duration-300 ${(!activeModel.visionEnabled && activeModel.visionEnabled !== undefined) ? 'opacity-40 grayscale pointer-events-none scale-[0.98]' : 'opacity-100'}`}>
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <span className="text-sm font-bold text-foreground">{t('vision_perception')} (get_semantic_map)</span>
-                            <p className="text-[10px] text-muted-foreground">{t('vision_perception_desc')}</p>
-                        </div>
+                <div className={cn(
+                    "space-y-3 transition-all duration-300",
+                    isVisionDisabled && "opacity-40 grayscale pointer-events-none"
+                )}>
+                    <SettingsItem
+                        label={`${t('vision_perception')} (get_semantic_map)`}
+                        description={t('vision_perception_desc')}
+                        disabled={isVisionDisabled}
+                    >
                         <Switch
-                            disabled={!activeModel.visionEnabled && activeModel.visionEnabled !== undefined}
+                            disabled={isVisionDisabled}
                             checked={activeModel.enabledTools?.includes('get_semantic_map')}
                             onCheckedChange={() => toggleTool('get_semantic_map')}
                         />
-                    </div>
+                    </SettingsItem>
 
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <span className="text-sm font-bold text-foreground">{t('precise_click')} (click_by_id)</span>
-                            <p className="text-[10px] text-muted-foreground">{t('precise_click_desc')}</p>
-                        </div>
+                    <SettingsItem
+                        label={`${t('precise_click')} (click_by_id)`}
+                        description={t('precise_click_desc')}
+                        disabled={isVisionDisabled}
+                    >
                         <Switch
-                            disabled={!activeModel.visionEnabled && activeModel.visionEnabled !== undefined}
+                            disabled={isVisionDisabled}
                             checked={activeModel.enabledTools?.includes('click_by_id')}
                             onCheckedChange={() => toggleTool('click_by_id')}
                         />
-                    </div>
+                    </SettingsItem>
 
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <span className="text-sm font-bold text-foreground">{t('semantic_scroll')} (scroll)</span>
-                            <p className="text-[10px] text-muted-foreground">{t('semantic_scroll_desc')}</p>
-                        </div>
+                    <SettingsItem
+                        label={`${t('semantic_scroll')} (scroll)`}
+                        description={t('semantic_scroll_desc')}
+                        disabled={isVisionDisabled}
+                    >
                         <Switch
-                            disabled={!activeModel.visionEnabled && activeModel.visionEnabled !== undefined}
+                            disabled={isVisionDisabled}
                             checked={activeModel.enabledTools?.includes('scroll')}
                             onCheckedChange={() => toggleTool('scroll')}
                         />
-                    </div>
+                    </SettingsItem>
+
+                    {/* Vision Model Selection - Integrated */}
+                    <SettingsItem
+                        label={t('vision_model')}
+                        description={t('vision_model_desc')}
+                        disabled={isVisionDisabled}
+                    >
+                        <Select
+                            disabled={isVisionDisabled}
+                            value={activeVisionModelId || activeModelId}
+                            onValueChange={setActiveVisionModel}
+                        >
+                            <SelectTrigger className="w-[180px] bg-background/40 border-border/30 rounded-xl h-9">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {models.map(m => (
+                                    <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </SettingsItem>
                 </div>
-            </div>
+            </SettingsSection>
 
-            <div className="border-t border-border/50" />
-
-            {/* Vision Model Selection */}
-            <div className={`space-y-4 transition-all duration-300 ${(!activeModel.visionEnabled && activeModel.visionEnabled !== undefined) ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
-                <div className="flex items-center gap-2">
-                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                        <Eye size={18} />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-medium text-foreground">{t('vision_model')}</h3>
-                        <p className="text-xs text-muted-foreground">{t('vision_model_desc')}</p>
-                    </div>
-                </div>
-
-                <Select
-                    disabled={!activeModel.visionEnabled && activeModel.visionEnabled !== undefined}
-                    value={activeVisionModelId || activeModelId}
-                    onValueChange={setActiveVisionModel}
-                >
-                    <SelectTrigger className="w-full bg-secondary/20 border-white/5 rounded-xl h-12">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {models.map(m => (
-                            <SelectItem key={m.id} value={m.id}>{m.name} ({m.model})</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <div className="border-t border-border/50" />
-
-            {/* System Prompt Section */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                        <Sparkles size={18} />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-medium text-foreground">{t('custom_instructions')}</h3>
-                        <p className="text-xs text-muted-foreground">{t('custom_instructions_desc')}</p>
-                    </div>
-                </div>
-
-                <div className="bg-secondary/20 p-1 rounded-xl border border-white/5 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+            {/* Custom Instructions */}
+            <SettingsSection
+                icon={Sparkles}
+                iconColor="text-primary"
+                title={t('custom_instructions')}
+                description={t('custom_instructions_desc')}
+            >
+                <div className="bg-background/40 p-1 rounded-xl border border-border/30 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
                     <Textarea
                         value={activeModel.systemPrompt || ''}
                         onChange={(e) => handlePromptChange(e.target.value)}
                         placeholder={t('custom_instructions_placeholder')}
-                        className="min-h-[150px] border-none bg-transparent resize-none focus-visible:ring-0 text-sm leading-relaxed"
+                        className="min-h-[120px] border-none bg-transparent resize-none focus-visible:ring-0 text-sm leading-relaxed"
                     />
                 </div>
-            </div>
+            </SettingsSection>
 
-            <div className="border-t border-border/50" />
-
-            {/* Temperature Section */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-2">
-                    <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500">
-                        <Thermometer size={18} />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-medium text-foreground">{t('creativity')}</h3>
-                        <p className="text-xs text-muted-foreground">{t('creativity_desc')}</p>
-                    </div>
-                </div>
-
-                <div className="bg-secondary/20 p-6 rounded-2xl border border-white/5 space-y-6">
+            {/* Creativity (Temperature) */}
+            <SettingsSection
+                icon={Thermometer}
+                iconColor="text-orange-500"
+                title={t('creativity')}
+                description={t('creativity_desc')}
+            >
+                <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-muted-foreground">{t('precise')}</span>
                         <span className="text-xs font-bold bg-secondary px-2 py-1 rounded-md min-w-12 text-center">
@@ -407,7 +409,7 @@ function AiPreferencesContent() {
                         className="py-2 cursor-pointer"
                     />
                 </div>
-            </div>
+            </SettingsSection>
         </div>
     );
 }

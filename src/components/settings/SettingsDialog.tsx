@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AppModal, Sidebar, SidebarItem, ThemeToggle } from "@/components/base";
+import { AppModal, Sidebar, SidebarItem } from "@/components/base";
 import { Settings, Palette, Bot, Box } from "lucide-react";
 import { GeneralSettings } from "./GeneralSettings";
 import { AppearanceSettings } from "./AppearanceSettings";
@@ -24,9 +24,9 @@ export function SettingsDialog({ open, onOpenChange, defaultTab = 'general' }: S
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     const tabs = [
-        { id: 'general', icon: Settings, label: t('general_settings') || "基础设置" },
+        { id: 'general', icon: Settings, label: t('general_settings') },
         { id: 'appearance', icon: Palette, label: t('appearance') },
-        { id: 'features', icon: Box, label: t('feature_management') || "功能管理" },
+        { id: 'features', icon: Box, label: t('feature_management') },
         { id: 'ai', icon: Bot, label: t('ai_assistant') },
     ];
 
@@ -67,7 +67,6 @@ export function SettingsDialog({ open, onOpenChange, defaultTab = 'general' }: S
                     onCollapseChange={setIsCollapsed}
                     showMobileMenu={showMobileMenu}
                     onCloseMobileMenu={() => setShowMobileMenu(false)}
-                    footer={<ThemeToggle isCollapsed={effectiveCollapsed} />}
                 >
                     {tabs.map(tab => (
                         <SidebarItem

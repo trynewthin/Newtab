@@ -20,8 +20,4 @@ export const BACKGROUND_PRESETS = [
     { name: 'Forest', type: 'gradient', value: 'linear-gradient(to bottom right, #022c22, #10b981)', preview: 'bg-linear-to-br from-emerald-950 to-emerald-500' },
     { name: 'Aurora', type: 'gradient', value: 'linear-gradient(to bottom right, #000000, #1e1b4b, #4c1d95)', preview: 'bg-linear-to-br from-black via-indigo-950 to-violet-800' },
     { name: 'Nebula', type: 'gradient', value: 'linear-gradient(to top right, #312e81, #be185d, #f59e0b)', preview: 'bg-linear-to-tr from-indigo-900 via-pink-700 to-amber-500' },
-    { name: 'Peach', type: 'gradient', value: 'linear-gradient(to bottom right, #ea580c, #f472b6)', preview: 'bg-linear-to-br from-orange-600 to-pink-400' },
-    { name: 'Royal', type: 'gradient', value: 'linear-gradient(to bottom right, #172554, #1e1b4b, #000000)', preview: 'bg-linear-to-br from-blue-950 via-indigo-950 to-black' },
-    { name: 'Lavender', type: 'gradient', value: 'linear-gradient(to bottom right, #5b21b6, #a78bfa)', preview: 'bg-linear-to-br from-violet-800 to-violet-400' },
-    { name: 'Cotton Candy', type: 'gradient', value: 'linear-gradient(to bottom right, #ec4899, #8b5cf6, #3b82f6)', preview: 'bg-linear-to-br from-pink-500 via-violet-500 to-blue-500' },
 ];

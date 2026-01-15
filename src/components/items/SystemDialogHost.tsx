@@ -21,13 +21,13 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
 
     switch (active) {
         case "settings":
-            return <SettingsDialog open={true} onOpenChange={handleOpenChange} defaultTab="appearance" />;
+            return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
         case "theme":
-            return <SettingsDialog open={true} onOpenChange={handleOpenChange} defaultTab="appearance" />;
+            return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
         case "add":
             return <ShortcutDialog open={true} onOpenChange={handleOpenChange} editTag={null} />;
         case "icon-manager":
-            return <SettingsDialog open={true} onOpenChange={handleOpenChange} defaultTab="features" />;
+            return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
         case "pomodoro":
             return <PomodoroDialog open={true} onOpenChange={handleOpenChange} />;
         case "todo":

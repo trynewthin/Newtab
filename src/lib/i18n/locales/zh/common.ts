@@ -3,6 +3,7 @@ export const common = {
     language: "语言",
     switch_lang: "切换语言",
     cancel: "取消",
+    confirm: "确认",
     save: "保存",
     add: "添加",
     close: "关闭",

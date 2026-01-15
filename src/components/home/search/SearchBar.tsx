@@ -5,33 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useSettingsStore } from "@/store/modules/settings";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-
-const searchEngines = [
-    {
-        name: "Google",
-        value: "google",
-        url: "https://www.google.com/search?q=",
-        icon: "https://www.google.com/favicon.ico"
-    },
-    {
-        name: "Bing",
-        value: "bing",
-        url: "https://www.bing.com/search?q=",
-        icon: "https://www.bing.com/favicon.ico"
-    },
-    {
-        name: "DuckDuckGo",
-        value: "duckduckgo",
-        url: "https://duckduckgo.com/?q=",
-        icon: "https://duckduckgo.com/favicon.ico"
-    },
-    {
-        name: "Baidu",
-        value: "baidu",
-        url: "https://www.baidu.com/s?wd=",
-        icon: "https://www.baidu.com/favicon.ico"
-    },
-];
+import { SEARCH_ENGINES } from "@/lib/constants";
 
 export function SearchBar() {
     const { t } = useTranslation();
@@ -40,11 +14,16 @@ export function SearchBar() {
     const [activeIndex, setActiveIndex] = useState(-1);
     const [open, setOpen] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
+
     const searchEngine = useSettingsStore((state) => state.searchEngine);
     const setSearchEngine = useSettingsStore((state) => state.setSearchEngine);
+    const customSearchEngines = useSettingsStore((state) => state.customSearchEngines);
+
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const currentEngine = searchEngines.find(se => se.value === searchEngine) || searchEngines[0];
+    // Merge system and custom engines
+    const allEngines = [...SEARCH_ENGINES, ...customSearchEngines];
+    const currentEngine = allEngines.find(se => se.value === searchEngine) || allEngines[0];
 
     useEffect(() => {
         const fetchSuggestions = async () => {
@@ -81,7 +60,15 @@ export function SearchBar() {
     }, []);
 
     const performSearch = (searchQuery: string) => {
-        const searchUrl = currentEngine.url + encodeURIComponent(searchQuery.trim());
+        const trimmedQuery = searchQuery.trim();
+        let searchUrl = currentEngine.url;
+
+        if (searchUrl.includes('%s')) {
+            searchUrl = searchUrl.replace('%s', encodeURIComponent(trimmedQuery));
+        } else {
+            searchUrl = searchUrl + encodeURIComponent(trimmedQuery);
+        }
+
         window.open(searchUrl, '_blank', 'noopener,noreferrer');
         setQuery("");
         setShowSuggestions(false);
@@ -132,16 +119,16 @@ export function SearchBar() {
                             <img
                                 src={currentEngine.icon}
                                 alt={currentEngine.name}
-                                className="w-5 h-5 drop-shadow-sm"
+                                className="w-5 h-5 drop-shadow-sm rounded-sm"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="%23ddd"/></svg>';
                                 }}
                             />
                             <ChevronDown className={cn("size-3.5 opacity-50 transition-transform duration-300", open && "rotate-180")} />
                         </PopoverTrigger>
-                        <PopoverContent className="w-56 p-2 rounded-2xl glass-card border-none mt-2" align="start">
-                            <div className="space-y-1">
-                                {searchEngines.map((engine) => (
+                        <PopoverContent className="w-56 p-2 rounded-2xl glass-card border-none mt-2 overflow-hidden" align="start">
+                            <div className="space-y-1 max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar">
+                                {allEngines.map((engine) => (
                                     <button
                                         key={engine.value}
                                         type="button"
@@ -149,16 +136,16 @@ export function SearchBar() {
                                         className={cn(
                                             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
                                             engine.value === searchEngine
-                                                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
+                                                ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                                                 : 'hover:bg-primary/10'
                                         )}
                                     >
                                         <img
                                             src={engine.icon}
                                             alt={engine.name}
-                                            className="w-4 h-4"
+                                            className="w-4 h-4 rounded-sm"
                                         />
-                                        <span className="text-sm font-semibold tracking-tight">{engine.name}</span>
+                                        <span className="text-sm font-semibold tracking-tight truncate">{engine.name}</span>
                                     </button>
                                 ))}
                             </div>

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppModal, Sidebar, SidebarItem } from "@/components/base";
-import { Settings, Palette, Bot, Box } from "lucide-react";
+import { Settings, Palette, Bot, Box, Info } from "lucide-react";
 import { GeneralSettings } from "./GeneralSettings";
 import { AppearanceSettings } from "./AppearanceSettings";
 import { AiSettings } from "./AiSettings";
 import { FeatureSettings } from "./FeatureSettings";
+import { AboutSettings } from "./AboutSettings";
 
 interface SettingsDialogProps {
     open: boolean;
@@ -13,7 +14,7 @@ interface SettingsDialogProps {
     defaultTab?: SettingsTab;
 }
 
-type SettingsTab = 'general' | 'appearance' | 'features' | 'ai';
+type SettingsTab = 'general' | 'appearance' | 'features' | 'ai' | 'about';
 
 export function SettingsDialog({ open, onOpenChange, defaultTab = 'general' }: SettingsDialogProps) {
     const { t } = useTranslation();
@@ -48,6 +49,8 @@ export function SettingsDialog({ open, onOpenChange, defaultTab = 'general' }: S
                 return <FeatureSettings {...props} />;
             case 'ai':
                 return <AiSettings {...props} />;
+            case 'about':
+                return <AboutSettings {...props} />;
             default:
                 return null;
         }
@@ -67,6 +70,18 @@ export function SettingsDialog({ open, onOpenChange, defaultTab = 'general' }: S
                     onCollapseChange={setIsCollapsed}
                     showMobileMenu={showMobileMenu}
                     onCloseMobileMenu={() => setShowMobileMenu(false)}
+                    footer={
+                        <SidebarItem
+                            icon={Info}
+                            label={t('about')}
+                            isActive={activeTab === 'about'}
+                            isCollapsed={effectiveCollapsed}
+                            onClick={() => {
+                                setActiveTab('about');
+                                setShowMobileMenu(false);
+                            }}
+                        />
+                    }
                 >
                     {tabs.map(tab => (
                         <SidebarItem

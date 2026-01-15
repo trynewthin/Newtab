@@ -24,6 +24,11 @@ interface SettingsState {
 
     searchEngine: string;
     setSearchEngine: (engine: string) => void;
+
+    customSearchEngines: Array<{ name: string; value: string; url: string; icon?: string }>;
+    addCustomSearchEngine: (engine: { name: string; value: string; url: string; icon?: string }) => void;
+    removeCustomSearchEngine: (value: string) => void;
+    updateCustomSearchEngine: (value: string, engine: Partial<{ name: string; url: string; icon?: string }>) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -59,6 +64,21 @@ export const useSettingsStore = create<SettingsState>()(
 
             searchEngine: 'google',
             setSearchEngine: (engine) => set({ searchEngine: engine }),
+
+            customSearchEngines: [],
+            addCustomSearchEngine: (engine) => set((state) => ({
+                customSearchEngines: [...state.customSearchEngines, engine]
+            })),
+            removeCustomSearchEngine: (value) => set((state) => ({
+                customSearchEngines: state.customSearchEngines.filter((e) => e.value !== value),
+                // If the deleted engine was the selected one, fallback to google
+                searchEngine: state.searchEngine === value ? 'google' : state.searchEngine
+            })),
+            updateCustomSearchEngine: (value, engine) => set((state) => ({
+                customSearchEngines: state.customSearchEngines.map((e) =>
+                    e.value === value ? { ...e, ...engine } : e
+                )
+            })),
         }),
         createPersistConfig('app-settings')
     )

@@ -146,8 +146,10 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                             <Select
                                 value={currentLanguage}
                                 onValueChange={(lang) => {
-                                    i18n.changeLanguage(lang);
-                                    localStorage.setItem('i18nextLng', lang);
+                                    if (lang) {
+                                        i18n.changeLanguage(lang);
+                                        localStorage.setItem('i18nextLng', lang);
+                                    }
                                 }}
                             >
                                 <SelectTrigger className="w-[180px] h-9 bg-background/40 border-border/30">

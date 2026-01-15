@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { SEARCH_ENGINES } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { exportFullData, importFullData } from "@/lib/backup";
 
 interface GeneralSettingsProps {
     onOpenMobileMenu?: () => void;
@@ -38,28 +39,12 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
         }
     }, [theme]);
 
-    const handleExportData = () => {
+    const handleExportData = async () => {
         try {
-            const data = {
-                settings: localStorage.getItem('app-settings'),
-                tags: localStorage.getItem('app-tags'),
-                todos: localStorage.getItem('app-todos'),
-                pomodoro: localStorage.getItem('app-pomodoro'),
-                ai: localStorage.getItem('ai-storage'),
-                exportDate: new Date().toISOString(),
-            };
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `newtab-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            await exportFullData();
         } catch (error) {
             console.error('Export failed:', error);
+            alert(t('export_fail') || 'Export failed');
         }
     };
 
@@ -70,29 +55,19 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = 'application/json';
-        input.onchange = (e) => {
+        input.accept = '.ntb';
+        input.onchange = async (e) => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target?.result as string);
-
-                    if (data.settings) localStorage.setItem('app-settings', data.settings);
-                    if (data.tags) localStorage.setItem('app-tags', data.tags);
-                    if (data.todos) localStorage.setItem('app-todos', data.todos);
-                    if (data.pomodoro) localStorage.setItem('app-pomodoro', data.pomodoro);
-                    if (data.ai) localStorage.setItem('ai-storage', data.ai);
-
-                    window.location.reload();
-                } catch (error) {
-                    console.error('Import failed:', error);
-                    alert(t('restore_fail'));
-                }
-            };
-            reader.readAsText(file);
+            try {
+                await importFullData(file);
+                alert(t('restore_success'));
+                window.location.reload();
+            } catch (error) {
+                console.error('Import failed:', error);
+                alert(t('restore_fail'));
+            }
         };
         input.click();
     };

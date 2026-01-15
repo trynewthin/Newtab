@@ -7,8 +7,6 @@ import { Input } from "@/components/ui/input";
 import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { cn } from "@/lib/utils";
 import { Play, RotateCcw, Timer, Coffee, Zap, Settings2 } from "lucide-react";
-import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
-import { PomodoroLiveCard } from "@/components/home/live/PomodoroLiveCard";
 import { useTranslation } from "react-i18next";
 import { SettingsSection, SettingsItem } from "@/components/settings/base/SettingComponents";
 import { Switch } from "@/components/ui/switch";
@@ -416,18 +414,4 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
     );
 }
 
-export function PomodoroLiveActivity() {
-    const isRunning = usePomodoroStore(s => s.status.isRunning);
-    const [showDialog, setShowDialog] = useState(false);
 
-    useLiveActivity("pomodoro", isRunning);
-
-    if (!isRunning) return null;
-
-    return (
-        <>
-            <PomodoroLiveCard onOpenDialog={() => setShowDialog(true)} />
-            <PomodoroDialog open={showDialog} onOpenChange={setShowDialog} />
-        </>
-    );
-}

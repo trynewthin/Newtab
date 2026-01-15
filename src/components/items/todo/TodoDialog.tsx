@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 import { useTodoStore } from "@/store/modules/todo";
 import { cn } from "@/lib/utils";
 import { Trash2, Plus, Check, X, ChevronUp, ChevronDown } from "lucide-react";
-import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
-import { TodoLiveCard } from "@/components/home/live/TodoLiveCard";
 import { useTranslation } from "react-i18next";
 
 
@@ -181,20 +179,4 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
     );
 }
 
-export function TodoLiveActivity() {
-    const todos = useTodoStore(s => s.todos);
-    const [showDialog, setShowDialog] = useState(false);
 
-    const pendingTodos = todos.filter(t => !t.completed);
-
-    useLiveActivity("todo", pendingTodos.length > 0);
-
-    if (pendingTodos.length === 0) return null;
-
-    return (
-        <>
-            <TodoLiveCard onOpenDialog={() => setShowDialog(true)} />
-            <TodoDialog open={showDialog} onOpenChange={setShowDialog} />
-        </>
-    );
-}

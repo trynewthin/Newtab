@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/components/items/tag";
 import { type Tag } from "@/store/core/types";
 import { useTranslation } from "react-i18next";
-import "@/lib/i18n"; // Ensure i18n is initialized
+import "@/lib/i18n/i18n"; // Ensure i18n is initialized
 
 export default function Popup() {
     const { t } = useTranslation();

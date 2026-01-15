@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAiStore, useAiChat } from "@/webagent";
 import { Header, ChatView, ChatInput } from "./components";
 import { ToolTester } from "./components/ToolTester";
-import "@/lib/i18n"; // Ensure i18n is initialized
+import "@/lib/i18n/i18n"; // Ensure i18n is initialized
 
 function App() {
     // Store selectors

@@ -6,7 +6,6 @@ export * from './systemRegistry';
 export * from './config-dialog';
 export * from './pomodoro';
 export * from './setting';
-export * from './theme';
 export * from './todo';
 export * from './tag';
 export * from './folder';

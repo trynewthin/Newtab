@@ -1,9 +1,12 @@
 import { create } from 'zustand';
 
+export type SystemDialogType = "settings" | "theme" | "add" | "icon-manager" | "pomodoro" | "todo" | "ai";
+
 interface UIState {
     // 界面交互状态
     isEditing: boolean;
     selectedTagIds: string[];
+    activeSystemDialog: SystemDialogType | null;
 
     setEditing: (status: boolean) => void;
     toggleEditing: () => void;
@@ -11,21 +14,24 @@ interface UIState {
     // 选中态管理
     toggleTagSelection: (id: string) => void;
     clearSelection: () => void;
+
+    // 弹窗管理
+    setActiveSystemDialog: (type: SystemDialogType | null) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
     isEditing: false,
     selectedTagIds: [],
+    activeSystemDialog: null,
 
     setEditing: (status) => set({
         isEditing: status,
-        // 关闭编辑模式时自动清空选中
-        selectedTagIds: status ? [] : []
+        selectedTagIds: []
     }),
 
     toggleEditing: () => set((state) => ({
         isEditing: !state.isEditing,
-        selectedTagIds: [] // 切换模式时清空
+        selectedTagIds: []
     })),
 
     toggleTagSelection: (id) => set((state) => ({
@@ -35,4 +41,6 @@ export const useUIStore = create<UIState>((set) => ({
     })),
 
     clearSelection: () => set({ selectedTagIds: [] }),
+
+    setActiveSystemDialog: (type) => set({ activeSystemDialog: type }),
 }));

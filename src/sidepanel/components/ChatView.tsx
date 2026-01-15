@@ -2,14 +2,16 @@ import { useRef, useEffect } from "react";
 import { MessageRenderer } from "./MessageRenderer";
 import type { Message, ModelConfig } from "@/webagent";
 import { Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ChatViewProps {
     messages: Message[];
     activeModel?: ModelConfig;
     isLoading: boolean;
+    className?: string;
 }
 
-export function ChatView({ messages, activeModel, isLoading }: ChatViewProps) {
+export function ChatView({ messages, activeModel, isLoading, className }: ChatViewProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -22,7 +24,7 @@ export function ChatView({ messages, activeModel, isLoading }: ChatViewProps) {
     }, [messages, isLoading]);
 
     return (
-        <div className="h-full w-full overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar pb-32">
+        <div className={cn("h-full w-full overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar pb-32", className)}>
             {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-[60%] text-center px-6 opacity-40 select-none">
                     <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mb-4">

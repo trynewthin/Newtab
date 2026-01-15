@@ -1,7 +1,6 @@
-import { ConfigDialog } from "./config-dialog";
+import { ShortcutDialog } from "./config-dialog";
 import { PomodoroDialog } from "./pomodoro/PomodoroDialog";
-import { SettingsDialog } from "./setting/SettingsDialog";
-import { ThemeDialog } from "./theme/ThemeDialog";
+import { SettingsDialog } from "@/components/settings";
 import { TodoDialog } from "./todo/TodoDialog";
 import { AiDialog } from "./ai/AiDialog";
 import type { SystemType } from "./systemRegistry";
@@ -22,13 +21,13 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
 
     switch (active) {
         case "settings":
-            return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
+            return <SettingsDialog open={true} onOpenChange={handleOpenChange} defaultTab="appearance" />;
         case "theme":
-            return <ThemeDialog open={true} onOpenChange={handleOpenChange} />;
+            return <SettingsDialog open={true} onOpenChange={handleOpenChange} defaultTab="appearance" />;
         case "add":
-            return <ConfigDialog open={true} onOpenChange={handleOpenChange} editTag={null} defaultTab="custom" />;
+            return <ShortcutDialog open={true} onOpenChange={handleOpenChange} editTag={null} />;
         case "icon-manager":
-            return <ConfigDialog open={true} onOpenChange={handleOpenChange} defaultTab="system" />;
+            return <SettingsDialog open={true} onOpenChange={handleOpenChange} defaultTab="features" />;
         case "pomodoro":
             return <PomodoroDialog open={true} onOpenChange={handleOpenChange} />;
         case "todo":

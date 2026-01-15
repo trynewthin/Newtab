@@ -45,6 +45,7 @@ interface BaseModalProps extends DialogPrimitive.Root.Props {
     actions?: React.ReactNode
     header?: React.ReactNode // Full override for header layer
     footer?: React.ReactNode // NEW: Full override for footer layer
+    sidebar?: React.ReactNode // NEW: Sidebar layer
     showGradientShadow?: boolean // Toggle for the top gradient shadow
 
     // Layer 3: Background
@@ -52,9 +53,6 @@ interface BaseModalProps extends DialogPrimitive.Root.Props {
 
     // Layout Options
     scrollable?: boolean // Default true. If false, content area is overflow-hidden and takes full height without padding.
-
-    // NOTE: 'size' prop is intentionally removed from external API to enforce strict uniformity.
-    // All modals now use the single standard size defined internally.
 }
 
 // THE SINGLE SOURCE OF TRUTH FOR MODAL SIZE
@@ -96,13 +94,6 @@ function BaseModal({
                         UNIFIED_SIZE_CLASS
                     )}
                 >
-                    {/* 
-                        Structure:
-                        We have a fixed W/H container (Popup).
-                        Inside, we use absolute positioning for layers to fill this fixed container exactly.
-                        This guarantees the "Background Layer" is absolutely static and fixed size.
-                        Content scrolls strictly within this frame.
-                    */}
                     <div className="relative w-full h-full sm:rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 isolate">
 
                         {/* === Layer 3: Background (Fixed) === */}
@@ -125,17 +116,26 @@ function BaseModal({
                             </div>
                         </div>
 
-                        {/* === Layer 1: Header (Fixed Overlay) === */}
+                        {/* === Layer 1: Header/Sidebar (Fixed Overlay) === */}
                         <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between">
+                            {/* Sidebar Container - Left aligned, full height */}
+                            {props.sidebar && (
+                                <div className="absolute inset-y-0 left-0 h-full pointer-events-auto z-30 flex flex-col">
+                                    {props.sidebar}
+                                </div>
+                            )}
+
                             {/* Top Gradient */}
                             {showGradientShadow && (
                                 <div className="absolute top-0 left-0 right-0 h-24 bg-linear-to-b from-black/5 to-transparent z-[-1]" />
                             )}
 
                             {/* Top Section */}
-                            <div>
+                            <div className="w-full">
                                 {header ? (
-                                    header
+                                    <div className="pointer-events-auto w-full">
+                                        {header}
+                                    </div>
                                 ) : (
                                     <div className="p-4">
                                         <div className="flex items-start justify-between gap-4">
@@ -182,4 +182,40 @@ function BaseModal({
     )
 }
 
-export { BaseModal }
+/**
+ * SidebarModal - Specialized variant for Management-style interfaces with a sidebar.
+ */
+interface SidebarModalProps extends BaseModalProps {
+    sidebar: React.ReactNode
+    isCollapsed?: boolean
+}
+
+function SidebarModal({
+    sidebar,
+    children,
+    isCollapsed = false,
+    contentClassName,
+    ...props
+}: SidebarModalProps) {
+    return (
+        <BaseModal
+            {...props}
+            sidebar={sidebar}
+            scrollable={false}
+            showTitle={false}
+            showCloseButton={false}
+            contentClassName={cn("p-0 overflow-hidden bg-background", contentClassName)}
+        >
+            <div
+                className={cn(
+                    "flex-1 flex flex-col min-w-0 h-full relative transition-all duration-300 ease-in-out",
+                    isCollapsed ? "md:pl-16" : "md:pl-[260px]"
+                )}
+            >
+                {children}
+            </div>
+        </BaseModal>
+    )
+}
+
+export { BaseModal, SidebarModal }

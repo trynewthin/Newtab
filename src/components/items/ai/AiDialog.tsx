@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { BaseModal, ModalButton } from "@/components/base";
+import { useEffect, useState } from "react";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/components/base";
 import { useTranslation } from "react-i18next";
-import { X, Settings, Sliders } from "lucide-react";
+import { MessageSquare, Plus, Trash2, Bot } from "lucide-react";
+import { useAiStore, useAiChat } from "@/webagent";
+import { ChatView } from "@/sidepanel/components/ChatView";
+import { ChatInput } from "@/sidepanel/components/ChatInput";
 import { cn } from "@/lib/utils";
-import { AiConfigTab } from "./AiConfigTab";
-import { AiPreferencesTab } from "./AiPreferencesTab";
 
 interface AiDialogProps {
     open: boolean;
@@ -13,71 +14,129 @@ interface AiDialogProps {
 
 export function AiDialog({ open, onOpenChange }: AiDialogProps) {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'config' | 'preferences'>('config');
+    const {
+        sessions,
+        currentSessionId,
+        messages,
+        isLoading,
+        hydrateSession,
+        createSession,
+        switchSession,
+        deleteSession,
+        models,
+        activeModelId,
+        setActiveModel,
+        getActiveModelConfig
+    } = useAiStore();
 
-    // --- Layout Strategy ---
-    const customOverlayLayer = (
-        <div className="flex flex-col justify-between h-full w-full pointer-events-none select-none">
-            {/* Top Bar: Tabs + Close */}
-            <div className="flex items-center justify-between px-6 py-5 pointer-events-auto bg-linear-to-b from-background via-background/60 to-transparent z-30">
-                {/* Tabs Switcher */}
-                <div className="bg-secondary/50 backdrop-blur-md p-1 rounded-xl border border-white/5 shadow-sm flex items-center gap-1">
-                    <button
-                        onClick={() => setActiveTab('config')}
-                        className={cn(
-                            "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-2",
-                            activeTab === 'config'
-                                ? "bg-primary text-primary-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                        )}
-                    >
-                        <Settings size={14} />
-                        <span>{t('models')}</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('preferences')}
-                        className={cn(
-                            "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-2",
-                            activeTab === 'preferences'
-                                ? "bg-primary text-primary-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                        )}
-                    >
-                        <Sliders size={14} />
-                        <span>{t('preferences')}</span>
-                    </button>
-                </div>
+    const { sendMessage, stopGeneration } = useAiChat();
 
-                {/* Header Right: Close Button */}
-                <div className="flex items-center gap-2 pointer-events-auto">
-                    <ModalButton
-                        onClick={() => onOpenChange(false)}
-                        className="w-9 h-9 rounded-xl hover:bg-destructive/10 hover:text-destructive border border-transparent hover:border-destructive/20 transition-all"
-                    >
-                        <X size={18} />
-                    </ModalButton>
-                </div>
-            </div>
-        </div>
-    );
+    // Default to collapsed as requested
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            hydrateSession();
+        }
+    }, [open, hydrateSession]);
+
+    const activeModel = getActiveModelConfig();
+
+    // On mobile, the sidebar should always be "expanded" within the drawer
+    const effectiveCollapsed = isSidebarCollapsed && !showMobileMenu;
 
     return (
-        <BaseModal
+        <AppModal
             open={open}
             onOpenChange={onOpenChange}
-            header={customOverlayLayer}
-            background={<div className="absolute inset-0 bg-background/95 backdrop-blur-3xl" />}
-            scrollable={false}
-        >
-            <div className="w-full h-full overflow-hidden">
-                <div className="h-full w-full pt-[100px] pb-10 px-10 overflow-y-auto custom-scrollbar">
-                    {activeTab === 'config' ? (
-                        <AiConfigTab />
-                    ) : (
-                        <AiPreferencesTab />
-                    )}
+            isCollapsed={isSidebarCollapsed}
+            showMobileMenu={showMobileMenu}
+            onCloseMobileMenu={() => setShowMobileMenu(false)}
+            sidebar={
+                <Sidebar
+                    title={t('sessions')}
+                    isCollapsed={isSidebarCollapsed}
+                    onCollapseChange={setIsSidebarCollapsed}
+                    showMobileMenu={showMobileMenu}
+                    onCloseMobileMenu={() => setShowMobileMenu(false)}
+                    footer={
+                        <div className="flex flex-col gap-2">
+                            <button
+                                onClick={createSession}
+                                className={cn(
+                                    "flex items-center justify-center gap-2 rounded-xl transition-all active:scale-95 shadow-sm border",
+                                    "bg-primary text-primary-foreground border-primary/20",
+                                    effectiveCollapsed ? "w-10 h-10 mx-auto" : "w-full h-11 px-4 text-xs font-bold uppercase tracking-wider"
+                                )}
+                                title={t('new_chat')}
+                            >
+                                <Plus size={effectiveCollapsed ? 20 : 16} strokeWidth={3} />
+                                {!effectiveCollapsed && <span>{t('new_chat')}</span>}
+                            </button>
+                        </div>
+                    }
+                >
+                    {sessions.map(session => (
+                        <SidebarItem
+                            key={session.id}
+                            icon={MessageSquare}
+                            label={session.title || t('new_conversation')}
+                            isActive={currentSessionId === session.id}
+                            isCollapsed={effectiveCollapsed}
+                            onClick={() => {
+                                switchSession(session.id);
+                                setShowMobileMenu(false);
+                            }}
+                            actions={
+                                sessions.length > 1 && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteSession(session.id);
+                                        }}
+                                        className="p-1 px-1.5 rounded-md hover:bg-destructive/10 hover:text-destructive transition-all"
+                                    >
+                                        <Trash2 size={12} />
+                                    </button>
+                                )
+                            }
+                        />
+                    ))}
+                </Sidebar>
+            }
+            header={
+                <SidebarHeader
+                    title={t('sys_ai') || "AI Assistant"}
+                    icon={Bot}
+                    description={activeModel?.name || t('ai_ready')}
+                    onMenuClick={() => setShowMobileMenu(true)}
+                    onClose={() => onOpenChange(false)}
+                    className="border-b-0"
+                />
+            }
+            footer={
+                <div className="p-6">
+                    <div className="max-w-4xl mx-auto w-full">
+                        <ChatInput
+                            models={models}
+                            activeModelId={activeModelId}
+                            activeModel={activeModel}
+                            setActiveModel={setActiveModel}
+                            isLoading={isLoading}
+                            onSend={sendMessage}
+                            onStop={stopGeneration}
+                        />
+                    </div>
                 </div>
-            </div>
-        </BaseModal>
+            }
+        >
+            <ChatView
+                messages={messages}
+                activeModel={activeModel}
+                isLoading={isLoading}
+                className="pt-4 pb-4"
+            />
+        </AppModal>
     );
 }

@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback } from "react";
 import { useTagStore } from "@/store/modules/tag";
+import { useUIStore } from "@/store/modules/ui";
 import { type Tag } from "@/store/core/types";
 import { TagItem } from "./TagItem";
 import { FolderItem } from "@/components/items/folder/FolderItem";
-import { ConfigDialog } from "@/components/items/config-dialog";
+import { ShortcutDialog } from "@/components/items/config-dialog";
 import { SystemDialogHost, type SystemType } from "@/components/items";
 import { FolderPreview } from "@/components/items/folder/FolderPreview";
 import { useTranslation } from "react-i18next";
@@ -44,9 +45,9 @@ const MERGE_RADIUS = 55;
 export function TagGrid() {
     const { t } = useTranslation();
     const { tags, setTags, removeTag, ungroupFolder } = useTagStore();
+    const { activeSystemDialog, setActiveSystemDialog } = useUIStore();
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
-    const [activeSystemDialog, setActiveSystemDialog] = useState<SystemType | null>(null);
     const [activeTag, setActiveTag] = useState<Tag | null>(null);
     const [hoverTarget, setHoverTarget] = useState<string | null>(null);
     const [nearTarget, setNearTarget] = useState<string | null>(null);
@@ -248,7 +249,7 @@ export function TagGrid() {
     };
 
     return (
-        <div className="w-full h-full pb-8 px-4 pt-8 overflow-y-auto [scrollbar-gutter:stable]">
+        <div className="w-full h-full pb-8 px-4 pt-8 overflow-y-auto [scrollbar-gutter:stable] pointer-events-auto">
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -328,7 +329,7 @@ export function TagGrid() {
             </DndContext>
 
             {/* 编辑对话框 */}
-            <ConfigDialog
+            <ShortcutDialog
                 open={isEditDialogOpen}
                 onOpenChange={setIsEditDialogOpen}
                 editTag={editingTag}

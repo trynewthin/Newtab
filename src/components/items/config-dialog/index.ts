@@ -1,1 +1,2 @@
-export * from './ConfigDialog';
+export * from './ShortcutDialog';
+export * from './AddTagTab';

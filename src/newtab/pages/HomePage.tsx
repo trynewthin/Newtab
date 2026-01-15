@@ -9,17 +9,17 @@ import { HomeTools } from "@/components/home/tools/HomeTools";
 export function HomePage() {
     return (
         <BasePage className="py-0 px-0 flex flex-col items-center" tools={<HomeTools />}>
-            {/* 1. 搜索区域 - 页面顶部的视觉锚点 */}
-            <div className="w-full max-w-4xl mt-24 mb-10 shrink-0 px-4">
-                <SearchBar />
-            </div>
-
-            {/* 2. 实况区域 - 动态呼吸空间 (由组件内部控制间距) */}
-            <div className="w-full flex justify-center px-4 shrink-0 transition-all duration-500">
+            {/* 1. 实况区域 - 迁移至顶部 */}
+            <div className="w-full flex justify-center px-4 shrink-0 transition-all duration-500 mt-20">
                 <LiveActivityArea>
                     <PomodoroLiveActivity />
                     <TodoLiveActivity />
                 </LiveActivityArea>
+            </div>
+
+            {/* 2. 搜索区域 - 页面核心锚点 */}
+            <div className="w-full max-w-4xl mt-6 mb-2 shrink-0 px-4">
+                <SearchBar />
             </div>
 
             {/* 3. 内容网格 - 主内容区 */}

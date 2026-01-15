@@ -21,8 +21,16 @@ export default function Popup() {
     const { tags, addTag, updateTag } = useTagStore();
     const theme = useSettingsStore((state) => state.theme);
 
-    // Sync Theme
+    // Sync Theme & Handle External Changes
     useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'app-settings') {
+                useSettingsStore.persist.rehydrate();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
         const root = window.document.documentElement;
         root.classList.remove("light", "dark");
         const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -34,6 +42,8 @@ export default function Popup() {
         document.documentElement.style.height = "auto";
         document.body.style.width = "360px";
         document.body.style.minHeight = "auto";
+
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, [theme]);
 
     // Initialize: Get current tab info

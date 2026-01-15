@@ -11,6 +11,7 @@ export async function getActiveTab() {
 export async function attachDebugger(tabId: number): Promise<boolean> {
     try {
         const targets = await chrome.debugger.getTargets();
+        if (!targets) return false;
         if (!targets.some(t => t.tabId === tabId && t.attached)) {
             await chrome.debugger.attach({ tabId }, "1.3");
         }

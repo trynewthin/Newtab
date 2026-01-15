@@ -1,9 +1,8 @@
 import { useUIStore } from "@/store/modules/ui";
 import { useTagStore } from "@/store/modules/tag";
-import { Edit2, Grid3x3, FolderPlus, Trash2 } from "lucide-react";
+import { Edit2, FolderPlus, Trash2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { ConfigDialog } from "@/components/items/config-dialog";
 import { useTranslation } from "react-i18next";
 import {
     AlertDialog,
@@ -18,9 +17,8 @@ import {
 
 export function HomeTools() {
     const { t } = useTranslation();
-    const { isEditing, toggleEditing, selectedTagIds, clearSelection } = useUIStore();
+    const { isEditing, toggleEditing, selectedTagIds, clearSelection, setActiveSystemDialog } = useUIStore();
     const { batchGroupTags, batchRemoveTags } = useTagStore();
-    const [isIconManagerOpen, setIsIconManagerOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const handleBatchGroup = () => {
@@ -39,7 +37,7 @@ export function HomeTools() {
     };
 
     return (
-        <div className="flex items-center gap-3 p-1.5 glass-card rounded-2xl shadow-lg border-white/40">
+        <div className="flex items-center gap-3 p-1.5 glass-card rounded-2xl shadow-lg border-white/40 pointer-events-auto">
             {/* 批量操作按钮组 */}
             {isEditing && selectedTagIds.length > 0 && (
                 <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -72,14 +70,6 @@ export function HomeTools() {
             )}
 
             <button
-                onClick={() => setIsIconManagerOpen(true)}
-                className="p-2.5 glass-button rounded-xl active:scale-90"
-                title={t('manage_icons')}
-            >
-                <Grid3x3 size={18} className="text-foreground/70" />
-            </button>
-
-            <button
                 onClick={toggleEditing}
                 className={cn(
                     "p-2.5 rounded-xl transition-all shadow-sm border backdrop-blur-md active:scale-95",
@@ -92,11 +82,13 @@ export function HomeTools() {
                 <Edit2 size={18} className={isEditing ? "text-primary-foreground" : "text-foreground/70"} />
             </button>
 
-            <ConfigDialog
-                open={isIconManagerOpen}
-                onOpenChange={setIsIconManagerOpen}
-                defaultTab="system"
-            />
+            <button
+                onClick={() => setActiveSystemDialog('settings')}
+                className="p-2.5 glass-button rounded-xl active:scale-90"
+                title={t('settings')}
+            >
+                <Settings size={18} className="text-foreground/70" />
+            </button>
 
             {/* 批量删除确认对话框 */}
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

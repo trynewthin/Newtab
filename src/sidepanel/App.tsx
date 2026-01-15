@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAiStore, useAiChat } from "@/webagent";
-import { AiConfigTab } from "@/components/items/ai/AiConfigTab";
-import { AiPreferencesTab } from "@/components/items/ai/AiPreferencesTab";
 import { Header, ChatView, ChatInput } from "./components";
 import { ToolTester } from "./components/ToolTester";
+import "@/lib/i18n"; // Ensure i18n is initialized
 
 function App() {
     // Store selectors
@@ -25,8 +24,8 @@ function App() {
     // Chat hook
     const { sendMessage, stopGeneration, isLoading } = useAiChat();
 
-    // Local state
-    const [activeTab, setActiveTab] = useState<'chat' | 'config' | 'preferences' | 'test'>('chat');
+    // Local state - removed 'config' and 'preferences' tabs
+    const [activeTab, setActiveTab] = useState<'chat' | 'test'>('chat');
 
     // 1. Initialize DB Connection
     useEffect(() => {
@@ -61,14 +60,6 @@ function App() {
                             isLoading={isLoading}
                         />
                     )
-                ) : activeTab === 'config' ? (
-                    <div className="h-full overflow-y-auto p-4">
-                        <AiConfigTab />
-                    </div>
-                ) : activeTab === 'preferences' ? (
-                    <div className="h-full overflow-y-auto p-4">
-                        <AiPreferencesTab />
-                    </div>
                 ) : activeTab === 'test' ? (
                     <div className="h-full overflow-y-auto">
                         <ToolTester />

@@ -1,12 +1,15 @@
-import { Download, History, MessageSquarePlus, Trash2, Settings, MessageSquare, Sliders } from "lucide-react";
+import { Download, History, MessageSquarePlus, Trash2, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { useTranslation } from "react-i18next";
+import { useSettingsStore } from "@/store/modules/settings";
+import { useEffect } from "react";
 import type { Message } from "@/webagent";
 import React from "react";
 
 interface HeaderProps {
-    activeTab: 'chat' | 'config' | 'preferences' | 'test';
-    setActiveTab: (tab: 'chat' | 'config' | 'preferences' | 'test') => void;
+    activeTab: 'chat' | 'test';
+    setActiveTab: (tab: 'chat' | 'test') => void;
     messages: Message[];
     sessions: any[];
     currentSessionId: string;
@@ -25,6 +28,21 @@ export function Header({
     deleteSession,
     switchSession
 }: HeaderProps) {
+    const { t } = useTranslation();
+    const theme = useSettingsStore((state) => state.theme);
+
+    // Apply theme to sidepanel
+    useEffect(() => {
+        const root = window.document.documentElement;
+        root.classList.remove("light", "dark");
+        if (theme === "system") {
+            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            root.classList.add(systemTheme);
+        } else {
+            root.classList.add(theme);
+        }
+    }, [theme]);
+
     const handleExport = () => {
         const data = JSON.stringify(messages, null, 2);
         const blob = new Blob([data], { type: 'application/json' });
@@ -37,10 +55,8 @@ export function Header({
     };
 
     const TABS = [
-        { id: 'chat', label: 'Chat', icon: MessageSquare },
-        { id: 'config', label: 'Models', icon: Settings },
-        { id: 'preferences', label: 'Prefs', icon: Sliders },
-        { id: 'test', label: 'Test', icon: Settings },
+        { id: 'chat', label: t('sys_ai'), icon: MessageSquare },
+        { id: 'test', label: 'Test', icon: MessageSquare },
     ] as const;
 
     return (
@@ -53,7 +69,7 @@ export function Header({
                     return (
                         <button
                             key={t.id}
-                            onClick={() => setActiveTab(t.id)}
+                            onClick={() => setActiveTab(t.id as any)}
                             className={cn(
                                 "relative px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1.5",
                                 isActive
@@ -90,7 +106,7 @@ export function Header({
                 <button
                     onClick={handleExport}
                     className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground/60 hover:text-foreground transition-all"
-                    title="Export Debug Data"
+                    title={t('export')}
                 >
                     <Download size={15} />
                 </button>
@@ -114,6 +130,7 @@ function SessionManager({
     deleteSession,
     switchSession
 }: SessionManagerProps) {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = React.useState(false);
 
     return (
@@ -123,8 +140,8 @@ function SessionManager({
             </PopoverTrigger>
             <PopoverContent align="end" className="w-[260px] p-3 bg-background/90 backdrop-blur-xl border-border/50 shadow-2xl rounded-2xl ring-1 ring-black/5">
                 <div className="flex items-center justify-between mb-3 px-1">
-                    <span className="text-[11px] font-black uppercase text-muted-foreground tracking-widest">Chat History</span>
-                    <span className="text-[10px] text-muted-foreground/50 font-mono">{sessions.length} sessions</span>
+                    <span className="text-[11px] font-black uppercase text-muted-foreground tracking-widest">{t('sessions')}</span>
+                    <span className="text-[10px] text-muted-foreground/50 font-mono">{sessions.length}</span>
                 </div>
 
                 <button
@@ -135,7 +152,7 @@ function SessionManager({
                     className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground hover:brightness-110 active:scale-[0.98] transition-all text-xs font-bold mb-3 shadow-lg shadow-primary/20"
                 >
                     <MessageSquarePlus size={14} />
-                    <span>New Chat</span>
+                    <span>{t('new_chat')}</span>
                 </button>
 
                 <div className="max-h-[280px] overflow-y-auto custom-scrollbar space-y-1 pr-1">
@@ -155,7 +172,7 @@ function SessionManager({
                         >
                             <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                                 <span className={cn("truncate font-medium", currentSessionId === s.id && "font-bold")}>
-                                    {typeof s.title === 'string' ? s.title : "New Chat"}
+                                    {typeof s.title === 'string' ? s.title : t('new_conversation')}
                                 </span>
                                 <span className="text-[9px] text-muted-foreground/40 font-mono">
                                     {new Date(s.updatedAt || Date.now()).toLocaleDateString()}

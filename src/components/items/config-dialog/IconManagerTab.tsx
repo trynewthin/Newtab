@@ -1,7 +1,7 @@
 import { useTagStore } from "@/store/modules/tag";
 import { cn } from "@/lib/utils";
 import { SYSTEM_ITEMS } from "@/components/items/systemRegistry";
-import { renderSystemIcon } from "@/components/items/systemIcons";
+import { ItemIcon } from "@/components/items/ItemIcon";
 import { Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -44,12 +44,14 @@ export function IconManagerTab() {
                                 "bg-secondary/20 hover:bg-secondary/40 hover:border-border/50 hover:shadow-md"
                             )}
                         >
-                            <div className={cn(
-                                "w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center transition-all duration-300",
-                                "bg-background shadow-sm text-foreground group-hover:scale-95"
-                            )}>
-                                {renderSystemIcon(icon.icon)}
-                            </div>
+                            <ItemIcon
+                                icon={icon.icon}
+                                isSystem={true}
+                                className={cn(
+                                    "w-12 h-12 shrink-0 rounded-2xl shadow-sm transition-all duration-300",
+                                    "bg-background group-hover:scale-95 text-foreground"
+                                )}
+                            />
 
                             <div className="flex flex-col min-w-0">
                                 <span className={cn(

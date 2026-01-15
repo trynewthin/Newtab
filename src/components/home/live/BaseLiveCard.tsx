@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { ItemIcon } from "@/components/items/ItemIcon";
 
 interface BaseLiveCardProps {
     onClick: () => void;
@@ -8,6 +9,7 @@ interface BaseLiveCardProps {
     iconBgGradient: string;
     children: ReactNode;
     action?: ReactNode;
+    badge?: ReactNode;
     className?: string;
     isFinishing?: boolean;
     onFinish?: () => void;
@@ -19,6 +21,7 @@ export function BaseLiveCard({
     iconBgGradient,
     children,
     action,
+    badge,
     className,
     isFinishing = false,
     onFinish
@@ -70,16 +73,24 @@ export function BaseLiveCard({
             )}
 
             {/* 左侧图标区域 - 悬浮时呼吸动效 */}
-            <div className={cn(
-                "relative flex items-center justify-center w-16 h-16 rounded-[20px] shrink-0 transition-all duration-500",
-                "group-hover:scale-110",
-                iconBgGradient
-            )}>
-                <div className="relative z-10 w-full h-full flex items-center justify-center p-2">
-                    {icon}
-                </div>
-                {/* 装饰光圈 */}
-                <div className="absolute inset-0 rounded-[20px] bg-primary/5 group-hover:bg-primary/10 animate-pulse transition-colors" />
+            <div className="relative shrink-0">
+                <ItemIcon
+                    className={cn(
+                        "w-16 h-16 rounded-[20px] shrink-0 transition-all duration-500",
+                        "group-hover:scale-110",
+                        iconBgGradient
+                    )}
+                >
+                    <div className="relative z-10 w-full h-full flex items-center justify-center p-1">
+                        {icon}
+                    </div>
+                </ItemIcon>
+                {/* 外部 Badge */}
+                {badge && (
+                    <div className="absolute -top-1 -right-1 z-20">
+                        {badge}
+                    </div>
+                )}
             </div>
 
             {/* 中间内容区域 */}

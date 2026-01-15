@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/store/core/backgroundStorage";
-import { renderSystemIcon } from "@/components/items";
+import { ItemIcon } from "@/components/items/ItemIcon";
 import { useTranslation } from "react-i18next";
 
 interface TagItemProps {
@@ -80,31 +80,6 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
         }
     };
 
-    const renderIcon = () => {
-        const scale = tag.iconSize || 1;
-        const iconStyle = { transform: `scale(${scale})` };
-
-        if (tag.isSystem && tag.icon) {
-            return (
-                <div style={iconStyle} className="text-muted-foreground flex items-center justify-center">
-                    {renderSystemIcon(tag.icon, "")}
-                </div>
-            );
-        }
-
-        if (tag.icon && tag.icon.length < 4) {
-            return <span className="text-2xl select-none" style={iconStyle}>{tag.icon}</span>;
-        }
-
-        return (
-            <img
-                src={imageDataUrl || faviconUrl}
-                alt={tag.title}
-                className="w-10 h-10 object-contain pointer-events-none select-none"
-                style={iconStyle}
-            />
-        );
-    };
 
     const faviconUrl = tag.icon || `https://www.google.com/s2/favicons?domain=${tag.url}&sz=64`;
 
@@ -173,27 +148,29 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                     </button>
                 </div>
 
-                <div
+                <ItemIcon
+                    title={tag.title}
+                    icon={tag.icon}
+                    iconDataUrl={imageDataUrl || faviconUrl}
+                    isSystem={tag.isSystem}
+                    scale={tag.iconSize}
+                    backgroundColor={(tag.isSystem && (tag.icon?.includes('/') || tag.icon?.includes('.'))) ? 'transparent' : (tag.isSystem ? 'rgb(255, 255, 255)' : bgColor)}
+                    className={cn(
+                        "w-14 h-14 rounded-2xl shadow-sm hover:shadow-md",
+                        isEditing ? "cursor-pointer" : "cursor-pointer",
+                        isOverlay && "cursor-grabbing shadow-xl",
+                        isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
+                    )}
+                    // Event Handlers
                     role="button"
                     tabIndex={0}
                     onClick={handleItemClick}
-                    onKeyDown={(e) => {
+                    onKeyDown={(e: React.KeyboardEvent) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             handleItemClick(e as any);
                         }
                     }}
-                    className={cn(
-                        "flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden relative",
-                        isEditing ? "cursor-pointer" : "cursor-pointer",
-                        isOverlay && "cursor-grabbing shadow-xl",
-                        isSelected && "ring-2 ring-primary ring-offset-2"
-                    )}
-                    style={{ backgroundColor: (tag.isSystem && (tag.icon?.includes('/') || tag.icon?.includes('.'))) ? 'transparent' : (tag.isSystem ? 'rgb(255, 255, 255)' : bgColor) }}
                 >
-                    <div className="relative z-10 flex items-center justify-center w-full h-full">
-                        {renderIcon()}
-                    </div>
-
                     {/* 选中态遮罩 - 中心显示圆形框 */}
                     {isEditing && (
                         <div className={cn(
@@ -210,7 +187,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                             </div>
                         </div>
                     )}
-                </div>
+                </ItemIcon>
             </div>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">

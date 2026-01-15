@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { renderSystemIcon } from "@/components/items";
+import { ItemIcon } from "@/components/items/ItemIcon";
 
 interface FolderItemProps {
     tag: Tag;
@@ -98,49 +98,30 @@ export function FolderItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, is
 
         const bg = child.isSystem ? 'rgb(255, 255, 255)' : (child.backgroundColor ?? "rgb(255, 255, 255)");
         const userScale = child.iconSize || 1;
+        const scale = child.icon && child.icon.length < 4 ? 1.2 * userScale : 0.7 * userScale;
 
-        // 系统图标处理
-        if (child.isSystem && child.icon) {
-            return (
-                <div
-                    className="w-full h-full flex items-center justify-center rounded-sm overflow-hidden relative bg-white"
-                >
-                    <div style={{ transform: `scale(${0.6 * userScale})` }} className="text-muted-foreground flex items-center justify-center">
-                        {renderSystemIcon(child.icon, "")}
-                    </div>
-                </div>
-            )
-        }
+        // 系统图标特殊缩放
+        const finalScale = child.isSystem ? 0.6 * userScale : scale;
 
-        // 判断是否为 emoji
-        if (child.icon && child.icon.length < 4) {
-            const scale = 1.2 * userScale;
-            return (
-                <div
-                    className="w-full h-full flex items-center justify-center rounded-sm overflow-hidden relative"
-                    style={{ backgroundColor: bg }}
-                >
-                    <span className="text-xs select-none" style={{ transform: `scale(${scale})` }}>{icon}</span>
-                </div>
-            );
-        }
-
-        // 网站图标
         return (
-            <div
-                className="w-full h-full rounded-sm overflow-hidden flex items-center justify-center relative"
-                style={{ backgroundColor: bg }}
-            >
-                <img
-                    src={icon}
-                    alt=""
-                    className="w-full h-full object-cover select-none"
-                    style={{ transform: `scale(${0.7 * userScale})` }}
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><rect width="12" height="12" fill="%23ddd"/></svg>';
-                    }}
-                />
-            </div>
+            <ItemIcon
+                title={child.title}
+                icon={child.icon}
+                // Grid cell iconDataUrl resolution: currently FolderItem uses childIcons array which are strings (url/emoji).
+                // `icon` prop handles this. `iconDataUrl` is usually for cached blobs.
+                // In useEffect above, `childIcons` are populated with URLs.
+                // We pass `icon` prop as the source.
+                // Wait, logic in useEffect (L46) resolves favicon URL if needed. 
+                // `childIcons` state holds the resolved string.
+                // But `ItemIcon` expects `icon` (original) and maybe `iconDataUrl`.
+                // Here `childIcons[index]` IS the resolved URL/Emoji.
+                iconDataUrl={child.isSystem ? undefined : icon}
+                // If it is system, icon is the ID.
+                isSystem={child.isSystem}
+                backgroundColor={bg}
+                scale={finalScale}
+                className="w-full h-full rounded-sm"
+            />
         );
     };
 
@@ -177,8 +158,8 @@ export function FolderItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, is
                 </button>
             </div>
 
-            <button
-                onClick={handleClick}
+            <ItemIcon
+                onClick={handleClick} // ItemIcon extends HTML attributes
                 className={cn(
                     "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
                     "bg-white/10 backdrop-blur-md border border-white/20",
@@ -186,6 +167,7 @@ export function FolderItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, is
                     isOverlay && "cursor-grabbing shadow-xl",
                     isSelected && "ring-2 ring-primary ring-offset-2"
                 )}
+            // No icon, acts as container
             >
                 {/* 高斯模糊背景层 */}
                 <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
@@ -215,7 +197,7 @@ export function FolderItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, is
                         </div>
                     </div>
                 )}
-            </button>
+            </ItemIcon>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">
                 {tag.title}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Globe } from "lucide-react";
+import { ItemIcon } from "@/components/items/ItemIcon";
 import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
 import { backgroundStorage, getIconKey, isDataURL } from "@/store/core/backgroundStorage";
 import { cn, parseColor } from "@/lib/utils";
@@ -140,6 +140,8 @@ export function TagConfigForm({
     useEffect(() => {
         let cancelled = false;
         if (!iconStr) return;
+        // 如果图标未改变（即与初始值相同），则不触发自动取色，保留原有颜色
+        if (defaultValues?.icon && iconStr === defaultValues.icon) return;
 
         const extract = async () => {
             setPreviewIcon(iconStr);
@@ -209,20 +211,14 @@ export function TagConfigForm({
             {/* Top Row: Preview + selection */}
             <div className="flex gap-5 items-stretch h-24">
                 {/* Left: Preview Area */}
-                <div
-                    className="relative shrink-0 w-24 h-24 flex items-center justify-center rounded-3xl border-2 border-transparent shadow-md overflow-hidden transition-all duration-300 ring-4 ring-background/50"
-                    style={{ backgroundColor: composedColor }}
-                >
-                    <div className="text-5xl transition-transform duration-200" style={{ transform: `scale(${iconSize})` }}>
-                        {iconStr && iconStr.length < 4 ? (
-                            iconStr
-                        ) : effectivePreviewIcon ? (
-                            <img src={effectivePreviewIcon} alt="Preview" className="w-14 h-14 object-contain pointer-events-none select-none" />
-                        ) : (
-                            <Globe className="w-12 h-12 text-muted-foreground/20" />
-                        )}
-                    </div>
-                </div>
+                {/* Left: Preview Area */}
+                <ItemIcon
+                    icon={iconStr}
+                    iconDataUrl={effectivePreviewIcon}
+                    scale={iconSize}
+                    backgroundColor={composedColor}
+                    className="shrink-0 w-24 h-24 rounded-3xl border-2 border-transparent shadow-md ring-4 ring-background/50"
+                />
 
                 {/* Right: Icon Selection List */}
                 <div className="flex-1 h-24 rounded-xl border border-border/40 p-2 overflow-y-auto custom-scrollbar">

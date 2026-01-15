@@ -142,7 +142,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
             ref={setNodeRef}
             style={style}
             className={cn(
-                "group flex flex-col items-center gap-1.5",
+                "group flex flex-col items-center gap-1.5 w-14",
                 isEditing && !isDragging && !isOverlay && "animate-[shake_0.5s_ease-in-out_infinite]",
                 isOverlay && "scale-110 rotate-3 cursor-grabbing"
             )}

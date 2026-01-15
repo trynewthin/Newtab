@@ -39,18 +39,18 @@ export function HomeTools() {
     };
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 p-1.5 glass-card rounded-2xl shadow-lg border-white/40">
             {/* 批量操作按钮组 */}
             {isEditing && selectedTagIds.length > 0 && (
-                <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
                     {selectedTagIds.length > 1 && (
                         <button
                             onClick={handleBatchGroup}
-                            className="flex items-center gap-2 px-3 py-2 bg-primary text-primary-foreground rounded-lg transition-all shadow-lg border border-primary hover:brightness-110 active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl transition-all shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95"
                             title={t('group_selected')}
                         >
-                            <FolderPlus size={18} />
-                            <span className="hidden sm:inline text-sm font-medium">
+                            <FolderPlus size={16} strokeWidth={2.5} />
+                            <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">
                                 {t('group_button', { count: selectedTagIds.length })}
                             </span>
                         </button>
@@ -58,36 +58,38 @@ export function HomeTools() {
 
                     <button
                         onClick={() => setIsDeleteDialogOpen(true)}
-                        className="flex items-center gap-2 px-3 py-2 bg-destructive text-destructive-foreground rounded-lg transition-all shadow-lg border border-destructive hover:brightness-110 active:scale-95"
+                        className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-xl transition-all shadow-xl shadow-destructive/20 hover:brightness-110 active:scale-95"
                         title={t('delete_selected')}
                     >
-                        <Trash2 size={18} />
-                        <span className="hidden sm:inline text-sm font-medium">
+                        <Trash2 size={16} strokeWidth={2.5} />
+                        <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">
                             {t('delete_button', { count: selectedTagIds.length })}
                         </span>
                     </button>
+
+                    <div className="w-px h-6 bg-border/50 mx-1" />
                 </div>
             )}
 
             <button
                 onClick={() => setIsIconManagerOpen(true)}
-                className="p-2 bg-secondary/80 hover:bg-secondary text-secondary-foreground rounded-lg transition-all shadow-sm border backdrop-blur-sm active:scale-95"
+                className="p-2.5 glass-button rounded-xl active:scale-90"
                 title={t('manage_icons')}
             >
-                <Grid3x3 size={18} />
+                <Grid3x3 size={18} className="text-foreground/70" />
             </button>
 
             <button
                 onClick={toggleEditing}
                 className={cn(
-                    "p-2 rounded-lg transition-all shadow-sm border backdrop-blur-sm active:scale-95",
+                    "p-2.5 rounded-xl transition-all shadow-sm border backdrop-blur-md active:scale-95",
                     isEditing
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-secondary/80 hover:bg-secondary text-secondary-foreground"
+                        ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
+                        : "glass-button"
                 )}
                 title={isEditing ? t('exit_edit_mode') : t('enter_edit_mode')}
             >
-                <Edit2 size={18} />
+                <Edit2 size={18} className={isEditing ? "text-primary-foreground" : "text-foreground/70"} />
             </button>
 
             <ConfigDialog
@@ -98,18 +100,18 @@ export function HomeTools() {
 
             {/* 批量删除确认对话框 */}
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogContent>
+                <AlertDialogContent className="glass-card border-none rounded-3xl">
                     <AlertDialogHeader>
                         <AlertDialogTitle>{t('delete_multiple_title')}</AlertDialogTitle>
                         <AlertDialogDescription>
                             {t('delete_multiple_desc', { count: selectedTagIds.length })}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                    <AlertDialogFooter className="gap-2">
+                        <AlertDialogCancel className="rounded-xl border-none bg-secondary hover:bg-secondary/80">{t('cancel')}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleBatchDelete}
-                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
                         >
                             {t('delete_all')}
                         </AlertDialogAction>

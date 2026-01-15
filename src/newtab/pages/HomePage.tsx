@@ -10,7 +10,7 @@ export function HomePage() {
     return (
         <BasePage className="py-0 px-0 flex flex-col items-center" tools={<HomeTools />}>
             {/* 1. 搜索区域 - 页面顶部的视觉锚点 */}
-            <div className="w-full max-w-4xl mt-24 mb-6 shrink-0 px-4">
+            <div className="w-full max-w-4xl mt-24 mb-10 shrink-0 px-4">
                 <SearchBar />
             </div>
 

@@ -47,7 +47,7 @@ export function LiveActivityArea({ children, className }: LiveActivityAreaProps)
                 className={cn(
                     "w-full max-w-4xl transition-all duration-500 ease-in-out overflow-hidden",
                     "flex flex-wrap items-center justify-center gap-4",
-                    hasActivities ? "h-auto opacity-100 pb-3" : "h-0 opacity-0 pointer-events-none",
+                    hasActivities ? "h-auto opacity-100 pb-3 py-2" : "h-0 opacity-0 pointer-events-none",
                     className
                 )}
             >

@@ -82,7 +82,16 @@ export function TodoDialog({ open, onOpenChange }: TodoDialogProps) {
             open={open}
             onOpenChange={onOpenChange}
             header={headerContent}
-            background={<div className="absolute inset-0 bg-paper" />}
+            background={
+                <div className="absolute inset-0 bg-[#fffdf5] dark:bg-zinc-900">
+                    <div className="absolute inset-0 pointer-events-none"
+                        style={{
+                            backgroundImage: 'linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)',
+                            backgroundSize: '24px 24px'
+                        }}
+                    />
+                </div>
+            }
         >
             <div className="relative h-full flex flex-col pt-2 px-6 pb-6">
                 <div className="relative z-10 flex flex-col h-full">

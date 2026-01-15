@@ -39,7 +39,7 @@ import { Trash2, UnfoldVertical } from "lucide-react";
 
 const HOVER_DELAY = 1000;
 const DETECTION_RADIUS = 75;
-const MERGE_RADIUS = 48;
+const MERGE_RADIUS = 55;
 
 export function TagGrid() {
     const { t } = useTranslation();
@@ -248,7 +248,7 @@ export function TagGrid() {
     };
 
     return (
-        <div className="w-full h-full pb-8 px-4 pt-3 overflow-y-auto [scrollbar-gutter:stable]">
+        <div className="w-full h-full pb-8 px-4 pt-8 overflow-y-auto [scrollbar-gutter:stable]">
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -270,32 +270,34 @@ export function TagGrid() {
                             const isNearTarget = nearTarget === tag.id && !isHoverTarget;
 
                             return (
-                                <div key={tag.id} className="relative">
-                                    {tag.isFolder ? (
-                                        <FolderItem
-                                            tag={tag}
-                                            onEdit={handleEditClick}
-                                            onClick={handleTagClick}
-                                            onDeletePrompt={handleDeletePrompt}
-                                            isNearTarget={isNearTarget || isHoverTarget}
-                                            isHoverTarget={isHoverTarget}
-                                        />
-                                    ) : (
-                                        <TagItem
-                                            tag={tag}
-                                            onEdit={handleEditClick}
-                                            onClick={handleTagClick}
-                                            onDeletePrompt={handleDeletePrompt}
-                                            isNearTarget={isNearTarget || isHoverTarget}
-                                            isHoverTarget={isHoverTarget}
-                                        />
-                                    )}
-                                    {isNearTarget && (
-                                        <div className="absolute inset-x-0 -inset-y-1 rounded-2xl bg-white/5 border border-dashed border-white/20 pointer-events-none z-0 transition-opacity duration-150" />
-                                    )}
-                                    {isHoverTarget && (
-                                        <div className="absolute inset-0 rounded-2xl bg-white/20 ring-4 ring-white/40 animate-pulse pointer-events-none z-10 scale-105 transition-all duration-200" />
-                                    )}
+                                <div key={tag.id} className="flex justify-center">
+                                    <div className="relative w-14">
+                                        {tag.isFolder ? (
+                                            <FolderItem
+                                                tag={tag}
+                                                onEdit={handleEditClick}
+                                                onClick={handleTagClick}
+                                                onDeletePrompt={handleDeletePrompt}
+                                                isNearTarget={isNearTarget || isHoverTarget}
+                                                isHoverTarget={isHoverTarget}
+                                            />
+                                        ) : (
+                                            <TagItem
+                                                tag={tag}
+                                                onEdit={handleEditClick}
+                                                onClick={handleTagClick}
+                                                onDeletePrompt={handleDeletePrompt}
+                                                isNearTarget={isNearTarget || isHoverTarget}
+                                                isHoverTarget={isHoverTarget}
+                                            />
+                                        )}
+                                        {isNearTarget && (
+                                            <div className="absolute -inset-2 rounded-2xl bg-white/5 border border-dashed border-white/20 pointer-events-none z-0 transition-opacity duration-150" />
+                                        )}
+                                        {isHoverTarget && (
+                                            <div className="absolute -inset-2 rounded-2xl bg-white/20 ring-4 ring-white/40 animate-pulse pointer-events-none z-10 scale-105 transition-all duration-200" />
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}

@@ -71,8 +71,8 @@ export function BaseLiveCard({
 
             {/* 左侧图标区域 - 悬浮时呼吸动效 */}
             <div className={cn(
-                "relative flex items-center justify-center w-14 h-14 rounded-[20px] shrink-0 transition-all duration-500",
-                "bg-white/50 dark:bg-black/20 shadow-inner group-hover:scale-110",
+                "relative flex items-center justify-center w-16 h-16 rounded-[20px] shrink-0 transition-all duration-500",
+                "group-hover:scale-110",
                 iconBgGradient
             )}>
                 <div className="relative z-10 w-full h-full flex items-center justify-center p-2">
@@ -94,11 +94,6 @@ export function BaseLiveCard({
                 </div>
             )}
 
-            {/* 底部进度指示点（装饰） */}
-            <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1 pt-1 opacity-40">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
-            </div>
         </div>
     );
 }

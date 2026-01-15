@@ -19,6 +19,7 @@ export interface Todo {
     text: string;
     completed: boolean;
     createdAt: number;
+    date?: string; // YYYY-MM-DD
 }
 
 export interface BackgroundConfig {

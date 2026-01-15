@@ -6,7 +6,7 @@ import { type Todo } from '../core/types';
 interface TodoState {
     todos: Todo[];
 
-    addTodo: (text: string) => void;
+    addTodo: (text: string, date?: string) => void;
     toggleTodo: (id: string) => void;
     removeTodo: (id: string) => void;
     clearCompleted: () => void;
@@ -18,17 +18,30 @@ export const useTodoStore = create<TodoState>()(
         (set) => ({
             todos: [],
 
-            addTodo: (text) => set((state) => ({
-                todos: [
-                    ...state.todos,
-                    {
-                        id: crypto.randomUUID(),
-                        text,
-                        completed: false,
-                        createdAt: Date.now(),
-                    },
-                ],
-            })),
+            addTodo: (text, date) => set((state) => {
+                // Default to today if date is not provided
+                let targetDate = date;
+                if (!targetDate) {
+                    const d = new Date();
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    targetDate = `${year}-${month}-${day}`;
+                }
+
+                return {
+                    todos: [
+                        ...state.todos,
+                        {
+                            id: crypto.randomUUID(),
+                            text,
+                            completed: false,
+                            createdAt: Date.now(),
+                            date: targetDate,
+                        },
+                    ],
+                };
+            }),
 
             toggleTodo: (id) => set((state) => ({
                 todos: state.todos.map((todo) =>

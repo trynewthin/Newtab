@@ -70,7 +70,7 @@ export function TodoLiveCard({ onOpenDialog }: TodoLiveCardProps) {
             onFinish={handleFinish}
             icon={
                 <div className="relative w-full h-full p-0.5">
-                    <img src={todoIcon} alt="Todo" className="w-full h-full object-cover rounded-[15px] shadow-sm transition-transform group-hover:rotate-6 group-hover:scale-110 duration-500" />
+                    <img src={todoIcon} alt="Todo" className="w-full h-full object-cover rounded-[15px] shadow-sm transition-transform group-hover:scale-105 duration-500" />
                     {totalCount > 1 && (
                         <div className="absolute -top-2 -right-2 flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-primary text-primary-foreground ring-4 ring-white/10 text-[10px] font-black shadow-xl z-10 animate-pulse">
                             {totalCount}

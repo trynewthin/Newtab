@@ -79,7 +79,7 @@ export function PomodoroLiveCard({ onOpenDialog }: PomodoroLiveCardProps) {
                 };
             default:
                 return {
-                    icon: <img src={pomodoroIcon} alt="Pomodoro" className="w-full h-full object-cover rounded-[18px] transition-transform group-hover:rotate-12 group-hover:scale-110 duration-500" />,
+                    icon: <img src={pomodoroIcon} alt="Pomodoro" className="w-full h-full object-cover rounded-[18px] transition-transform group-hover:scale-110 duration-500" />,
                     bgGradient: "bg-transparent shadow-none"
                 };
         }

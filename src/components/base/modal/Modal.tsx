@@ -44,6 +44,7 @@ interface BaseModalProps extends DialogPrimitive.Root.Props {
     showCloseButton?: boolean // default true
     actions?: React.ReactNode
     header?: React.ReactNode // Full override for header layer
+    footer?: React.ReactNode // NEW: Full override for footer layer
     showGradientShadow?: boolean // Toggle for the top gradient shadow
 
     // Layer 3: Background
@@ -57,7 +58,7 @@ interface BaseModalProps extends DialogPrimitive.Root.Props {
 }
 
 // THE SINGLE SOURCE OF TRUTH FOR MODAL SIZE
-const UNIFIED_SIZE_CLASS = "w-[80vw] h-[80vh]";
+const UNIFIED_SIZE_CLASS = "w-full h-full sm:w-[80vw] sm:h-[80vh]";
 
 function BaseModal({
     children,
@@ -85,12 +86,12 @@ function BaseModal({
                 <DialogPrimitive.Popup
                     data-slot="modal-content"
                     className={cn(
-                        // Positioning
-                        "fixed top-1/2 left-1/2 z-1000 -translate-x-1/2 -translate-y-1/2 outline-none",
+                        // Positioning - Mobile: Full Screen, Desktop: Centered
+                        "fixed inset-0 sm:top-1/2 sm:left-1/2 z-1000 sm:-translate-x-1/2 sm:-translate-y-1/2 outline-none",
                         // Animations
-                        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 duration-100",
-                        // Base Responsive Limits (Max width/height relative to viewport)
-                        "max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]",
+                        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 sm:data-closed:zoom-out-95 sm:data-open:zoom-in-95 duration-100",
+                        // Base Responsive Limits - Reset for mobile, apply for desktop
+                        "sm:max-w-[calc(100vw-2rem)] sm:max-h-[calc(100vh-2rem)]",
                         // Apply STRICT UNIFIED SIZE
                         UNIFIED_SIZE_CLASS
                     )}
@@ -102,7 +103,7 @@ function BaseModal({
                         This guarantees the "Background Layer" is absolutely static and fixed size.
                         Content scrolls strictly within this frame.
                     */}
-                    <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 isolate">
+                    <div className="relative w-full h-full sm:rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 isolate">
 
                         {/* === Layer 3: Background (Fixed) === */}
                         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -125,41 +126,51 @@ function BaseModal({
                         </div>
 
                         {/* === Layer 1: Header (Fixed Overlay) === */}
-                        <div className="absolute inset-0 z-20 pointer-events-none">
+                        <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between">
                             {/* Top Gradient */}
                             {showGradientShadow && (
                                 <div className="absolute top-0 left-0 right-0 h-24 bg-linear-to-b from-black/5 to-transparent z-[-1]" />
                             )}
 
-                            {header ? (
-                                header
-                            ) : (
-                                <div className="p-4">
-                                    <div className="flex items-start justify-between gap-4">
-                                        {/* Left: Title */}
-                                        <div className="pointer-events-auto min-w-0 flex-1">
-                                            {showTitle && title && (
-                                                <div className="bg-background/80 backdrop-blur-md border border-border/50 shadow-sm px-4 py-2 rounded-full flex items-center gap-2 max-w-full sm:max-w-fit w-fit">
-                                                    <span className="font-semibold text-sm truncate">{title}</span>
-                                                </div>
-                                            )}
-                                        </div>
+                            {/* Top Section */}
+                            <div>
+                                {header ? (
+                                    header
+                                ) : (
+                                    <div className="p-4">
+                                        <div className="flex items-start justify-between gap-4">
+                                            {/* Left: Title */}
+                                            <div className="pointer-events-auto min-w-0 flex-1">
+                                                {showTitle && title && (
+                                                    <div className="bg-background/80 backdrop-blur-md border border-border/50 shadow-sm px-4 py-2 rounded-full flex items-center gap-2 max-w-full sm:max-w-fit w-fit">
+                                                        <span className="font-semibold text-sm truncate">{title}</span>
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                        {/* Right: Actions + Close */}
-                                        <div className="pointer-events-auto flex items-center gap-2 shrink-0">
-                                            {actions}
-                                            {showCloseButton && (
-                                                <DialogPrimitive.Close
-                                                    render={
-                                                        <ModalButton>
-                                                            <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
-                                                            <span className="sr-only">Close</span>
-                                                        </ModalButton>
-                                                    }
-                                                />
-                                            )}
+                                            {/* Right: Actions + Close */}
+                                            <div className="pointer-events-auto flex items-center gap-2 shrink-0">
+                                                {actions}
+                                                {showCloseButton && (
+                                                    <DialogPrimitive.Close
+                                                        render={
+                                                            <ModalButton>
+                                                                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
+                                                                <span className="sr-only">Close</span>
+                                                            </ModalButton>
+                                                        }
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
+                                )}
+                            </div>
+
+                            {/* Bottom Section (Footer) */}
+                            {props.footer && (
+                                <div className="pointer-events-auto">
+                                    {props.footer}
                                 </div>
                             )}
                         </div>

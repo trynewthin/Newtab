@@ -1,6 +1,6 @@
 import { useUIStore } from "@/store/modules/ui";
 import { useTagStore } from "@/store/modules/tag";
-import { Edit2, FolderPlus, Trash2, Settings } from "lucide-react";
+import { Edit2, FolderPlus, Trash2, Settings, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -80,6 +80,14 @@ export function HomeTools() {
                 title={isEditing ? t('exit_edit_mode') : t('enter_edit_mode')}
             >
                 <Edit2 size={18} className={isEditing ? "text-primary-foreground" : "text-foreground/70"} />
+            </button>
+
+            <button
+                onClick={() => setActiveSystemDialog('add')}
+                className="p-2.5 glass-button rounded-xl active:scale-95"
+                title={t('add_shortcut')}
+            >
+                <Plus size={18} className="text-foreground/70" />
             </button>
 
             <button

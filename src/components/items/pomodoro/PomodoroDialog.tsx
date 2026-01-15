@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { BaseModal, ModalButton } from "@/components/base";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { cn } from "@/lib/utils";
-import { Play, RotateCcw } from "lucide-react";
+import { Play, RotateCcw, Timer, Coffee, Zap, Settings2 } from "lucide-react";
 import { useLiveActivity } from "@/components/home/live/LiveActivityArea";
 import { PomodoroLiveCard } from "@/components/home/live/PomodoroLiveCard";
 import { useTranslation } from "react-i18next";
+import { SettingsSection, SettingsItem } from "@/components/settings/base/SettingComponents";
+import { Switch } from "@/components/ui/switch";
 
 interface PomodoroDialogProps {
     open: boolean;
@@ -33,6 +37,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
 
     const [timeLeft, setTimeLeft] = useState("");
 
+    // Sync local state with config when dialog opens
     useEffect(() => {
         if (!open) return;
         setWorkMinutes(config.workMinutes);
@@ -45,6 +50,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
         setLongBreakMinutes(config.longBreakMinutes);
     }, [open, config]);
 
+    // Timer Logic
     useEffect(() => {
         if (!status.isRunning || !status.endTime) {
             return;
@@ -55,6 +61,7 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
             const diff = status.endTime! - now;
 
             if (diff <= 0) {
+                // Audio feedback could go here
                 if (status.mode === 'prepare') {
                     setStatus({
                         ...status,
@@ -141,31 +148,11 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
         });
     };
 
-    const headerActions = status.isRunning ? (
-        <ModalButton
-            isIcon
-            className="hover:bg-destructive/10 hover:text-destructive"
-            onClick={handleReset}
-            title={t('reset_timer')}
-        >
-            <RotateCcw className="w-4 h-4" />
-        </ModalButton>
-    ) : (
-        <ModalButton
-            isIcon={false}
-            className="text-xs font-bold shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all gap-1.5"
-            onClick={handleStart}
-        >
-            <Play className="w-3 h-3 fill-current" />
-            {t('start')}
-        </ModalButton>
-    );
-
     const getStatusColor = () => {
         switch (status.mode) {
             case 'work': return "text-primary";
-            case 'break': return "text-green-500";
-            case 'long-break': return "text-blue-500";
+            case 'break': return "text-emerald-500";
+            case 'long-break': return "text-indigo-500";
             case 'prepare': return "text-orange-500";
             default: return "text-primary";
         }
@@ -173,21 +160,11 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
 
     const getStatusText = () => {
         switch (status.mode) {
-            case 'work': return t('building');
-            case 'break': return t('chilling');
-            case 'long-break': return t('recharging');
-            case 'prepare': return t('ready');
-            default: return t('focus');
-        }
-    };
-
-    const getStatusBg = () => {
-        switch (status.mode) {
-            case 'work': return "bg-primary/10 text-primary border-primary/20";
-            case 'break': return "bg-green-500/10 text-green-600 border-green-500/20";
-            case 'long-break': return "bg-blue-500/10 text-blue-600 border-blue-500/20";
-            case 'prepare': return "bg-orange-500/10 text-orange-600 border-orange-500/20";
-            default: return "bg-primary/10 text-primary border-primary/20";
+            case 'work': return t('building') || "Focusing...";
+            case 'break': return t('chilling') || "Short Break";
+            case 'long-break': return t('recharging') || "Long Break";
+            case 'prepare': return t('ready') || "Preparing";
+            default: return t('focus') || "Focus Mode";
         }
     };
 
@@ -195,188 +172,242 @@ export function PomodoroDialog({ open, onOpenChange }: PomodoroDialogProps) {
         <BaseModal
             open={open}
             onOpenChange={onOpenChange}
-            title={t('sys_pomodoro')}
-            actions={headerActions}
+            header={
+                <div className="flex items-center justify-between px-6 py-5">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm ring-1 ring-primary/5">
+                            <Timer size={22} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h2 className="text-base font-black tracking-tight leading-none mb-1">
+                                {t('sys_pomodoro')}
+                            </h2>
+                            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] opacity-40">
+                                {status.isRunning ? getStatusText() : "Setup Session"}
+                            </p>
+                        </div>
+                    </div>
 
+                    <div className="flex items-center gap-2">
+                        {status.isRunning ? (
+                            <ModalButton
+                                isIcon={false}
+                                className="h-9 px-4 rounded-xl bg-destructive text-destructive-foreground hover:brightness-110 active:scale-95 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-destructive/20"
+                                onClick={handleReset}
+                            >
+                                <RotateCcw size={14} className="mr-1.5" />
+                                {t('reset')}
+                            </ModalButton>
+                        ) : (
+                            <ModalButton
+                                isIcon={false}
+                                className="h-9 px-4 rounded-xl bg-primary text-primary-foreground hover:brightness-110 active:scale-95 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+                                onClick={handleStart}
+                            >
+                                <Play size={12} fill="currentColor" className="mr-2" />
+                                {t('start')}
+                            </ModalButton>
+                        )}
+
+                        <DialogPrimitive.Close
+                            render={
+                                <ModalButton className="w-9 h-9 rounded-xl">
+                                    <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
+                                    <span className="sr-only">{t('close')}</span>
+                                </ModalButton>
+                            }
+                        />
+                    </div>
+                </div>
+            }
+            background={<div className="absolute inset-0 bg-background" />}
         >
-            <div className="relative py-2">
+            <div className="px-6 pb-6 pt-2 overflow-hidden">
                 {status.isRunning ? (
-                    <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in zoom-in duration-300 w-full">
-                        <div className={cn(
-                            "text-8xl font-black tracking-tighter tabular-nums drop-shadow-sm transition-colors duration-500 leading-none select-none",
-                            getStatusColor()
-                        )}>
-                            {timeLeft}
+                    <div className="flex flex-col items-center justify-center py-12 space-y-8 animate-in fade-in zoom-in duration-500">
+                        {/* Futuristic Timer Display */}
+                        <div className="relative group flex items-center justify-center">
+                            {/* Animated ring background */}
+                            <div className={cn(
+                                "absolute -inset-10 rounded-full bg-primary/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700",
+                                status.mode === 'break' && "bg-emerald-500/5",
+                                status.mode === 'prepare' && "bg-orange-500/5",
+                                status.mode === 'long-break' && "bg-indigo-500/5",
+                            )} />
+
+                            <div className={cn(
+                                "text-[120px] font-black tracking-[-0.08em] tabular-nums drop-shadow-xl transition-all duration-700 leading-none select-none filter blur-[0.3px]",
+                                getStatusColor()
+                            )}>
+                                {timeLeft}
+                            </div>
                         </div>
 
-                        <div className="flex flex-col items-center gap-2">
-                            <span className={cn(
-                                "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-colors duration-500",
-                                getStatusBg()
+                        {/* Session Progress info */}
+                        <div className="flex flex-col items-center gap-3">
+                            <div className={cn(
+                                "flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest border shadow-sm transition-all duration-500",
+                                status.mode === 'work' && "bg-primary/10 text-primary border-primary/20",
+                                status.mode === 'break' && "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+                                status.mode === 'long-break' && "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
+                                status.mode === 'prepare' && "bg-orange-500/10 text-orange-600 border-orange-500/20",
                             )}>
-                                {getStatusText()}
-                            </span>
-                            <span className="text-[10px] font-medium text-muted-foreground/60">
-                                {t('round_of', { current: status.currentRound, total: rounds })}
-                            </span>
+                                {status.mode === 'work' && <Zap size={13} fill="currentColor" />}
+                                {status.mode === 'break' && <Coffee size={13} />}
+                                {status.mode === 'long-break' && <Zap size={13} fill="currentColor" className="text-secondary" />}
+                                {status.mode === 'prepare' && <Timer size={13} />}
+                                <span>{getStatusText()}</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/40 bg-secondary/20 px-3 py-1 rounded-lg">
+                                <span className="uppercase tracking-widest">{t('round')}</span>
+                                <span className="text-foreground/60">{status.currentRound}</span>
+                                <span className="mx-0.5 opacity-20">/</span>
+                                <span className="text-foreground/60">{rounds}</span>
+                            </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300 relative z-10 selection:bg-primary/20">
+                    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
 
-                        {/* Section 1: Focus Cycle */}
-                        <div className="space-y-3">
-                            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
-                                {t('focus_cycle')}
-                            </h4>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-secondary/30 rounded-xl p-3 flex flex-col gap-1.5 border border-transparent hover:border-primary/10 transition-colors">
-                                    <Label htmlFor="pomodoro-work" className="text-xs font-medium text-foreground">
-                                        {t('work')}
-                                    </Label>
-                                    <div className="relative">
+                        {/* Main Session Config */}
+                        <SettingsSection
+                            icon={Zap}
+                            iconColor="text-primary"
+                            title={t('focus_cycle') || "Focus Cycle"}
+                            description={t('focus_cycle_desc') || "Define your productivity time blocks"}
+                        >
+                            <div className="grid grid-cols-2 gap-4">
+                                <SettingsItem label={t('work') || "Work"}>
+                                    <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-xl border border-border/10 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
                                         <Input
-                                            id="pomodoro-work"
                                             type="number"
                                             min={1}
                                             value={workMinutes}
                                             onChange={(e) => setWorkMinutes(Number(e.target.value))}
-                                            className="h-8 text-sm font-semibold border-0 bg-background/50 focus:bg-background rounded-lg pr-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-12 h-6 text-sm font-black border-none bg-transparent p-0 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
-                                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none">
-                                            {t('min')}
-                                        </span>
+                                        <span className="text-[10px] font-black uppercase text-muted-foreground/40">{t('min')}</span>
                                     </div>
-                                </div>
-                                <div className="bg-secondary/30 rounded-xl p-3 flex flex-col gap-1.5 border border-transparent hover:border-primary/10 transition-colors">
-                                    <Label htmlFor="pomodoro-rounds" className="text-xs font-medium text-foreground">
-                                        {t('rounds')}
-                                    </Label>
-                                    <Input
-                                        id="pomodoro-rounds"
-                                        type="number"
-                                        min={1}
-                                        value={rounds}
-                                        onChange={(e) => setRounds(Number(e.target.value))}
-                                        className="h-8 text-sm font-semibold border-0 bg-background/50 focus:bg-background rounded-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                                </SettingsItem>
 
-                        {/* Section 2: Breaks */}
-                        <div className="space-y-3">
-                            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
-                                {t('breaks')}
-                            </h4>
-                            <div className="bg-secondary/30 rounded-xl divide-y divide-border/40 border border-transparent">
-                                {/* Short Break */}
-                                <div className="p-3 flex items-center justify-between">
-                                    <Label htmlFor="pomodoro-break" className="text-xs font-medium text-foreground">
-                                        {t('short_break')}
-                                    </Label>
-                                    <div className="relative w-20">
+                                <SettingsItem label={t('rounds') || "Rounds"}>
+                                    <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-xl border border-border/10 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
                                         <Input
-                                            id="pomodoro-break"
+                                            type="number"
+                                            min={1}
+                                            value={rounds}
+                                            onChange={(e) => setRounds(Number(e.target.value))}
+                                            className="w-12 h-6 text-sm font-black border-none bg-transparent p-0 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                        <span className="text-[10px] font-black uppercase text-muted-foreground/40">{t('sessions')}</span>
+                                    </div>
+                                </SettingsItem>
+                            </div>
+                        </SettingsSection>
+
+                        {/* Breaks Config */}
+                        <SettingsSection
+                            icon={Coffee}
+                            iconColor="text-emerald-500"
+                            title={t('breaks') || "Breaks"}
+                            description={t('breaks_desc') || "Regain energy between focus sessions"}
+                        >
+                            <div className="space-y-4">
+                                <SettingsItem
+                                    label={t('short_break') || "Short Break"}
+                                    description={t('short_break_desc') || "Standard rest interval"}
+                                >
+                                    <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-xl border border-border/10 focus-within:ring-1 focus-within:ring-emerald-500/20 transition-all">
+                                        <Input
                                             type="number"
                                             min={1}
                                             value={breakMinutes}
                                             onChange={(e) => setBreakMinutes(Number(e.target.value))}
-                                            className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md pr-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-12 h-6 text-sm font-black border-none bg-transparent p-0 text-center"
                                         />
-                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none bg-transparent">
-                                            {t('min')}
-                                        </span>
+                                        <span className="text-[10px] font-black uppercase text-muted-foreground/40">{t('min')}</span>
                                     </div>
-                                </div>
+                                </SettingsItem>
 
-                                {/* Long Break */}
-                                <div className="p-3">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="enable-long-break"
-                                                checked={enableLongBreak}
-                                                onChange={(e) => setEnableLongBreak(e.target.checked)}
-                                                className="w-3.5 h-3.5 rounded border-muted-foreground/30 text-primary focus:ring-primary/20"
-                                            />
-                                            <Label htmlFor="enable-long-break" className="text-xs font-medium text-foreground cursor-pointer select-none">
-                                                {t('long_break')}
-                                            </Label>
-                                        </div>
-                                    </div>
+                                <div className="h-px bg-border/10 mx--2" />
 
-                                    {enableLongBreak && (
-                                        <div className="flex items-center gap-3 pl-5.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                                            <div className="flex-1 flex items-center gap-2">
-                                                <span className="text-[10px] text-muted-foreground">{t('every')}</span>
-                                                <div className="relative w-12">
-                                                    <Input
-                                                        type="number"
-                                                        min={1}
-                                                        value={longBreakInterval}
-                                                        onChange={(e) => setLongBreakInterval(Number(e.target.value))}
-                                                        className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                    />
-                                                </div>
-                                                <span className="text-[10px] text-muted-foreground">{t('rounds')}</span>
+                                <SettingsItem
+                                    label={t('long_break') || "Long Break"}
+                                    description={t('long_break_desc') || "Extended recharge after multiple rounds"}
+                                >
+                                    <Switch
+                                        checked={enableLongBreak}
+                                        onCheckedChange={setEnableLongBreak}
+                                    />
+                                </SettingsItem>
+
+                                {enableLongBreak && (
+                                    <div className="flex flex-col gap-3 pl-4 border-l-2 border-emerald-500/10 animate-in slide-in-from-top-2 duration-300">
+                                        <SettingsItem label={t('interval') || "Every Round"}>
+                                            <div className="flex items-center gap-2 bg-background/40 px-3 py-1.5 rounded-xl border border-border/10">
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    value={longBreakInterval}
+                                                    onChange={(e) => setLongBreakInterval(Number(e.target.value))}
+                                                    className="w-10 h-5 text-xs font-bold border-none bg-transparent p-0 text-center"
+                                                />
+                                                <span className="text-[9px] font-bold uppercase text-muted-foreground/30">{t('rounds')}</span>
                                             </div>
-                                            <div className="relative w-16">
+                                        </SettingsItem>
+                                        <SettingsItem label={t('duration') || "Total Time"}>
+                                            <div className="flex items-center gap-2 bg-background/40 px-3 py-1.5 rounded-xl border border-border/10">
                                                 <Input
                                                     type="number"
                                                     min={1}
                                                     value={longBreakMinutes}
                                                     onChange={(e) => setLongBreakMinutes(Number(e.target.value))}
-                                                    className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md pr-6 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    className="w-10 h-5 text-xs font-bold border-none bg-transparent p-0 text-center"
                                                 />
-                                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none bg-transparent">
-                                                    {t('min')}
-                                                </span>
+                                                <span className="text-[9px] font-bold uppercase text-muted-foreground/30">{t('min')}</span>
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Section 3: Extras */}
-                        <div className="space-y-3">
-                            <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
-                                {t('extras')}
-                            </h4>
-                            <div className="bg-secondary/30 rounded-xl border border-transparent">
-                                <div className="p-3 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            id="enable-prepare"
-                                            checked={enablePrepare}
-                                            onChange={(e) => setEnablePrepare(e.target.checked)}
-                                            className="w-3.5 h-3.5 rounded border-muted-foreground/30 text-primary focus:ring-primary/20"
-                                        />
-                                        <Label htmlFor="enable-prepare" className="text-xs font-medium text-foreground cursor-pointer select-none">
-                                            {t('preparation_mode')}
-                                        </Label>
+                                        </SettingsItem>
                                     </div>
+                                )}
+                            </div>
+                        </SettingsSection>
 
-                                    {enablePrepare && (
-                                        <div className="relative w-20 animate-in fade-in slide-in-from-right-2 duration-200">
+                        {/* Extras Config */}
+                        <SettingsSection
+                            icon={Settings2}
+                            iconColor="text-orange-500"
+                            title={t('extras') || "Extensions"}
+                        >
+                            <div className="space-y-4">
+                                <SettingsItem
+                                    label={t('preparation_mode') || "Preparatory Warmup"}
+                                    description={t('preparation_desc') || "A short head-start before work starts"}
+                                >
+                                    <Switch
+                                        checked={enablePrepare}
+                                        onCheckedChange={setEnablePrepare}
+                                    />
+                                </SettingsItem>
+
+                                {enablePrepare && (
+                                    <div className="flex items-center justify-between pl-4 border-l-2 border-orange-500/10 animate-in slide-in-from-top-2 duration-300">
+                                        <span className="text-xs font-medium text-muted-foreground">{t('warmup_time') || "Time"}</span>
+                                        <div className="flex items-center gap-2 bg-background/40 px-3 py-1.5 rounded-xl border border-border/10">
                                             <Input
                                                 type="number"
-                                                min={1}
+                                                min={0.1}
+                                                step={0.1}
                                                 value={prepareMinutes}
                                                 onChange={(e) => setPrepareMinutes(Number(e.target.value))}
-                                                className="h-7 text-sm font-semibold text-center bg-background border border-border/30 shadow-sm focus:ring-1 focus:ring-primary/20 rounded-md pr-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                className="w-10 h-5 text-xs font-bold border-none bg-transparent p-0 text-center"
                                             />
-                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-medium pointer-events-none bg-transparent">
-                                                {t('min')}
-                                            </span>
+                                            <span className="text-[9px] font-bold uppercase text-muted-foreground/30">{t('min')}</span>
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
-                        </div>
+                        </SettingsSection>
 
                     </div>
                 )}

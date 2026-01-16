@@ -96,23 +96,26 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
         if (!child) return null;
 
         const isApp = child.kind === 'app';
+        // 彻底去透明，确保图标轮廓与主背景有清晰隔离
         const bg = isApp ? 'rgb(255, 255, 255)' : (child.backgroundColor ?? "rgb(255, 255, 255)");
         const userScale = child.kind === 'tag' ? (child.iconSize || 1) : 1;
-        const scale = (child.icon && child.icon.length < 4) ? 1.2 * userScale : 0.7 * userScale;
 
-        // 系统图标特殊缩放: 基础 0.6 * 1.3 = 0.78
-        const finalScale = isApp ? 0.78 * userScale : scale;
+        // 统一缩放基准：利用 ItemIcon 内部自带的 0.85 比例，叠加 1.35x 约为满格
+        const finalScale = 1.35 * userScale;
 
         return (
-            <ItemIcon
-                title={child.title}
-                icon={child.icon}
-                iconDataUrl={isApp ? undefined : (child.kind === 'tag' ? child.iconDataUrl : undefined)}
-                isSystem={isApp}
-                backgroundColor={bg}
-                scale={finalScale}
-                className="w-full h-full rounded-sm"
-            />
+            <div className="flex items-center justify-center w-full h-full overflow-hidden">
+                <ItemIcon
+                    title={child.title}
+                    icon={child.icon}
+                    iconDataUrl={isApp ? undefined : (child.kind === 'tag' ? child.iconDataUrl : undefined)}
+                    isSystem={isApp}
+                    backgroundColor={bg}
+                    scale={finalScale}
+                    // 强制覆盖 ItemIcon 内部的 [85%] 约束，使得微型图标能够真正撑满格子空间并居中
+                    className="w-full h-full rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)] [&>div]:w-full [&>div]:h-full"
+                />
+            </div>
         );
     };
 
@@ -152,15 +155,14 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
                 onClick={handleClick}
                 className={cn(
                     "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
-                    "bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20",
+                    "bg-primary/10 dark:bg-primary/15 backdrop-blur-xl",
                     isEditing ? "cursor-pointer" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-xl",
                     isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
                 )}
             >
-                <div className="absolute inset-0 bg-white/5 dark:bg-black/10 backdrop-blur-xl" />
-
-                <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-0.5 p-1">
+                {/* 精调布局：增加 gap 到 4px，p-1.5 配合 w-11，确保四宫格图标间距匀称且居中 */}
+                <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-1.5">
                     {[0, 1, 2, 3].map((index) => (
                         <div key={index} className="w-full h-full">
                             {renderGridIcon(index)}

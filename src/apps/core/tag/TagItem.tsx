@@ -24,7 +24,7 @@ export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNe
     const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
     const isSelected = selectedTagIds.includes(item.id);
 
-    const [bgColor, setBgColor] = useState(() => item.backgroundColor ?? "rgb(255, 255, 255)");
+    const [bgColor, setBgColor] = useState(() => item.backgroundColor ?? "transparent");
     const [imageDataUrl, setImageDataUrl] = useState<string>("");
 
     const {
@@ -102,7 +102,7 @@ export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNe
             }
         };
 
-        setBgColor(item.backgroundColor ?? "rgb(255, 255, 255)");
+        setBgColor(item.backgroundColor ?? "transparent");
         resolveIcon();
 
         return () => {
@@ -149,7 +149,7 @@ export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNe
                     icon={item.icon}
                     iconDataUrl={imageDataUrl || faviconUrl}
                     isSystem={false}
-                    scale={item.iconSize}
+                    scale={item.iconSize || 1.3}
                     backgroundColor={bgColor}
                     className={cn(
                         "w-14 h-14 rounded-2xl shadow-sm hover:shadow-md",

@@ -20,8 +20,20 @@ import {
     rectSortingStrategy,
     useSortable,
 } from "@dnd-kit/sortable";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
+
+// Global tracker for the last mouse down position (same as in Modal.tsx)
+let lastClickPos = {
+    x: typeof window !== "undefined" ? window.innerWidth / 2 : 0,
+    y: typeof window !== "undefined" ? window.innerHeight / 2 : 0
+};
+
+if (typeof window !== "undefined") {
+    window.addEventListener("mousedown", (e) => {
+        lastClickPos = { x: e.clientX, y: e.clientY };
+    }, { capture: true, passive: true });
+}
 
 // Helper to check if item is folder
 function isFolder(item: GridItemType): item is FolderItem {
@@ -84,6 +96,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
     const [entered, setEntered] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [titleDraft, setTitleDraft] = useState(folder.title);
+    const [transformOrigin, setTransformOrigin] = useState<string>("center");
 
     const containerRef = useRef<HTMLDivElement>(null);
     const initialPointerPosition = useRef<{ x: number; y: number } | null>(null);
@@ -105,6 +118,35 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         containerRef.current = element;
         setDroppableRef(element);
     };
+
+    // Calculate Transform Origin derived from mouse click position
+    // Use useLayoutEffect to ensure it's calculated before the first mount update
+    useLayoutEffect(() => {
+        const innerWidth = window.innerWidth;
+        const innerHeight = window.innerHeight;
+
+        const containerW = 340;
+        const containerH = 340;
+
+        // Accurate viewport-to-container coordinate mapping
+        const modalX = (innerWidth - containerW) / 2;
+        const totalHeight = 40 /* title approx */ + 32 /* pb-8 */ + containerH;
+        const startY = (innerHeight - totalHeight) / 2 + 32 + 40;
+
+        const originX = ((lastClickPos.x - modalX) / containerW) * 100;
+        const originY = ((lastClickPos.y - startY) / containerH) * 100;
+
+        setTransformOrigin(`${originX}% ${originY}%`);
+
+        // Force a paint frame before triggering the transition
+        const timer = requestAnimationFrame(() => {
+            const nextTimer = requestAnimationFrame(() => {
+                setEntered(true);
+            });
+            return () => cancelAnimationFrame(nextTimer);
+        });
+        return () => cancelAnimationFrame(timer);
+    }, []);
 
     const currentFolder = items.find(t => t.id === folder.id);
     const currentTitle = currentFolder?.title ?? folder.title;
@@ -310,10 +352,6 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         }
     }, [currentFolder, onClose]);
 
-    useEffect(() => {
-        setEntered(true);
-    }, []);
-
     const saveTitle = () => {
         setItems(items.map(t => t.id === folder.id ? { ...t, title: titleDraft } as GridItemType : t));
         setIsEditingTitle(false);
@@ -322,6 +360,12 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
     useEffect(() => {
         setTitleDraft(currentTitle);
     }, [currentTitle]);
+
+    const handleClose = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEntered(false);
+        setTimeout(onClose, 300); // Consistent with transition-duration
+    };
 
     return (
         <DndContext
@@ -333,13 +377,17 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         >
             <div
                 className={cn(
-                    "fixed inset-0 z-50 flex flex-col items-center justify-center bg-transparent backdrop-blur-md transition-opacity duration-300",
-                    entered ? "opacity-100" : "opacity-0"
+                    "fixed inset-0 z-50 flex flex-col items-center justify-center transition-all duration-300",
+                    entered ? "opacity-100 backdrop-blur-md bg-black/5 dark:bg-black/10" : "opacity-0 backdrop-blur-0 bg-transparent pointer-events-none"
                 )}
-                onClick={onClose}
+                onClick={handleClose}
             >
+                {/* Title Animation Wrapper */}
                 <div
-                    className="text-2xl font-medium text-white drop-shadow-md tracking-wide text-center pb-8"
+                    className={cn(
+                        "text-2xl font-medium text-white drop-shadow-md tracking-wide text-center pb-8 transition-all duration-300 ease-out",
+                        entered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+                    )}
                     onClick={(e) => {
                         e.stopPropagation();
                         setIsEditingTitle(true);
@@ -366,15 +414,21 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                     )}
                 </div>
 
+                {/* Main Content Animation Wrapper */}
                 <div
                     ref={setRefs}
+                    style={{ transformOrigin } as React.CSSProperties}
                     className={cn(
-                        "bg-white/5 dark:bg-black/20 backdrop-blur-3xl rounded-[32px] shadow-2xl border border-white/20 p-6 w-[340px] h-[340px] transition-all duration-300 ease-out",
-                        entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-4"
+                        "relative overflow-hidden transition-all duration-300 ease-in-out p-6 w-[340px] h-[340px] rounded-[32px] shadow-2xl border border-white/20 dark:border-white/10",
+                        entered ? "opacity-100 scale-100" : "opacity-0 scale-50"
                     )}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="grid grid-cols-3 gap-x-2 gap-y-4 h-full overflow-y-auto content-start [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-1">
+                    {/* Mixed Background Layers - Base White/Black + Primary Tint */}
+                    <div className="absolute inset-0 bg-white/30 dark:bg-black/50 backdrop-blur-3xl -z-20" />
+                    <div className="absolute inset-0 bg-primary/10 dark:bg-primary/20 -z-10 pointer-events-none" />
+
+                    <div className="relative z-10 grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 h-full overflow-y-auto content-start [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-1">
                         <SortableContext
                             items={displayItems.map(item => item.id)}
                             strategy={rectSortingStrategy}

@@ -70,8 +70,8 @@ export function AppGrid() {
     );
 
     const createFolder = useCallback((item1Id: string, item2Id: string) => {
-        batchGroupItems([item1Id, item2Id]);
-    }, [batchGroupItems]);
+        batchGroupItems([item1Id, item2Id], t('new_folder'));
+    }, [batchGroupItems, t]);
 
     const handleItemClick = (item: GridItemType) => {
         if (item.kind === 'folder') {

@@ -80,7 +80,7 @@ export function ItemIcon({
                     <img
                         src={imageSrc}
                         alt={title || "icon"}
-                        className="w-full h-full object-contain pointer-events-none select-none"
+                        className="w-full h-full object-cover pointer-events-none select-none"
                         onError={(e) => {
                             e.currentTarget.style.display = 'none';
                         }}

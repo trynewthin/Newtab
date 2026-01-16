@@ -133,7 +133,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                     {!tag.isSystem && (
                         <button
                             onClick={handleEdit}
-                            className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                            className="p-1.5 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
                             title={t('edit')}
                         >
                             <Edit2 size={10} />
@@ -141,7 +141,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                     )}
                     <button
                         onClick={handleDelete}
-                        className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                        className="p-1.5 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
                         title={t('remove')}
                     >
                         <X size={10} />
@@ -171,20 +171,28 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                         }
                     }}
                 >
-                    {/* 选中态遮罩 - 中心显示圆形框 */}
+                    {/* 选中态遮罩 - 中心显示圆形按钮 */}
                     {isEditing && (
                         <div className={cn(
-                            "absolute inset-0 z-30 flex items-center justify-center transition-all bg-black/5",
-                            isSelected ? "opacity-100" : "opacity-0 hover:opacity-100"
+                            "absolute inset-0 z-30 flex items-center justify-center transition-all pointer-events-none",
+                            isSelected ? "bg-black/5" : ""
                         )}>
-                            <div className={cn(
-                                "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                                isSelected
-                                    ? "bg-primary border-primary scale-110 shadow-lg text-white"
-                                    : "border-white/50 bg-black/20"
-                            )}>
-                                {isSelected && <Check size={14} strokeWidth={3} />}
-                            </div>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleTagSelection(tag.id);
+                                }}
+                                className={cn(
+                                    "pointer-events-auto w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
+                                    isSelected
+                                        ? "bg-primary border-primary scale-110 shadow-lg text-white"
+                                        : "border-white/50 bg-black/20 hover:bg-black/30 hover:border-white/70 hover:scale-105"
+                                )}
+                            >
+                                {isSelected && <Check size={16} strokeWidth={3} />}
+                            </button>
                         </div>
                     )}
                 </ItemIcon>

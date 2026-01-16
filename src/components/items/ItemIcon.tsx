@@ -56,8 +56,8 @@ export function ItemIcon({
         // 1. System Icon
         if (isSystem && icon) {
             return (
-                <div style={contentStyle} className="flex items-center justify-center w-full h-full">
-                    {renderSystemIcon(icon, "w-1/2 h-1/2")}
+                <div style={contentStyle} className="flex items-center justify-center w-[85%] h-[85%]">
+                    {renderSystemIcon(icon, "w-full h-full")}
                 </div>
             );
         }
@@ -65,7 +65,7 @@ export function ItemIcon({
         // 2. Emoji
         if (icon && icon.length < 4) {
             return (
-                <div style={contentStyle} className="flex items-center justify-center w-full h-full">
+                <div style={contentStyle} className="flex items-center justify-center w-[85%] h-[85%]">
                     <span className="text-[2em] select-none leading-none flex items-center justify-center h-full w-full grayscale-0">
                         {icon}
                     </span>
@@ -76,7 +76,7 @@ export function ItemIcon({
         // 3. Image
         if (imageSrc) {
             return (
-                <div style={contentStyle} className="w-full h-full flex items-center justify-center">
+                <div style={contentStyle} className="w-[85%] h-[85%] flex items-center justify-center">
                     <img
                         src={imageSrc}
                         alt={title || "icon"}
@@ -109,8 +109,8 @@ export function ItemIcon({
 
             {/* 2. Fallback: Only if no icon AND no children (children might be content like in FolderItem) */}
             {!hasIconContent && !children && (
-                <div style={{ transform: `scale(${scale})` }} className="text-muted-foreground/20 flex items-center justify-center w-full h-full">
-                    {fallbackIcon || <Globe className="w-1/2 h-1/2" />}
+                <div style={{ transform: `scale(${scale})` }} className="text-muted-foreground/20 flex items-center justify-center w-[85%] h-[85%]">
+                    {fallbackIcon || <Globe className="w-full h-full" />}
                 </div>
             )}
 

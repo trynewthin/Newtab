@@ -22,6 +22,7 @@ import {
 } from "@dnd-kit/sortable";
 import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
+import { ShortcutDialog } from "../tag/ShortcutDialog";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)
 let lastClickPos = {
@@ -97,6 +98,8 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [titleDraft, setTitleDraft] = useState(folder.title);
     const [transformOrigin, setTransformOrigin] = useState<string>("center");
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingItem, setEditingItem] = useState<GridItemType | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const initialPointerPosition = useRef<{ x: number; y: number } | null>(null);
@@ -342,8 +345,10 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         }
     };
 
-    const handleConfirmDelete = (item: GridItemType) => {
-        onDeletePrompt(item);
+    const handleEditItem = (item: GridItemType) => {
+        if (item.kind === 'app' || item.kind === 'folder') return;
+        setEditingItem(item);
+        setIsEditDialogOpen(true);
     };
 
     useEffect(() => {
@@ -419,16 +424,16 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                     ref={setRefs}
                     style={{ transformOrigin } as React.CSSProperties}
                     className={cn(
-                        "relative overflow-hidden transition-all duration-300 ease-in-out p-6 w-[340px] h-[340px] rounded-[32px] shadow-2xl border border-white/20 dark:border-white/10",
+                        "relative overflow-hidden rounded-[32px] transition-all duration-300 ease-in-out p-6 w-[340px] h-[340px] shadow-2xl",
                         entered ? "opacity-100 scale-100" : "opacity-0 scale-50"
                     )}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Mixed Background Layers - Base White/Black + Primary Tint */}
-                    <div className="absolute inset-0 bg-white/30 dark:bg-black/50 backdrop-blur-3xl -z-20" />
-                    <div className="absolute inset-0 bg-primary/10 dark:bg-primary/20 -z-10 pointer-events-none" />
+                    <div className="absolute inset-0 bg-white/30 dark:bg-black/50 backdrop-blur-3xl border border-white/20 dark:border-white/10 -z-20" />
+                    <div className="absolute inset-0 bg-primary/10 dark:bg-primary/20 pointer-events-none -z-10" />
 
-                    <div className="relative z-10 grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 h-full overflow-y-auto content-start [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-1">
+                    <div className="relative z-10 grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 h-full overflow-y-auto overflow-x-hidden content-start [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-8 pb-4 px-1">
                         <SortableContext
                             items={displayItems.map(item => item.id)}
                             strategy={rectSortingStrategy}
@@ -437,13 +442,14 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                                 isPlaceholder(item) ? (
                                     <EmptySlot key={item.id} id={item.id} />
                                 ) : (
-                                    <GridItem
-                                        key={item.id}
-                                        item={item as GridItemType}
-                                        onEdit={handleRemoveFromFolder}
-                                        onDeletePrompt={handleConfirmDelete}
-                                        onClick={onClickTag}
-                                    />
+                                    <div key={item.id} className="overflow-visible">
+                                        <GridItem
+                                            item={item as GridItemType}
+                                            onEdit={handleEditItem}
+                                            onDeletePrompt={handleRemoveFromFolder}
+                                            onClick={onClickTag}
+                                        />
+                                    </div>
                                 )
                             )}
                         </SortableContext>
@@ -462,6 +468,12 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                     />
                 ) : null}
             </DragOverlay>
+
+            <ShortcutDialog
+                open={isEditDialogOpen}
+                onOpenChange={setIsEditDialogOpen}
+                editTag={editingItem as any}
+            />
         </DndContext>
     );
 }

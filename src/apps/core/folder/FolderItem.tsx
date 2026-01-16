@@ -1,5 +1,5 @@
 import { useUIStore } from "@/store/modules/ui";
-import { X, Edit2, Check } from "lucide-react";
+import { X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
@@ -18,7 +18,7 @@ interface FolderItemProps {
 }
 
 export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: FolderItemProps) {
-    const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
+    const { isEditing, selectedTagIds } = useUIStore();
     const isSelected = selectedTagIds.includes(item.id);
 
     const [childIcons, setChildIcons] = useState<string[]>([]);
@@ -73,13 +73,8 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
             return;
         }
 
-        if (isEditing) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleTagSelection(item.id);
-            return;
-        }
-
+        // Folder logic: In editing mode, folders are NOT selectable.
+        // Clicking them will still open the folder preview.
         e.preventDefault();
         if (onClick) {
             onClick(item);
@@ -154,7 +149,7 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
             <ItemIcon
                 onClick={handleClick}
                 className={cn(
-                    "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
+                    "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all",
                     "bg-primary/10 dark:bg-primary/15 backdrop-blur-xl",
                     isEditing ? "cursor-pointer" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-xl",
@@ -169,22 +164,6 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
                         </div>
                     ))}
                 </div>
-
-                {isEditing && (
-                    <div className={cn(
-                        "absolute inset-0 z-30 flex items-center justify-center transition-all bg-black/5",
-                        isSelected ? "opacity-100" : "opacity-0 hover:opacity-100"
-                    )}>
-                        <div className={cn(
-                            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                            isSelected
-                                ? "bg-primary border-primary scale-110 shadow-lg text-white"
-                                : "border-white/50 bg-black/20"
-                        )}>
-                            {isSelected && <Check size={14} strokeWidth={3} />}
-                        </div>
-                    </div>
-                )}
             </ItemIcon>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">

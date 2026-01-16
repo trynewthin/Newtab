@@ -4,6 +4,7 @@ import { SettingsDialog } from "@/apps/setting";
 import { TodoDialog } from "@/apps/todo";
 import { AiDialog } from "@/apps/ai/AiDialog";
 import { DownloadsDialog } from "@/apps/downloads";
+import { BookmarksDialog } from "@/apps/bookmarks";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {
@@ -40,6 +41,8 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
             return <AiDialog open={true} onOpenChange={handleOpenChange} />;
         case "downloads":
             return <DownloadsDialog open={true} onOpenChange={handleOpenChange} />;
+        case "bookmarks":
+            return <BookmarksDialog open={true} onOpenChange={handleOpenChange} />;
         default:
             return null;
     }

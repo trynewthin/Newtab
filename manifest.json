@@ -26,7 +26,8 @@
         "tabs",
         "activeTab",
         "debugger",
-        "downloads"
+        "downloads",
+        "bookmarks"
     ],
     "host_permissions": [
         "<all_urls>"

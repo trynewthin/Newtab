@@ -25,7 +25,8 @@
         "scripting",
         "tabs",
         "activeTab",
-        "debugger"
+        "debugger",
+        "downloads"
     ],
     "host_permissions": [
         "<all_urls>"

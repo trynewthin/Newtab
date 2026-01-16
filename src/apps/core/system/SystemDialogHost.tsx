@@ -3,6 +3,7 @@ import { PomodoroDialog } from "@/apps/pomodoro";
 import { SettingsDialog } from "@/apps/setting";
 import { TodoDialog } from "@/apps/todo";
 import { AiDialog } from "@/apps/ai/AiDialog";
+import { DownloadsDialog } from "@/apps/downloads";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {
@@ -37,6 +38,8 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
             return <TodoDialog open={true} onOpenChange={handleOpenChange} />;
         case "ai":
             return <AiDialog open={true} onOpenChange={handleOpenChange} />;
+        case "downloads":
+            return <DownloadsDialog open={true} onOpenChange={handleOpenChange} />;
         default:
             return null;
     }

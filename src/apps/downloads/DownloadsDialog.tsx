@@ -38,7 +38,7 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [confirmingId, setConfirmingId] = useState<number | null>(null);
     const [filter, setFilter] = useState<DownloadFilter>('all');
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     const fetchDownloads = useCallback(() => {

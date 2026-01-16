@@ -92,7 +92,6 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
 
             // 🔥 自动解析 <think> 标签 (适配 DeepSeek API 原始返回形式)
             if (isAi && content.includes('<think>') && content.includes('</think>')) {
-                const parts = content.split(/<think>|<\/think>/);
                 // 通常格式是: "" | "thinking..." | "actual content"
                 // 但也可能是: "actual" | "thinking" | "actual"
                 // 这里的处理逻辑是把第一个 <think> 块提取出来，其余作为正文

@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAiStore, useAiChat } from "@/webagent";
 import { Header, ChatView, ChatInput } from "./components";
-import { ToolTester } from "./components/ToolTester";
 import { useSettingsStore } from "@/store/modules/settings";
 import "@/lib/i18n/i18n"; // Ensure i18n is initialized
 
@@ -27,9 +26,6 @@ function App() {
 
     // Chat hook
     const { sendMessage, stopGeneration, isLoading } = useAiChat();
-
-    // Local state
-    const [activeTab, setActiveTab] = useState<'chat' | 'test'>('chat');
 
     // 1. Initialize DB Connection
     useEffect(() => {
@@ -90,8 +86,6 @@ function App() {
             <div className="relative z-10 flex flex-col h-full bg-transparent text-foreground">
                 {/* Header */}
                 <Header
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
                     messages={messages}
                     sessions={sessions}
                     currentSessionId={currentSessionId}
@@ -102,39 +96,31 @@ function App() {
 
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-hidden relative">
-                    {activeTab === 'chat' ? (
-                        isRestoring ? (
-                            <div className="flex items-center justify-center h-full text-muted-foreground animate-pulse">
-                                Loading history...
-                            </div>
-                        ) : (
-                            <ChatView
-                                messages={messages}
-                                activeModel={activeModel}
-                                isLoading={isLoading}
-                            />
-                        )
-                    ) : activeTab === 'test' ? (
-                        <div className="h-full overflow-y-auto">
-                            <ToolTester />
+                    {isRestoring ? (
+                        <div className="flex items-center justify-center h-full text-muted-foreground animate-pulse">
+                            Loading history...
                         </div>
-                    ) : null}
+                    ) : (
+                        <ChatView
+                            messages={messages}
+                            activeModel={activeModel}
+                            isLoading={isLoading}
+                        />
+                    )}
                 </div>
 
-                {/* Chat Input (only visible in chat tab) */}
-                {activeTab === 'chat' && (
-                    <div className="p-3 pt-0">
-                        <ChatInput
-                            models={models}
-                            activeModelId={activeModelId}
-                            activeModel={activeModel}
-                            setActiveModel={setActiveModel}
-                            isLoading={isLoading || isRestoring}
-                            onSend={sendMessage}
-                            onStop={stopGeneration}
-                        />
-                    </div>
-                )}
+                {/* Chat Input */}
+                <div className="p-3 pt-0">
+                    <ChatInput
+                        models={models}
+                        activeModelId={activeModelId}
+                        activeModel={activeModel}
+                        setActiveModel={setActiveModel}
+                        isLoading={isLoading || isRestoring}
+                        onSend={sendMessage}
+                        onStop={stopGeneration}
+                    />
+                </div>
             </div>
         </div>
     );

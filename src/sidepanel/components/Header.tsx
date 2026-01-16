@@ -6,8 +6,6 @@ import type { Message } from "@/webagent";
 import React from "react";
 
 interface HeaderProps {
-    activeTab: 'chat' | 'test';
-    setActiveTab: (tab: 'chat' | 'test') => void;
     messages: Message[];
     sessions: any[];
     currentSessionId: string;
@@ -17,8 +15,6 @@ interface HeaderProps {
 }
 
 export function Header({
-    activeTab,
-    setActiveTab,
     messages,
     sessions,
     currentSessionId,
@@ -39,53 +35,26 @@ export function Header({
         URL.revokeObjectURL(url);
     };
 
-    const TABS = [
-        { id: 'chat', label: t('sys_ai'), icon: MessageSquare },
-        { id: 'test', label: 'Test', icon: MessageSquare },
-    ] as const;
-
     return (
         <div className="flex-none flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5">
-            {/* Tab Switcher - Modern Pill Style */}
-            <div className="flex gap-1 p-1 bg-secondary/30 rounded-xl border border-white/5">
-                {TABS.map(t => {
-                    const isActive = activeTab === t.id;
-                    const Icon = t.icon;
-                    return (
-                        <button
-                            key={t.id}
-                            onClick={() => setActiveTab(t.id as any)}
-                            className={cn(
-                                "relative px-3 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1.5",
-                                isActive
-                                    ? "bg-background text-foreground shadow-sm ring-1 ring-black/5 dark:ring-white/10"
-                                    : "text-muted-foreground/60 hover:text-foreground hover:bg-white/5"
-                            )}
-                        >
-                            <Icon size={13} strokeWidth={2.5} />
-                            <span className={cn(
-                                "text-[11px] font-bold tracking-wide uppercase transition-all",
-                                isActive ? "opacity-100" : "opacity-0 w-0 overflow-hidden"
-                            )}>
-                                {t.label}
-                            </span>
-                        </button>
-                    );
-                })}
+            {/* Title / Brand - Modern Pill Style */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded-xl border border-white/5 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+                <MessageSquare size={13} strokeWidth={2.5} className="text-primary" />
+                <span className="text-[11px] font-black uppercase tracking-widest text-foreground">
+                    {t('sys_ai')}
+                </span>
             </div>
 
             {/* Action Buttons */}
             <div className="flex items-center gap-1">
                 {/* Session Manager */}
-                {activeTab === 'chat' && (
-                    <SessionManager
-                        sessions={sessions}
-                        currentSessionId={currentSessionId}
-                        createSession={createSession}
-                        deleteSession={deleteSession}
-                        switchSession={switchSession}
-                    />
-                )}
+                <SessionManager
+                    sessions={sessions}
+                    currentSessionId={currentSessionId}
+                    createSession={createSession}
+                    deleteSession={deleteSession}
+                    switchSession={switchSession}
+                />
 
                 {/* Export Button */}
                 <button

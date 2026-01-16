@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { createPersistConfig } from '../core/storage';
 import { type Tag } from '../core/types';
 import { backgroundStorage } from '../core/backgroundStorage';
+import { SYSTEM_ITEMS } from '@/components/items/systemRegistry';
 
 interface TagState {
     tags: Tag[];
@@ -16,10 +17,44 @@ interface TagState {
     ungroupFolder: (id: string) => void;
 }
 
+// Map SYSTEM_ITEMS to the initial Tag format
+const DEFAULT_TAGS: Tag[] = [
+    ...SYSTEM_ITEMS.map(item => ({
+        id: `sys-${item.type}`,
+        title: item.title,
+        url: '#',
+        type: item.type as any,
+        icon: item.icon, // Path to the png asset
+        isSystem: true,
+        backgroundColor: 'transparent' // PNG icons usually don't need a separate background circle
+    })),
+    {
+        id: 'github',
+        title: 'GitHub',
+        url: 'https://github.com',
+        icon: 'https://github.com/favicon.ico',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)'
+    },
+    {
+        id: 'bilibili',
+        title: 'Bilibili',
+        url: 'https://www.bilibili.com',
+        icon: 'https://www.bilibili.com/favicon.ico',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)'
+    },
+    {
+        id: 'v2ex',
+        title: 'V2EX',
+        url: 'https://www.v2ex.com',
+        icon: 'https://www.v2ex.com/static/favicon.ico',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)'
+    }
+];
+
 export const useTagStore = create<TagState>()(
     persist(
         (set) => ({
-            tags: [],
+            tags: DEFAULT_TAGS,
 
             addTag: (tag) => set((state) => ({
                 tags: [...state.tags, { ...tag, id: crypto.randomUUID() }]

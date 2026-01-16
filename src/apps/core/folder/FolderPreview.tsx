@@ -433,7 +433,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                     <div className="absolute inset-0 bg-white/30 dark:bg-black/50 backdrop-blur-3xl border border-white/20 dark:border-white/10 -z-20" />
                     <div className="absolute inset-0 bg-primary/10 dark:bg-primary/20 pointer-events-none -z-10" />
 
-                    <div className="relative z-10 grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 h-full overflow-y-auto overflow-x-hidden content-start [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-8 pb-4 px-1">
+                    <div className="relative z-10 grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 h-full overflow-y-auto overflow-x-hidden content-start [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-3 pb-4 px-1">
                         <SortableContext
                             items={displayItems.map(item => item.id)}
                             strategy={rectSortingStrategy}

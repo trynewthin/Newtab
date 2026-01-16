@@ -4,8 +4,9 @@ import settingsIcon from "@/assets/settings-icon.png";
 import aiIcon from "@/assets/ai-icon.png";
 import downloadsIcon from "@/assets/downloads-icon.png";
 import bookmarksIcon from "@/assets/bookmarks-icon.png";
+import historyIcon from "@/assets/history-icon.png";
 
-export type SystemType = "settings" | "theme" | "add" | "icon-manager" | "pomodoro" | "todo" | "ai" | "downloads" | "bookmarks";
+export type SystemType = "settings" | "theme" | "add" | "icon-manager" | "pomodoro" | "todo" | "ai" | "downloads" | "bookmarks" | "history";
 
 export interface SystemItem {
     type: SystemType;
@@ -20,4 +21,5 @@ export const SYSTEM_ITEMS: SystemItem[] = [
     { type: "ai", title: "AI Assistant", icon: aiIcon },
     { type: "downloads", title: "Downloads", icon: downloadsIcon },
     { type: "bookmarks", title: "Bookmarks", icon: bookmarksIcon },
+    { type: "history", title: "History", icon: historyIcon },
 ];

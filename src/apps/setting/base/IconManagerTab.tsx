@@ -22,7 +22,7 @@ export function IconManagerTab() {
             if (item) removeItem(item.id);
         } else {
             addItem({
-                title: t(`sys_${iconConfig.type}`),
+                title: `sys_${iconConfig.type}`,
                 // kind: 'app', // Omitted in type, inferred by store via appId
                 appId: iconConfig.type,
                 icon: iconConfig.icon,

@@ -2,6 +2,9 @@ import { cn } from "@/lib/utils";
 import { ItemIcon } from "../base/ItemIcon";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslation } from "react-i18next";
+import { useUIStore } from "@/store/modules/ui";
+import { Check } from "lucide-react";
 
 export interface SystemAppItemProps {
     id: string; // 用于 DND
@@ -26,6 +29,9 @@ export function SystemAppItem({
     isHoverTarget,
     className
 }: SystemAppItemProps) {
+    const { t } = useTranslation();
+    const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
+    const isSelected = selectedTagIds.includes(id);
 
     const {
         attributes,
@@ -52,10 +58,20 @@ export function SystemAppItem({
             return;
         }
 
+        if (isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleTagSelection(id);
+            return;
+        }
+
         e.preventDefault();
         e.stopPropagation();
         onClick();
     };
+
+    // 如果标题是系统 Key，则进行动态翻译，以支持语言即时切换
+    const displayTitle = title?.startsWith('sys_') ? t(title) : title;
 
     return (
         <div
@@ -63,6 +79,7 @@ export function SystemAppItem({
             style={style}
             className={cn(
                 "group flex flex-col items-center gap-1.5 w-14",
+                isEditing && !isDragging && !isOverlay && "animate-[shake_0.5s_ease-in-out_infinite]",
                 isOverlay && "scale-110 rotate-3 cursor-grabbing",
                 className
             )}
@@ -71,24 +88,49 @@ export function SystemAppItem({
         >
             <div className="relative">
                 <ItemIcon
-                    title={title}
+                    title={displayTitle}
                     icon={icon}
                     isSystem={true} // 告诉 ItemIcon 这是一个系统应用，它会处理系统图标的渲染逻辑
-                    scale={1.5} // 优化系统图标展示比例
+                    scale={1.3} // 全局统一调整系统图标缩放比例为 1.3
                     // 系统 App 通常使用透明背景或特定应用背景，这里暂时保持透明或默认
                     backgroundColor="transparent"
                     className={cn(
                         "w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all",
                         "cursor-pointer hover:scale-105 active:scale-95",
-                        isOverlay && "cursor-grabbing shadow-xl"
+                        isOverlay && "cursor-grabbing shadow-xl",
+                        isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
                     )}
                     role="button"
                     onClick={handleClick}
-                />
+                >
+                    {isEditing && (
+                        <div className={cn(
+                            "absolute inset-0 z-30 flex items-center justify-center transition-all pointer-events-none",
+                            isSelected ? "bg-black/5" : ""
+                        )}>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleTagSelection(id);
+                                }}
+                                className={cn(
+                                    "pointer-events-auto w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
+                                    isSelected
+                                        ? "bg-primary border-primary scale-110 shadow-lg text-white"
+                                        : "border-white/50 bg-black/20 hover:bg-black/30 hover:border-white/70 hover:scale-105"
+                                )}
+                            >
+                                {isSelected && <Check size={16} strokeWidth={3} />}
+                            </button>
+                        </div>
+                    )}
+                </ItemIcon>
             </div>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">
-                {title}
+                {displayTitle}
             </span>
         </div>
     );

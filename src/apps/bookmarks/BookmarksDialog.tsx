@@ -129,7 +129,6 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                         icon={LayoutGrid}
                         label={t('all_bookmarks', 'All Bookmarks')}
                         isActive={currentFolderId === "0" && !searchQuery}
-                        isCollapsed={isSidebarCollapsed}
                         onClick={goHome}
                     />
 
@@ -141,7 +140,6 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                             icon={Folder}
                             label={folder.title}
                             isActive={currentFolderId === folder.id && !searchQuery}
-                            isCollapsed={isSidebarCollapsed}
                             onClick={() => {
                                 setCurrentFolderId(folder.id);
                                 setPath([{ id: folder.id, title: folder.title }]);

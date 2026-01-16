@@ -108,7 +108,7 @@ export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNe
         return () => {
             cancelled = true;
         };
-    }, [item.iconDataUrl, item.backgroundColor]);
+    }, [item.iconDataUrl, item.backgroundColor, item.id]);
 
     return (
         <div
@@ -123,7 +123,7 @@ export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNe
             {...(isOverlay ? {} : listeners)}
         >
             <div className="relative">
-                {/* 鎿嶄綔鎸夐挳瀹瑰櫒 */}
+                {/* 操作按钮容器 */}
                 <div className={cn(
                     "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
                     (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"

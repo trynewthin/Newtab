@@ -1,6 +1,7 @@
 import { create } from 'zustand';
+import type { SystemType } from '@/apps/core/system/systemRegistry';
 
-export type SystemDialogType = "settings" | "theme" | "add" | "icon-manager" | "pomodoro" | "todo" | "ai";
+export type SystemDialogType = SystemType;
 
 interface UIState {
     // 界面交互状态

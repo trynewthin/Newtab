@@ -37,9 +37,10 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
-    AlertDialogTitle
+    AlertDialogTitle,
+    AlertDialogMedia,
 } from "@/components/ui/alert-dialog";
-import { Trash2, UnfoldVertical } from "lucide-react";
+import { Trash2, UnfoldVertical, AlertCircle } from "lucide-react";
 
 const HOVER_DELAY = 1000;
 const DETECTION_RADIUS = 75;
@@ -202,7 +203,7 @@ export function AppGrid() {
     };
 
     return (
-        <div className="w-full h-full pb-8 px-4 pt-8 overflow-y-auto [scrollbar-gutter:stable] pointer-events-auto">
+        <div className="w-full h-full pb-8 px-4 pt-8 overflow-y-auto custom-scrollbar pointer-events-auto">
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -278,6 +279,9 @@ export function AppGrid() {
             <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
+                        <AlertDialogMedia className={deleteTarget?.kind === 'folder' ? 'bg-primary/10 text-primary' : 'bg-rose-500/10 text-rose-500'}>
+                            {deleteTarget?.kind === 'folder' ? <UnfoldVertical /> : <AlertCircle />}
+                        </AlertDialogMedia>
                         <AlertDialogTitle>
                             {deleteTarget?.kind === 'folder' ? t('manage_folder') : t('delete_shortcut')}
                         </AlertDialogTitle>
@@ -287,28 +291,26 @@ export function AppGrid() {
                                 : t('delete_shortcut_confirm', { title: deleteTarget?.title })}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="sm:justify-between gap-y-2">
-                        <div className="flex gap-2 w-full sm:w-auto">
-                            <AlertDialogCancel className="flex-1 sm:flex-none">{t('cancel')}</AlertDialogCancel>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                            {deleteTarget?.kind === 'folder' && (
-                                <AlertDialogAction
-                                    onClick={confirmUngroupItems}
-                                    className="bg-primary hover:bg-primary/90 flex-1 sm:flex-none"
-                                >
-                                    <UnfoldVertical className="mr-2 size-4" />
-                                    {t('ungroup')}
-                                </AlertDialogAction>
-                            )}
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+
+                        {deleteTarget?.kind === 'folder' && (
                             <AlertDialogAction
-                                onClick={confirmDeleteItems}
-                                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground flex-1 sm:flex-none"
+                                onClick={confirmUngroupItems}
+                                className="bg-primary hover:bg-primary/90"
                             >
-                                <Trash2 className="mr-2 size-4" />
-                                {deleteTarget?.kind === 'folder' ? t('delete_all') : t('delete')}
+                                <UnfoldVertical className="mr-2 size-4" />
+                                {t('ungroup')}
                             </AlertDialogAction>
-                        </div>
+                        )}
+
+                        <AlertDialogAction
+                            onClick={confirmDeleteItems}
+                            className="bg-rose-500 hover:bg-rose-600 shadow-rose-500/10"
+                        >
+                            <Trash2 className="mr-2 size-4" />
+                            {deleteTarget?.kind === 'folder' ? t('delete_all') : t('delete')}
+                        </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

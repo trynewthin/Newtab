@@ -6,6 +6,7 @@ import { PomodoroAppIcon } from "@/apps/pomodoro/PomodoroAppIcon";
 import { AiAppIcon } from "@/apps/ai/AiAppIcon";
 import { DownloadsAppIcon } from "@/apps/downloads/DownloadsAppIcon";
 import { BookmarksAppIcon } from "@/apps/bookmarks/BookmarksAppIcon";
+import { HistoryAppIcon } from "@/apps/history/HistoryAppIcon";
 
 // Base props required for any App Icon Component
 export interface AppIconProps {
@@ -26,6 +27,7 @@ export const APP_REGISTRY: AppRegistry = {
     'ai': AiAppIcon,
     'downloads': DownloadsAppIcon,
     'bookmarks': BookmarksAppIcon,
+    'history': HistoryAppIcon,
 };
 
 export function getAppIconComponent(appId: string): ComponentType<any> | null {

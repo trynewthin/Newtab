@@ -5,6 +5,7 @@ import { TodoDialog } from "@/apps/todo";
 import { AiDialog } from "@/apps/ai/AiDialog";
 import { DownloadsDialog } from "@/apps/downloads";
 import { BookmarksDialog } from "@/apps/bookmarks";
+import { HistoryDialog } from "@/apps/history";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {
@@ -60,6 +61,11 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
 
             <BookmarksDialog
                 open={active === "bookmarks"}
+                onOpenChange={handleOpenChange}
+            />
+
+            <HistoryDialog
+                open={active === "history"}
                 onOpenChange={handleOpenChange}
             />
         </>

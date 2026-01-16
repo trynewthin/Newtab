@@ -1,6 +1,6 @@
 import { useItemStore } from "@/store/modules/item";
-import { type GridItem, type FolderItem, type WebTagItem, type SystemAppItem } from "@/store/core/itemTypes";
-import { TagItem } from "../tag/TagItem";
+import { type GridItem as GridItemType, type FolderItem, type WebTagItem, type SystemAppItem } from "@/store/core/itemTypes";
+import { GridItem } from "../item/GridItem";
 import {
     DndContext,
     pointerWithin,
@@ -24,15 +24,15 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 // Helper to check if item is folder
-function isFolder(item: GridItem): item is FolderItem {
+function isFolder(item: GridItemType): item is FolderItem {
     return item.kind === 'folder';
 }
 
 interface FolderPreviewProps {
-    folder: GridItem;
+    folder: GridItemType;
     onClose: () => void;
-    onClickTag?: (item: GridItem) => void;
-    onDeletePrompt: (item: GridItem) => void;
+    onClickTag?: (item: GridItemType) => void;
+    onDeletePrompt: (item: GridItemType) => void;
 }
 
 // 占位符类型定义
@@ -42,7 +42,7 @@ interface PlaceholderItem {
 }
 
 // 类型守卫
-function isPlaceholder(item: GridItem | PlaceholderItem): item is PlaceholderItem {
+function isPlaceholder(item: GridItemType | PlaceholderItem): item is PlaceholderItem {
     return 'isPlaceholder' in item && (item as any).isPlaceholder === true;
 }
 
@@ -80,7 +80,7 @@ function EmptySlot({ id }: { id: string }) {
 
 export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: FolderPreviewProps) {
     const { items, setItems } = useItemStore();
-    const [activeTag, setActiveTag] = useState<GridItem | null>(null);
+    const [activeTag, setActiveTag] = useState<GridItemType | null>(null);
     const [entered, setEntered] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [titleDraft, setTitleDraft] = useState(folder.title);
@@ -111,7 +111,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
 
     // Safely access children
     const realChildren = (currentFolder && isFolder(currentFolder)) ? currentFolder.children : [];
-    const children: GridItem[] = (realChildren || []) as GridItem[];
+    const children: GridItemType[] = (realChildren || []) as GridItemType[];
 
     const displayItems = useMemo(() => {
         const COLS = 3;
@@ -157,7 +157,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         return [];
     };
 
-    const updateFolder = (updatedChildren: GridItem[]) => {
+    const updateFolder = (updatedChildren: GridItemType[]) => {
         const safeChildren = updatedChildren as (WebTagItem | SystemAppItem)[];
 
         if (safeChildren.length <= 1) {
@@ -166,7 +166,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                     return safeChildren[0] || null;
                 }
                 return t;
-            }).filter(Boolean) as GridItem[];
+            }).filter(Boolean) as GridItemType[];
 
             setItems(newItems);
             onClose();
@@ -264,7 +264,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
             const newIndex = realItems.findIndex(t => t.id === over.id);
 
             if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-                const updatedChildren = arrayMove(realItems as GridItem[], oldIndex, newIndex);
+                const updatedChildren = arrayMove(realItems as GridItemType[], oldIndex, newIndex);
                 updateFolder(updatedChildren);
             }
         }
@@ -273,7 +273,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         lastPointerPosition.current = null;
     };
 
-    const handleRemoveFromFolder = (item: WebTagItem) => {
+    const handleRemoveFromFolder = (item: GridItemType) => {
         const currentFolder = items.find(t => t.id === folder.id);
         if (!currentFolder || !isFolder(currentFolder) || !currentFolder.children) return;
 
@@ -300,6 +300,10 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         }
     };
 
+    const handleConfirmDelete = (item: GridItemType) => {
+        onDeletePrompt(item);
+    };
+
     useEffect(() => {
         if (!currentFolder) {
             onClose();
@@ -311,7 +315,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
     }, []);
 
     const saveTitle = () => {
-        setItems(items.map(t => t.id === folder.id ? { ...t, title: titleDraft } as GridItem : t));
+        setItems(items.map(t => t.id === folder.id ? { ...t, title: titleDraft } as GridItemType : t));
         setIsEditingTitle(false);
     };
 
@@ -355,7 +359,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                                 }
                             }}
                             onBlur={saveTitle}
-                            className="bg-white/10 text-white px-3 py-1 rounded-lg border border-white/30 outline-none"
+                            className="bg-zinc-800/80 text-white px-3 py-1 rounded-lg border border-white/20 outline-none backdrop-blur-md shadow-xl"
                         />
                     ) : (
                         <span className="cursor-text select-text">{currentTitle}</span>
@@ -365,7 +369,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                 <div
                     ref={setRefs}
                     className={cn(
-                        "bg-white/40 backdrop-blur-3xl rounded-[32px] shadow-2xl border border-white/30 p-6 w-[340px] h-[340px] transition-all duration-300 ease-out",
+                        "bg-white/5 dark:bg-black/20 backdrop-blur-3xl rounded-[32px] shadow-2xl border border-white/20 p-6 w-[340px] h-[340px] transition-all duration-300 ease-out",
                         entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-4"
                     )}
                     onClick={(e) => e.stopPropagation()}
@@ -379,12 +383,12 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                                 isPlaceholder(item) ? (
                                     <EmptySlot key={item.id} id={item.id} />
                                 ) : (
-                                    <TagItem
+                                    <GridItem
                                         key={item.id}
-                                        item={item as WebTagItem}
-                                        onEdit={handleRemoveFromFolder as any}
-                                        onDeletePrompt={onDeletePrompt as any}
-                                        onClick={onClickTag as any}
+                                        item={item as GridItemType}
+                                        onEdit={handleRemoveFromFolder}
+                                        onDeletePrompt={handleConfirmDelete}
+                                        onClick={onClickTag}
                                     />
                                 )
                             )}
@@ -395,8 +399,8 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
 
             <DragOverlay>
                 {activeTag ? (
-                    <TagItem
-                        item={activeTag as WebTagItem}
+                    <GridItem
+                        item={activeTag}
                         onEdit={() => { }}
                         onDeletePrompt={() => { }}
                         onClick={() => { }}

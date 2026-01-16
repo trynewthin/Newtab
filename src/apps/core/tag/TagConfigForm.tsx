@@ -51,6 +51,19 @@ export function TagConfigForm({
 
     const composedColor = `rgba(${parseInt(colorHex.slice(1, 3), 16)}, ${parseInt(colorHex.slice(3, 5), 16)}, ${parseInt(colorHex.slice(5, 7), 16)}, ${colorAlpha / 100})`;
 
+    // Sync with defaultValues if they change externally (important for Popup where defaultValues load async)
+    useEffect(() => {
+        if (defaultValues?.url) setUrl(defaultValues.url);
+        if (defaultValues?.title) setTitle(defaultValues.title);
+        if (defaultValues?.icon) setIconStr(defaultValues.icon);
+        if (defaultValues?.iconSize) setIconSize(defaultValues.iconSize);
+        if (defaultValues?.backgroundColor) {
+            const { hex, alpha } = parseColor(defaultValues.backgroundColor);
+            setColorHex(hex);
+            setColorAlpha(alpha);
+        }
+    }, [defaultValues]);
+
     // Load initial IDB icon if needed
     useEffect(() => {
         let cancelled = false;
@@ -84,7 +97,7 @@ export function TagConfigForm({
         if (hostname && !title && !defaultValues?.title) {
             setTitle(hostname.charAt(0).toUpperCase() + hostname.slice(1));
         }
-    }, [hostname, title, defaultValues]);
+    }, [hostname, title, defaultValues?.title]);
 
     // Icon Candidates
     const iconCandidates = useMemo(() => {
@@ -135,7 +148,7 @@ export function TagConfigForm({
         }
 
         return () => { cancelled = true; };
-    }, [iconCandidates]);
+    }, [iconCandidates, iconStr]);
 
     // Auto-extract color when icon changes
     useEffect(() => {
@@ -166,7 +179,7 @@ export function TagConfigForm({
         };
         extract();
         return () => { cancelled = true; };
-    }, [iconStr]);
+    }, [iconStr, defaultValues?.icon]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -178,7 +191,13 @@ export function TagConfigForm({
         if (iconStr) {
             if (isIconChanged || !iconDataUrl) {
                 try {
-                    const dataUrl = await loadImageAsDataUrl(iconStr);
+                    // 添加超时设置，防止 fetch 挂起
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                    const dataUrl = await loadImageAsDataUrl(iconStr).catch(() => null);
+                    clearTimeout(timeoutId);
+
                     if (dataUrl && isDataURL(dataUrl)) {
                         const key = getIconKey();
                         await backgroundStorage.saveIcon(key, dataUrl);
@@ -247,7 +266,7 @@ export function TagConfigForm({
                                     <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                                 </div>
                             ) : (
-                                t('no_icons_found')
+                                t('no_icons_found', 'No icons found')
                             )}
                         </div>
                     )}

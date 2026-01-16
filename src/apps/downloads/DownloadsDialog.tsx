@@ -169,28 +169,24 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                         icon={Inbox}
                         label={t('all_downloads', 'All')}
                         isActive={filter === 'all'}
-                        isCollapsed={isSidebarCollapsed}
                         onClick={() => { setFilter('all'); setShowMobileMenu(false); }}
                     />
                     <SidebarItem
                         icon={Clock}
                         label={t('in_progress', 'In Progress')}
                         isActive={filter === 'in_progress'}
-                        isCollapsed={isSidebarCollapsed}
                         onClick={() => { setFilter('in_progress'); setShowMobileMenu(false); }}
                     />
                     <SidebarItem
                         icon={CheckCircle2}
                         label={t('completed', 'Completed')}
                         isActive={filter === 'complete'}
-                        isCollapsed={isSidebarCollapsed}
                         onClick={() => { setFilter('complete'); setShowMobileMenu(false); }}
                     />
                     <SidebarItem
                         icon={AlertTriangle}
                         label={t('interrupted', 'Interrupted')}
                         isActive={filter === 'interrupted'}
-                        isCollapsed={isSidebarCollapsed}
                         onClick={() => { setFilter('interrupted'); setShowMobileMenu(false); }}
                     />
                 </Sidebar>

@@ -100,8 +100,8 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
         const userScale = child.kind === 'tag' ? (child.iconSize || 1) : 1;
         const scale = (child.icon && child.icon.length < 4) ? 1.2 * userScale : 0.7 * userScale;
 
-        // 系统图标特殊缩放: 基础 0.6 * 1.5 = 0.9
-        const finalScale = isApp ? 0.9 * userScale : scale;
+        // 系统图标特殊缩放: 基础 0.6 * 1.3 = 0.78
+        const finalScale = isApp ? 0.78 * userScale : scale;
 
         return (
             <ItemIcon
@@ -152,13 +152,13 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
                 onClick={handleClick}
                 className={cn(
                     "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden",
-                    "bg-white/10 backdrop-blur-md border border-white/20",
+                    "bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20",
                     isEditing ? "cursor-pointer" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-xl",
-                    isSelected && "ring-2 ring-primary ring-offset-2"
+                    isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
                 )}
             >
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/5 dark:bg-black/10 backdrop-blur-xl" />
 
                 <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-0.5 p-1">
                     {[0, 1, 2, 3].map((index) => (

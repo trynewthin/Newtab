@@ -43,8 +43,6 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
 
     const activeModel = getActiveModelConfig();
 
-    // On mobile, the sidebar should always be "expanded" within the drawer
-    const effectiveCollapsed = isSidebarCollapsed && !showMobileMenu;
 
     return (
         <AppModal
@@ -67,12 +65,12 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
                                 className={cn(
                                     "flex items-center justify-center gap-2 rounded-xl transition-all active:scale-95 shadow-sm border",
                                     "bg-primary text-primary-foreground border-primary/20",
-                                    effectiveCollapsed ? "w-10 h-10 mx-auto" : "w-full h-11 px-4 text-xs font-bold uppercase tracking-wider"
+                                    isSidebarCollapsed && !showMobileMenu ? "w-10 h-10 mx-auto" : "w-full h-11 px-4 text-xs font-bold uppercase tracking-wider"
                                 )}
                                 title={t('new_chat')}
                             >
-                                <Plus size={effectiveCollapsed ? 20 : 16} strokeWidth={3} />
-                                {!effectiveCollapsed && <span>{t('new_chat')}</span>}
+                                <Plus size={isSidebarCollapsed && !showMobileMenu ? 20 : 16} strokeWidth={3} />
+                                {!(isSidebarCollapsed && !showMobileMenu) && <span>{t('new_chat')}</span>}
                             </button>
                         </div>
                     }
@@ -83,7 +81,6 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
                             icon={MessageSquare}
                             label={session.title || t('new_conversation')}
                             isActive={currentSessionId === session.id}
-                            isCollapsed={effectiveCollapsed}
                             onClick={() => {
                                 switchSession(session.id);
                                 setShowMobileMenu(false);

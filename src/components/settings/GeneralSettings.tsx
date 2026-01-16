@@ -5,10 +5,10 @@ import { Settings as SettingsIcon, Globe, Database, Download, Upload, Search, Pl
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/store/modules/settings";
 import { useEffect, useState } from "react";
-import { SEARCH_ENGINES } from "@/lib/constants";
+import { SEARCH_ENGINES, APP_METADATA } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { exportFullData, importFullData } from "@/lib/backup";
+import { persistenceManager } from "@/store/persistence/manager";
 
 interface GeneralSettingsProps {
     onOpenMobileMenu?: () => void;
@@ -41,7 +41,8 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
     const handleExportData = async () => {
         try {
-            await exportFullData();
+            const blob = await persistenceManager.exportData(APP_METADATA.version);
+            persistenceManager.downloadBackup(blob);
         } catch (error) {
             console.error('Export failed:', error);
             alert(t('export_fail') || 'Export failed');
@@ -61,7 +62,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
             if (!file) return;
 
             try {
-                await importFullData(file);
+                await persistenceManager.importData(file);
                 alert(t('restore_success'));
                 window.location.reload();
             } catch (error) {

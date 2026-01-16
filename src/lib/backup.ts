@@ -1,6 +1,8 @@
 import JSZip from "jszip";
 import { entries, setMany, clear } from "idb-keyval";
 import { APP_METADATA } from "./constants";
+import { SYSTEM_ITEMS } from "@/components/items/systemRegistry";
+import type { Tag } from "@/store/core/types";
 
 const BACKUP_VERSION = "1.1.0"; // Increment version due to IndexedDB support
 const FILE_EXTENSION = ".ntb"; // New Tab Backup
@@ -121,6 +123,46 @@ export async function importFullData(file: File) {
             const idbEntries = Object.entries(idbData);
             if (idbEntries.length > 0) {
                 await setMany(idbEntries);
+            }
+        }
+
+        // 5. Fix system icon paths after restore
+        // System icons use local asset paths that change with each build (hash-based).
+        // We need to update them to the current build's paths.
+        const tagsData = localStorage.getItem('app-tags');
+        if (tagsData) {
+            try {
+                const tagsState = JSON.parse(tagsData);
+                if (tagsState.state && tagsState.state.tags) {
+                    const fixSystemIcons = (tags: Tag[]): Tag[] => {
+                        return tags.map(tag => {
+                            // Fix system tag icons
+                            if (tag.isSystem && tag.type) {
+                                const systemItem = SYSTEM_ITEMS.find(item => item.type === tag.type);
+                                if (systemItem) {
+                                    return {
+                                        ...tag,
+                                        icon: systemItem.icon // Update to current build's icon path
+                                    };
+                                }
+                            }
+                            // Recursively fix folder children
+                            if (tag.isFolder && tag.children) {
+                                return {
+                                    ...tag,
+                                    children: fixSystemIcons(tag.children)
+                                };
+                            }
+                            return tag;
+                        });
+                    };
+
+                    tagsState.state.tags = fixSystemIcons(tagsState.state.tags);
+                    localStorage.setItem('app-tags', JSON.stringify(tagsState));
+                }
+            } catch (err) {
+                console.warn('Failed to fix system icon paths:', err);
+                // Non-critical error, continue with restore
             }
         }
 

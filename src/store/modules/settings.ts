@@ -34,7 +34,7 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
     persist(
         (set) => ({
-            theme: 'dark',
+            theme: 'light',
             setTheme: (theme) => set({ theme }),
 
             primaryColor: 'hsl(217 91% 60%)', // Blue as default

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BaseModal, ModalButton } from "@/components/base";
+import { BaseModal, ModalButton } from "@/components/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";

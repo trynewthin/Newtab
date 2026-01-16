@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppModal, Sidebar, SidebarItem } from "@/components/base";
+import { AppModal, Sidebar, SidebarItem } from "@/components/shared";
 import { Settings, Palette, Bot, Sparkles, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GeneralSettings } from "./general/GeneralSettings";

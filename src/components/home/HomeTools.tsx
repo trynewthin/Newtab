@@ -38,7 +38,7 @@ export function HomeTools() {
 
     return (
         <div className="flex items-center gap-3 p-1.5 glass-card rounded-2xl shadow-lg border-white/40 pointer-events-auto">
-            {/* 批量操作按钮组 */}
+            {/* 批量操作按钮�?*/}
             {isEditing && selectedTagIds.length > 0 && (
                 <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
                     {selectedTagIds.length > 1 && (
@@ -98,7 +98,7 @@ export function HomeTools() {
                 <Settings size={18} className="text-foreground/70" />
             </button>
 
-            {/* 批量删除确认对话框 */}
+            {/* 批量删除确认对话�?*/}
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <AlertDialogContent className="glass-card border-none rounded-3xl">
                     <AlertDialogHeader>

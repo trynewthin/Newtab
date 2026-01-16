@@ -2,8 +2,8 @@ import type { Message } from './types';
 import { getTextContent } from './types';
 
 /**
- * 准备发送给 API 的消息格式
- * 特点：支持处理视觉代理返回的复杂结果 (包含文字地图和截图)
+ * 准备发送给 API 的消息格�?
+ * 特点：支持处理视觉代理返回的复杂结果 (包含文字地图和截�?
  */
 export function prepareApiMessages(
     history: Message[],
@@ -15,7 +15,7 @@ export function prepareApiMessages(
     for (let i = 0; i < history.length; i++) {
         const msg = history[i];
 
-        // 过滤空消息
+        // 过滤空消�?
         if (msg.role === 'assistant' && !msg.content && (!msg.tool_calls || msg.tool_calls.length === 0)) {
             continue;
         }
@@ -29,7 +29,7 @@ export function prepareApiMessages(
             // 🔥 核心识别：处理视觉代理的结果
             const rawContent = msg.content;
             if (rawContent && typeof rawContent === 'object' && rawContent.__type === 'vision_result') {
-                // 将视觉模型分析出的文本地图作为工具回执
+                // 将视觉模型分析出的文本地图作为工具回�?
                 apiMsg.content = rawContent.finalResult;
                 messages.push(apiMsg);
 
@@ -60,7 +60,7 @@ export function prepareApiMessages(
         messages.push(apiMsg);
     }
 
-    // 合并连续同角色消息
+    // 合并连续同角色消�?
     const consolidated: any[] = [];
     for (const msg of messages) {
         if (consolidated.length === 0) {

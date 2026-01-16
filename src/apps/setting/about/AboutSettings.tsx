@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/base";
+import { SidebarHeader } from "@/components/shared";
 import { SettingsSection, SettingsItem } from "@/apps/setting/base/SettingComponents";
 import { Info, Github, RotateCcw, User, Heart } from "lucide-react";
 import { APP_METADATA } from "@/lib/constants";

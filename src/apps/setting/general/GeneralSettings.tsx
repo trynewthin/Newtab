@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/base";
+import { SidebarHeader } from "@/components/shared";
 import { SettingsSection, SettingsItem, SettingsActionButtons } from "@/apps/setting/base/SettingComponents";
 import { Settings as SettingsIcon, Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -82,7 +82,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
     // Language options with display names
     const languageOptions = {
-        zh: '简体中文',
+        zh: '简体中�?,
         en: 'English'
     };
 
@@ -256,7 +256,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                     </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="zh">简体中文</SelectItem>
+                                    <SelectItem value="zh">简体中�?/SelectItem>
                                     <SelectItem value="en">English</SelectItem>
                                 </SelectContent>
                             </Select>

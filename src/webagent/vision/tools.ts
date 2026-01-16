@@ -1,5 +1,5 @@
 /**
- * Vision Agent - 工具逻辑与模型委托 (严格 JSON 版)
+ * Vision Agent - 工具逻辑与模型委�?(严格 JSON �?
  */
 
 import type { ToolDefinition, ModelConfig } from '../types';
@@ -50,7 +50,7 @@ export const VISION_TOOL_NAMES = VISION_TOOLS.map(t => t.function.name);
 let idToSelectorMap: Map<number, string> = new Map();
 
 /**
- * 提取 JSON 字符串（处理可能存在的 Markdown 包裹）
+ * 提取 JSON 字符串（处理可能存在�?Markdown 包裹�?
  */
 function extractJson(text: string): string {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -185,7 +185,7 @@ JSON Structure:
                 return {
                     __type: "vision_result",
                     input: { screenshot, domCount: domItems.length, domTree: domItems },
-                    rawResponse, // 保留原始响应供 Debug
+                    rawResponse, // 保留原始响应�?Debug
                     finalResult: cleanJson // 交付给主 Agent 的纯净 JSON
                 };
             }

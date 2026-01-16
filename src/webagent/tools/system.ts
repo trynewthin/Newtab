@@ -1,5 +1,5 @@
 /**
- * 系统级 AI 工具集 (获取时间、日期等)
+ * 系统�?AI 工具�?(获取时间、日期等)
  */
 
 import type { ToolDefinition } from '../types';

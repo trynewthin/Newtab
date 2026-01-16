@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/base";
+import { SidebarHeader } from "@/components/shared";
 import { BackgroundSelector } from "@/apps/setting/base/BackgroundSelector";
 
 import { ThemeColorSelector } from "@/apps/setting/base/ThemeColorSelector";

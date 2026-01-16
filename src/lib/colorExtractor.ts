@@ -1,5 +1,5 @@
 /**
- * 从图片中提取主色调
+ * 从图片中提取主色�?
  * 使用颜色频率统计，返回出现最多的颜色
  */
 export function extractDominantColor(img: HTMLImageElement, _isDarkMode?: boolean): string {

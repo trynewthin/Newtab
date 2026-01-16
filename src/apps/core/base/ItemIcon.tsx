@@ -10,18 +10,18 @@ export interface ItemIconProps extends React.HTMLAttributes<HTMLDivElement> {
     iconDataUrl?: string; // 优先使用
     backgroundColor?: string;
     isSystem?: boolean;
-    scale?: number; // 用户定义的缩放比例
+    scale?: number; // 用户定义的缩放比�?
 
     // Appearance
-    // className 已经在 HTMLAttributes 中包含
-    // style 已经在 HTMLAttributes 中包含
+    // className 已经�?HTMLAttributes 中包�?
+    // style 已经�?HTMLAttributes 中包�?
 
-    // Custom Content Override (例如 Folder 的 Grid)
+    // Custom Content Override (例如 Folder �?Grid)
     children?: React.ReactNode;
 
     // Image Handling
-    fallbackIcon?: React.ReactNode; // 加载失败或无图标时显示
-    active?: boolean; // 是否处于激活/选中状态
+    fallbackIcon?: React.ReactNode; // 加载失败或无图标时显�?
+    active?: boolean; // 是否处于激�?选中状�?
 }
 
 export function ItemIcon({
@@ -36,7 +36,7 @@ export function ItemIcon({
     children,
     fallbackIcon,
     active,
-    ...props // 透传剩余的 HTML 属性 (onClick, role, tabIndex 等)
+    ...props // 透传剩余�?HTML 属�?(onClick, role, tabIndex �?
 }: ItemIconProps) {
 
     // Resolve Image Source

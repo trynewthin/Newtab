@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
-import { BaseModal, ModalButton } from "@/components/base";
+import { BaseModal, ModalButton } from "@/components/shared";
 import type { WebTagItem } from "@/store/core/itemTypes";
 import { useTranslation } from "react-i18next";
 import { useItemStore } from "@/store/modules/item";

@@ -1,5 +1,5 @@
 import { SearchBar } from "@/components/home/SearchBar";
-import { BasePage } from "@/components/common";
+import { BasePage } from "@/components/layout";
 import { AppGrid } from "@/apps/core";
 import { HomeTools } from "@/components/home/HomeTools";
 

@@ -1,5 +1,5 @@
 /**
- * useAiChat Hook - 多模态视觉 Web Agent (全功能控制版)
+ * useAiChat Hook - 多模态视�?Web Agent (全功能控制版)
  */
 
 import { useCallback, useRef } from 'react';
@@ -38,7 +38,7 @@ export function useAiChat() {
         const enabledToolNames = config.enabledTools || [];
 
         const activeTools = ALL_TOOLS.filter(t => {
-            // 系统工具也需要在这个列表里
+            // 系统工具也需要在这个列表�?
             return enabledToolNames.includes(t.function.name);
         });
 
@@ -115,7 +115,7 @@ export function useAiChat() {
                 }
             }
         } catch (e: any) {
-            await addMessage({ role: 'system', content: `❌ Error: ${e.message}` });
+            await addMessage({ role: 'system', content: `�?Error: ${e.message}` });
         } finally {
             setLoading(false);
         }

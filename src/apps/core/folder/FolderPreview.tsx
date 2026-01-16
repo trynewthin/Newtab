@@ -35,7 +35,7 @@ interface FolderPreviewProps {
     onDeletePrompt: (item: GridItem) => void;
 }
 
-// 占位符类型定义
+// 占位符类型定�?
 interface PlaceholderItem {
     id: string;
     isPlaceholder: true;
@@ -46,7 +46,7 @@ function isPlaceholder(item: GridItem | PlaceholderItem): item is PlaceholderIte
     return 'isPlaceholder' in item && (item as any).isPlaceholder === true;
 }
 
-// 空白占位符组件
+// 空白占位符组�?
 function EmptySlot({ id }: { id: string }) {
     const {
         attributes,

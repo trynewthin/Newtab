@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import { entries, setMany, clear } from "idb-keyval"; // Default KV store (AI History)
 import { storageRegistry } from "./registry";
 
-const BACKUP_VERSION = "2.0.0";
+const BACKUP_VERSION = "3.0.0"; // Major version for new item architecture
 export const FILE_EXTENSION = ".ntb";
 
 export interface BackupMetadata {
@@ -30,7 +30,6 @@ export const persistenceManager = {
         const storageData: Record<string, string> = {};
         const registeredStores = storageRegistry.getAll();
 
-        // Also capture legacy keys if they aren't registered yet but exist
         for (const config of registeredStores) {
             if (config.type === 'localStorage') {
                 const val = localStorage.getItem(config.key);
@@ -68,7 +67,6 @@ export const persistenceManager = {
         // 1. Metadata Check
         const metadataFile = zip.file("metadata.json");
         if (!metadataFile) throw new Error("Invalid backup: missing metadata");
-        await metadataFile.async("string"); // Validate we can read it
 
         // 2. Restore LocalStorage
         const storageFile = zip.file("storage.json");
@@ -86,30 +84,14 @@ export const persistenceManager = {
         }
 
         // 3. Restore IDB KeyVal
-        const kvFile = zip.file("idb-kv.json") || zip.file("indexeddb.json"); // Backwards compat
+        const kvFile = zip.file("idb-kv.json") || zip.file("indexeddb.json");
         if (kvFile) {
             await clear();
             const data = JSON.parse(await kvFile.async("string"));
             await setMany(Object.entries(data));
         }
 
-        // 4. Migrations
-        await this.runMigrations();
-
         return true;
-    },
-
-    async runMigrations() {
-        const tagsKey = 'app-tags';
-        const tagsData = localStorage.getItem(tagsKey);
-        if (tagsData) {
-            try {
-                // Check validity
-                JSON.parse(tagsData);
-            } catch (e) {
-                console.warn("Migration error checking tags:", e);
-            }
-        }
     },
 
     /**

@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { useTagStore } from "@/store/modules/tag";
+import { useItemStore } from "@/store/modules/item";
 import { useSettingsStore } from "@/store/modules/settings";
 import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/apps/core";
 
-import { type Tag } from "@/store/core/types";
+import { type GridItem } from "@/store/core/itemTypes";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/i18n"; // Ensure i18n is initialized
 
@@ -15,11 +15,11 @@ export default function Popup() {
     const [iconStr, setIconStr] = useState("");
     const [isReady, setIsReady] = useState(false);
 
-    const [existingTag, setExistingTag] = useState<Tag | null>(null);
+    const [existingItem, setExistingItem] = useState<GridItem | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { tags, addTag, updateTag } = useTagStore();
+    const { items, addItem, updateItem } = useItemStore();
     const theme = useSettingsStore((state) => state.theme);
 
     // Sync Theme & Handle External Changes
@@ -68,22 +68,22 @@ export default function Popup() {
     // Check existence
     useEffect(() => {
         if (!url) {
-            setExistingTag(null);
+            setExistingItem(null);
             return;
         }
         // Normalize URL for check: remove trailing slash
         const normUrl = url.replace(/\/$/, "");
-        const found = tags.find(t => t.url.replace(/\/$/, "") === normUrl);
-        setExistingTag(found || null);
-    }, [url, tags]);
+        const found = items.find(t => t.kind === 'tag' && t.url.replace(/\/$/, "") === normUrl);
+        setExistingItem(found || null);
+    }, [url, items]);
 
     const handleSubmit = async (data: TagConfigData) => {
         setIsSubmitting(true);
         try {
-            if (existingTag) {
-                updateTag(existingTag.id, data);
+            if (existingItem) {
+                updateItem(existingItem.id, data);
             } else {
-                addTag(data);
+                addItem(data);
             }
 
             setIsSuccess(true);
@@ -103,7 +103,7 @@ export default function Popup() {
                 </svg>
             </div>
             <p className="mt-4 text-lg font-bold text-foreground animate-in slide-in-from-bottom-2 duration-300">
-                {existingTag ? t('updated') : t('added')}
+                {existingItem ? t('updated') : t('added')}
             </p>
         </div>
     );
@@ -118,18 +118,18 @@ export default function Popup() {
             icon: iconStr,
         };
 
-        if (existingTag) {
+        if (existingItem && existingItem.kind === 'tag') {
             return {
                 ...base,
-                backgroundColor: existingTag.backgroundColor,
-                iconSize: existingTag.iconSize,
-                iconDataUrl: existingTag.iconDataUrl,
-                icon: existingTag.icon || iconStr,
+                backgroundColor: existingItem.backgroundColor,
+                iconSize: existingItem.iconSize,
+                iconDataUrl: existingItem.iconDataUrl,
+                icon: existingItem.icon || iconStr,
             };
         }
 
         return base;
-    }, [isReady, title, url, iconStr, existingTag]);
+    }, [isReady, title, url, iconStr, existingItem]);
 
     return (
         <div className="w-full min-h-screen bg-background text-foreground overflow-x-hidden flex flex-col relative pb-3">
@@ -138,7 +138,7 @@ export default function Popup() {
             <div className="p-4">
                 {isReady ? (
                     <TagConfigForm
-                        key={existingTag ? `edit-${existingTag.id}` : `add-${url}`}
+                        key={existingItem ? `edit-${existingItem.id}` : `add-${url}`}
                         defaultValues={defaultValues}
                         onSubmit={handleSubmit}
                         showUrlField={false}
@@ -151,7 +151,7 @@ export default function Popup() {
                                 className="w-full h-10 px-6 rounded-xl shadow-lg shadow-primary/10 font-bold"
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? t('saving') : (existingTag ? t('update_bookmark') : t('add_bookmark'))}
+                                {isSubmitting ? t('saving') : (existingItem ? t('update_bookmark') : t('add_bookmark'))}
                             </Button>
                         </div>
                     </TagConfigForm>

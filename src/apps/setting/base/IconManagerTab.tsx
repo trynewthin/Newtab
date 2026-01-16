@@ -1,4 +1,4 @@
-import { useTagStore } from "@/store/modules/tag";
+import { useItemStore } from "@/store/modules/item";
 import { cn } from "@/lib/utils";
 import { SYSTEM_ITEMS, ItemIcon } from "@/apps/core";
 
@@ -7,23 +7,25 @@ import { useTranslation } from "react-i18next";
 
 export function IconManagerTab() {
     const { t } = useTranslation();
-    const { tags, addTag, removeTag } = useTagStore();
+    const { items, addItem, removeItem } = useItemStore();
 
-    const systemTags = tags.filter(t => t.isSystem);
-    const hasSystemIcon = (type: string) => systemTags.some(t => t.type === type);
+    const systemItems = items.filter(t => t.kind === 'app');
+    // Important: in itemTypes.ts, we used 'kind=app' and 'appId' instead of 'type'
+    // But systemRegistry.ts still uses 'type'.
+    // We need to map checks correctly.
+    const hasSystemIcon = (type: string) => systemItems.some(t => t.kind === 'app' && t.appId === type);
 
     const handleToggleSystemIcon = (iconConfig: typeof SYSTEM_ITEMS[0]) => {
         const isAdded = hasSystemIcon(iconConfig.type);
         if (isAdded) {
-            const tag = systemTags.find(t => t.type === iconConfig.type);
-            if (tag) removeTag(tag.id);
+            const item = systemItems.find(t => t.kind === 'app' && t.appId === iconConfig.type);
+            if (item) removeItem(item.id);
         } else {
-            addTag({
+            addItem({
                 title: t(`sys_${iconConfig.type}`),
-                url: '#',
+                // kind: 'app', // Omitted in type, inferred by store via appId
+                appId: iconConfig.type,
                 icon: iconConfig.icon,
-                isSystem: true,
-                type: iconConfig.type,
             });
         }
     };

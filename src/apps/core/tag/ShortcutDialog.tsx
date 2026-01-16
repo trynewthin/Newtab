@@ -3,31 +3,31 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { BaseModal, ModalButton } from "@/components/base";
-import { type Tag } from "@/store/core/types";
+import type { WebTagItem } from "@/store/core/itemTypes";
 import { useTranslation } from "react-i18next";
-import { useTagStore } from "@/store/modules/tag";
+import { useItemStore } from "@/store/modules/item";
 import { TagConfigForm, type TagConfigData } from "./TagConfigForm";
 
 interface ShortcutDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    editTag?: Tag | null;
+    editTag?: WebTagItem | null;
 }
 
 export function ShortcutDialog({ open, onOpenChange, editTag }: ShortcutDialogProps) {
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const addTag = useTagStore((state) => state.addTag);
-    const updateTag = useTagStore((state) => state.updateTag);
+    const addItem = useItemStore((state) => state.addItem);
+    const updateItem = useItemStore((state) => state.updateItem);
 
     const handleSubmit = async (data: TagConfigData) => {
         setIsSubmitting(true);
         try {
             if (editTag) {
-                updateTag(editTag.id, data);
+                updateItem(editTag.id, data);
             } else {
-                addTag(data);
+                addItem(data);
             }
             onOpenChange(false);
         } catch (error) {

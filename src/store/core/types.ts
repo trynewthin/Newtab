@@ -1,19 +1,5 @@
 // Core Data Models
 
-export interface Tag {
-    id: string;
-    title: string;
-    url: string;
-    icon?: string;
-    iconDataUrl?: string; // 本地缓存的 favicon DataURL
-    backgroundColor?: string; // Cache the dominant color of the icon
-    iconSize?: number; // Icon scaling factor (0.1 - 2.0, default 1.0)
-    isSystem?: boolean; // 标记是否为系统图标
-    type?: 'normal' | 'settings' | 'theme' | 'add' | 'icon-manager' | 'pomodoro' | 'todo' | 'folder' | 'ai';
-    isFolder?: boolean;
-    children?: Tag[];
-}
-
 export interface Todo {
     id: string;
     text: string;

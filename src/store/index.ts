@@ -4,12 +4,12 @@ export * from './modules/ui';
 export * from './modules/settings';
 export * from './modules/pomodoro';
 export * from './modules/todo';
-export * from './modules/tag';
+export * from './modules/item';
 
 import { useSettingsStore } from './modules/settings';
 import { usePomodoroStore } from './modules/pomodoro';
 import { useTodoStore } from './modules/todo';
-import { useTagStore } from './modules/tag';
+import { useItemStore } from './modules/item';
 import { storageRegistry } from './persistence/registry';
 
 // ============================================================================
@@ -24,4 +24,4 @@ import { storageRegistry } from './persistence/registry';
 storageRegistry.registerRehydrator('app-settings', () => useSettingsStore.persist.rehydrate());
 storageRegistry.registerRehydrator('app-pomodoro', () => usePomodoroStore.persist.rehydrate());
 storageRegistry.registerRehydrator('app-todos', () => useTodoStore.persist.rehydrate());
-storageRegistry.registerRehydrator('app-tags', () => useTagStore.persist.rehydrate());
+storageRegistry.registerRehydrator('app-items', () => useItemStore.persist.rehydrate());

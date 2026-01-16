@@ -1,5 +1,5 @@
-import { useTagStore } from "@/store/modules/tag";
-import { type Tag } from "@/store/core/types";
+import { useItemStore } from "@/store/modules/item";
+import { type GridItem, type FolderItem, type WebTagItem, type SystemAppItem } from "@/store/core/itemTypes";
 import { TagItem } from "../tag/TagItem";
 import {
     DndContext,
@@ -23,11 +23,16 @@ import {
 import { useState, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 
+// Helper to check if item is folder
+function isFolder(item: GridItem): item is FolderItem {
+    return item.kind === 'folder';
+}
+
 interface FolderPreviewProps {
-    folder: Tag;
+    folder: GridItem;
     onClose: () => void;
-    onClickTag?: (tag: Tag) => void;
-    onDeletePrompt: (tag: Tag) => void; // 设为必选
+    onClickTag?: (item: GridItem) => void;
+    onDeletePrompt: (item: GridItem) => void;
 }
 
 // 占位符类型定义
@@ -37,8 +42,8 @@ interface PlaceholderItem {
 }
 
 // 类型守卫
-function isPlaceholder(item: Tag | PlaceholderItem): item is PlaceholderItem {
-    return 'isPlaceholder' in item && item.isPlaceholder === true;
+function isPlaceholder(item: GridItem | PlaceholderItem): item is PlaceholderItem {
+    return 'isPlaceholder' in item && (item as any).isPlaceholder === true;
 }
 
 // 空白占位符组件
@@ -74,8 +79,8 @@ function EmptySlot({ id }: { id: string }) {
 }
 
 export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: FolderPreviewProps) {
-    const { tags, setTags } = useTagStore();
-    const [activeTag, setActiveTag] = useState<Tag | null>(null);
+    const { items, setItems } = useItemStore();
+    const [activeTag, setActiveTag] = useState<GridItem | null>(null);
     const [entered, setEntered] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [titleDraft, setTitleDraft] = useState(folder.title);
@@ -101,9 +106,12 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         setDroppableRef(element);
     };
 
-    const currentFolder = tags.find(t => t.id === folder.id);
+    const currentFolder = items.find(t => t.id === folder.id);
     const currentTitle = currentFolder?.title ?? folder.title;
-    const children = currentFolder?.children || [];
+
+    // Safely access children
+    const realChildren = (currentFolder && isFolder(currentFolder)) ? currentFolder.children : [];
+    const children: GridItem[] = (realChildren || []) as GridItem[];
 
     const displayItems = useMemo(() => {
         const COLS = 3;
@@ -149,26 +157,28 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         return [];
     };
 
-    const updateFolder = (updatedChildren: Tag[]) => {
-        if (updatedChildren.length <= 1) {
-            const newTags = tags.map(t => {
+    const updateFolder = (updatedChildren: GridItem[]) => {
+        const safeChildren = updatedChildren as (WebTagItem | SystemAppItem)[];
+
+        if (safeChildren.length <= 1) {
+            const newItems = items.map(t => {
                 if (t.id === folder.id) {
-                    return updatedChildren[0] || null;
+                    return safeChildren[0] || null;
                 }
                 return t;
-            }).filter(Boolean) as Tag[];
+            }).filter(Boolean) as GridItem[];
 
-            setTags(newTags);
+            setItems(newItems);
             onClose();
             return;
         }
 
-        const newTags = tags.map(t =>
+        const newItems = items.map(t =>
             t.id === folder.id
-                ? { ...t, children: updatedChildren }
+                ? { ...t, children: safeChildren } as FolderItem
                 : t
         );
-        setTags(newTags);
+        setItems(newItems);
     };
 
     const handleDragStart = (event: DragStartEvent) => {
@@ -199,8 +209,8 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         const { active, over, delta } = event;
         setActiveTag(null);
 
-        const currentFolder = tags.find(t => t.id === folder.id);
-        if (!currentFolder?.children) return;
+        const currentFolder = items.find(t => t.id === folder.id);
+        if (!currentFolder || !isFolder(currentFolder) || !currentFolder.children) return;
 
         const isOverContainer = over && over.id === 'folder-container';
         const isOverItem = over && !isPlaceholder(displayItems.find(i => i.id === over.id)!);
@@ -227,22 +237,22 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
             const draggedTag = currentFolder.children.find(t => t.id === active.id);
             if (draggedTag) {
                 const updatedChildren = currentFolder.children.filter(t => t.id !== active.id);
-                const folderIndex = tags.findIndex(t => t.id === folder.id);
+                const folderIndex = items.findIndex(t => t.id === folder.id);
 
                 if (updatedChildren.length <= 1) {
-                    const newTags = [...tags];
+                    const newItems = [...items];
                     const itemsToInsert = [...updatedChildren, draggedTag];
-                    newTags.splice(folderIndex, 1, ...itemsToInsert);
-                    setTags(newTags);
+                    newItems.splice(folderIndex, 1, ...itemsToInsert);
+                    setItems(newItems);
                     onClose();
                 } else {
-                    const newTags = tags.map(t =>
+                    const newItems = items.map(t =>
                         t.id === folder.id
-                            ? { ...t, children: updatedChildren }
+                            ? { ...t, children: updatedChildren } as FolderItem
                             : t
                     );
-                    newTags.splice(folderIndex + 1, 0, draggedTag);
-                    setTags(newTags);
+                    newItems.splice(folderIndex + 1, 0, draggedTag);
+                    setItems(newItems);
                 }
             }
             return;
@@ -254,7 +264,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
             const newIndex = realItems.findIndex(t => t.id === over.id);
 
             if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-                const updatedChildren = arrayMove(realItems, oldIndex, newIndex);
+                const updatedChildren = arrayMove(realItems as GridItem[], oldIndex, newIndex);
                 updateFolder(updatedChildren);
             }
         }
@@ -263,32 +273,34 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
         lastPointerPosition.current = null;
     };
 
-    const handleRemoveFromFolder = (tag: Tag) => {
-        const currentFolder = tags.find(t => t.id === folder.id);
-        if (!currentFolder?.children) return;
+    const handleRemoveFromFolder = (item: WebTagItem) => {
+        const currentFolder = items.find(t => t.id === folder.id);
+        if (!currentFolder || !isFolder(currentFolder) || !currentFolder.children) return;
 
-        const updatedChildren = currentFolder.children.filter(t => t.id !== tag.id);
-        const folderIndex = tags.findIndex(t => t.id === folder.id);
+        const updatedChildren = currentFolder.children.filter(t => t.id !== item.id);
+        const targetItem = currentFolder.children.find(t => t.id === item.id);
+        if (!targetItem) return;
+
+        const folderIndex = items.findIndex(t => t.id === folder.id);
 
         if (updatedChildren.length <= 1) {
-            const newTags = [...tags];
-            const itemsToInsert = [...updatedChildren, tag];
-            newTags.splice(folderIndex, 1, ...itemsToInsert);
-            setTags(newTags);
+            const newItems = [...items];
+            const itemsToInsert = [...updatedChildren, targetItem];
+            newItems.splice(folderIndex, 1, ...itemsToInsert);
+            setItems(newItems);
             onClose();
         } else {
-            const newTags = tags.map(t =>
+            const newItems = items.map(t =>
                 t.id === folder.id
-                    ? { ...t, children: updatedChildren }
+                    ? { ...t, children: updatedChildren } as FolderItem
                     : t
             );
-            newTags.splice(folderIndex + 1, 0, tag);
-            setTags(newTags);
+            newItems.splice(folderIndex + 1, 0, targetItem);
+            setItems(newItems);
         }
     };
 
     useEffect(() => {
-        // 如果当前文件夹在 tags 中找不到了，说明它被解散了，自动关闭预览
         if (!currentFolder) {
             onClose();
         }
@@ -299,7 +311,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
     }, []);
 
     const saveTitle = () => {
-        setTags(tags.map(t => t.id === folder.id ? { ...t, title: titleDraft } : t));
+        setItems(items.map(t => t.id === folder.id ? { ...t, title: titleDraft } as GridItem : t));
         setIsEditingTitle(false);
     };
 
@@ -369,10 +381,10 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
                                 ) : (
                                     <TagItem
                                         key={item.id}
-                                        tag={item}
-                                        onEdit={handleRemoveFromFolder}
-                                        onDeletePrompt={onDeletePrompt}
-                                        onClick={onClickTag}
+                                        item={item as WebTagItem}
+                                        onEdit={handleRemoveFromFolder as any}
+                                        onDeletePrompt={onDeletePrompt as any}
+                                        onClick={onClickTag as any}
                                     />
                                 )
                             )}
@@ -384,7 +396,7 @@ export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: F
             <DragOverlay>
                 {activeTag ? (
                     <TagItem
-                        tag={activeTag}
+                        item={activeTag as WebTagItem}
                         onEdit={() => { }}
                         onDeletePrompt={() => { }}
                         onClick={() => { }}

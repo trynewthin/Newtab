@@ -1,7 +1,7 @@
-import { SearchBar } from "@/components/home/search/SearchBar";
+import { SearchBar } from "@/components/home/SearchBar";
 import { BasePage } from "@/components/common";
-import { TagGrid } from "@/apps/core";
-import { HomeTools } from "@/components/home/tools/HomeTools";
+import { AppGrid } from "@/apps/core";
+import { HomeTools } from "@/components/home/HomeTools";
 
 export function HomePage() {
     return (
@@ -13,7 +13,7 @@ export function HomePage() {
 
             {/* 2. 内容网格 - 主内容区 */}
             <div className="w-full flex-1 min-h-0 overflow-hidden">
-                <TagGrid />
+                <AppGrid />
             </div>
         </BasePage>
     );

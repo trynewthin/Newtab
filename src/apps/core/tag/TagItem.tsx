@@ -1,4 +1,3 @@
-import { type Tag } from "@/store/core/types";
 import { useUIStore } from "@/store/modules/ui";
 import { X, Edit2, Check } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -8,23 +7,24 @@ import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/store/core/backgroundStorage";
 import { ItemIcon } from "../base/ItemIcon";
 import { useTranslation } from "react-i18next";
+import type { WebTagItem, GridItem } from "@/store/core/itemTypes";
 
 interface TagItemProps {
-    tag: Tag;
-    onEdit: (tag: Tag) => void;
-    onDeletePrompt: (tag: Tag) => void;
-    onClick?: (tag: Tag) => void;
+    item: WebTagItem;
+    onEdit: (item: WebTagItem) => void;
+    onDeletePrompt: (item: GridItem) => void;
+    onClick?: (item: GridItem) => void;
     isOverlay?: boolean;
     isNearTarget?: boolean;
     isHoverTarget?: boolean;
 }
 
-export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: TagItemProps) {
+export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: TagItemProps) {
     const { t } = useTranslation();
     const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
-    const isSelected = selectedTagIds.includes(tag.id);
+    const isSelected = selectedTagIds.includes(item.id);
 
-    const [bgColor, setBgColor] = useState(() => tag.backgroundColor ?? "rgb(255, 255, 255)");
+    const [bgColor, setBgColor] = useState(() => item.backgroundColor ?? "rgb(255, 255, 255)");
     const [imageDataUrl, setImageDataUrl] = useState<string>("");
 
     const {
@@ -35,7 +35,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
         transition,
         isDragging,
     } = useSortable({
-        id: tag.id,
+        id: item.id,
         disabled: !!isOverlay,
     });
 
@@ -49,14 +49,13 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        onDeletePrompt(tag);
+        onDeletePrompt(item);
     };
 
     const handleEdit = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (tag.isSystem) return;
-        onEdit(tag);
+        onEdit(item);
     };
 
     const handleItemClick = (e: React.MouseEvent) => {
@@ -68,27 +67,26 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
         if (isEditing) {
             e.preventDefault();
             e.stopPropagation();
-            toggleTagSelection(tag.id);
+            toggleTagSelection(item.id);
             return;
         }
 
-        if (tag.isSystem && onClick) {
+        if (onClick) {
             e.preventDefault();
-            onClick(tag);
-        } else if (tag.url) {
-            window.open(tag.url, '_blank');
+            onClick(item);
+        } else if (item.url) {
+            window.open(item.url, '_blank');
         }
     };
 
-
-    const faviconUrl = tag.icon || `https://www.google.com/s2/favicons?domain=${tag.url}&sz=64`;
+    const faviconUrl = item.icon || `https://www.google.com/s2/favicons?domain=${item.url}&sz=64`;
 
     useEffect(() => {
         let cancelled = false;
 
         const resolveIcon = async () => {
-            if (tag.iconDataUrl?.startsWith("idb://")) {
-                const key = tag.iconDataUrl.replace("idb://", "");
+            if (item.iconDataUrl?.startsWith("idb://")) {
+                const key = item.iconDataUrl.replace("idb://", "");
                 try {
                     const data = await backgroundStorage.getIcon(key);
                     if (!cancelled && data) {
@@ -97,20 +95,20 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                 } catch (e) {
                     console.error("Failed to load icon from IDB:", e);
                 }
-            } else if (tag.iconDataUrl) {
-                setImageDataUrl(tag.iconDataUrl);
+            } else if (item.iconDataUrl) {
+                setImageDataUrl(item.iconDataUrl);
             } else {
                 setImageDataUrl("");
             }
         };
 
-        setBgColor(tag.backgroundColor ?? "rgb(255, 255, 255)");
+        setBgColor(item.backgroundColor ?? "rgb(255, 255, 255)");
         resolveIcon();
 
         return () => {
             cancelled = true;
         };
-    }, [tag.iconDataUrl, tag.backgroundColor]);
+    }, [item.iconDataUrl, item.backgroundColor]);
 
     return (
         <div
@@ -130,15 +128,13 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                     "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
                     (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
                 )}>
-                    {!tag.isSystem && (
-                        <button
-                            onClick={handleEdit}
-                            className="p-1.5 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                            title={t('edit')}
-                        >
-                            <Edit2 size={10} />
-                        </button>
-                    )}
+                    <button
+                        onClick={handleEdit}
+                        className="p-1.5 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                        title={t('edit')}
+                    >
+                        <Edit2 size={10} />
+                    </button>
                     <button
                         onClick={handleDelete}
                         className="p-1.5 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
@@ -149,19 +145,18 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                 </div>
 
                 <ItemIcon
-                    title={tag.title}
-                    icon={tag.icon}
+                    title={item.title}
+                    icon={item.icon}
                     iconDataUrl={imageDataUrl || faviconUrl}
-                    isSystem={tag.isSystem}
-                    scale={tag.iconSize}
-                    backgroundColor={(tag.isSystem && (tag.icon?.includes('/') || tag.icon?.includes('.'))) ? 'transparent' : (tag.isSystem ? 'rgb(255, 255, 255)' : bgColor)}
+                    isSystem={false}
+                    scale={item.iconSize}
+                    backgroundColor={bgColor}
                     className={cn(
                         "w-14 h-14 rounded-2xl shadow-sm hover:shadow-md",
                         isEditing ? "cursor-pointer" : "cursor-pointer",
                         isOverlay && "cursor-grabbing shadow-xl",
                         isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
                     )}
-                    // Event Handlers
                     role="button"
                     tabIndex={0}
                     onClick={handleItemClick}
@@ -171,7 +166,6 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                         }
                     }}
                 >
-                    {/* 选中态遮罩 - 中心显示圆形按钮 */}
                     {isEditing && (
                         <div className={cn(
                             "absolute inset-0 z-30 flex items-center justify-center transition-all pointer-events-none",
@@ -182,7 +176,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    toggleTagSelection(tag.id);
+                                    toggleTagSelection(item.id);
                                 }}
                                 className={cn(
                                     "pointer-events-auto w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
@@ -199,7 +193,7 @@ export function TagItem({ tag, onEdit, onDeletePrompt, onClick, isOverlay, isNea
             </div>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">
-                {tag.title}
+                {item.title}
             </span>
         </div>
     );

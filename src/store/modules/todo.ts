@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistConfig } from '../core/storage';
-import { type Todo } from '../core/types';
+import type { Todo } from '../core/types';
 
 interface TodoState {
     todos: Todo[];
@@ -18,7 +18,7 @@ export const useTodoStore = create<TodoState>()(
         (set) => ({
             todos: [],
 
-            addTodo: (text, date) => set((state) => {
+            addTodo: (text: string, date?: string) => set((state: TodoState) => {
                 // Default to today if date is not provided
                 let targetDate = date;
                 if (!targetDate) {
@@ -43,21 +43,21 @@ export const useTodoStore = create<TodoState>()(
                 };
             }),
 
-            toggleTodo: (id) => set((state) => ({
-                todos: state.todos.map((todo) =>
+            toggleTodo: (id: string) => set((state: TodoState) => ({
+                todos: state.todos.map((todo: Todo) =>
                     todo.id === id ? { ...todo, completed: !todo.completed } : todo
                 ),
             })),
 
-            removeTodo: (id) => set((state) => ({
-                todos: state.todos.filter((todo) => todo.id !== id),
+            removeTodo: (id: string) => set((state: TodoState) => ({
+                todos: state.todos.filter((todo: Todo) => todo.id !== id),
             })),
 
-            clearCompleted: () => set((state) => ({
-                todos: state.todos.filter((todo) => !todo.completed),
+            clearCompleted: () => set((state: TodoState) => ({
+                todos: state.todos.filter((todo: Todo) => !todo.completed),
             })),
 
-            setTodos: (todos) => set({ todos }),
+            setTodos: (todos: Todo[]) => set({ todos }),
         }),
         createPersistConfig('app-todos')
     )

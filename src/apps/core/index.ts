@@ -1,5 +1,5 @@
+export * from './grid/AppGrid';
 export * from './tag/TagItem';
-export * from './tag/TagGrid';
 export * from './tag/TagConfigForm';
 export * from './tag/ShortcutDialog';
 export * from './base/ItemIcon';

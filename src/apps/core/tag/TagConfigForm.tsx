@@ -5,7 +5,7 @@ import { ItemIcon } from "../base/ItemIcon";
 import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
 import { backgroundStorage, getIconKey, isDataURL } from "@/store/core/backgroundStorage";
 import { cn, parseColor } from "@/lib/utils";
-import { type Tag } from "@/store/core/types";
+import type { WebTagItem } from "@/store/core/itemTypes";
 import { useTranslation } from "react-i18next";
 
 export interface TagConfigData {
@@ -18,7 +18,7 @@ export interface TagConfigData {
 }
 
 interface TagConfigFormProps {
-    defaultValues?: Partial<Tag>;
+    defaultValues?: Partial<WebTagItem>;
     onSubmit: (data: TagConfigData) => Promise<void>;
     showUrlField?: boolean;
     autoFocus?: boolean;
@@ -33,6 +33,7 @@ export function TagConfigForm({
     children
 }: TagConfigFormProps) {
     const { t } = useTranslation();
+
     // Form States
     const [url, setUrl] = useState(defaultValues?.url || "");
     const [title, setTitle] = useState(defaultValues?.title || "");
@@ -210,8 +211,6 @@ export function TagConfigForm({
         <form id="tag-config-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
             {/* Top Row: Preview + selection */}
             <div className="flex gap-5 items-stretch h-24">
-                {/* Left: Preview Area */}
-                {/* Left: Preview Area */}
                 <ItemIcon
                     icon={iconStr}
                     iconDataUrl={effectivePreviewIcon}

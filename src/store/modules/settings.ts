@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistConfig } from '../core/storage';
-import { type BackgroundConfig } from '../core/types';
+import type { BackgroundConfig } from '../core/types';
 
 interface SettingsState {
     // Theme & Appearance
@@ -35,16 +35,16 @@ export const useSettingsStore = create<SettingsState>()(
     persist(
         (set) => ({
             theme: 'light',
-            setTheme: (theme) => set({ theme }),
+            setTheme: (theme: 'light' | 'dark' | 'system') => set({ theme }),
 
             primaryColor: 'hsl(217 91% 60%)', // Blue as default
-            setPrimaryColor: (color) => set({ primaryColor: color }),
+            setPrimaryColor: (color: string) => set({ primaryColor: color }),
 
             backgroundConfig: {
                 type: 'gradient',
                 value: 'linear-gradient(to bottom right, #1e3a8a, #06b6d4)', // Ocean as default
             },
-            setBackgroundConfig: (config) => set((state) => ({
+            setBackgroundConfig: (config: Partial<BackgroundConfig>) => set((state: SettingsState) => ({
                 backgroundConfig: { ...state.backgroundConfig, ...config }
             })),
 
@@ -52,29 +52,29 @@ export const useSettingsStore = create<SettingsState>()(
                 'hsl(224 71% 4%)', // Deep Blue/Black
                 'hsl(0 0% 5%)',    // Minimal Black
             ],
-            addSolidColor: (color) => set((state) => ({
+            addSolidColor: (color: string) => set((state: SettingsState) => ({
                 solidColors: [...state.solidColors, color]
             })),
-            removeSolidColor: (color) => set((state) => ({
-                solidColors: state.solidColors.filter((c) => c !== color)
+            removeSolidColor: (color: string) => set((state: SettingsState) => ({
+                solidColors: state.solidColors.filter((c: string) => c !== color)
             })),
 
             isFirstRun: true,
-            setFirstRun: (status) => set({ isFirstRun: status }),
+            setFirstRun: (status: boolean) => set({ isFirstRun: status }),
 
             searchEngine: 'google',
-            setSearchEngine: (engine) => set({ searchEngine: engine }),
+            setSearchEngine: (engine: string) => set({ searchEngine: engine }),
 
             customSearchEngines: [],
-            addCustomSearchEngine: (engine) => set((state) => ({
+            addCustomSearchEngine: (engine: { name: string; value: string; url: string; icon?: string }) => set((state: SettingsState) => ({
                 customSearchEngines: [...state.customSearchEngines, engine]
             })),
-            removeCustomSearchEngine: (value) => set((state) => ({
+            removeCustomSearchEngine: (value: string) => set((state: SettingsState) => ({
                 customSearchEngines: state.customSearchEngines.filter((e) => e.value !== value),
                 // If the deleted engine was the selected one, fallback to google
                 searchEngine: state.searchEngine === value ? 'google' : state.searchEngine
             })),
-            updateCustomSearchEngine: (value, engine) => set((state) => ({
+            updateCustomSearchEngine: (value: string, engine: Partial<{ name: string; url: string; icon?: string }>) => set((state: SettingsState) => ({
                 customSearchEngines: state.customSearchEngines.map((e) =>
                     e.value === value ? { ...e, ...engine } : e
                 )

@@ -1,5 +1,5 @@
 import { useUIStore } from "@/store/modules/ui";
-import { useTagStore } from "@/store/modules/tag";
+import { useItemStore } from "@/store/modules/item";
 import { Edit2, FolderPlus, Trash2, Settings, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -18,19 +18,19 @@ import {
 export function HomeTools() {
     const { t } = useTranslation();
     const { isEditing, toggleEditing, selectedTagIds, clearSelection, setActiveSystemDialog } = useUIStore();
-    const { batchGroupTags, batchRemoveTags } = useTagStore();
+    const { batchGroupItems, batchRemoveItems } = useItemStore();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const handleBatchGroup = () => {
         if (selectedTagIds.length <= 1) return;
 
-        batchGroupTags(selectedTagIds, t('new_folder'));
+        batchGroupItems(selectedTagIds, t('new_folder'));
         clearSelection();
         toggleEditing();
     };
 
     const handleBatchDelete = () => {
-        batchRemoveTags(selectedTagIds);
+        batchRemoveItems(selectedTagIds);
         clearSelection();
         setIsDeleteDialogOpen(false);
         toggleEditing();

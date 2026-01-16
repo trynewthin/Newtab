@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistConfig } from '../core/storage';
-import { type PomodoroConfig, type PomodoroStatus } from '../core/types';
+import type { PomodoroConfig, PomodoroStatus } from '../core/types';
 
 interface PomodoroState {
     config: PomodoroConfig;
@@ -38,11 +38,11 @@ export const usePomodoroStore = create<PomodoroState>()(
             config: DEFAULT_CONFIG,
             status: INITIAL_STATUS,
 
-            setConfig: (config) => set((state) => ({
+            setConfig: (config: Partial<PomodoroConfig>) => set((state: PomodoroState) => ({
                 config: { ...state.config, ...config }
             })),
 
-            setStatus: (status) => set((state) => ({
+            setStatus: (status: Partial<PomodoroStatus>) => set((state: PomodoroState) => ({
                 status: { ...state.status, ...status }
             })),
 

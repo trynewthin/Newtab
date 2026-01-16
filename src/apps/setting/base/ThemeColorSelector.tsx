@@ -1,7 +1,7 @@
 import { useSettingsStore } from "@/store/modules/settings";
 import { cn } from "@/lib/utils";
 import { Check, Plus, Palette } from "lucide-react";
-import { PRIMARY_COLORS } from "../themeConfig";
+import { PRIMARY_COLORS } from "@/apps/setting/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
 import { SettingsSection } from "./SettingComponents";
 

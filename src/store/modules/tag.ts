@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { createPersistConfig } from '../core/storage';
 import { type Tag } from '../core/types';
 import { backgroundStorage } from '../core/backgroundStorage';
-import { SYSTEM_ITEMS } from '@/components/items/systemRegistry';
+import { SYSTEM_ITEMS } from '@/apps/core';
 
 interface TagState {
     tags: Tag[];
@@ -56,15 +56,15 @@ export const useTagStore = create<TagState>()(
         (set) => ({
             tags: DEFAULT_TAGS,
 
-            addTag: (tag) => set((state) => ({
+            addTag: (tag: Omit<Tag, 'id'>) => set((state: TagState) => ({
                 tags: [...state.tags, { ...tag, id: crypto.randomUUID() }]
             })),
 
-            updateTag: (id, updatedFields) => set((state) => ({
-                tags: state.tags.map((t) => t.id === id ? { ...t, ...updatedFields } : t)
+            updateTag: (id: string, updatedFields: Partial<Omit<Tag, 'id'>>) => set((state: TagState) => ({
+                tags: state.tags.map((t: Tag) => t.id === id ? { ...t, ...updatedFields } : t)
             })),
 
-            removeTag: (id) => set((state) => {
+            removeTag: (id: string) => set((state: TagState) => {
                 const findAndCleanupIcon = (items: Tag[]) => {
                     for (const item of items) {
                         if (item.id === id) {
@@ -84,9 +84,9 @@ export const useTagStore = create<TagState>()(
                 findAndCleanupIcon(state.tags);
 
                 const recursiveRemove = (items: Tag[]): Tag[] => {
-                    const filtered = items.filter((t) => t.id !== id);
+                    const filtered = items.filter((t: Tag) => t.id !== id);
 
-                    const processed = filtered.map((t) => {
+                    const processed = filtered.map((t: Tag) => {
                         if (t.isFolder && t.children) {
                             return { ...t, children: recursiveRemove(t.children) };
                         }
@@ -107,7 +107,7 @@ export const useTagStore = create<TagState>()(
                 return { tags: recursiveRemove(state.tags) };
             }),
 
-            batchRemoveTags: (ids) => set((state) => {
+            batchRemoveTags: (ids: string[]) => set((state: TagState) => {
                 const cleanupIcons = (items: Tag[]) => {
                     items.forEach(item => {
                         if (ids.includes(item.id)) {
@@ -125,9 +125,9 @@ export const useTagStore = create<TagState>()(
                 cleanupIcons(state.tags);
 
                 const recursiveRemove = (items: Tag[]): Tag[] => {
-                    const filtered = items.filter((t) => !ids.includes(t.id));
+                    const filtered = items.filter((t: Tag) => !ids.includes(t.id));
 
-                    const processed = filtered.map((t) => {
+                    const processed = filtered.map((t: Tag) => {
                         if (t.isFolder && t.children) {
                             return { ...t, children: recursiveRemove(t.children) };
                         }
@@ -148,9 +148,9 @@ export const useTagStore = create<TagState>()(
                 return { tags: recursiveRemove(state.tags) };
             }),
 
-            setTags: (tags) => set({ tags }),
+            setTags: (tags: Tag[]) => set({ tags }),
 
-            batchGroupTags: (ids, title) => set((state) => {
+            batchGroupTags: (ids: string[], title?: string) => set((state: TagState) => {
                 if (ids.length <= 1) return state;
 
                 const selectedItems = state.tags.filter(t => ids.includes(t.id));
@@ -189,14 +189,14 @@ export const useTagStore = create<TagState>()(
 
                 targetFolder.children = newChildren;
 
-                const newTags = state.tags.filter(t => !ids.includes(t.id));
+                const newTags = state.tags.filter((t: Tag) => !ids.includes(t.id));
                 newTags.splice(firstSelectedIndex, 0, targetFolder);
 
                 return { tags: newTags };
             }),
 
-            ungroupFolder: (id) => set((state) => {
-                const folderIndex = state.tags.findIndex(t => t.id === id);
+            ungroupFolder: (id: string) => set((state: TagState) => {
+                const folderIndex = state.tags.findIndex((t: Tag) => t.id === id);
                 const folder = state.tags[folderIndex];
 
                 if (!folder || !folder.isFolder || !folder.children) return state;

@@ -1,8 +1,8 @@
-import { ShortcutDialog } from "./tag";
-import { PomodoroDialog } from "./pomodoro/PomodoroDialog";
-import { SettingsDialog } from "@/components/settings";
-import { TodoDialog } from "./todo/TodoDialog";
-import { AiDialog } from "./ai/AiDialog";
+import { ShortcutDialog } from "../tag/ShortcutDialog";
+import { PomodoroDialog } from "@/apps/pomodoro";
+import { SettingsDialog } from "@/apps/setting";
+import { TodoDialog } from "@/apps/todo";
+import { AiDialog } from "@/apps/ai/AiDialog";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {
@@ -23,10 +23,13 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
         case "settings":
             return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
         case "theme":
+            // TODO: Pass specific tab or prop to open Appearance settings directly if needed
+            // currently reopening settings
             return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
         case "add":
             return <ShortcutDialog open={true} onOpenChange={handleOpenChange} editTag={null} />;
         case "icon-manager":
+            // TODO: Pass prop for icon manager tab
             return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
         case "pomodoro":
             return <PomodoroDialog open={true} onOpenChange={handleOpenChange} />;

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
-import { BACKGROUND_PRESETS } from "../themeConfig";
+import { BACKGROUND_PRESETS } from "@/apps/setting/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
 import { SettingsSection } from "./SettingComponents";
 import { useRef } from "react";

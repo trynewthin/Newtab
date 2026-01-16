@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useTagStore } from "@/store/modules/tag";
 import { useSettingsStore } from "@/store/modules/settings";
 import { Button } from "@/components/ui/button";
-import { TagConfigForm, type TagConfigData } from "@/components/items/tag";
+import { TagConfigForm, type TagConfigData } from "@/apps/core";
+
 import { type Tag } from "@/store/core/types";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n/i18n"; // Ensure i18n is initialized

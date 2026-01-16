@@ -8,7 +8,7 @@ import { usePomodoroStore } from "@/store/modules/pomodoro";
 import { cn } from "@/lib/utils";
 import { Play, RotateCcw, Timer, Coffee, Zap, Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { SettingsSection, SettingsItem } from "@/components/settings/base/SettingComponents";
+import { SettingsSection, SettingsItem } from "@/apps/setting/base/SettingComponents";
 import { Switch } from "@/components/ui/switch";
 
 interface PomodoroDialogProps {

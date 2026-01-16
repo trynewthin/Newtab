@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ItemIcon } from "@/components/items/ItemIcon";
+import { ItemIcon } from "../base/ItemIcon";
 
 interface FolderItemProps {
     tag: Tag;

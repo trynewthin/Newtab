@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { SidebarHeader } from "@/components/base";
-import { BackgroundSelector } from "./base/BackgroundSelector";
-import { ThemeColorSelector } from "./base/ThemeColorSelector";
+import { BackgroundSelector } from "@/apps/setting/base/BackgroundSelector";
+
+import { ThemeColorSelector } from "@/apps/setting/base/ThemeColorSelector";
 
 interface AppearanceSettingsProps {
     onOpenMobileMenu?: () => void;

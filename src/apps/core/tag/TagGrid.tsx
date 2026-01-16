@@ -3,10 +3,14 @@ import { useTagStore } from "@/store/modules/tag";
 import { useUIStore } from "@/store/modules/ui";
 import { type Tag } from "@/store/core/types";
 import { TagItem } from "./TagItem";
-import { FolderItem } from "@/components/items/folder/FolderItem";
+import { FolderItem } from "../folder/FolderItem";
+
 import { ShortcutDialog } from "./ShortcutDialog";
-import { SystemDialogHost, type SystemType } from "@/components/items";
-import { FolderPreview } from "@/components/items/folder/FolderPreview";
+import { SystemDialogHost } from "../system/SystemDialogHost";
+import type { SystemType } from "../system/systemRegistry";
+
+import { FolderPreview } from "../folder/FolderPreview";
+
 import { useTranslation } from "react-i18next";
 import {
     DndContext,

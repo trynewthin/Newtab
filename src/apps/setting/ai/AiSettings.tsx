@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SettingsSection, SettingsItem } from "./base/SettingComponents";
+import { SettingsSection, SettingsItem } from "@/apps/setting/base/SettingComponents";
 
 interface AiSettingsProps {
     onOpenMobileMenu?: () => void;

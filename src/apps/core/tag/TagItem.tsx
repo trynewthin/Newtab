@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/store/core/backgroundStorage";
-import { ItemIcon } from "@/components/items/ItemIcon";
+import { ItemIcon } from "../base/ItemIcon";
 import { useTranslation } from "react-i18next";
 
 interface TagItemProps {

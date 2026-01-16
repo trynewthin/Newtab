@@ -1,6 +1,6 @@
 import { SearchBar } from "@/components/home/search/SearchBar";
 import { BasePage } from "@/components/common";
-import { TagGrid } from "@/components/items/tag";
+import { TagGrid } from "@/apps/core";
 import { HomeTools } from "@/components/home/tools/HomeTools";
 
 export function HomePage() {

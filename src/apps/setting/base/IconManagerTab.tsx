@@ -1,7 +1,7 @@
 import { useTagStore } from "@/store/modules/tag";
 import { cn } from "@/lib/utils";
-import { SYSTEM_ITEMS } from "@/components/items/systemRegistry";
-import { ItemIcon } from "@/components/items/ItemIcon";
+import { SYSTEM_ITEMS, ItemIcon } from "@/apps/core";
+
 import { Plus, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

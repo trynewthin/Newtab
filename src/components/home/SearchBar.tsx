@@ -155,6 +155,7 @@ export function SearchBar() {
                     <div className="flex-1 flex items-center gap-1">
                         <Input
                             type="text"
+                            autoFocus
                             value={query}
                             onChange={(e) => {
                                 setQuery(e.target.value);

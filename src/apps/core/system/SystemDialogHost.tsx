@@ -12,38 +12,56 @@ interface SystemDialogHostProps {
     onActiveChange: (next: SystemType | null) => void;
 }
 
+/**
+ * SystemDialogHost - Manages the visibility of all system-level dialogs.
+ * 
+ * IMPORTANT: To allow exit animations to play correctly, we must avoid conditional 
+ * rendering that unmounts the component immediately (e.g., {active === 'type' && <Component />}).
+ * Instead, we render all primary dialogs and pass the 'open' state to them.
+ */
 export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostProps) {
-    const open = active !== null;
 
     const handleOpenChange = (nextOpen: boolean) => {
         if (!nextOpen) onActiveChange(null);
     };
 
-    if (!open) return null;
+    return (
+        <>
+            <SettingsDialog
+                open={active === "settings" || active === "theme" || active === "icon-manager"}
+                onOpenChange={handleOpenChange}
+            />
 
-    switch (active) {
-        case "settings":
-            return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
-        case "theme":
-            // TODO: Pass specific tab or prop to open Appearance settings directly if needed
-            // currently reopening settings
-            return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
-        case "add":
-            return <ShortcutDialog open={true} onOpenChange={handleOpenChange} editTag={null} />;
-        case "icon-manager":
-            // TODO: Pass prop for icon manager tab
-            return <SettingsDialog open={true} onOpenChange={handleOpenChange} />;
-        case "pomodoro":
-            return <PomodoroDialog open={true} onOpenChange={handleOpenChange} />;
-        case "todo":
-            return <TodoDialog open={true} onOpenChange={handleOpenChange} />;
-        case "ai":
-            return <AiDialog open={true} onOpenChange={handleOpenChange} />;
-        case "downloads":
-            return <DownloadsDialog open={true} onOpenChange={handleOpenChange} />;
-        case "bookmarks":
-            return <BookmarksDialog open={true} onOpenChange={handleOpenChange} />;
-        default:
-            return null;
-    }
+            <ShortcutDialog
+                open={active === "add"}
+                onOpenChange={handleOpenChange}
+                editTag={null}
+            />
+
+            <PomodoroDialog
+                open={active === "pomodoro"}
+                onOpenChange={handleOpenChange}
+            />
+
+            <TodoDialog
+                open={active === "todo"}
+                onOpenChange={handleOpenChange}
+            />
+
+            <AiDialog
+                open={active === "ai"}
+                onOpenChange={handleOpenChange}
+            />
+
+            <DownloadsDialog
+                open={active === "downloads"}
+                onOpenChange={handleOpenChange}
+            />
+
+            <BookmarksDialog
+                open={active === "bookmarks"}
+                onOpenChange={handleOpenChange}
+            />
+        </>
+    );
 }

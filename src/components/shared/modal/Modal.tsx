@@ -7,6 +7,18 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { ModalButton } from "./ModalButton"
 
+// Global tracker for the last mouse down position to determine modal animation origin
+let lastClickPos = {
+    x: typeof window !== "undefined" ? window.innerWidth / 2 : 0,
+    y: typeof window !== "undefined" ? window.innerHeight / 2 : 0
+};
+
+if (typeof window !== "undefined") {
+    window.addEventListener("mousedown", (e) => {
+        lastClickPos = { x: e.clientX, y: e.clientY };
+    }, { capture: true, passive: true });
+}
+
 function ModalRoot({ ...props }: DialogPrimitive.Root.Props) {
     return <DialogPrimitive.Root data-slot="modal" {...props} />
 }
@@ -24,7 +36,7 @@ function ModalOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
         <DialogPrimitive.Backdrop
             data-slot="modal-overlay"
             className={cn(
-                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 backdrop-blur-sm duration-100 fixed inset-0 z-999",
+                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 backdrop-blur-sm duration-300 fixed inset-0 z-999",
                 className
             )}
             {...props}
@@ -75,6 +87,37 @@ function BaseModal({
     scrollable = true,
     ...props
 }: BaseModalProps) {
+    const [transformOrigin, setTransformOrigin] = React.useState<string>("center");
+
+    // Use useLayoutEffect to ensure origin is set BEFORE any animation attributes are applied
+    React.useLayoutEffect(() => {
+        if (props.open) {
+            const innerWidth = window.innerWidth;
+            const innerHeight = window.innerHeight;
+
+            let modalX, modalY, modalW, modalH;
+
+            if (innerWidth < 640) { // Mobile
+                modalX = 0;
+                modalY = 0;
+                modalW = innerWidth;
+                modalH = innerHeight;
+            } else { // Desktop (Centered 80vw x 80vh)
+                modalW = innerWidth * 0.8;
+                modalH = innerHeight * 0.8;
+                modalX = (innerWidth - modalW) / 2;
+                modalY = (innerHeight - modalH) / 2;
+            }
+
+            // Calculate relative coordinates in percentage
+            const originX = modalW > 0 ? ((lastClickPos.x - modalX) / modalW) * 100 : 50;
+            const originY = modalH > 0 ? ((lastClickPos.y - modalY) / modalH) * 100 : 50;
+
+            setTransformOrigin(`${originX}% ${originY}%`);
+        }
+        // Notice: We specifically skip resetting the origin when props.open becomes false.
+        // This ensures the Modal sticks to its entry origin during the entire exit animation.
+    }, [props.open]);
 
     return (
         <ModalRoot {...props}>
@@ -83,11 +126,15 @@ function BaseModal({
                 <ModalOverlay />
                 <DialogPrimitive.Popup
                     data-slot="modal-content"
+                    style={{ transformOrigin } as React.CSSProperties}
                     className={cn(
                         // Positioning - Mobile: Full Screen, Desktop: Centered
                         "fixed inset-0 sm:top-1/2 sm:left-1/2 z-1000 sm:-translate-x-1/2 sm:-translate-y-1/2 outline-none",
-                        // Animations
-                        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 sm:data-closed:zoom-out-95 sm:data-open:zoom-in-95 duration-100",
+                        // Animations - Symmetrical Zoom/Fade
+                        "data-open:animate-in data-closed:animate-out",
+                        "data-open:fade-in-0 data-closed:fade-out-0",
+                        "data-open:zoom-in-50 data-closed:zoom-out-50",
+                        "duration-300 ease-in-out",
                         // Base Responsive Limits - Reset for mobile, apply for desktop
                         "sm:max-w-[calc(100vw-2rem)] sm:max-h-[calc(100vh-2rem)]",
                         // Apply STRICT UNIFIED SIZE

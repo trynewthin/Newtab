@@ -37,7 +37,7 @@ export function HomeTools() {
     };
 
     return (
-        <div className="flex items-center gap-3 p-1.5 glass-card rounded-2xl shadow-lg border-white/40 pointer-events-auto">
+        <div className="group flex items-center gap-3 p-1.5 glass-card rounded-2xl shadow-lg border-white/40 pointer-events-auto transition-transform duration-500 ease-out translate-x-full hover:translate-x-0">
             {/* 鎵归噺鎿嶄綔鎸夐挳缁?*/}
             {isEditing && selectedTagIds.length > 0 && (
                 <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">

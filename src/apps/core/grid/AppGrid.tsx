@@ -80,6 +80,11 @@ export function AppGrid() {
         }
         if (item.kind === 'app') {
             setActiveSystemDialog(item.appId as SystemType);
+            return;
+        }
+        // Handle tag (bookmark) clicks
+        if (item.kind === 'tag' && item.url) {
+            window.open(item.url, '_blank');
         }
     };
 

@@ -149,10 +149,10 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
             <ItemIcon
                 onClick={handleClick}
                 className={cn(
-                    "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all",
+                    "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow",
                     "bg-primary/10 dark:bg-primary/15 backdrop-blur-xl",
                     isEditing ? "cursor-pointer" : "cursor-pointer",
-                    isOverlay && "cursor-grabbing shadow-xl",
+                    isOverlay && "cursor-grabbing shadow-2xl",
                     isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
                 )}
             >
@@ -166,7 +166,7 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
                 </div>
             </ItemIcon>
 
-            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-sm text-white select-none">
+            <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-md text-white select-none">
                 {item.title}
             </span>
         </div>

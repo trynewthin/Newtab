@@ -104,29 +104,30 @@ export function SearchBar() {
     };
 
     return (
-        <div className="w-full px-4 relative group" ref={containerRef}>
+        <div className="w-full relative group" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-30">
                 <div className={cn(
-                    "flex gap-2 items-center rounded-2xl p-1.5 transition-all duration-500",
+                    "flex gap-2 items-center rounded-2xl md:rounded-3xl p-1.5 transition-all duration-500",
                     "glass-input shadow-2xl shadow-primary/5",
-                    "focus-within:ring-4 focus-within:ring-primary/10 group-hover:bg-white/50 dark:group-hover:bg-black/40"
+                    "focus-within:ring-4 focus-within:ring-primary/10 group-hover:bg-white/50 dark:group-hover:bg-black/40",
+                    "h-12 md:h-14"
                 )}>
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger
-                            className="h-11 px-3 glass-button rounded-xl flex items-center justify-center gap-2 cursor-pointer outline-none active:scale-95 transition-all"
+                            className="h-full px-3 md:px-4 glass-button rounded-xl md:rounded-2xl flex items-center justify-center gap-2 cursor-pointer outline-none active:scale-95 transition-all"
                             aria-label={t('select_engine')}
                         >
                             <img
                                 src={currentEngine.icon}
                                 alt={currentEngine.name}
-                                className="w-5 h-5 drop-shadow-sm rounded-sm"
+                                className="w-5 h-5 md:w-5.5 md:h-5.5 drop-shadow-sm rounded-sm select-none"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="%23ddd"/></svg>';
                                 }}
                             />
                             <ChevronDown className={cn("size-3.5 opacity-50 transition-transform duration-300", open && "rotate-180")} />
                         </PopoverTrigger>
-                        <PopoverContent className="w-56 p-2 rounded-2xl glass-card border-none mt-2 overflow-hidden" align="start">
+                        <PopoverContent className="w-56 md:w-60 p-2 rounded-2xl md:rounded-[20px] glass-card border-none mt-2 overflow-hidden" align="start">
                             <div className="space-y-1 max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar">
                                 {allEngines.map((engine) => (
                                     <button
@@ -143,7 +144,7 @@ export function SearchBar() {
                                         <img
                                             src={engine.icon}
                                             alt={engine.name}
-                                            className="w-4 h-4 rounded-sm"
+                                            className="w-4 h-4 md:w-4.5 md:h-4.5 rounded-sm select-none"
                                         />
                                         <span className="text-sm font-semibold tracking-tight truncate">{engine.name}</span>
                                     </button>
@@ -152,7 +153,7 @@ export function SearchBar() {
                         </PopoverContent>
                     </Popover>
 
-                    <div className="flex-1 flex items-center gap-1">
+                    <div className="flex-1 flex items-center gap-1 h-full">
                         <Input
                             type="text"
                             autoFocus
@@ -164,14 +165,15 @@ export function SearchBar() {
                             onKeyDown={handleKeyDown}
                             onFocus={() => query.trim() && setShowSuggestions(true)}
                             placeholder={t('search_placeholder')}
-                            className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-lg font-medium tracking-tight placeholder:text-muted-foreground/50 h-11"
+                            className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base md:text-lg lg:text-xl font-medium tracking-tight placeholder:text-muted-foreground/30 h-full"
                         />
                         <button
                             type="submit"
-                            className="p-3 glass-button rounded-xl active:scale-90 transition-all"
+                            className="h-full px-4 md:px-5 glass-button rounded-xl md:rounded-2xl active:scale-90 transition-all"
                             aria-label={t('search')}
                         >
-                            <Search size={18} className="text-primary" />
+                            <Search size={20} className="text-primary select-none hidden md:block" />
+                            <Search size={18} className="text-primary select-none md:hidden" />
                         </button>
                     </div>
                 </div>
@@ -179,27 +181,29 @@ export function SearchBar() {
 
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-[calc(100%+8px)] z-20 left-4 right-4 glass-card rounded-3xl p-2 shadow-3xl animate-in fade-in slide-in-from-top-2 duration-300">
-                    <ul className="space-y-0.5">
+                <div className="absolute top-[calc(100%+8px)] z-20 left-0 right-0 rounded-2xl md:rounded-[24px] p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-300 bg-white/70 dark:bg-zinc-900/80 backdrop-blur-3xl border border-white/20 dark:border-white/10">
+                    <ul className="space-y-1">
                         {suggestions.map((suggestion, index) => (
                             <li
                                 key={index}
                                 onClick={() => performSearch(suggestion)}
                                 onMouseEnter={() => setActiveIndex(index)}
                                 className={cn(
-                                    "px-4 py-3 rounded-xl cursor-pointer flex items-center gap-3 transition-all duration-200",
+                                    "px-4 py-3 md:py-3.5 rounded-xl md:rounded-[18px] cursor-pointer flex items-center gap-3 transition-all duration-300",
                                     index === activeIndex
-                                        ? "bg-primary/10 text-primary translate-x-1"
-                                        : "text-muted-foreground hover:bg-muted/30"
+                                        ? "bg-primary/10 text-primary translate-x-1.5"
+                                        : "text-black/80 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/5"
                                 )}
                             >
-                                <Search size={14} className={cn("shrink-0 transition-opacity", index === activeIndex ? "opacity-100" : "opacity-30")} />
-                                <span className="text-sm font-medium leading-none">{suggestion}</span>
+                                <Search size={15} className={cn("shrink-0 transition-all duration-300 select-none", index === activeIndex ? "opacity-100 scale-110" : "opacity-30")} />
+                                <span className="text-sm md:text-base lg:text-lg font-medium leading-none tracking-tight">{suggestion}</span>
                             </li>
                         ))}
                     </ul>
                 </div>
             )}
         </div>
+
+
     );
 }

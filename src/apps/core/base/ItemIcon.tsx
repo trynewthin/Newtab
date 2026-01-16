@@ -56,7 +56,7 @@ export function ItemIcon({
         // 1. System Icon
         if (isSystem && icon) {
             return (
-                <div style={contentStyle} className="flex items-center justify-center w-[85%] h-[85%]">
+                <div style={contentStyle} className="flex items-center justify-center w-[85%] h-[85%] select-none">
                     {renderSystemIcon(icon, "w-full h-full")}
                 </div>
             );
@@ -76,7 +76,7 @@ export function ItemIcon({
         // 3. Image
         if (imageSrc) {
             return (
-                <div style={contentStyle} className="w-[85%] h-[85%] flex items-center justify-center">
+                <div style={contentStyle} className="w-[85%] h-[85%] flex items-center justify-center select-none">
                     <img
                         src={imageSrc}
                         alt={title || "icon"}
@@ -94,7 +94,7 @@ export function ItemIcon({
     return (
         <div
             className={cn(
-                "relative overflow-hidden flex items-center justify-center transition-all bg-cover bg-center bg-no-repeat",
+                "relative overflow-hidden flex items-center justify-center transition-all bg-cover bg-center bg-no-repeat select-none",
                 isSystem && "text-muted-foreground/70",
                 className
             )}
@@ -109,7 +109,7 @@ export function ItemIcon({
 
             {/* 2. Fallback: Only if no icon AND no children (children might be content like in FolderItem) */}
             {!hasIconContent && !children && (
-                <div style={{ transform: `scale(${scale})` }} className="text-muted-foreground/20 flex items-center justify-center w-[85%] h-[85%]">
+                <div style={{ transform: `scale(${scale})` }} className="text-muted-foreground/20 flex items-center justify-center w-[85%] h-[85%] select-none">
                     {fallbackIcon || <Globe className="w-full h-full" />}
                 </div>
             )}

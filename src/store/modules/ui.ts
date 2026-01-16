@@ -3,7 +3,7 @@ import { create } from 'zustand';
 export type SystemDialogType = "settings" | "theme" | "add" | "icon-manager" | "pomodoro" | "todo" | "ai";
 
 interface UIState {
-    // 界面交互状�?
+    // 界面交互状态
     isEditing: boolean;
     selectedTagIds: string[];
     activeSystemDialog: SystemDialogType | null;
@@ -11,7 +11,7 @@ interface UIState {
     setEditing: (status: boolean) => void;
     toggleEditing: () => void;
 
-    // 选中态管�?
+    // 选中态管理
     toggleTagSelection: (id: string) => void;
     clearSelection: () => void;
 

@@ -6,12 +6,12 @@ import { HomeTools } from "@/components/home/HomeTools";
 export function HomePage() {
     return (
         <BasePage className="py-0 px-0 flex flex-col items-center" tools={<HomeTools />}>
-            {/* 1. 搜索区域 - 页面核心锚点 */}
+            {/* 1. 鎼滅储鍖哄煙 - 椤甸潰鏍稿績閿氱偣 */}
             <div className="w-full max-w-4xl mt-32 mb-2 shrink-0 px-4">
                 <SearchBar />
             </div>
 
-            {/* 2. 内容网格 - 主内容区 */}
+            {/* 2. 鍐呭缃戞牸 - 涓诲唴瀹瑰尯 */}
             <div className="w-full flex-1 min-h-0 overflow-hidden">
                 <AppGrid />
             </div>

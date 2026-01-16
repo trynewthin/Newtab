@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { storageRegistry } from './registry';
 
-// 确保 store/index 被加载，从而触发注册逻辑
-// 虽然 App.tsx 可能会通过其他路径使用 store，但显式导入确保 side-effects 执行
+// 纭繚 store/index 琚姞杞斤紝浠庤€岃Е鍙戞敞鍐岄€昏緫
+// 铏界劧 App.tsx 鍙兘浼氶€氳繃鍏朵粬璺緞浣跨敤 store锛屼絾鏄惧紡瀵煎叆纭繚 side-effects 鎵ц
 import '@/store';
 
 /**

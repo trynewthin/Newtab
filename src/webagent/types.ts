@@ -39,7 +39,7 @@ export interface ToolCall {
 }
 
 // ============================================
-// 模型与工具配�?
+// 模型与工具配置
 // ============================================
 
 export interface ModelConfig {
@@ -52,9 +52,9 @@ export interface ModelConfig {
     temperature?: number;
     maxTokens?: number;
 
-    // 🔥 工具箱总开关与子开�?
+    // 🔥 工具箱总开关与子开关
     visionEnabled: boolean; // 总开关：是否启用视觉代理功能
-    enabledTools: string[]; // 子开关：具体开启哪些工�?
+    enabledTools: string[]; // 子开关：具体开启哪些工具
 }
 
 export interface ChatSession {

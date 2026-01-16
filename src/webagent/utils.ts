@@ -2,8 +2,8 @@ import type { Message } from './types';
 import { getTextContent } from './types';
 
 /**
- * 准备发送给 API 的消息格�?
- * 特点：支持处理视觉代理返回的复杂结果 (包含文字地图和截�?
+ * 鍑嗗鍙戦€佺粰 API 鐨勬秷鎭牸寮?
+ * 鐗圭偣锛氭敮鎸佸鐞嗚瑙変唬鐞嗚繑鍥炵殑澶嶆潅缁撴灉 (鍖呭惈鏂囧瓧鍦板浘鍜屾埅鍥?
  */
 export function prepareApiMessages(
     history: Message[],
@@ -15,7 +15,7 @@ export function prepareApiMessages(
     for (let i = 0; i < history.length; i++) {
         const msg = history[i];
 
-        // 过滤空消�?
+        // 杩囨护绌烘秷鎭?
         if (msg.role === 'assistant' && !msg.content && (!msg.tool_calls || msg.tool_calls.length === 0)) {
             continue;
         }
@@ -26,14 +26,14 @@ export function prepareApiMessages(
             apiMsg.tool_call_id = msg.tool_call_id;
             apiMsg.name = msg.tool_name || 'unknown';
 
-            // 🔥 核心识别：处理视觉代理的结果
+            // 馃敟 鏍稿績璇嗗埆锛氬鐞嗚瑙変唬鐞嗙殑缁撴灉
             const rawContent = msg.content;
             if (rawContent && typeof rawContent === 'object' && rawContent.__type === 'vision_result') {
-                // 将视觉模型分析出的文本地图作为工具回�?
+                // 灏嗚瑙夋ā鍨嬪垎鏋愬嚭鐨勬枃鏈湴鍥句綔涓哄伐鍏峰洖鎵?
                 apiMsg.content = rawContent.finalResult;
                 messages.push(apiMsg);
 
-                // 🔥 感官同步：插入一张隐藏的 user 消息，让主模型也能“亲眼看见”这张图
+                // 馃敟 鎰熷畼鍚屾锛氭彃鍏ヤ竴寮犻殣钘忕殑 user 娑堟伅锛岃涓绘ā鍨嬩篃鑳解€滀翰鐪肩湅瑙佲€濊繖寮犲浘
                 messages.push({
                     role: 'user',
                     content: [
@@ -60,7 +60,7 @@ export function prepareApiMessages(
         messages.push(apiMsg);
     }
 
-    // 合并连续同角色消�?
+    // 鍚堝苟杩炵画鍚岃鑹叉秷鎭?
     const consolidated: any[] = [];
     for (const msg of messages) {
         if (consolidated.length === 0) {

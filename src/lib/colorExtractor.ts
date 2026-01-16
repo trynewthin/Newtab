@@ -1,6 +1,6 @@
 /**
- * 从图片中提取主色�?
- * 使用颜色频率统计，返回出现最多的颜色
+ * 浠庡浘鐗囦腑鎻愬彇涓昏壊璋?
+ * 浣跨敤棰滆壊棰戠巼缁熻锛岃繑鍥炲嚭鐜版渶澶氱殑棰滆壊
  */
 export function extractDominantColor(img: HTMLImageElement, _isDarkMode?: boolean): string {
     const canvas = document.createElement('canvas');
@@ -95,8 +95,8 @@ export function extractDominantColor(img: HTMLImageElement, _isDarkMode?: boolea
 }
 
 /**
- * 通过 fetch 加载图片并转换为 data URL
- * 用于绕过 CORS 限制
+ * 閫氳繃 fetch 鍔犺浇鍥剧墖骞惰浆鎹负 data URL
+ * 鐢ㄤ簬缁曡繃 CORS 闄愬埗
  */
 export async function loadImageAsDataUrl(url: string): Promise<string> {
     try {

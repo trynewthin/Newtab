@@ -29,10 +29,10 @@ export interface SystemAppItem extends BaseItem {
     icon?: string; // App 图标，通常由注册表提供默认值，但也允许覆盖
 }
 
-// 3. Folder (文件�?
+// 3. Folder (文件夹)
 export interface FolderItem extends BaseItem {
     kind: 'folder';
-    children: (WebTagItem | SystemAppItem)[]; // Folder 通常不嵌�?Folder
+    children: (WebTagItem | SystemAppItem)[]; // Folder 通常不嵌套 Folder
     icon?: string; // Folder icon preview (usually composed)
 }
 

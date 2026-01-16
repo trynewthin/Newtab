@@ -7,21 +7,21 @@ export interface ItemIconProps extends React.HTMLAttributes<HTMLDivElement> {
     // Data Source
     title?: string;
     icon?: string;
-    iconDataUrl?: string; // 优先使用
+    iconDataUrl?: string; // 浼樺厛浣跨敤
     backgroundColor?: string;
     isSystem?: boolean;
-    scale?: number; // 用户定义的缩放比�?
+    scale?: number; // 鐢ㄦ埛瀹氫箟鐨勭缉鏀炬瘮渚?
 
     // Appearance
-    // className 已经�?HTMLAttributes 中包�?
-    // style 已经�?HTMLAttributes 中包�?
+    // className 宸茬粡鍦?HTMLAttributes 涓寘鍚?
+    // style 宸茬粡鍦?HTMLAttributes 涓寘鍚?
 
-    // Custom Content Override (例如 Folder �?Grid)
+    // Custom Content Override (渚嬪 Folder 鐨?Grid)
     children?: React.ReactNode;
 
     // Image Handling
-    fallbackIcon?: React.ReactNode; // 加载失败或无图标时显�?
-    active?: boolean; // 是否处于激�?选中状�?
+    fallbackIcon?: React.ReactNode; // 鍔犺浇澶辫触鎴栨棤鍥炬爣鏃舵樉绀?
+    active?: boolean; // 鏄惁澶勪簬婵€娲?閫変腑鐘舵€?
 }
 
 export function ItemIcon({
@@ -36,18 +36,18 @@ export function ItemIcon({
     children,
     fallbackIcon,
     active,
-    ...props // 透传剩余�?HTML 属�?(onClick, role, tabIndex �?
+    ...props // 閫忎紶鍓╀綑鐨?HTML 灞炴€?(onClick, role, tabIndex 绛?
 }: ItemIconProps) {
 
     // Resolve Image Source
-    // 逻辑：iconDataUrl (Cache) > icon (URL/Str) > Favicon Service Fallback
+    // 閫昏緫锛歩conDataUrl (Cache) > icon (URL/Str) > Favicon Service Fallback
     const imageSrc = useMemo(() => {
         if (iconDataUrl && !iconDataUrl.startsWith("idb://")) return iconDataUrl; // IDB should be resolved by parent
         if (icon && icon.length >= 4) return icon;
         return "";
     }, [icon, iconDataUrl]);
 
-    // 判断是否有有效的图标内容
+    // 鍒ゆ柇鏄惁鏈夋湁鏁堢殑鍥炬爣鍐呭
     const hasIconContent = Boolean((isSystem && icon) || (icon && icon.length < 4) || imageSrc);
 
     const renderIconContent = () => {

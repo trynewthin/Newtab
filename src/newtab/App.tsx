@@ -4,7 +4,7 @@ import { ContentLayer } from "./layers/ContentLayer";
 import { FloatLayer } from "./layers/FloatLayer";
 
 export function App() {
-    // 监听 LocalStorage 变化并同步状�?(解决 Popup 修改�?Newtab 不刷新问�?
+    // 鐩戝惉 LocalStorage 鍙樺寲骞跺悓姝ョ姸鎬?(瑙ｅ喅 Popup 淇敼鍚?Newtab 涓嶅埛鏂伴棶棰?
     useStorageConnection();
 
     return (

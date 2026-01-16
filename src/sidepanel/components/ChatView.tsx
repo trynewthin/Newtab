@@ -15,8 +15,8 @@ export function ChatView({ messages, activeModel, isLoading, className }: ChatVi
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // 智能滚动：如果用户已经翻上去看历史了，就不要强制滚到底部，除非是新消息刚发出�?
-        // 这里简化处理：始终平滑滚动到底�?
+        // 智能滚动：如果用户已经翻上去看历史了，就不要强制滚到底部，除非是新消息刚发出
+        // 这里简化处理：始终平滑滚动到底部
         const timeout = setTimeout(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }, 100);

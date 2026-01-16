@@ -63,8 +63,8 @@ export const APP_METADATA = {
         avatar: "https://github.com/trynewthin.png"
     },
     changelog: [
-        { date: "2026-01-15", content: "新增搜索引擎自定义功能，深度集成 Favicon 抓取�? },
-        { date: "2026-01-14", content: "重构实况活动卡片架构，提升组件灵活性�? },
-        { date: "2026-01-12", content: "优化主题自定义逻辑，支持更多纯色主题�? }
+        { date: "2026-01-15", content: "新增搜索引擎自定义功能，深度集成 Favicon 抓取。" },
+        { date: "2026-01-14", content: "重构实况活动卡片架构，提升组件灵活性。" },
+        { date: "2026-01-12", content: "优化主题自定义逻辑，支持更多纯色主题。" }
     ]
 };

@@ -42,7 +42,7 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
         zIndex: isOverlay ? 100 : undefined,
     };
 
-    // 加载子项的图�?
+    // 加载子项的图标
     useEffect(() => {
         const children = item.children || [];
         const icons = children.slice(0, 4).map(child => {

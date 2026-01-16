@@ -1,6 +1,6 @@
 /**
- * Vision Agent - CDP 底层核心通讯
- * 处理与浏览器的静默交互、截图和脚本执行
+ * Vision Agent - CDP 搴曞眰鏍稿績閫氳
+ * 澶勭悊涓庢祻瑙堝櫒鐨勯潤榛樹氦浜掋€佹埅鍥惧拰鑴氭湰鎵ц
  */
 
 export async function getActiveTab() {
@@ -29,7 +29,7 @@ export async function sendCDPCommand(tabId: number, method: string, params: any 
 }
 
 /**
- * 抓取当前视口截图
+ * 鎶撳彇褰撳墠瑙嗗彛鎴浘
  */
 export async function captureViewport(windowId: number): Promise<string> {
     return new Promise((resolve, reject) => {

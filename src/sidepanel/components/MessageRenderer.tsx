@@ -11,7 +11,7 @@ interface MessageRendererProps {
 }
 
 /**
- * 复制按钮组件 - 处理剪贴板逻辑与反�?
+ * 复制按钮组件 - 处理剪贴板逻辑与反馈
  */
 function CopyButton({ content }: { content: any }) {
     const [copied, setCopied] = useState(false);
@@ -80,21 +80,21 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
     };
 
     /**
-     * 渲染单条消息的内容（支持多模�?+ Markdown + 思考提取）
+     * 渲染单条消息的内容（支持多模态 + Markdown + 思考提取）
      */
     const renderMessageContent = (content: any, isAi: boolean = false) => {
         if (!content) return null;
 
-        // 处理字符串格�?(支持 Markdown)
+        // 处理字符串格式 (支持 Markdown)
         if (typeof content === "string") {
             let displayContent = content;
             let extractedReasoning = "";
 
             // 🔥 自动解析 <think> 标签 (适配 DeepSeek API 原始返回形式)
             if (isAi && content.includes('<think>') && content.includes('</think>')) {
-                // 通常格式�? "" | "thinking..." | "actual content"
-                // 但也可能�? "actual" | "thinking" | "actual"
-                // 这里的处理逻辑是把第一�?<think> 块提取出来，其余作为正文
+                // 通常格式是 "" | "thinking..." | "actual content"
+                // 但也可能是 "actual" | "thinking" | "actual"
+                // 这里的处理逻辑是把第一个 <think> 块提取出来，其余作为正文
                 const thinkMatch = content.match(/<think>([\s\S]*?)<\/think>/);
                 if (thinkMatch) {
                     extractedReasoning = thinkMatch[1].trim();
@@ -192,7 +192,7 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
     };
 
     /**
-     * UI 渲染�?
+     * UI 渲染器
      */
     const renderContent = useMemo(() => {
         const elements: React.ReactNode[] = [];
@@ -214,7 +214,7 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                     toolCount += m.tool_calls.length;
                     isThinking = false;
                 }
-                // 如果没有工具调用但消息有文本内容，将其视为“思考标题�?
+                // 如果没有工具调用但消息有文本内容，将其视为“思考标题”
                 else if (m.role === 'assistant' && typeof m.content === 'string' && m.content.trim() && label === "Thinking...") {
                     label = m.content.trim().split('\n')[0].slice(0, 40);
                     if (label.length >= 40) label += "...";

@@ -1,5 +1,5 @@
 /**
- * Vision Agent - 工具逻辑与模型委�?(严格 JSON �?
+ * Vision Agent - 宸ュ叿閫昏緫涓庢ā鍨嬪鎵?(涓ユ牸 JSON 鐗?
  */
 
 import type { ToolDefinition, ModelConfig } from '../types';
@@ -50,7 +50,7 @@ export const VISION_TOOL_NAMES = VISION_TOOLS.map(t => t.function.name);
 let idToSelectorMap: Map<number, string> = new Map();
 
 /**
- * 提取 JSON 字符串（处理可能存在�?Markdown 包裹�?
+ * 鎻愬彇 JSON 瀛楃涓诧紙澶勭悊鍙兘瀛樺湪鐨?Markdown 鍖呰９锛?
  */
 function extractJson(text: string): string {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -139,7 +139,7 @@ export async function executeVisionTool(toolName: string, toolArgs: any, config?
 
                 setStatus('analyzing');
 
-                // 🔥 强制 JSON 输出指令
+                // 馃敟 寮哄埗 JSON 杈撳嚭鎸囦护
                 const visionPrompt = `You are a UI Architect.
 Analyze the screenshot and the list of IDs. 
 
@@ -170,7 +170,7 @@ JSON Structure:
                             }
                         ],
                         temperature: 0,
-                        // 某些模型支持强行指定 JSON 模式
+                        // 鏌愪簺妯″瀷鏀寔寮鸿鎸囧畾 JSON 妯″紡
                         response_format: { type: "json_object" }
                     })
                 });
@@ -178,15 +178,15 @@ JSON Structure:
                 const data = await resp.json();
                 const rawResponse = data?.choices?.[0]?.message?.content || "{}";
 
-                // 🔥 强制清洗结果，只保留 JSON 部分
+                // 馃敟 寮哄埗娓呮礂缁撴灉锛屽彧淇濈暀 JSON 閮ㄥ垎
                 const cleanJson = extractJson(rawResponse);
 
                 setStatus('success');
                 return {
                     __type: "vision_result",
                     input: { screenshot, domCount: domItems.length, domTree: domItems },
-                    rawResponse, // 保留原始响应�?Debug
-                    finalResult: cleanJson // 交付给主 Agent 的纯净 JSON
+                    rawResponse, // 淇濈暀鍘熷鍝嶅簲渚?Debug
+                    finalResult: cleanJson // 浜や粯缁欎富 Agent 鐨勭函鍑€ JSON
                 };
             }
 

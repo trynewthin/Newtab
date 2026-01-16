@@ -51,11 +51,11 @@ const BASE_AGENT_PROMPT = `你是一个强大的 Web 助手。请根据用户的
 
 const VISION_TOOL_PROMPT = `
 ## 视觉代理功能 (VISION ENABLED):
-你拥有“视觉双眼”，可以查看并操作网页�?
-1. 首先调用 \`get_semantic_map\` 来获取当前页面的实体�?ID 映射�?
-2. 根据返回的实体信息（如视频卡片、按钮），使�?\`click_by_id\` 进行精准操作�?
-3. 如果需要翻页或查看更多内容，使�?\`scroll\` 工具�?
-4. 如果页面发生滚动或内容变化，请务必重新调�?\`get_semantic_map\` 以更新你的视觉感知�?
+你拥有“视觉双眼”，可以查看并操作网页：
+1. 首先调用 \`get_semantic_map\` 来获取当前页面的实体与 ID 映射。
+2. 根据返回的实体信息（如视频卡片、按钮），使用 \`click_by_id\` 进行精准操作。
+3. 如果需要翻页或查看更多内容，使用 \`scroll\` 工具。
+4. 如果页面发生滚动或内容变化，请务必重新调用 \`get_semantic_map\` 以更新你的视觉感知。
 `;
 
 const DEFAULT_MODEL: ModelConfig = {
@@ -64,7 +64,7 @@ const DEFAULT_MODEL: ModelConfig = {
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-4o-mini',
-    systemPrompt: '请以专业友好的中文回答�?,
+    systemPrompt: '请以专业友好的中文回答。',
     temperature: 0.1,
     visionEnabled: true, // 默认开启视觉包
     enabledTools: ['get_semantic_map', 'click_by_id', 'scroll']
@@ -192,7 +192,7 @@ export const useAiStore = create<AiState>()(
                 try { await idbSet(sessionId, [...state.messages]); } catch (e) { }
                 set(s => {
                     let newTitle = undefined;
-                    const session = s.sessions.find(abc => abc.id === sessionId);
+                    const session = s.sessions.find(xyz => xyz.id === sessionId);
                     if (session && (session.title === 'New Chat') && msg.role === 'user') {
                         const text = typeof msg.content === 'string' ? msg.content : getTextContent(msg.content);
                         if (text) newTitle = text.slice(0, 30);

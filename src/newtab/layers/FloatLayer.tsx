@@ -3,7 +3,7 @@ export function FloatLayer() {
         <div className="absolute inset-0 pointer-events-none">
             {/* Global floating elements from Layout or Portals can go here */}
 
-            {/* 这里后续可以放置左下角设置齿轮、右下角信息等浮动元�?*/}
+            {/* 杩欓噷鍚庣画鍙互鏀剧疆宸︿笅瑙掕缃娇杞€佸彸涓嬭淇℃伅绛夋诞鍔ㄥ厓绱?*/}
         </div>
     );
 }

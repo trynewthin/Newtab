@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /**
- * 视觉分析细分状�?
+ * 视觉分析细分状态
  */
 export type VisionStatus = 'idle' | 'capturing' | 'analyzing' | 'success' | 'error';
 
@@ -13,7 +13,7 @@ interface VisionState {
 }
 
 /**
- * 视觉模块内部 Hook - �?UI 订阅进度
+ * 视觉模块内部 Hook - 供 UI 订阅进度
  */
 export const useVisionState = create<VisionState>((set, get) => ({
     status: 'idle',

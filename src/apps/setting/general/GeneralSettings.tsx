@@ -82,7 +82,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
     // Language options with display names
     const languageOptions = {
-        zh: '简体中�?,
+        zh: '简体中文',
         en: 'English'
     };
 
@@ -256,7 +256,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                     </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="zh">简体中�?/SelectItem>
+                                    <SelectItem value="zh">简体中文</SelectItem>
                                     <SelectItem value="en">English</SelectItem>
                                 </SelectContent>
                             </Select>

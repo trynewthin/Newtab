@@ -11,5 +11,5 @@ export { useAiStore } from './store';
 // Hook 导出
 export { useAiChat } from './hooks/useAiChat';
 
-// 视觉代理模块导出 (统一归口�?vision)
+// 视觉代理模块导出 (统一归口到 vision)
 export * from './vision';

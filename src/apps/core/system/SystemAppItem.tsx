@@ -6,7 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 export interface SystemAppItemProps {
     id: string; // 用于 DND
     title: string;
-    icon: string; // 图标资源路径�?ID
+    icon: string; // 图标资源路径或 ID
     onClick: () => void;
 
     // DND & Interaction states
@@ -75,7 +75,7 @@ export function SystemAppItem({
                     icon={icon}
                     isSystem={true} // 告诉 ItemIcon 这是一个系统应用，它会处理系统图标的渲染逻辑
                     scale={1.5} // 优化系统图标展示比例
-                    // 系统 App 通常使用透明背景或特定的应用背景，这里暂时保持透明或默�?
+                    // 系统 App 通常使用透明背景或特定应用背景，这里暂时保持透明或默认
                     backgroundColor="transparent"
                     className={cn(
                         "w-14 h-14 rounded-2xl shadow-sm hover:shadow-md transition-all",

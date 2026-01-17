@@ -51,9 +51,10 @@ export interface ModelConfig {
     systemPrompt?: string;
     temperature?: number;
     maxTokens?: number;
+    searchEngine?: string; // 🔥 搜索引擎配置，例如：https://www.google.com/search?q=%s
 
     // 🔥 工具箱总开关与子开关
-    visionEnabled: boolean; // 总开关：是否启用视觉代理功能
+    visionEnabled: boolean; // 总开关：是否启用网页代理功能
     enabledTools: string[]; // 子开关：具体开启哪些工具
 }
 

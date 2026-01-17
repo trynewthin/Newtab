@@ -47,27 +47,56 @@ interface AiState {
     hydrateSession: () => Promise<void>;
 }
 
-const BASE_AGENT_PROMPT = `你是一个强大的 Web 助手。请根据用户的需求，选择合适的工具来完成任务。`;
+const BASE_AGENT_PROMPT = `你是一个强大的 Web 助手。请根据用户的需求，选择合适的工具来完成任务。
 
-const VISION_TOOL_PROMPT = `
-## 视觉代理功能 (VISION ENABLED):
-你拥有“视觉双眼”，可以查看并操作网页：
-1. 首先调用 \`get_semantic_map\` 来获取当前页面的实体与 ID 映射。
-2. 根据返回的实体信息（如视频卡片、按钮），使用 \`click_by_id\` 进行精准操作。
-3. 如果需要翻页或查看更多内容，使用 \`scroll\` 工具。
-4. 如果页面发生滚动或内容变化，请务必重新调用 \`get_semantic_map\` 以更新你的视觉感知。
+## 开始前判断（必须遵循，内部完成）
+1. 明确用户目标与所需操作。
+2. 判断当前页面是否匹配任务。
+3. 判断能否在当前页面完成；若不能，再进行澄清或导航建议。
+
+## 任务流程（必须遵循，输出需自然简洁）
+1. 目标含糊时先澄清。
+2. 简短计划后执行。
+3. 关键动作后校验页面状态。
+4. 完成后简要总结。
+
+## 工具调用原则
+- 默认先读取页面结构（get_accessibility_tree），除非用户明确要求直接导航。
+- 只有在页面内无法完成目标时，才使用 search_web。
+- 执行关键操作前先确认目标元素存在（如消息输入框/发送按钮）。
+`;
+
+const WEB_AGENT_TOOL_PROMPT = `
+## 网页操作能力 (WEB AGENT ENABLED):
+你可以查看并操作当前浏览器标签页，遵循以下策略：
+
+### 感知策略 (Text-First, Vision-Fallback):
+1. **首选**: 调用 \`get_accessibility_tree\` 获取当前视口的文本语义树。
+2. **备选**: 仅当文本树不足以理解页面（如纯图标按钮、图表）时，才调用 \`capture_screenshot\`。
+
+### 导航与搜索:
+1. 使用 \`navigate_to\` 直接跳转到已知 URL。
+2. 使用 \`search_web\` 利用预设的搜索引擎查找信息。
+
+### 操作规则:
+1. 使用 \`click_by_id\` 点击元素，ID 来自语义树。
+2. 使用 \`type_text\` 向输入框输入文字。
+3. 使用 \`scroll\` 滚动页面查看更多内容。
+4. **重要**: 每次跳转或操作后，你必须再次调用 \`get_accessibility_tree\` 来刷新你的感知。
+5. **表达风格**: 对外输出保持自然简洁，不要机械列点；仅在必要时简短说明动作。
 `;
 
 const DEFAULT_MODEL: ModelConfig = {
     id: 'default',
-    name: 'Vision Agent Model',
+    name: 'Web Agent Model',
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-4o-mini',
     systemPrompt: '请以专业友好的中文回答。',
     temperature: 0.1,
-    visionEnabled: true, // 默认开启视觉包
-    enabledTools: ['get_semantic_map', 'click_by_id', 'scroll']
+    visionEnabled: true,
+    searchEngine: 'https://www.google.com/search?q=%s',
+    enabledTools: ['navigate_to', 'search_web', 'get_accessibility_tree', 'click_by_id', 'type_text', 'scroll', 'capture_screenshot']
 };
 
 export const useAiStore = create<AiState>()(
@@ -84,20 +113,16 @@ export const useAiStore = create<AiState>()(
 
             getDynamicSystemPrompt: (config: ModelConfig) => {
                 let prompt = BASE_AGENT_PROMPT;
-
-                // 🔥 只有总开关开启时，才注入任何视觉指令
                 if (config.visionEnabled) {
                     const enabledTools = config.enabledTools || [];
-                    const hasVision = enabledTools.some(t =>
-                        ['get_semantic_map', 'click_by_id', 'scroll'].includes(t)
+                    const hasWebAgent = enabledTools.some(t =>
+                        ['get_accessibility_tree', 'click_by_id', 'scroll', 'type_text', 'capture_screenshot', 'navigate_to', 'search_web'].includes(t)
                     );
-                    if (hasVision) prompt += VISION_TOOL_PROMPT;
+                    if (hasWebAgent) prompt += WEB_AGENT_TOOL_PROMPT;
                 }
-
                 if (config.systemPrompt) {
                     prompt += `\n## 用户追加指令:\n${config.systemPrompt}`;
                 }
-
                 return prompt;
             },
 

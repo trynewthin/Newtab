@@ -2,8 +2,8 @@ import type { Message } from './types';
 import { getTextContent } from './types';
 
 /**
- * 鍑嗗鍙戦€佺粰 API 鐨勬秷鎭牸寮?
- * 鐗圭偣锛氭敮鎸佸鐞嗚瑙変唬鐞嗚繑鍥炵殑澶嶆潅缁撴灉 (鍖呭惈鏂囧瓧鍦板浘鍜屾埅鍥?
+ * 准备发送给 API 的消息格式
+ * 特点：支持处理 Web Agent 返回的复杂结果 (包含截图和视觉数据)
  */
 export function prepareApiMessages(
     history: Message[],
@@ -15,7 +15,7 @@ export function prepareApiMessages(
     for (let i = 0; i < history.length; i++) {
         const msg = history[i];
 
-        // 杩囨护绌烘秷鎭?
+        // 过滤空消息
         if (msg.role === 'assistant' && !msg.content && (!msg.tool_calls || msg.tool_calls.length === 0)) {
             continue;
         }
@@ -26,14 +26,29 @@ export function prepareApiMessages(
             apiMsg.tool_call_id = msg.tool_call_id;
             apiMsg.name = msg.tool_name || 'unknown';
 
-            // 馃敟 鏍稿績璇嗗埆锛氬鐞嗚瑙変唬鐞嗙殑缁撴灉
             const rawContent = msg.content;
-            if (rawContent && typeof rawContent === 'object' && rawContent.__type === 'vision_result') {
-                // 灏嗚瑙夋ā鍨嬪垎鏋愬嚭鐨勬枃鏈湴鍥句綔涓哄伐鍏峰洖鎵?
+
+            // 🔥 处理新的 capture_screenshot 工具返回
+            if (rawContent && typeof rawContent === 'object' && rawContent.__type === 'vision_screenshot') {
+                // 返回简单文本给 tool
+                apiMsg.content = rawContent.message;
+                messages.push(apiMsg);
+
+                // 🔥 插入截图作为用户消息，让模型能"看到"
+                messages.push({
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: `[SYSTEM] Here is the screenshot from capture_screenshot. Analyze it to understand the page visually.` },
+                        { type: 'image_url', image_url: { url: rawContent.screenshot, detail: 'auto' } }
+                    ]
+                });
+                continue;
+            }
+            // 兼容旧的 vision_result 类型 (已废弃，保留向后兼容)
+            else if (rawContent && typeof rawContent === 'object' && rawContent.__type === 'vision_result') {
                 apiMsg.content = rawContent.finalResult;
                 messages.push(apiMsg);
 
-                // 馃敟 鎰熷畼鍚屾锛氭彃鍏ヤ竴寮犻殣钘忕殑 user 娑堟伅锛岃涓绘ā鍨嬩篃鑳解€滀翰鐪肩湅瑙佲€濊繖寮犲浘
                 messages.push({
                     role: 'user',
                     content: [
@@ -60,7 +75,7 @@ export function prepareApiMessages(
         messages.push(apiMsg);
     }
 
-    // 鍚堝苟杩炵画鍚岃鑹叉秷鎭?
+    // 合并连续同角色消息
     const consolidated: any[] = [];
     for (const msg of messages) {
         if (consolidated.length === 0) {

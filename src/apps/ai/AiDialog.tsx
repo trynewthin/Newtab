@@ -3,8 +3,8 @@ import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/components/shar
 import { useTranslation } from "react-i18next";
 import { MessageSquare, Plus, Trash2, Bot } from "lucide-react";
 import { useAiStore, useAiChat } from "@/webagent";
-import { ChatView } from "@/sidepanel/components/ChatView";
-import { ChatInput } from "@/sidepanel/components/ChatInput";
+import { ChatView } from "./components/ChatView";
+import { ChatInput } from "./components/ChatInput";
 import { cn } from "@/lib/utils";
 
 interface AiDialogProps {

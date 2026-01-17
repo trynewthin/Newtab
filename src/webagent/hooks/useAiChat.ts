@@ -27,6 +27,7 @@ export function useAiChat() {
     const stopGeneration = useCallback(() => {
         stopSignalRef.current = true;
         abortControllerRef.current?.abort();
+        abortControllerRef.current = null;
         setLoading(false);
     }, [setLoading]);
 
@@ -42,6 +43,8 @@ export function useAiChat() {
             return enabledToolNames.includes(t.function.name);
         });
 
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
         const response = await fetch(`${config.baseUrl}/chat/completions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.apiKey}` },
@@ -51,8 +54,10 @@ export function useAiChat() {
                 temperature: config.temperature ?? 0.1,
                 tools: activeTools.length > 0 ? activeTools : undefined,
                 tool_choice: activeTools.length > 0 ? "auto" : undefined
-            })
+            }),
+            signal: controller.signal
         });
+        abortControllerRef.current = null;
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
         return await response.json();
     };
@@ -75,6 +80,7 @@ export function useAiChat() {
                 step++;
                 const apiMessages = prepareApiMessages(useAiStore.getState().messages, systemPrompt);
                 const data = await callApi(apiMessages);
+                if (stopSignalRef.current) break;
                 const msg = data.choices?.[0]?.message;
                 if (!msg) break;
 
@@ -88,6 +94,7 @@ export function useAiChat() {
                 if (!msg.tool_calls) break;
 
                 for (const tool of msg.tool_calls) {
+                    if (stopSignalRef.current) break;
                     const toolName = tool.function.name;
                     const toolArgs = JSON.parse(tool.function.arguments);
 
@@ -115,6 +122,7 @@ export function useAiChat() {
                 }
             }
         } catch (e: any) {
+            if (e?.name === 'AbortError' || stopSignalRef.current) return;
             await addMessage({ role: 'system', content: `❌ Error: ${e.message}` });
         } finally {
             setLoading(false);

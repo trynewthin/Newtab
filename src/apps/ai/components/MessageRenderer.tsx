@@ -10,9 +10,6 @@ interface MessageRendererProps {
     activeModel?: ModelConfig;
 }
 
-/**
- * 复制按钮组件
- */
 function CopyButton({ content }: { content: any }) {
     const [copied, setCopied] = useState(false);
     const handleCopy = async () => {
@@ -119,9 +116,6 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
         return null;
     };
 
-    /**
-     * 单个步骤行动渲染组件 - 移除左侧图标，隐藏内容结果
-     */
     const ActionLine = ({ label, isFinished, id }: { label: string, isFinished: boolean, id: string }) => (
         <div key={id} className={cn("w-full animate-in slide-in-from-left-2 duration-300 my-0.5", isFinished ? "opacity-50" : "opacity-100")}>
             <div className="flex items-center justify-between gap-4 py-1.5 px-1 border-b border-border/5">
@@ -147,10 +141,8 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
             const isLast = i === messages.length - 1;
             const isActuallyFinished = !isLast || !isLoading;
 
-            // 特殊逻辑：跳过任务规划工具的视觉展示
             if (msg.tool_calls?.some((tc: any) => tc.function.name === 'set_task_plan') || msg.tool_name === 'set_task_plan') continue;
 
-            // 渲染工具调用 (Assistant 发起)
             if (msg.role === 'assistant' && msg.tool_calls) {
                 msg.tool_calls.forEach((tc, idx) => {
                     const label = tc.function.name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -174,7 +166,6 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                 continue;
             }
 
-            // 渲染执行结果 (仅保留特殊视觉内容，隐藏文字行)
             if (msg.role === 'tool') {
                 if (typeof msg.content === 'object' && msg.content?.__type === 'vision_screenshot') {
                     elements.push(
@@ -186,7 +177,6 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                 continue;
             }
 
-            // 渲染中间过程消息 (Assistant isIntermediate)
             if (msg.role === 'assistant' && msg.isIntermediate) {
                 const label = typeof msg.content === 'string' ? msg.content.trim().split('\n')[0].slice(0, 50) : "Thinking...";
                 elements.push(
@@ -200,7 +190,6 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                 continue;
             }
 
-            // 正常对话渲染
             if (msg.content || msg.role === 'user') {
                 elements.push(
                     <div key={`chat-${i}`} className={cn("flex flex-col gap-1.5 w-full animate-in fade-in slide-in-from-bottom-2 my-2", msg.role === 'user' ? "items-end" : "items-start")}>

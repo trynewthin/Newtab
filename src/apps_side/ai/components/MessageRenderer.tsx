@@ -77,17 +77,17 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                 return (
                     <>
                         {renderReasoningBlock(extractedReasoning)}
-                        <div className="prose prose-sm dark:prose-invert max-w-none ai-content">
+                        <div className="prose prose-sm max-w-none ai-content text-black">
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={{
-                                    p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed text-[15.5px] font-medium tracking-tight opacity-90 text-balance">{children}</p>,
+                                    p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed text-[15.5px] font-medium tracking-tight text-black text-balance">{children}</p>,
                                     ul: ({ children }) => <ul className="list-disc list-inside mb-3 ml-1 space-y-1.5">{children}</ul>,
                                     ol: ({ children }) => <ol className="list-decimal list-inside mb-3 ml-1 space-y-1.5">{children}</ol>,
                                     li: ({ children }) => <li className="text-[14.5px] leading-snug">{children}</li>,
-                                    code: ({ children }) => <code className="bg-secondary/50 px-1.5 py-0.5 rounded-md text-[13px] font-mono border border-border/10 text-primary/80">{children}</code>,
-                                    pre: ({ children }) => (<pre className="bg-secondary/30 p-3 rounded-xl overflow-x-auto my-3 border border-border/20 text-[13px] font-mono shadow-inner scrollbar-none text-foreground/90 font-medium">{children}</pre>),
-                                    blockquote: ({ children }) => (<blockquote className="border-l-4 border-primary/30 pl-4 py-1 italic text-muted-foreground my-2 bg-primary/5 rounded-lg">{children}</blockquote>),
+                                    code: ({ children }) => <code className="bg-black/5 px-1.5 py-0.5 rounded-md text-[13px] font-mono border border-black/10 text-black/80">{children}</code>,
+                                    pre: ({ children }) => (<pre className="bg-black/5 p-3 rounded-xl overflow-x-auto my-3 border border-black/10 text-[13px] font-mono shadow-inner scrollbar-none text-black/85 font-medium">{children}</pre>),
+                                    blockquote: ({ children }) => (<blockquote className="border-l-4 border-black/30 pl-4 py-1 italic text-black/70 my-2 bg-black/5 rounded-lg">{children}</blockquote>),
                                 }}
                             >
                                 {displayContent}
@@ -203,8 +203,13 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
             // 正常对话渲染
             if (msg.content || msg.role === 'user') {
                 elements.push(
-                    <div key={`chat-${i}`} className={cn("flex flex-col gap-1.5 w-full animate-in fade-in slide-in-from-bottom-2 my-2", msg.role === 'user' ? "items-end" : "items-start")}>
-                        <div className={cn("transition-all", msg.role === 'user' ? "max-w-[85%] bg-primary/95 text-primary-foreground px-4 py-2.5 rounded-2xl shadow-sm text-[14px] font-medium" : "max-w-full bg-transparent text-foreground/90 py-1")}>
+                    <div key={`chat-${i}`} className={cn("flex flex-col gap-1.5 w-full animate-in fade-in slide-in-from-bottom-2 my-2", msg.role === 'user' ? "items-end" : "items-start")}> 
+                        <div className={cn(
+                            "transition-all px-4 py-2.5 rounded-2xl text-[14px] font-medium",
+                            msg.role === 'user'
+                                ? "max-w-[85%] bg-black text-white shadow-sm"
+                                : "w-full bg-transparent text-black px-0 py-0"
+                        )}>
                             {msg.role === 'assistant' && (msg as any).reasoning_content && renderReasoningBlock((msg as any).reasoning_content)}
                             {renderMessageContent(msg.content, msg.role === 'assistant')}
                             {msg.role === 'assistant' && !msg.isIntermediate && <CopyButton content={msg.content} />}

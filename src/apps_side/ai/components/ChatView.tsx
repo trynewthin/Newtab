@@ -35,7 +35,11 @@ export function ChatView({ messages, activeModel, isLoading, className }: ChatVi
                 </div>
             )}
 
-            <MessageRenderer messages={messages} activeModel={activeModel} />
+            {messages.length > 0 && (
+                <div className="pt-16">
+                    <MessageRenderer messages={messages} activeModel={activeModel} />
+                </div>
+            )}
 
             {isLoading && (
                 <div className="pl-4 py-2 animate-pulse flex items-center gap-2 opacity-50">

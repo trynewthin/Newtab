@@ -12,6 +12,8 @@ interface HeaderProps {
     createSession: () => void;
     deleteSession: (id: string) => void;
     switchSession: (id: string) => void;
+    variant?: "solid" | "floating";
+    className?: string;
 }
 
 export function Header({
@@ -20,9 +22,12 @@ export function Header({
     currentSessionId,
     createSession,
     deleteSession,
-    switchSession
+    switchSession,
+    variant = "solid",
+    className
 }: HeaderProps) {
     const { t } = useTranslation();
+    const isFloating = variant === "floating";
 
     const handleExport = () => {
         const data = JSON.stringify(messages, null, 2);
@@ -36,9 +41,24 @@ export function Header({
     };
 
     return (
-        <div className="flex-none flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5">
+        <div
+            className={cn(
+                "flex-none flex items-center justify-between",
+                isFloating
+                    ? "h-10"
+                    : "px-4 py-3 bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5",
+                className
+            )}
+        >
             {/* Title / Brand - Modern Pill Style */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 rounded-xl border border-white/5 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+            <div
+                className={cn(
+                    "flex items-center gap-2",
+                    isFloating
+                        ? "h-10 px-3 rounded-full glass-button"
+                        : "px-3 py-1.5 bg-secondary/30 rounded-xl border border-white/5 shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+                )}
+            >
                 <MessageSquare size={13} strokeWidth={2.5} className="text-primary" />
                 <span className="text-[11px] font-black uppercase tracking-widest text-foreground">
                     {t('sys_ai')}
@@ -54,12 +74,16 @@ export function Header({
                     createSession={createSession}
                     deleteSession={deleteSession}
                     switchSession={switchSession}
+                    variant={variant}
                 />
 
                 {/* Export Button */}
                 <button
                     onClick={handleExport}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground/60 hover:text-foreground transition-all"
+                    className={cn(
+                        "flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-all",
+                        isFloating ? "w-10 h-10 rounded-full glass-button" : "w-8 h-8 rounded-lg hover:bg-secondary"
+                    )}
                     title={t('export')}
                 >
                     <Download size={15} />
@@ -75,6 +99,7 @@ interface SessionManagerProps {
     createSession: () => void;
     deleteSession: (id: string) => void;
     switchSession: (id: string) => void;
+    variant?: "solid" | "floating";
 }
 
 function SessionManager({
@@ -82,14 +107,21 @@ function SessionManager({
     currentSessionId,
     createSession,
     deleteSession,
-    switchSession
+    switchSession,
+    variant = "solid"
 }: SessionManagerProps) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = React.useState(false);
+    const isFloating = variant === "floating";
 
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground/60 hover:text-foreground transition-all">
+            <PopoverTrigger
+                className={cn(
+                    "flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-all",
+                    isFloating ? "w-10 h-10 rounded-full glass-button" : "w-8 h-8 rounded-lg hover:bg-secondary"
+                )}
+            >
                 <History size={15} />
             </PopoverTrigger>
             <PopoverContent align="end" className="w-[260px] p-3 bg-background/90 backdrop-blur-xl border-border/50 shadow-2xl rounded-2xl ring-1 ring-black/5">

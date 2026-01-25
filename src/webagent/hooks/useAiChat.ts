@@ -31,35 +31,44 @@ export function useAiChat() {
         setLoading(false);
     }, [setLoading]);
 
-    const callApi = async (reqMessages: any[]) => {
+    const callApi = async (reqMessages: any[], attempt = 1): Promise<any> => {
         const config = getActiveModelConfig();
         if (!config) throw new Error("No model configured");
 
         // 🔥 过滤已启用的工具
         const enabledToolNames = config.enabledTools || [];
-
-        const activeTools = ALL_TOOLS.filter(t => {
-            // 系统工具也需要在这个列表里
-            return enabledToolNames.includes(t.function.name);
-        });
+        const activeTools = ALL_TOOLS.filter(t => enabledToolNames.includes(t.function.name));
 
         const controller = new AbortController();
         abortControllerRef.current = controller;
-        const response = await fetch(`${config.baseUrl}/chat/completions`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.apiKey}` },
-            body: JSON.stringify({
-                model: config.model,
-                messages: reqMessages,
-                temperature: config.temperature ?? 0.1,
-                tools: activeTools.length > 0 ? activeTools : undefined,
-                tool_choice: activeTools.length > 0 ? "auto" : undefined
-            }),
-            signal: controller.signal
-        });
-        abortControllerRef.current = null;
-        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-        return await response.json();
+
+        try {
+            const response = await fetch(`${config.baseUrl}/chat/completions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.apiKey}` },
+                body: JSON.stringify({
+                    model: config.model,
+                    messages: reqMessages,
+                    temperature: config.temperature ?? 0.1,
+                    tools: activeTools.length > 0 ? activeTools : undefined,
+                    tool_choice: activeTools.length > 0 ? "auto" : undefined
+                }),
+                signal: controller.signal
+            });
+
+            if (!response.ok) {
+                // Retry for transient errors
+                if ([429, 500, 502, 503, 504].includes(response.status) && attempt < 3) {
+                    await new Promise(r => setTimeout(r, 1000 * attempt));
+                    return callApi(reqMessages, attempt + 1);
+                }
+                const errText = await response.text().catch(() => response.statusText);
+                throw new Error(`API Error: ${response.status} ${errText.slice(0, 50)}...`);
+            }
+            return await response.json();
+        } finally {
+            abortControllerRef.current = null;
+        }
     };
 
     const runAgentLoop = async (initialUserText?: string) => {

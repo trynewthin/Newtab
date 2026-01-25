@@ -1,7 +1,9 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Menu, X, type LucideIcon } from "lucide-react"
+import { type LucideIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons"
 
 export interface SidebarHeaderProps {
     title: React.ReactNode
@@ -37,7 +39,7 @@ export function SidebarHeader({
                         className="md:hidden p-2 rounded-lg hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-all shrink-0"
                         aria-label={t('open_menu')}
                     >
-                        <Menu size={20} />
+                        <HugeiconsIcon icon={Menu01Icon} size={20} strokeWidth={2.5} />
                     </button>
                 )}
 
@@ -68,10 +70,10 @@ export function SidebarHeader({
                 {onClose && (
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all flex items-center justify-center"
+                        className="w-8 h-8 rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all flex items-center justify-center group"
                         title={t('close')}
                     >
-                        <X size={18} />
+                        <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
                     </button>
                 )}
             </div>

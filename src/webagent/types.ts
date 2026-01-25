@@ -17,10 +17,24 @@ export interface ImageContent {
 
 export type MessageContent = TextContent | ImageContent;
 
+export interface VisionScreenshot {
+    __type: 'vision_screenshot';
+    message: string;
+    screenshot: string;
+}
+
+export interface VisionResult {
+    __type: 'vision_result';
+    finalResult: string;
+    input: { screenshot: string };
+}
+
+export type ComplexContent = VisionScreenshot | VisionResult | Record<string, unknown>;
+
 export interface Message {
     id?: string;
     role: 'user' | 'assistant' | 'system' | 'tool';
-    content: string | MessageContent[] | any;
+    content: string | MessageContent[] | ComplexContent;
     timestamp: number;
     tool_calls?: ToolCall[];
     tool_call_id?: string;

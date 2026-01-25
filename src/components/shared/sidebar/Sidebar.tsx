@@ -1,7 +1,9 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { PanelLeftClose, PanelLeftOpen, X, type LucideIcon } from "lucide-react"
+import { PanelLeftClose, PanelLeftOpen, type LucideIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Cancel01Icon } from "@hugeicons/core-free-icons"
 
 // 创建 Context 来下发侧边栏状态
 interface SidebarContextValue {
@@ -90,7 +92,7 @@ export function Sidebar({
                                 onClick={onCloseMobileMenu}
                                 className="p-1.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive md:hidden transition-all"
                             >
-                                <X size={20} />
+                                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} size={20} />
                             </button>
                         )}
                     </div>

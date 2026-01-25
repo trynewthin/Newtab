@@ -14,8 +14,10 @@ export const appearance = {
     reset_blur: "Reset Blur",
     reset_overlay: "Reset Overlay",
     solid_colors: "Solid Colors",
+    solid_colors_desc: "Simple and pure visual tones",
     add_custom: "Add Custom",
     gradients: "Gradients",
+    gradients_desc: "Beautiful multi-color transitions",
     primary_color_system: "Primary Color System",
     select_accent_color: "Select an accent color to apply throughout the interface.",
 };

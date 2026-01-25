@@ -86,4 +86,5 @@ export const ai = {
     search_failed_general: "Search failed",
     search_failed_localhost_hint: "Note: Localhost development may be blocked by CORS. Please load as an extension.",
     search_failed_general_hint: "Please try again in a moment or check your AI configuration.",
+    confirm_delete_model: "Are you sure you want to delete this model configuration?",
 };

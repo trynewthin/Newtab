@@ -14,8 +14,10 @@ export const appearance = {
     reset_blur: "重置模糊",
     reset_overlay: "重置遮罩",
     solid_colors: "纯色背景",
+    solid_colors_desc: "简单纯粹的视觉基调",
     add_custom: "管理颜色",
     gradients: "渐变背景",
+    gradients_desc: "精美的多色混合渐变",
     primary_color_system: "系统主题色彩",
     select_accent_color: "选择一个基础色调，将应用到整个界面的视觉元素中。",
 };

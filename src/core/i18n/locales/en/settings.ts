@@ -1,4 +1,6 @@
 export const settings = {
+    general: "General",
+    features: "Features",
     general_settings: "General",
     general_settings_desc: "Manage system theme, language, search engine, and data.",
     theme_mode: "Theme Mode",
@@ -12,7 +14,9 @@ export const settings = {
     add_custom_engine: "Add Custom Engine",
     delete_custom_engine: "Delete Custom Engine",
     engine_name: "Engine Name",
+    engine_name_placeholder: "e.g. Google",
     engine_url: "Search URL (use %s for query)",
+    engine_url_placeholder: "https://www.google.com/search?q=%s",
     custom_engines: "Custom Search Engines",
     data_management: "Full Data Management",
     data_management_desc: "Backup and restore all your tags, todos, settings, and AI history in a compressed (.ntb) format.",

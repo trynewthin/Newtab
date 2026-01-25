@@ -87,4 +87,5 @@ export const ai = {
     search_failed_general: "搜索失败",
     search_failed_localhost_hint: "注意：Localhost 开发环境可能会被 CORS 拦截，请作为插件加载。",
     search_failed_general_hint: "请稍后再试，或检查您的 AI 配置。",
+    confirm_delete_model: "确定删除此模型配置吗？",
 };

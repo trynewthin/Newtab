@@ -1,4 +1,6 @@
 export const settings = {
+    general: "常规",
+    features: "功能",
     general_settings: "常规设置",
     general_settings_desc: "管理系统主题、语言、搜索引擎以及数据。",
     theme_mode: "外观主题",
@@ -12,7 +14,9 @@ export const settings = {
     add_custom_engine: "添加自定义引擎",
     delete_custom_engine: "删除自定义引擎",
     engine_name: "引擎名称",
+    engine_name_placeholder: "例如：Google",
     engine_url: "搜索 URL (使用 %s 替代搜索词)",
+    engine_url_placeholder: "https://www.google.com/search?q=%s",
     custom_engines: "自定义搜索引擎",
     data_management: "全量数据管理",
     data_management_desc: "以压缩包 (.ntb) 格式备份和恢复你的所有快捷方式、待办、设置以及 AI 历史。",

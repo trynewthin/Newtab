@@ -209,7 +209,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                                 <Input
                                                     value={newEngine.name}
                                                     onChange={(e) => setNewEngine(prev => ({ ...prev, name: e.target.value }))}
-                                                    placeholder="e.g. Google"
+                                                    placeholder={t('engine_name_placeholder')}
                                                     className="h-9 bg-background/50"
                                                 />
                                             </div>
@@ -218,7 +218,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                                 <Input
                                                     value={newEngine.url}
                                                     onChange={(e) => setNewEngine(prev => ({ ...prev, url: e.target.value }))}
-                                                    placeholder="https://google.com/search?q=%s"
+                                                    placeholder={t('engine_url_placeholder')}
                                                     className="h-9 bg-background/50 font-mono text-xs"
                                                 />
                                             </div>

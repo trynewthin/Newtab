@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createPersistConfig } from '../core/storage';
-import type { PomodoroConfig, PomodoroStatus } from '../core/types';
+import { createPersistConfig } from '@/store/core/storage';
+import type { PomodoroConfig, PomodoroStatus } from '@/store/core/types';
 
 interface PomodoroState {
     config: PomodoroConfig;

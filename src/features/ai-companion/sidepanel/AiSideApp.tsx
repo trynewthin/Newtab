@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { useAiStore, useAiChat } from "@/webagent";
-import { ChatView, ChatInput } from "@/apps_side/ai/components";
-import { useSettingsStore } from "@/store/modules/settings";
-import "@/lib/i18n/i18n"; // Ensure i18n is initialized
-import { BaseSidePage } from "@/apps_side/core/BaseSidePage";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAiStore, useAiChat } from "@/features/ai-companion";
+import { ChatView, ChatInput } from "./components";
+import { useSettingsStore } from "@/features/settings/store";
+import "@/core/i18n/i18n"; // Ensure i18n is initialized
+import { BaseSidePage } from "@/shared/components/sidepanel/BaseSidePage";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { History, Menu, MessageSquarePlus, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 
 function AiSideApp() {
     const messages = useAiStore(s => s.messages);

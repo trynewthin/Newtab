@@ -10,9 +10,9 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import { useAiStore } from '@/webagent/store';
-import type { SearchResultCard, AiSearchStatus, AiSearchResponse, IntentAnalysis } from './types';
-import { performWebSearch, resultsToCards } from './searchService';
+import { useAiStore } from '@/features/ai-companion/store';
+import type { SearchResultCard, AiSearchStatus, AiSearchResponse, IntentAnalysis } from '../types';
+import { performWebSearch, resultsToCards } from '../services/searchService';
 import { useTranslation } from 'react-i18next';
 
 /**

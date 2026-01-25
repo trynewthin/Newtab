@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import React from "react";
-import { Toolbar } from "../shared/Toolbar";
+import { Toolbar } from "@/shared/components";
 
 interface BasePageProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;

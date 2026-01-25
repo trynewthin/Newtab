@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createPersistConfig } from '../core/storage';
-import type { BackgroundConfig } from '../core/types';
+import { createPersistConfig } from '@/store/core/storage';
+import type { BackgroundConfig } from '@/store/core/types';
 
 interface SettingsState {
     // Theme & Appearance

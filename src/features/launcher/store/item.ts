@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createPersistConfig } from '../core/storage';
-import { backgroundStorage } from '../core/backgroundStorage';
-import type { GridItem, WebTagItem, SystemAppItem, FolderItem } from '../core/itemTypes';
-import { SYSTEM_ITEMS } from '@/apps/core';
+import { createPersistConfig } from '@/store/core/storage';
+import { backgroundStorage } from '@/store/core/backgroundStorage';
+import type { GridItem, WebTagItem, SystemAppItem, FolderItem } from '@/store/core/itemTypes';
+import { SYSTEM_ITEMS } from '@/features/launcher';
 
 interface ItemState {
     items: GridItem[];

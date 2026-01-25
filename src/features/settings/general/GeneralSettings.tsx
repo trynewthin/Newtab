@@ -1,13 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/shared";
-import { SettingsSection, SettingsItem, SettingsActionButtons } from "@/apps/setting/base/SettingComponents";
+import { SidebarHeader } from "@/shared/components";
+import { SettingsSection, SettingsItem, SettingsActionButtons } from "../base/SettingComponents";
 import { Settings as SettingsIcon, Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSettingsStore } from "@/store/modules/settings";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+import { useSettingsStore } from "@/features/settings/store";
 import { useEffect, useState } from "react";
-import { SEARCH_ENGINES, APP_METADATA } from "@/lib/constants";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { SEARCH_ENGINES, APP_METADATA } from "@/core/constants";
+import { Input } from "@/shared/ui/input";
+import { Button } from "@/shared/ui/button";
 import { persistenceManager } from "@/store/persistence/manager";
 
 interface GeneralSettingsProps {

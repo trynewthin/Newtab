@@ -6,8 +6,8 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ExternalLink, Globe, Sparkles, AlertCircle, Brain, ChevronDown } from "lucide-react";
-import type { SearchResultCard, AiSearchStatus } from "./types";
-import { extractDomain, getFaviconUrl } from "./types";
+import type { SearchResultCard, AiSearchStatus } from "../types";
+import { extractDomain, getFaviconUrl } from "../types";
 import ReactMarkdown from "react-markdown";
 import { useTranslation } from "react-i18next";
 import { AiArtifactRenderer, type ArtifactData } from "./AiArtifactRenderer";

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createPersistConfig } from '../core/storage';
-import type { Todo } from '../core/types';
+import { createPersistConfig } from '@/store/core/storage';
+import type { Todo } from '@/store/core/types';
 
 interface TodoState {
     todos: Todo[];

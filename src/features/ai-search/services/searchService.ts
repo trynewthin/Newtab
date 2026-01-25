@@ -4,8 +4,8 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import type { SearchResultCard } from './types';
-import { getFaviconUrl } from './types';
+import type { SearchResultCard } from '../types';
+import { getFaviconUrl } from '../types';
 
 // Search result from raw search
 interface RawSearchResult {

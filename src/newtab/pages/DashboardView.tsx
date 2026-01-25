@@ -3,8 +3,12 @@ import { BasePage } from "@/shared/layout";
 import { AppGrid } from "@/features/launcher";
 import { HomeTools } from "@/features/launcher/components/HomeTools";
 import { motion } from "framer-motion";
+import { useSystemDialogRouter } from "@/features/launcher/store/ui";
 
 export function DashboardView() {
+    // Enable hash routing for system dialogs
+    useSystemDialogRouter();
+
     return (
         <BasePage className="py-0 px-0 flex flex-col items-center relative overflow-hidden" tools={<HomeTools />}>
             {/* 1. Search Area */}

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { SystemType } from '@/apps/core/system/systemRegistry';
+import type { SystemType } from '@/features/launcher/system/systemRegistry';
 
 export type SystemDialogType = SystemType;
 

@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp, Box, Globe, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { SidebarHeader } from "@/components/shared";
-import { useAiStore } from "@/webagent";
-import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { SettingsSection, SettingsItem } from "@/apps/setting/base/SettingComponents";
-import { SUPPORTED_SEARCH_PROVIDERS } from "@/components/ai/searchService";
+import { cn } from "@/core/utils";
+import { SidebarHeader } from "@/shared/components";
+import { useAiStore } from "@/features/ai-companion";
+import { Textarea } from "@/shared/ui/textarea";
+import { Slider } from "@/shared/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+import { Switch } from "@/shared/ui/switch";
+import { Input } from "@/shared/ui/input";
+import { Button } from "@/shared/ui/button";
+import { SettingsSection, SettingsItem } from "@/features/settings/base/SettingComponents";
+import { SUPPORTED_SEARCH_PROVIDERS } from "@/features/ai-search/services/searchService";
 
 interface AiSettingsProps {
     onOpenMobileMenu?: () => void;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/components/shared";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/shared/components";
 import {
     History,
     Search,
@@ -24,7 +24,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogMedia,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/ui/alert-dialog";
 
 interface HistoryDialogProps {
     open: boolean;

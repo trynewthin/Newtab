@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/shared";
-import { SettingsSection } from "@/apps/setting/base/SettingComponents";
-import { IconManagerTab } from "@/apps/setting/base/IconManagerTab";
+import { SidebarHeader } from "@/shared/components";
+import { SettingsSection } from "@/features/settings/base/SettingComponents";
+import { IconManagerTab } from "@/features/settings/base/IconManagerTab";
 import { Box } from "lucide-react";
 
 interface FeatureSettingsProps {

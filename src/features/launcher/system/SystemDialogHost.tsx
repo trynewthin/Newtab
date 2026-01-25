@@ -1,11 +1,11 @@
 import { ShortcutDialog } from "../tag/ShortcutDialog";
-import { PomodoroDialog } from "@/apps/pomodoro";
-import { SettingsDialog } from "@/apps/setting";
-import { TodoDialog } from "@/apps/todo";
-import { AiDialog } from "@/apps/ai/AiDialog";
-import { DownloadsDialog } from "@/apps/downloads";
-import { BookmarksDialog } from "@/apps/bookmarks";
-import { HistoryDialog } from "@/apps/history";
+import { PomodoroDialog } from "@/features/pomodoro";
+import { SettingsDialog } from "@/features/settings";
+import { TodoDialog } from "@/features/todo";
+import { AiDialog } from "@/features/ai-companion/AiDialog";
+import { DownloadsDialog } from "@/features/downloads";
+import { BookmarksDialog } from "@/features/bookmarks";
+import { HistoryDialog } from "@/features/history";
 import type { SystemType } from "./systemRegistry";
 
 interface SystemDialogHostProps {

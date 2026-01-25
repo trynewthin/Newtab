@@ -1,5 +1,5 @@
-import { SystemAppItem } from "@/apps/core/system/SystemAppItem";
-import { useUIStore } from "@/store/modules/ui";
+import { SystemAppItem } from "@/features/launcher/system/SystemAppItem";
+import { useUIStore } from "@/features/launcher/store/ui";
 
 export function TodoAppIcon(props: {
     id: string;

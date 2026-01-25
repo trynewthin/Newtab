@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { BaseModal } from "@/components/shared";
-import { Input } from "@/components/ui/input";
-import { useTodoStore } from "@/store/modules/todo";
-import { cn } from "@/lib/utils";
+import { BaseModal } from "@/shared/components";
+import { Input } from "@/shared/ui/input";
+import { useTodoStore } from "@/features/todo/store";
+import { cn } from "@/core/utils";
 import { Trash2, Plus, Check, X, ChevronUp, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

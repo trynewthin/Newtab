@@ -1,9 +1,9 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { ItemIcon } from "../base/ItemIcon";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
-import { useUIStore } from "@/store/modules/ui";
+import { useUIStore } from "@/features/launcher/store/ui";
 import { Check } from "lucide-react";
 
 export interface SystemAppItemProps {

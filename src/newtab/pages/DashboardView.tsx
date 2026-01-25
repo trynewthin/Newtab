@@ -1,7 +1,7 @@
-import { SearchBar } from "@/components/home/SearchBar";
-import { BasePage } from "@/components/layout";
-import { AppGrid } from "@/apps/core";
-import { HomeTools } from "@/components/home/HomeTools";
+import { SearchBar } from "@/features/search/components/SearchBar";
+import { BasePage } from "@/shared/layout";
+import { AppGrid } from "@/features/launcher";
+import { HomeTools } from "@/features/launcher/components/HomeTools";
 import { motion } from "framer-motion";
 
 export function DashboardView() {

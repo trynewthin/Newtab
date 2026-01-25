@@ -1,8 +1,8 @@
 import type { GridItem as GridItemType, WebTagItem, FolderItem as FolderItemType } from "@/store/core/itemTypes";
-import { TagItem } from "@/apps/core/tag/TagItem";
-import { FolderItem } from "@/apps/core/folder/FolderItem";
-import { SystemAppItem } from "@/apps/core/system/SystemAppItem";
-import { getAppIconComponent } from "@/apps/registry";
+import { TagItem } from "@/features/launcher/tag/TagItem";
+import { FolderItem } from "@/features/launcher/folder/FolderItem";
+import { SystemAppItem } from "@/features/launcher/system/SystemAppItem";
+import { getAppIconComponent } from "../registry";
 
 interface GridItemProps {
     item: GridItemType;

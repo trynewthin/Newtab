@@ -2,8 +2,8 @@
 
 import { Sun, Moon, Monitor } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { useSettingsStore } from "@/store/modules/settings"
-import { cn } from "@/lib/utils"
+import { useSettingsStore } from "@/features/settings/store"
+import { cn } from "@/core/utils"
 
 interface ThemeToggleProps {
     isCollapsed?: boolean

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/components/shared";
-import { cn } from "@/lib/utils";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/shared/components";
+import { cn } from "@/core/utils";
 import {
     Search,
     Folder,

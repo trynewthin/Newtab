@@ -1,7 +1,7 @@
-import { useUIStore } from "@/store/modules/ui";
+import { useUIStore } from "@/features/launcher/store/ui";
 import { X, Edit2, Check } from "lucide-react";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/store/core/backgroundStorage";

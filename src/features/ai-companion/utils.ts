@@ -28,32 +28,34 @@ export function prepareApiMessages(
 
             const rawContent = msg.content;
 
-            // 🔥 处理新的 capture_screenshot 工具返回
-            if (rawContent && typeof rawContent === 'object' && rawContent.__type === 'vision_screenshot') {
+            // 处理新的 capture_screenshot 工具返回
+            if (rawContent && typeof rawContent === 'object' && (rawContent as any).__type === 'vision_screenshot') {
+                const visionContent = rawContent as any;
                 // 返回简单文本给 tool
-                apiMsg.content = rawContent.message;
+                apiMsg.content = visionContent.message;
                 messages.push(apiMsg);
 
-                // 🔥 插入截图作为用户消息，让模型能"看到"
+                // 插入截图作为用户消息，让模型能"看到"
                 messages.push({
                     role: 'user',
                     content: [
                         { type: 'text', text: `[SYSTEM] Here is the screenshot from capture_screenshot. Analyze it to understand the page visually.` },
-                        { type: 'image_url', image_url: { url: rawContent.screenshot, detail: 'auto' } }
+                        { type: 'image_url', image_url: { url: visionContent.screenshot, detail: 'auto' } }
                     ]
                 });
                 continue;
             }
             // 兼容旧的 vision_result 类型 (已废弃，保留向后兼容)
-            else if (rawContent && typeof rawContent === 'object' && rawContent.__type === 'vision_result') {
-                apiMsg.content = rawContent.finalResult;
+            else if (rawContent && typeof rawContent === 'object' && (rawContent as any).__type === 'vision_result') {
+                const visionResult = rawContent as any;
+                apiMsg.content = visionResult.finalResult;
                 messages.push(apiMsg);
 
                 messages.push({
                     role: 'user',
                     content: [
                         { type: 'text', text: `[SYSTEM] This is the screenshot captured for ${msg.tool_name}. Look at it to verify the analysis above.` },
-                        { type: 'image_url', image_url: { url: rawContent.input.screenshot, detail: 'auto' } }
+                        { type: 'image_url', image_url: { url: visionResult.input.screenshot, detail: 'auto' } }
                     ]
                 });
                 continue;

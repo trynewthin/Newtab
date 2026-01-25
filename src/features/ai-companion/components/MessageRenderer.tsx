@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Check, Copy, CheckCheck, Brain } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAiStore, type Message, type ModelConfig } from "@/webagent";
+import { cn } from "@/core/utils";
+import { useAiStore, type Message, type ModelConfig } from "@/features/ai-companion";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -167,10 +167,11 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
             }
 
             if (msg.role === 'tool') {
-                if (typeof msg.content === 'object' && msg.content?.__type === 'vision_screenshot') {
+                const content = msg.content as any;
+                if (typeof content === 'object' && content?.__type === 'vision_screenshot') {
                     elements.push(
-                        <div key={`screenshot-${i}`} className="mt-1 mb-3 ml-1 rounded-xl overflow-hidden border border-white/10 shadow-lg max-w-[200px] cursor-zoom-in" onClick={() => window.open(msg.content.screenshot, '_blank')}>
-                            <img src={msg.content.screenshot} alt="Observation" className="w-full h-auto opacity-80 hover:opacity-100 transition-opacity" />
+                        <div key={`screenshot-${i}`} className="mt-1 mb-3 ml-1 rounded-xl overflow-hidden border border-white/10 shadow-lg max-w-[240px] cursor-zoom-in" onClick={() => window.open(content.screenshot, '_blank')}>
+                            <img src={content.screenshot} alt="Observation" className="w-full h-auto opacity-80 hover:opacity-100 transition-opacity" />
                         </div>
                     );
                 }

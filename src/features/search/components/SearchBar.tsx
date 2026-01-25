@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, Sparkles, LogOut } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useSettingsStore } from "@/store/modules/settings";
-import { cn } from "@/lib/utils";
+import { Input } from "@/shared/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
+import { useSettingsStore } from "@/features/settings/store";
+import { cn } from "@/core/utils";
 import { useTranslation } from "react-i18next";
-import { SEARCH_ENGINES } from "@/lib/constants";
+import { SEARCH_ENGINES } from "@/core/constants";
 import { useNavigate } from "react-router-dom";
 
 interface SearchBarProps {

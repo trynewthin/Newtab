@@ -1,7 +1,7 @@
-import { useUIStore } from "@/store/modules/ui";
+import { useUIStore } from "@/features/launcher/store/ui";
 import { X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ItemIcon } from "../base/ItemIcon";
@@ -86,7 +86,7 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
             return null;
         }
 
-        const icon = childIcons[index];
+        childIcons[index];
         const child = item.children?.[index];
         if (!child) return null;
 

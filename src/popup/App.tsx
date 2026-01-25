@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
-import { useItemStore } from "@/store/modules/item";
-import { useSettingsStore } from "@/store/modules/settings";
-import { Button } from "@/components/ui/button";
-import { TagConfigForm, type TagConfigData } from "@/apps/core";
+import { useItemStore } from "@/features/launcher/store/item";
+import { useSettingsStore } from "@/features/settings/store";
+import { Button } from "@/shared/ui/button";
+import { TagConfigForm, type TagConfigData } from "@/features/launcher";
 
 import { type GridItem } from "@/store/core/itemTypes";
 import { useTranslation } from "react-i18next";
 import { useStorageConnection } from "@/store/persistence/sync";
-import "@/lib/i18n/i18n";
+import "@/core/i18n/i18n";
 
 export default function Popup() {
     const { t } = useTranslation();

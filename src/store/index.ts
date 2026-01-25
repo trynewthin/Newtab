@@ -1,15 +1,15 @@
 export * from './core/types';
 export * from './core/storage';
-export * from './modules/ui';
-export * from './modules/settings';
-export * from './modules/pomodoro';
-export * from './modules/todo';
-export * from './modules/item';
+export * from '@/features/launcher/store/ui';
+export * from '@/features/settings/store';
+export * from '@/features/pomodoro/store';
+export * from '@/features/todo/store';
+export * from '@/features/launcher/store/item';
 
-import { useSettingsStore } from './modules/settings';
-import { usePomodoroStore } from './modules/pomodoro';
-import { useTodoStore } from './modules/todo';
-import { useItemStore } from './modules/item';
+import { useSettingsStore } from '@/features/settings/store';
+import { usePomodoroStore } from '@/features/pomodoro/store';
+import { useTodoStore } from '@/features/todo/store';
+import { useItemStore } from '@/features/launcher/store/item';
 import { storageRegistry } from './persistence/registry';
 
 // ============================================================================

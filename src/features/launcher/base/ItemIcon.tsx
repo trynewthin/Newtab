@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { renderSystemIcon } from "../system/systemIcons";
 import { useMemo } from "react";
 import { Globe } from "lucide-react";

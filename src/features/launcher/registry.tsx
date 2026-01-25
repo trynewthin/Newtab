@@ -1,12 +1,12 @@
 import type { ComponentType } from "react";
 import type { SystemAppItem } from "@/store/core/itemTypes";
-import { SettingsAppIcon } from "@/apps/setting/SettingsAppIcon";
-import { TodoAppIcon } from "@/apps/todo/TodoAppIcon";
-import { PomodoroAppIcon } from "@/apps/pomodoro/PomodoroAppIcon";
-import { AiAppIcon } from "@/apps/ai/AiAppIcon";
-import { DownloadsAppIcon } from "@/apps/downloads/DownloadsAppIcon";
-import { BookmarksAppIcon } from "@/apps/bookmarks/BookmarksAppIcon";
-import { HistoryAppIcon } from "@/apps/history/HistoryAppIcon";
+import { SettingsAppIcon } from "@/features/settings/SettingsAppIcon";
+import { TodoAppIcon } from "@/features/todo/TodoAppIcon";
+import { PomodoroAppIcon } from "@/features/pomodoro/PomodoroAppIcon";
+import { AiAppIcon } from "@/features/ai-companion/AiAppIcon";
+import { DownloadsAppIcon } from "@/features/downloads/DownloadsAppIcon";
+import { BookmarksAppIcon } from "@/features/bookmarks/BookmarksAppIcon";
+import { HistoryAppIcon } from "@/features/history/HistoryAppIcon";
 
 // Base props required for any App Icon Component
 export interface AppIconProps {

@@ -1,4 +1,4 @@
-export { Header } from '@/apps_side/ai/components/Header';
+export { Header } from '@/features/ai-companion/sidepanel/components/Header';
 export { ChatView } from './ChatView';
 export { ChatInput } from './ChatInput';
 export { MessageRenderer } from './MessageRenderer';

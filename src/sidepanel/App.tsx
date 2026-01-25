@@ -1,4 +1,4 @@
-import AiSideApp from "@/apps_side/ai/AiSideApp";
+import AiSideApp from "@/features/ai-companion/sidepanel/AiSideApp";
 
 function App() {
     return <AiSideApp />;

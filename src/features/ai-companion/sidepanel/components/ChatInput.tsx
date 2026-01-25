@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { ArrowUp, Sparkles, Check, Square } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import type { ModelConfig } from "@/webagent";
+import { cn } from "@/core/utils";
+import { Popover, PopoverTrigger, PopoverContent } from "@/shared/ui/popover";
+import type { ModelConfig } from "@/features/ai-companion";
 
 interface ChatInputProps {
     models: ModelConfig[];

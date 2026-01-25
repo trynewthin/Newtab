@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/components/shared";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/shared/components";
 import { useTranslation } from "react-i18next";
 import { MessageSquare, Plus, Trash2, Bot } from "lucide-react";
-import { useAiStore, useAiChat } from "@/webagent";
+import { useAiStore, useAiChat } from "@/features/ai-companion";
 import { ChatView } from "./components/ChatView";
 import { ChatInput } from "./components/ChatInput";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 
 interface AiDialogProps {
     open: boolean;

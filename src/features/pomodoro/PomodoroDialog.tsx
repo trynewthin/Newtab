@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { BaseModal, ModalButton } from "@/components/shared";
+import { BaseModal, ModalButton } from "@/shared/components";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
-import { Input } from "@/components/ui/input";
-import { usePomodoroStore } from "@/store/modules/pomodoro";
-import { cn } from "@/lib/utils";
+import { Input } from "@/shared/ui/input";
+import { usePomodoroStore } from "@/features/pomodoro/store";
+import { cn } from "@/core/utils";
 import { Play, RotateCcw, Timer, Coffee, Zap, Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { SettingsSection, SettingsItem } from "@/apps/setting/base/SettingComponents";
-import { Switch } from "@/components/ui/switch";
+import { SettingsSection, SettingsItem } from "@/features/settings/base/SettingComponents";
+import { Switch } from "@/shared/ui/switch";
 
 interface PomodoroDialogProps {
     open: boolean;

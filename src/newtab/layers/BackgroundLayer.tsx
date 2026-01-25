@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSettingsStore } from "@/store/modules/settings";
+import { useSettingsStore } from "@/features/settings/store";
 
 export function BackgroundLayer() {
     const { backgroundConfig, primaryColor } = useSettingsStore();

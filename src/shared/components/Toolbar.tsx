@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import React from "react";
 
 interface ToolbarProps {

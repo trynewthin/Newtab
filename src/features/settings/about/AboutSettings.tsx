@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/shared";
-import { SettingsSection, SettingsItem } from "@/apps/setting/base/SettingComponents";
+import { SidebarHeader } from "@/shared/components";
+import { SettingsSection, SettingsItem } from "@/features/settings/base/SettingComponents";
 import { Info, Github, RotateCcw, User, Heart } from "lucide-react";
-import { APP_METADATA } from "@/lib/constants";
+import { APP_METADATA } from "@/core/constants";
 
 interface AboutSettingsProps {
     onOpenMobileMenu?: () => void;

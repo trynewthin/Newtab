@@ -1,4 +1,4 @@
-import { useItemStore } from "@/store/modules/item";
+import { useItemStore } from "@/features/launcher/store/item";
 import { type GridItem as GridItemType, type FolderItem, type WebTagItem, type SystemAppItem } from "@/store/core/itemTypes";
 import { GridItem } from "../item/GridItem";
 import {
@@ -21,7 +21,7 @@ import {
     useSortable,
 } from "@dnd-kit/sortable";
 import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { ShortcutDialog } from "../tag/ShortcutDialog";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)
@@ -91,7 +91,7 @@ function EmptySlot({ id }: { id: string }) {
     );
 }
 
-export function FolderPreview({ folder, onClose, onClickTag, onDeletePrompt }: FolderPreviewProps) {
+export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProps) {
     const { items, setItems } = useItemStore();
     const [activeTag, setActiveTag] = useState<GridItemType | null>(null);
     const [entered, setEntered] = useState(false);

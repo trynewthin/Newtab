@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-import { useItemStore } from "@/store/modules/item";
-import { useUIStore } from "@/store/modules/ui";
+import { useItemStore } from "@/features/launcher/store/item";
+import { useUIStore } from "@/features/launcher/store/ui";
 import type { GridItem as GridItemType } from "@/store/core/itemTypes";
 import { GridItem } from "../item/GridItem";
 
@@ -39,7 +39,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogMedia,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/ui/alert-dialog";
 import { Trash2, UnfoldVertical, AlertCircle } from "lucide-react";
 
 const HOVER_DELAY = 1000;

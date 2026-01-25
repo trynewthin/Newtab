@@ -1,8 +1,8 @@
 import { useRef, useEffect } from "react";
 import { MessageRenderer } from "./MessageRenderer";
-import type { Message, ModelConfig } from "@/webagent";
+import type { Message, ModelConfig } from "@/features/ai-companion";
 import { Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 
 interface ChatViewProps {
     messages: Message[];

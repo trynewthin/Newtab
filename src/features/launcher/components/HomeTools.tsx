@@ -1,7 +1,7 @@
-import { useUIStore } from "@/store/modules/ui";
-import { useItemStore } from "@/store/modules/item";
+import { useUIStore } from "@/features/launcher/store/ui";
+import { useItemStore } from "@/features/launcher/store/item";
 import { Edit2, FolderPlus, Trash2, Settings, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -13,7 +13,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/ui/alert-dialog";
 
 export function HomeTools() {
     const { t } = useTranslation();

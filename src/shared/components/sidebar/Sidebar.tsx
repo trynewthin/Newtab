@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/core/utils"
 import { PanelLeftClose, PanelLeftOpen, type LucideIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { HugeiconsIcon } from "@hugeicons/react"

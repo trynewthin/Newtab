@@ -4,7 +4,7 @@
  */
 
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { ExternalLink, Globe, Sparkles, AlertCircle, Brain, ChevronDown } from "lucide-react";
 import type { SearchResultCard, AiSearchStatus } from "../types";
 import { extractDomain, getFaviconUrl } from "../types";

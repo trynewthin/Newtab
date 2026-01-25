@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client"
 
 import "../index.css"
 import App from "./App"
-import "../lib/i18n/i18n"
+import "@/core/i18n/i18n"
 
 const rootElement = document.getElementById("root");
 if (rootElement) {

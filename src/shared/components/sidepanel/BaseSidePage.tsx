@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { LayoutGrid } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import aiIcon from "@/assets/ai-icon.png";
-import type { SystemType } from "@/apps/core/system/systemRegistry";
-import { useUIStore } from "@/store/modules/ui";
-import { cn } from "@/lib/utils";
+import type { SystemType } from "@/features/launcher/system/systemRegistry";
+import { useUIStore } from "@/features/launcher/store/ui";
+import { cn } from "@/core/utils";
 
 type FloatingAppItem = {
     type: SystemType;

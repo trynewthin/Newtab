@@ -1,11 +1,11 @@
-import { useSettingsStore } from "@/store/modules/settings";
-import { cn } from "@/lib/utils";
+import { useSettingsStore } from "@/features/settings/store";
+import { cn } from "@/core/utils";
 import { Check, Upload, Plus, Image as ImageIcon, Palette, Droplet } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Button } from "@/shared/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
-import { BACKGROUND_PRESETS } from "@/apps/setting/appearance/themeConfig";
+import { BACKGROUND_PRESETS } from "@/features/settings/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
 import { SettingsSection } from "./SettingComponents";
 import { useRef } from "react";

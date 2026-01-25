@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, type ReactNode } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
 import { ItemIcon } from "../base/ItemIcon";
-import { extractDominantColor, loadImageAsDataUrl } from "@/lib/colorExtractor";
+import { extractDominantColor, loadImageAsDataUrl } from "@/core/colorExtractor";
 import { backgroundStorage, getIconKey, isDataURL } from "@/store/core/backgroundStorage";
-import { cn, parseColor } from "@/lib/utils";
+import { cn, parseColor } from "@/core/utils";
 import type { WebTagItem } from "@/store/core/itemTypes";
 import { useTranslation } from "react-i18next";
 

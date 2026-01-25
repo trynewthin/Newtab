@@ -1,8 +1,8 @@
 import { Download, History, MessageSquarePlus, Trash2, MessageSquare } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { cn } from "@/core/utils";
+import { Popover, PopoverTrigger, PopoverContent } from "@/shared/ui/popover";
 import { useTranslation } from "react-i18next";
-import type { Message } from "@/webagent";
+import type { Message } from "@/features/ai-companion";
 import React from "react";
 
 interface HeaderProps {

@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
-import { SearchBar } from "@/components/home/SearchBar";
-import { BasePage } from "@/components/layout";
+import { SearchBar } from "@/features/search/components/SearchBar";
+import { BasePage } from "@/shared/layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { StopCircle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { useAiSearch } from "@/components/ai/useAiSearch";
-import { AiSearchResults } from "@/components/ai/AiSearchResults";
-import { cn } from "@/lib/utils";
+import { useAiSearch } from "@/features/ai-search/hooks/useAiSearch";
+import { AiSearchResults } from "@/features/ai-search/components/AiSearchResults";
+import { cn } from "@/core/utils";
 import { useTranslation } from "react-i18next";
 
 export function AiSearchView() {

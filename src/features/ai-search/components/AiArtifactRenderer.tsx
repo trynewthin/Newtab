@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { Sparkles, Table as TableIcon, BarChart3, ListOrdered, Code2 } from "lucide-react";
+import { Table as TableIcon, BarChart3, ListOrdered, Code2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 
 /**
  * Supported Artifact Types

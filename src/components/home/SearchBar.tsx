@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, ChevronDown } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useSettingsStore } from "@/store/modules/settings";
@@ -107,25 +107,24 @@ export function SearchBar() {
         <div className="w-full relative group" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-30">
                 <div className={cn(
-                    "flex gap-2 items-center rounded-2xl md:rounded-3xl p-1.5 transition-all duration-500",
+                    "flex gap-2 items-center rounded-full p-1.5 transition-all duration-500",
                     "glass-input shadow-2xl shadow-primary/5",
                     "focus-within:ring-4 focus-within:ring-primary/10 group-hover:bg-white/50 dark:group-hover:bg-black/40",
                     "h-12 md:h-14"
                 )}>
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger
-                            className="h-full px-3 md:px-4 glass-button rounded-xl md:rounded-2xl flex items-center justify-center gap-2 cursor-pointer outline-none active:scale-95 transition-all"
+                            className="aspect-square h-full glass-button rounded-full flex items-center justify-center cursor-pointer outline-none active:scale-95 transition-all"
                             aria-label={t('select_engine')}
                         >
                             <img
                                 src={currentEngine.icon}
                                 alt={currentEngine.name}
-                                className="w-5 h-5 md:w-5.5 md:h-5.5 drop-shadow-sm rounded-sm select-none"
+                                className="w-6 h-6 md:w-7 md:h-7 drop-shadow-sm rounded-full select-none object-cover"
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="%23ddd"/></svg>';
                                 }}
                             />
-                            <ChevronDown className={cn("size-3.5 opacity-50 transition-transform duration-300", open && "rotate-180")} />
                         </PopoverTrigger>
                         <PopoverContent className="w-56 md:w-60 p-2 rounded-2xl md:rounded-[20px] glass-card border-none mt-2 overflow-hidden" align="start">
                             <div className="space-y-1 max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar">
@@ -153,7 +152,7 @@ export function SearchBar() {
                         </PopoverContent>
                     </Popover>
 
-                    <div className="flex-1 flex items-center gap-1 h-full">
+                    <div className="flex-1 flex items-center gap-1 h-full pl-2">
                         <Input
                             type="text"
                             autoFocus
@@ -165,14 +164,14 @@ export function SearchBar() {
                             onKeyDown={handleKeyDown}
                             onFocus={() => query.trim() && setShowSuggestions(true)}
                             placeholder={t('search_placeholder')}
-                            className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base md:text-lg lg:text-xl font-medium tracking-tight placeholder:text-muted-foreground/30 h-full"
+                            className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base md:text-lg lg:text-xl font-medium tracking-tight placeholder:text-muted-foreground/30 h-full px-0"
                         />
                         <button
                             type="submit"
-                            className="h-full px-4 md:px-5 glass-button rounded-xl md:rounded-2xl active:scale-90 transition-all"
+                            className="aspect-square h-full glass-button rounded-full flex items-center justify-center active:scale-90 transition-all shrink-0"
                             aria-label={t('search')}
                         >
-                            <Search size={20} className="text-primary select-none hidden md:block" />
+                            <Search size={22} className="text-primary select-none hidden md:block" />
                             <Search size={18} className="text-primary select-none md:hidden" />
                         </button>
                     </div>

@@ -28,31 +28,6 @@ const DEFAULT_ITEMS: GridItem[] = [
         title: item.title,
         icon: item.icon,
     })),
-    // Default Web Tags
-    {
-        id: 'github',
-        kind: 'tag',
-        title: 'GitHub',
-        url: 'https://github.com',
-        icon: 'https://github.com/favicon.ico',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)'
-    } as WebTagItem,
-    {
-        id: 'bilibili',
-        kind: 'tag',
-        title: 'Bilibili',
-        url: 'https://www.bilibili.com',
-        icon: 'https://www.bilibili.com/favicon.ico',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)'
-    } as WebTagItem,
-    {
-        id: 'v2ex',
-        kind: 'tag',
-        title: 'V2EX',
-        url: 'https://www.v2ex.com',
-        icon: 'https://www.v2ex.com/static/favicon.ico',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)'
-    } as WebTagItem
 ];
 
 export const useItemStore = create<ItemState>()(
@@ -200,7 +175,7 @@ export const useItemStore = create<ItemState>()(
         }),
         {
             ...createPersistConfig('app-items'),
-            version: 3, // Bump version to start fresh
+            version: 5, // Bump version to start fresh
         }
     )
 );

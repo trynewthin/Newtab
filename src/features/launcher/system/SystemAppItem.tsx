@@ -91,11 +91,14 @@ export function SystemAppItem({
                     title={displayTitle}
                     icon={icon}
                     isSystem={true} // 告诉 ItemIcon 这是一个系统应用，它会处理系统图标的渲染逻辑
-                    scale={1.3} // 全局统一调整系统图标缩放比例为 1.3
-                    // 系统 App 通常使用透明背景或特定应用背景，这里暂时保持透明或默认
-                    backgroundColor="transparent"
+                    scale={0.85} // Reduced scale for minimalist look
+                    // Light: White BG, Black Icon
+                    // Dark: Black BG, White Icon
+                    // Use !important to override inline style backgroundColor="transparent" from ItemIcon default
                     className={cn(
-                        "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow",
+                        "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow transition-colors duration-300",
+                        "!bg-white dark:!bg-black",
+                        "text-black dark:text-white",
                         "cursor-pointer hover:scale-105 active:scale-95",
                         isOverlay && "cursor-grabbing shadow-2xl",
                         isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"

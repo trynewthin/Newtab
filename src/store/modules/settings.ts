@@ -29,6 +29,7 @@ interface SettingsState {
     addCustomSearchEngine: (engine: { name: string; value: string; url: string; icon?: string }) => void;
     removeCustomSearchEngine: (value: string) => void;
     updateCustomSearchEngine: (value: string, engine: Partial<{ name: string; url: string; icon?: string }>) => void;
+
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -79,6 +80,7 @@ export const useSettingsStore = create<SettingsState>()(
                     e.value === value ? { ...e, ...engine } : e
                 )
             })),
+
         }),
         createPersistConfig('app-settings')
     )

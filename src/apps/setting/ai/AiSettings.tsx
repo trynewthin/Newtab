@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SettingsSection, SettingsItem } from "@/apps/setting/base/SettingComponents";
+import { SUPPORTED_SEARCH_PROVIDERS } from "@/components/ai/searchService";
 
 interface AiSettingsProps {
     onOpenMobileMenu?: () => void;
@@ -175,6 +176,13 @@ function AiPreferencesContent() {
     const getActiveModelConfig = useAiStore(s => s.getActiveModelConfig);
     const updateModel = useAiStore(s => s.updateModel);
     const setActiveVisionModel = useAiStore(s => s.setActiveVisionModel);
+    const activeSearchModelId = useAiStore(s => s.activeSearchModelId);
+    const setActiveSearchModel = useAiStore(s => s.setActiveSearchModel);
+
+    // New: Enable Search Providers
+    const enabledSearchProviders = useAiStore(s => s.enabledSearchProviders);
+    const setEnabledSearchProviders = useAiStore(s => s.setEnabledSearchProviders);
+
     const activeModel = getActiveModelConfig();
 
     if (!activeModel || !activeModelId) {
@@ -252,6 +260,50 @@ function AiPreferencesContent() {
                 </div>
             </SettingsSection>
 
+            <SettingsSection icon={Search} iconColor="text-green-500" title={t('ai_search_settings')} description={t('ai_search_settings_desc')}>
+                <SettingsItem label={t('search_model')} description={t('search_model_desc')}>
+                    <Select value={activeSearchModelId || activeModelId} onValueChange={setActiveSearchModel}>
+                        <SelectTrigger className="w-[180px] bg-background/40 border-border/30 rounded-xl h-9"><SelectValue /></SelectTrigger>
+                        <SelectContent>{models.map(m => (<SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>))}</SelectContent>
+                    </Select>
+                </SettingsItem>
+
+                <div className="p-3 rounded-xl bg-background/40 border border-border/20 space-y-3">
+                    <div className="flex items-center gap-2">
+                        <Globe size={14} className="text-blue-400" />
+                        <span className="text-xs font-semibold">{t('search_providers')}</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {SUPPORTED_SEARCH_PROVIDERS.map((provider) => {
+                            const isEnabled = enabledSearchProviders.includes(provider.value);
+                            return (
+                                <button
+                                    key={provider.value}
+                                    onClick={() => {
+                                        const newProviders = isEnabled
+                                            ? enabledSearchProviders.filter(p => p !== provider.value)
+                                            : [...enabledSearchProviders, provider.value];
+                                        if (newProviders.length === 0) return; // Prevent disabling all
+                                        setEnabledSearchProviders(newProviders);
+                                    }}
+                                    className={cn(
+                                        "flex items-center gap-2.5 px-3 py-2 rounded-lg border text-xs font-medium transition-all text-left",
+                                        isEnabled
+                                            ? "bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
+                                            : "bg-background/20 border-border/20 text-muted-foreground hover:bg-background/50 hover:text-foreground"
+                                    )}
+                                >
+                                    <img src={provider.icon} alt="" className="w-3.5 h-3.5 opacity-80" />
+                                    <span>{provider.label}</span>
+                                    {isEnabled && <Check size={12} className="ml-auto opacity-60" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/70">{t('search_providers_desc')}</p>
+                </div>
+            </SettingsSection>
+
             <SettingsSection icon={Sparkles} iconColor="text-primary" title={t('custom_instructions')} description={t('custom_instructions_desc')}>
                 <div className="bg-background/40 p-1 rounded-xl border border-border/30 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
                     <Textarea value={activeModel.systemPrompt || ''} onChange={(e) => updateModel(activeModelId, { systemPrompt: e.target.value })} placeholder={t('custom_instructions_placeholder')} className="min-h-[120px] border-none bg-transparent resize-none focus-visible:ring-0 text-sm leading-relaxed" />
@@ -268,6 +320,6 @@ function AiPreferencesContent() {
                     <Slider value={[activeModel.temperature ?? 0.7]} min={0} max={2} step={0.1} onValueChange={(values: number[]) => updateModel(activeModelId, { temperature: values[0] })} className="py-2 cursor-pointer" />
                 </div>
             </SettingsSection>
-        </div>
+        </div >
     );
 }

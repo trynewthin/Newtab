@@ -1,5 +1,11 @@
 export const SEARCH_ENGINES = [
     {
+        name: "AI Search",
+        value: "ai",
+        url: "", // handled programmatically
+        icon: "https://api.iconify.design/lucide:sparkles.svg?color=%236366f1"
+    },
+    {
         name: "Google",
         value: "google",
         url: "https://www.google.com/search?q=",

@@ -1,15 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { Search } from "lucide-react";
+import { Search, Sparkles, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useSettingsStore } from "@/store/modules/settings";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { SEARCH_ENGINES } from "@/lib/constants";
+import { useNavigate } from "react-router-dom";
 
-export function SearchBar() {
+interface SearchBarProps {
+    initialQuery?: string;
+    isAiMode?: boolean;
+}
+
+export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProps) {
     const { t } = useTranslation();
-    const [query, setQuery] = useState("");
+    const navigate = useNavigate();
+
+    const [query, setQuery] = useState(initialQuery);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeIndex, setActiveIndex] = useState(-1);
     const [open, setOpen] = useState(false);
@@ -27,7 +35,7 @@ export function SearchBar() {
 
     useEffect(() => {
         const fetchSuggestions = async () => {
-            if (!query.trim()) {
+            if (!query.trim() || isAiMode) {
                 setSuggestions([]);
                 setShowSuggestions(false);
                 return;
@@ -47,7 +55,7 @@ export function SearchBar() {
 
         const timer = setTimeout(fetchSuggestions, 200);
         return () => clearTimeout(timer);
-    }, [query]);
+    }, [query, isAiMode]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -61,8 +69,19 @@ export function SearchBar() {
 
     const performSearch = (searchQuery: string) => {
         const trimmedQuery = searchQuery.trim();
-        let searchUrl = currentEngine.url;
+        if (!trimmedQuery) return;
 
+        // If we are already in AI mode and engine is AI, we might want to re-trigger search
+        // This navigation will update the URL, and AiSearchView has a useEffect to trigger search on initialQuery change
+        if (searchEngine === 'ai') {
+            navigate(`/search?q=${encodeURIComponent(trimmedQuery)}&t=${Date.now()}`); // Adding timestamp to force trigger
+            setShowSuggestions(false);
+            setActiveIndex(-1);
+            return;
+        }
+
+        // Standard Search Logic (Window Open)
+        let searchUrl = currentEngine.url;
         if (searchUrl.includes('%s')) {
             searchUrl = searchUrl.replace('%s', encodeURIComponent(trimmedQuery));
         } else {
@@ -77,13 +96,11 @@ export function SearchBar() {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!query.trim()) return;
         performSearch(query);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (!showSuggestions || suggestions.length === 0) return;
-
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             setActiveIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
@@ -100,59 +117,81 @@ export function SearchBar() {
 
     const handleEngineSelect = (value: string) => {
         setSearchEngine(value);
+        if (isAiMode && value !== 'ai') {
+            navigate('/');
+        }
         setOpen(false);
+    };
+
+    const handleExitAiMode = () => {
+        navigate('/');
     };
 
     return (
         <div className="w-full relative group" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-30">
+                {/* Main Pill Container */}
                 <div className={cn(
-                    "flex gap-2 items-center rounded-full p-1.5 transition-all duration-500",
-                    "glass-input shadow-2xl shadow-primary/5",
-                    "focus-within:ring-4 focus-within:ring-primary/10 group-hover:bg-white/50 dark:group-hover:bg-black/40",
+                    "flex gap-2 items-center rounded-full px-3 transition-all duration-300",
+                    "bg-white/40 dark:bg-black/40 backdrop-blur-3xl border border-white/20 dark:border-white/10 shadow-2xl shadow-primary/10",
                     "h-12 md:h-14"
                 )}>
-                    <Popover open={open} onOpenChange={setOpen}>
-                        <PopoverTrigger
-                            className="aspect-square h-full glass-button rounded-full flex items-center justify-center cursor-pointer outline-none active:scale-95 transition-all"
-                            aria-label={t('select_engine')}
+                    {/* LEFT SIDE: Logic based on isAiMode */}
+                    {isAiMode ? (
+                        <button
+                            type="button"
+                            onClick={handleExitAiMode}
+                            className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-muted-foreground hover:text-destructive shrink-0 border border-black/20 dark:border-white/20 rounded-full bg-black/5 dark:bg-white/5"
+                            title="Exit AI Search"
                         >
-                            <img
-                                src={currentEngine.icon}
-                                alt={currentEngine.name}
-                                className="w-6 h-6 md:w-7 md:h-7 drop-shadow-sm rounded-full select-none object-cover"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="%23ddd"/></svg>';
-                                }}
-                            />
-                        </PopoverTrigger>
-                        <PopoverContent className="w-56 md:w-60 p-2 rounded-2xl md:rounded-[20px] glass-card border-none mt-2 overflow-hidden" align="start">
-                            <div className="space-y-1 max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar">
-                                {allEngines.map((engine) => (
-                                    <button
-                                        key={engine.value}
-                                        type="button"
-                                        onClick={() => handleEngineSelect(engine.value)}
-                                        className={cn(
-                                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-                                            engine.value === searchEngine
-                                                ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                                                : 'hover:bg-primary/10'
-                                        )}
-                                    >
-                                        <img
-                                            src={engine.icon}
-                                            alt={engine.name}
-                                            className="w-4 h-4 md:w-4.5 md:h-4.5 rounded-sm select-none"
-                                        />
-                                        <span className="text-sm font-semibold tracking-tight truncate">{engine.name}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </PopoverContent>
-                    </Popover>
+                            <LogOut size={16} />
+                        </button>
+                    ) : (
+                        /* Engine Selector */
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger
+                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform btn-no-style"
+                            >
+                                {currentEngine.value === 'ai' ? (
+                                    <Sparkles className="w-5.5 h-5.5 text-primary" strokeWidth={2.2} />
+                                ) : (
+                                    <img
+                                        src={currentEngine.icon}
+                                        alt=""
+                                        className="w-full h-full rounded-full object-contain"
+                                    />
+                                )}
+                            </PopoverTrigger>
+                            <PopoverContent className="w-60 p-2 rounded-2xl bg-background/90 backdrop-blur-3xl border border-white/10 mt-2 overflow-hidden shadow-none" align="start">
+                                <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    {allEngines.map((engine) => (
+                                        <button
+                                            key={engine.value}
+                                            type="button"
+                                            onClick={() => handleEngineSelect(engine.value)}
+                                            className={cn(
+                                                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
+                                                engine.value === searchEngine
+                                                    ? 'bg-primary/20 text-primary font-bold'
+                                                    : 'text-foreground hover:bg-white/5'
+                                            )}
+                                        >
+                                            <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                                                {engine.value === 'ai' ? (
+                                                    <Sparkles size={18} className="text-primary" />
+                                                ) : (
+                                                    <img src={engine.icon} alt="" className="w-4.5 h-4.5 rounded-sm object-contain" />
+                                                )}
+                                            </div>
+                                            <span className="text-sm font-medium">{engine.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    )}
 
-                    <div className="flex-1 flex items-center gap-1 h-full pl-2">
+                    <div className="flex-1 h-full flex items-center">
                         <Input
                             type="text"
                             autoFocus
@@ -163,24 +202,36 @@ export function SearchBar() {
                             }}
                             onKeyDown={handleKeyDown}
                             onFocus={() => query.trim() && setShowSuggestions(true)}
-                            placeholder={t('search_placeholder')}
-                            className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base md:text-lg lg:text-xl font-medium tracking-tight placeholder:text-muted-foreground/30 h-full px-0"
+                            placeholder={isAiMode ? "Ask or search anything..." : t('search_placeholder')}
+                            className="text-foreground placeholder:text-foreground/30 font-medium"
                         />
+                    </div>
+
+                    {/* RIGHT SIDE: Action Buttons */}
+                    <div className="flex items-center gap-1">
                         <button
                             type="submit"
-                            className="aspect-square h-full glass-button rounded-full flex items-center justify-center active:scale-90 transition-all shrink-0"
-                            aria-label={t('search')}
+                            className="h-8 w-8 flex items-center justify-center text-primary/80 hover:text-primary transition-all active:scale-90"
+                            title={isAiMode ? "Search again" : "Search"}
                         >
-                            <Search size={22} className="text-primary select-none hidden md:block" />
-                            <Search size={18} className="text-primary select-none md:hidden" />
+                            <Search size={18} strokeWidth={2.5} />
                         </button>
                     </div>
                 </div>
             </form>
 
-            {/* Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-[calc(100%+8px)] z-20 left-0 right-0 rounded-2xl md:rounded-[24px] p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-300 bg-white/70 dark:bg-zinc-900/80 backdrop-blur-3xl border border-white/20 dark:border-white/10">
+            <style>{`
+                .btn-no-style {
+                    background: none;
+                    border: none;
+                    box-shadow: none;
+                    padding: 0;
+                }
+            `}</style>
+
+            {/* Suggestions - Minimalist */}
+            {!isAiMode && showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-[calc(100%+8px)] z-40 left-0 right-0 rounded-3xl p-2 border border-white/10 bg-background/90 backdrop-blur-3xl shadow-none">
                     <ul className="space-y-1">
                         {suggestions.map((suggestion, index) => (
                             <li
@@ -188,21 +239,19 @@ export function SearchBar() {
                                 onClick={() => performSearch(suggestion)}
                                 onMouseEnter={() => setActiveIndex(index)}
                                 className={cn(
-                                    "px-4 py-3 md:py-3.5 rounded-xl md:rounded-[18px] cursor-pointer flex items-center gap-3 transition-all duration-300",
+                                    "px-4 py-3.5 rounded-2xl cursor-pointer flex items-center gap-3 transition-colors",
                                     index === activeIndex
-                                        ? "bg-primary/10 text-primary translate-x-1.5"
-                                        : "text-black/80 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/5"
+                                        ? "bg-primary/10 text-primary"
+                                        : "text-foreground hover:bg-white/5"
                                 )}
                             >
-                                <Search size={15} className={cn("shrink-0 transition-all duration-300 select-none", index === activeIndex ? "opacity-100 scale-110" : "opacity-30")} />
-                                <span className="text-sm md:text-base lg:text-lg font-medium leading-none tracking-tight">{suggestion}</span>
+                                <Search size={16} className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")} />
+                                <span className="text-base font-medium">{suggestion}</span>
                             </li>
                         ))}
                     </ul>
                 </div>
             )}
         </div>
-
-
     );
 }

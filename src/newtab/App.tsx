@@ -1,17 +1,21 @@
 import { useStorageConnection } from "@/store/persistence/sync";
+import { AppRouter } from "./AppRouter";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
-import { ContentLayer } from "./layers/ContentLayer";
 import { FloatLayer } from "./layers/FloatLayer";
+import { Toaster } from "@/components/ui/sonner";
 
 export function App() {
-    // 鐩戝惉 LocalStorage 鍙樺寲骞跺悓姝ョ姸鎬?(瑙ｅ喅 Popup 淇敼鍚?Newtab 涓嶅埛鏂伴棶棰?
+    // 监听 LocalStorage 变化并同步状态 (解决 Popup 修改后 Newtab 不刷新问题)
     useStorageConnection();
 
     return (
         <div className="relative w-full h-full overflow-hidden">
             <BackgroundLayer />
-            <ContentLayer />
+            <div className="relative z-10 w-full h-full">
+                <AppRouter />
+            </div>
             <FloatLayer />
+            <Toaster />
         </div>
     );
 }

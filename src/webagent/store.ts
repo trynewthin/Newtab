@@ -16,6 +16,8 @@ interface AiState {
     models: ModelConfig[];
     activeModelId: string | null;
     activeVisionModelId: string | null;
+    activeSearchModelId: string | null;
+    enabledSearchProviders: string[];
 
     sessions: SessionMetadata[];
     currentSessionId: string | null;
@@ -34,6 +36,8 @@ interface AiState {
     deleteModel: (id: string) => void;
     setActiveModel: (id: string) => void;
     setActiveVisionModel: (id: string | null) => void;
+    setActiveSearchModel: (id: string | null) => void;
+    setEnabledSearchProviders: (providers: string[]) => void;
 
     addMessage: (message: Partial<Message> & { role: Message['role'] }) => Promise<string>;
     updateMessage: (id: string, updates: Partial<Message>) => Promise<void>;
@@ -41,6 +45,7 @@ interface AiState {
     setLoading: (loading: boolean) => void;
     getActiveModelConfig: () => ModelConfig | undefined;
     getActiveVisionModelConfig: () => ModelConfig | undefined;
+    getActiveSearchModelConfig: () => ModelConfig | undefined;
 
     getDynamicSystemPrompt: (config: ModelConfig) => string;
 
@@ -48,7 +53,6 @@ interface AiState {
 }
 
 const BASE_AGENT_PROMPT = `你是一个强大的 Web 助手。请根据用户的需求，选择合适的工具来完成任务。
-
 ## 开始前判断（必须遵循，内部完成）
 1. 明确用户目标与所需操作。
 2. 判断当前页面是否匹配任务。
@@ -105,6 +109,8 @@ export const useAiStore = create<AiState>()(
             models: [DEFAULT_MODEL],
             activeModelId: 'default',
             activeVisionModelId: 'default',
+            activeSearchModelId: 'default',
+            enabledSearchProviders: ['google', 'bing', 'duckduckgo'],
             sessions: [],
             currentSessionId: null,
             messages: [],
@@ -136,7 +142,8 @@ export const useAiStore = create<AiState>()(
                 return {
                     models: [...state.models, newModel],
                     activeModelId: state.models.length === 0 ? newModel.id : state.activeModelId,
-                    activeVisionModelId: state.models.length === 0 ? newModel.id : state.activeVisionModelId
+                    activeVisionModelId: state.models.length === 0 ? newModel.id : state.activeVisionModelId,
+                    activeSearchModelId: state.models.length === 0 ? newModel.id : state.activeSearchModelId
                 };
             }),
 
@@ -148,13 +155,17 @@ export const useAiStore = create<AiState>()(
                 const newModels = state.models.filter(m => m.id !== id);
                 let newActiveId = state.activeModelId;
                 let newVisionId = state.activeVisionModelId;
+                let newSearchId = state.activeSearchModelId;
                 if (state.activeModelId === id) newActiveId = newModels.length > 0 ? newModels[0].id : null;
                 if (state.activeVisionModelId === id) newVisionId = newModels.length > 0 ? newModels[0].id : null;
-                return { models: newModels, activeModelId: newActiveId, activeVisionModelId: newVisionId };
+                if (state.activeSearchModelId === id) newSearchId = newModels.length > 0 ? newModels[0].id : null;
+                return { models: newModels, activeModelId: newActiveId, activeVisionModelId: newVisionId, activeSearchModelId: newSearchId };
             }),
 
             setActiveModel: (id) => set({ activeModelId: id }),
             setActiveVisionModel: (id) => set({ activeVisionModelId: id }),
+            setActiveSearchModel: (id) => set({ activeSearchModelId: id }),
+            setEnabledSearchProviders: (providers) => set({ enabledSearchProviders: providers }),
 
             getActiveModelConfig: () => {
                 const state = get();
@@ -165,6 +176,12 @@ export const useAiStore = create<AiState>()(
                 const state = get();
                 const visionId = state.activeVisionModelId || state.activeModelId;
                 return state.models.find(m => m.id === visionId);
+            },
+
+            getActiveSearchModelConfig: () => {
+                const state = get();
+                const searchId = state.activeSearchModelId || state.activeModelId;
+                return state.models.find(m => m.id === searchId);
             },
 
             hydrateSession: async () => {
@@ -254,6 +271,8 @@ export const useAiStore = create<AiState>()(
                 models: state.models,
                 activeModelId: state.activeModelId,
                 activeVisionModelId: state.activeVisionModelId,
+                activeSearchModelId: state.activeSearchModelId,
+                enabledSearchProviders: state.enabledSearchProviders,
                 sessions: state.sessions,
                 currentSessionId: state.currentSessionId
             }),

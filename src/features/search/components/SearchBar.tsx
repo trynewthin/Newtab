@@ -203,7 +203,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                             onKeyDown={handleKeyDown}
                             onFocus={() => query.trim() && setShowSuggestions(true)}
                             placeholder={isAiMode ? "Ask or search anything..." : t('search_placeholder')}
-                            className="text-foreground placeholder:text-foreground/30 font-medium"
+                            className="h-full w-full border-0 shadow-none px-0 py-0 text-base md:text-lg ring-0 focus-visible:ring-0 rounded-none text-foreground placeholder:text-foreground/30 font-medium"
                         />
                     </div>
 

@@ -5,6 +5,11 @@ import { cn } from "@/platform/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ItemIcon } from "../base/ItemIcon";
+import {
+    ITEM_HOVER_SCALE_CLASS,
+    ITEM_INTERACTION_ANIMATION_CLASS,
+    ITEM_SELECTED_SCALE_CLASS,
+} from "../base/selectionStyles";
 import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/platform/state/core/itemTypes";
 
@@ -208,7 +213,9 @@ export function FolderItem({
                     "bg-white/16 dark:bg-black/25 backdrop-blur-xl shadow-[0_10px_24px_rgba(8,24,48,0.24)] hover:shadow-[0_14px_30px_rgba(8,24,48,0.32)] transition-all duration-200",
                     isEditing ? "cursor-pointer" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-2xl",
-                    isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
+                    ITEM_INTERACTION_ANIMATION_CLASS,
+                    ITEM_HOVER_SCALE_CLASS,
+                    isSelected && ITEM_SELECTED_SCALE_CLASS
                 )}
             >
                 <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-[2px]">

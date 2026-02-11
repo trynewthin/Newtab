@@ -6,6 +6,11 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
 import { ItemIcon } from "../base/ItemIcon";
+import {
+    ITEM_HOVER_SCALE_CLASS,
+    ITEM_INTERACTION_ANIMATION_CLASS,
+    ITEM_SELECTED_SCALE_CLASS,
+} from "../base/selectionStyles";
 import { useTranslation } from "react-i18next";
 import type { WebTagItem, GridItem } from "@/platform/state/core/itemTypes";
 
@@ -165,7 +170,9 @@ export function TagItem({
                         "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow",
                         isEditing ? "cursor-pointer" : "cursor-pointer",
                         isOverlay && "cursor-grabbing shadow-2xl",
-                        isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
+                        ITEM_INTERACTION_ANIMATION_CLASS,
+                        ITEM_HOVER_SCALE_CLASS,
+                        isSelected && ITEM_SELECTED_SCALE_CLASS
                     )}
                     role="button"
                     tabIndex={0}

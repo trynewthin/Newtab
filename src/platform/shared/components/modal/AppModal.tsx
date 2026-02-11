@@ -53,7 +53,7 @@ export function AppModal({
             floating={
                 showMobileMenu && onCloseMobileMenu ? (
                     <div
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
+                        className="absolute inset-0 z-20 md:hidden"
                         onClick={onCloseMobileMenu}
                     />
                 ) : null

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppModal, Sidebar, SidebarItem } from "@/platform/shared/components";
+import { AppModal, Sidebar, SidebarItem, usePersistedSidebarCollapsed } from "@/platform/shared/components";
 import { Settings, Palette, Bot, Sparkles, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GeneralSettings } from "./general/GeneralSettings";
@@ -17,7 +17,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState("general");
     // Default to not collapsed for settings as it has many text labels
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("settings-modal", false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     // On mobile, the sidebar should always be "expanded" within the drawer

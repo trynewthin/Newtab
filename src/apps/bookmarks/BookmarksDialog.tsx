@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/platform/shared/components";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/platform/shared/components";
 import { cn } from "@/platform/core/utils";
 import {
     Search,
@@ -25,7 +25,7 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentFolderId, setCurrentFolderId] = useState<string>("0");
     const [path, setPath] = useState<{ id: string; title: string }[]>([]);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("bookmarks-modal", true);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [rootFolders, setRootFolders] = useState<chrome.bookmarks.BookmarkTreeNode[]>([]);
     const [confirmingId, setConfirmingId] = useState<string | null>(null);

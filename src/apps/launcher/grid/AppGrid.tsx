@@ -5,7 +5,6 @@ import type { GridItem as GridItemType } from "@/platform/state/core/itemTypes";
 import { LauncherGridItemSurface } from "./components/LauncherGridItemSurface";
 
 import { ShortcutDialog } from "../tag/ShortcutDialog";
-import { SystemDialogHost } from "../system/SystemDialogHost";
 import { isSystemAppId } from "../system/appManifest";
 import { useAppLauncher } from "../system/useAppLauncher";
 import { resolveWidgetLaunchAppId } from "@/apps/launcher/widget";
@@ -279,7 +278,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
 
     const { items, setItems, removeItem, ungroupFolder } = useItemStore();
 
-    const { activeSystemDialog, setActiveSystemDialog, isEditing } = useUIStore();
+    const { isEditing } = useUIStore();
     const { launchApp } = useAppLauncher();
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -604,12 +603,6 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                     onOpenChange={setIsEditDialogOpen}
                     editTag={editingItem as any}
                 />
-
-                <SystemDialogHost
-                    active={activeSystemDialog}
-                    onActiveChange={setActiveSystemDialog}
-                />
-
                 {openFolder && (
                     <FolderPreview
                         folder={openFolder}

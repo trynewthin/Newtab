@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/platform/shared/components";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/platform/shared/components";
 import {
     History,
     Search,
@@ -38,7 +38,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
     const [historyItems, setHistoryItems] = useState<chrome.history.HistoryItem[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState<HistoryFilter>('all');
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("history-modal", true);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 

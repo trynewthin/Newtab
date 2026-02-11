@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/platform/shared/components";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/platform/shared/components";
 import { cn } from "@/platform/core/utils";
 import {
     X,
@@ -38,7 +38,7 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [confirmingId, setConfirmingId] = useState<number | null>(null);
     const [filter, setFilter] = useState<DownloadFilter>('all');
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("downloads-modal", true);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     const fetchDownloads = useCallback(() => {

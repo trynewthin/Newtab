@@ -6,6 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { Check, Edit2, X } from "lucide-react";
 import { useRef } from "react";
+import {
+    ITEM_HOVER_SCALE_CLASS,
+    ITEM_INTERACTION_ANIMATION_CLASS,
+    ITEM_SELECTED_SCALE_CLASS,
+} from "../base/selectionStyles";
 
 export interface SystemAppItemProps {
     id: string; // 用于 DND
@@ -147,9 +152,11 @@ export function SystemAppItem({
                         "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow transition-colors duration-300",
                         "!bg-white dark:!bg-black",
                         "text-black dark:text-white",
-                        "cursor-pointer hover:scale-105 active:scale-95",
+                        "cursor-pointer",
                         isOverlay && "cursor-grabbing shadow-2xl",
-                        isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
+                        ITEM_INTERACTION_ANIMATION_CLASS,
+                        ITEM_HOVER_SCALE_CLASS,
+                        isSelected && ITEM_SELECTED_SCALE_CLASS
                     )}
                     role="button"
                     onClick={handleClick}

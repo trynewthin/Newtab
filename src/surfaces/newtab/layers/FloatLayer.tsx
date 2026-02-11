@@ -9,8 +9,9 @@ export function FloatLayer() {
     return (
         <div className="absolute inset-0 z-40 pointer-events-none">
             {isDashboard && (
-                <div className="mx-auto w-full max-w-2xl px-4 pt-24 pointer-events-auto">
+                <div className="mx-auto w-full max-w-2xl px-4 pt-24 pointer-events-none">
                     <motion.div
+                        className="pointer-events-auto"
                         initial={{ y: 200, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -50, opacity: 0 }}

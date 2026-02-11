@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader } from "@/platform/shared/components";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/platform/shared/components";
 import { useTranslation } from "react-i18next";
 import { MessageSquare, Plus, Trash2, Bot } from "lucide-react";
 import { useAiStore, useAiChat } from "@/apps/ai-companion";
@@ -32,7 +32,7 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
     const { sendMessage, stopGeneration } = useAiChat();
 
     // Default to collapsed as requested
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("ai-modal", true);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     useEffect(() => {

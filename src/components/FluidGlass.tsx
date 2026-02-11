@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { useRef, useState, useEffect, memo, ReactNode } from 'react';
-import { Canvas, createPortal, useFrame, useThree, ThreeElements } from '@react-three/fiber';
+import { useRef, useState, useEffect, memo, type ReactNode } from 'react';
+import { Canvas, createPortal, useFrame, useThree, type ThreeElements } from '@react-three/fiber';
 import {
   useFBO,
   useGLTF,

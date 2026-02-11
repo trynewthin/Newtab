@@ -55,7 +55,7 @@ export function Sidebar({
                     // Mobile absolute positioning
                     "absolute md:relative z-50 h-full",
                     !showMobileMenu && "-translate-x-full md:translate-x-0",
-                    showMobileMenu && "translate-x-0 shadow-2xl md:shadow-none bg-background/95 md:bg-transparent w-[280px]",
+                    showMobileMenu && "translate-x-0 shadow-2xl md:shadow-none bg-background md:bg-transparent w-[280px]",
                     className
                 )}
             >

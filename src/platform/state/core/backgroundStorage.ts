@@ -109,6 +109,92 @@ class BackgroundStorage {
             request.onerror = () => reject(request.error);
         });
     }
+
+    private async getStoreEntries(storeName: string): Promise<Record<string, string>> {
+        if (!this.db) await this.init();
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db!.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.openCursor();
+            const result: Record<string, string> = {};
+
+            request.onsuccess = () => {
+                const cursor = request.result;
+                if (cursor) {
+                    const key = String(cursor.key);
+                    const value = cursor.value;
+                    if (typeof value === "string") {
+                        result[key] = value;
+                    }
+                    cursor.continue();
+                    return;
+                }
+                resolve(result);
+            };
+
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    private async clearStores(storeNames: string[]): Promise<void> {
+        if (!this.db) await this.init();
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db!.transaction(storeNames, 'readwrite');
+            for (const storeName of storeNames) {
+                transaction.objectStore(storeName).clear();
+            }
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+        });
+    }
+
+    private async putEntries(
+        storeName: string,
+        entries: Record<string, string>
+    ): Promise<void> {
+        if (!this.db) await this.init();
+        const pairs = Object.entries(entries);
+        if (pairs.length === 0) return;
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db!.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            for (const [key, value] of pairs) {
+                store.put(value, key);
+            }
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+        });
+    }
+
+    async exportAll(): Promise<{ backgrounds: Record<string, string>; icons: Record<string, string> }> {
+        const [backgrounds, icons] = await Promise.all([
+            this.getStoreEntries(STORE_NAME),
+            this.getStoreEntries(ICON_STORE_NAME),
+        ]);
+
+        return { backgrounds, icons };
+    }
+
+    async importAll(
+        payload: Partial<{ backgrounds: Record<string, string>; icons: Record<string, string> }>,
+        options?: { replace?: boolean }
+    ): Promise<void> {
+        const replace = options?.replace ?? true;
+        const backgrounds = payload.backgrounds ?? {};
+        const icons = payload.icons ?? {};
+
+        if (replace) {
+            await this.clearStores([STORE_NAME, ICON_STORE_NAME]);
+        }
+
+        await Promise.all([
+            this.putEntries(STORE_NAME, backgrounds),
+            this.putEntries(ICON_STORE_NAME, icons),
+        ]);
+    }
 }
 
 export const backgroundStorage = new BackgroundStorage();

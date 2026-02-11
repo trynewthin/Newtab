@@ -50,10 +50,6 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
     };
 
     const handleImportData = () => {
-        if (!confirm(t('restore_confirm'))) {
-            return;
-        }
-
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.ntb';
@@ -62,8 +58,33 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
             if (!file) return;
 
             try {
+                const inspection = await persistenceManager.inspectBackup(file);
+                if (!inspection.supported) {
+                    alert(t("restore_version_unsupported", {
+                        source: inspection.sourceSchemaVersion,
+                        target: inspection.targetSchemaVersion,
+                    }));
+                    return;
+                }
+
+                const confirmText = t("restore_confirm_with_version", {
+                    appVersion: inspection.appVersion || "unknown",
+                    sourceSchema: inspection.sourceSchemaVersion,
+                    targetSchema: inspection.targetSchemaVersion,
+                    strategy: inspection.requiresMigration
+                        ? t("restore_strategy_migrate")
+                        : t("restore_strategy_direct"),
+                });
+
+                if (!confirm(confirmText)) {
+                    return;
+                }
+
                 await persistenceManager.importData(file);
-                alert(t('restore_success'));
+                alert(t('restore_success_with_version', {
+                    appVersion: inspection.appVersion || "unknown",
+                    schema: inspection.targetSchemaVersion,
+                }));
                 window.location.reload();
             } catch (error) {
                 console.error('Import failed:', error);

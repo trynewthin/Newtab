@@ -1,4 +1,30 @@
 export type AppSurface = "modal" | "sidebar" | "page";
+export type LauncherTilePreset = "1x1" | "2x1" | "1x2" | "2x2" | "2x4";
+export type LauncherTileVariant = "icon" | "panel";
+export type AppSurfaceFramePreset = "free" | "semi" | "sidebar";
+
+export interface AppSurfaceConfig {
+    modal: boolean;
+    sidebar: boolean;
+    page: boolean;
+}
+
+export interface AppSurfaceFrameConfig {
+    modal: AppSurfaceFramePreset;
+    sidebar: AppSurfaceFramePreset;
+}
+
+export interface AppIconLayoutConfig {
+    variant: LauncherTileVariant;
+    draggable: boolean;
+    resizable: boolean;
+    defaultPreset: LauncherTilePreset;
+    allowedPresets: readonly LauncherTilePreset[];
+}
+
+export interface AppLauncherLayoutConfig {
+    icon: AppIconLayoutConfig;
+}
 
 export const SYSTEM_APP_IDS = [
     "settings",
@@ -9,6 +35,7 @@ export const SYSTEM_APP_IDS = [
     "bookmarks",
     "history",
     "paper",
+    "component-market",
 ] as const;
 
 export const SYSTEM_UTILITY_IDS = [
@@ -25,11 +52,9 @@ export interface SystemAppManifestItem {
     id: SystemAppId;
     title: string;
     icon: string;
-    surfaces: {
-        modal: boolean;
-        sidebar: boolean;
-        page: boolean;
-    };
+    surfaces: AppSurfaceConfig;
+    frames: AppSurfaceFrameConfig;
+    launcher: AppLauncherLayoutConfig;
     defaultSurface: Exclude<AppSurface, "page">;
     pagePath?: string;
 }
@@ -39,12 +64,34 @@ export interface SystemPageRoute {
     path: string;
 }
 
+const ICON_ONLY_LAYOUT = {
+    icon: {
+        variant: "icon",
+        draggable: true,
+        resizable: false,
+        defaultPreset: "1x1",
+        allowedPresets: ["1x1"],
+    },
+} as const satisfies AppLauncherLayoutConfig;
+
+const DEFAULT_FRAMES = {
+    modal: "semi",
+    sidebar: "semi",
+} as const satisfies AppSurfaceFrameConfig;
+
+const SETTINGS_FRAMES = {
+    modal: "sidebar",
+    sidebar: "sidebar",
+} as const satisfies AppSurfaceFrameConfig;
+
 export const SYSTEM_APP_MANIFEST = [
     {
         id: "settings",
         title: "Settings",
         icon: "Settings",
         surfaces: { modal: true, sidebar: false, page: false },
+        frames: SETTINGS_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
     },
     {
@@ -52,6 +99,8 @@ export const SYSTEM_APP_MANIFEST = [
         title: "Pomodoro",
         icon: "Timer",
         surfaces: { modal: true, sidebar: false, page: false },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
     },
     {
@@ -59,6 +108,8 @@ export const SYSTEM_APP_MANIFEST = [
         title: "Todo List",
         icon: "ListTodo",
         surfaces: { modal: true, sidebar: false, page: false },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
     },
     {
@@ -66,6 +117,8 @@ export const SYSTEM_APP_MANIFEST = [
         title: "AI Assistant",
         icon: "Sparkles",
         surfaces: { modal: true, sidebar: true, page: false },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
     },
     {
@@ -73,6 +126,8 @@ export const SYSTEM_APP_MANIFEST = [
         title: "Downloads",
         icon: "Downloads",
         surfaces: { modal: true, sidebar: false, page: false },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
     },
     {
@@ -80,6 +135,8 @@ export const SYSTEM_APP_MANIFEST = [
         title: "Bookmarks",
         icon: "Bookmarks",
         surfaces: { modal: true, sidebar: false, page: false },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
     },
     {
@@ -87,6 +144,8 @@ export const SYSTEM_APP_MANIFEST = [
         title: "History",
         icon: "History",
         surfaces: { modal: true, sidebar: false, page: false },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
     },
     {
@@ -94,8 +153,19 @@ export const SYSTEM_APP_MANIFEST = [
         title: "Paper",
         icon: "FileText",
         surfaces: { modal: true, sidebar: true, page: true },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
         defaultSurface: "modal",
         pagePath: "/paper",
+    },
+    {
+        id: "component-market",
+        title: "Component Market",
+        icon: "Grid3x3",
+        surfaces: { modal: true, sidebar: false, page: false },
+        frames: DEFAULT_FRAMES,
+        launcher: ICON_ONLY_LAYOUT,
+        defaultSurface: "modal",
     },
 ] as const satisfies readonly SystemAppManifestItem[];
 
@@ -120,6 +190,20 @@ export function supportsSurface(appId: SystemType, surface: AppSurface): boolean
 export function getAppManifestItem(appId: SystemType): SystemAppManifestItem | null {
     if (!isSystemAppId(appId)) return null;
     return SYSTEM_APP_MANIFEST.find((entry) => entry.id === appId) ?? null;
+}
+
+export function getAppLauncherLayoutConfig(appId: SystemType): AppLauncherLayoutConfig | null {
+    const item = getAppManifestItem(appId);
+    return item?.launcher ?? null;
+}
+
+export function getAppSurfaceFramePreset(
+    appId: SystemType,
+    surface: Exclude<AppSurface, "page">
+): AppSurfaceFramePreset {
+    const item = getAppManifestItem(appId);
+    if (!item) return "semi";
+    return item.frames[surface] ?? "semi";
 }
 
 export function getSystemPageRoutes(): readonly SystemPageRoute[] {
@@ -162,6 +246,22 @@ export function resolveLaunchTarget(
 
     if (item.defaultSurface === "sidebar" && item.surfaces.sidebar) {
         return { surface: "sidebar" };
+    }
+
+    if (item.defaultSurface === "modal" && item.surfaces.modal) {
+        return { surface: "modal" };
+    }
+
+    if (item.surfaces.modal) {
+        return { surface: "modal" };
+    }
+
+    if (item.surfaces.sidebar) {
+        return { surface: "sidebar" };
+    }
+
+    if (item.surfaces.page && item.pagePath) {
+        return { surface: "page", pagePath: item.pagePath };
     }
 
     return { surface: "modal" };

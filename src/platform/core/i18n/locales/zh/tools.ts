@@ -15,6 +15,7 @@ export const tools = {
     delete_shortcut_confirm: "确定要删除 “{{title}}” 吗？删除后无法找回。",
     ungroup: "解散分组",
     add_shortcut: "添加快捷方式",
+    organize_icons: "一键整理图标",
     edit_shortcut: "编辑快捷方式",
     shortcut: "快捷方式",
     market: "组件市场",

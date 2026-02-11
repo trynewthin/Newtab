@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
 import { useUIStore } from "@/apps/launcher/store/ui";
-import { Check } from "lucide-react";
+import { Check, Edit2, X } from "lucide-react";
 import { useRef } from "react";
 
 export interface SystemAppItemProps {
@@ -19,6 +19,9 @@ export interface SystemAppItemProps {
     isHoverTarget?: boolean;
     className?: string;
     onPrefetch?: () => void;
+    sortableEnabled?: boolean;
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
 
 export function SystemAppItem({
@@ -31,6 +34,9 @@ export function SystemAppItem({
     isHoverTarget,
     className,
     onPrefetch,
+    sortableEnabled = true,
+    onEdit,
+    onDelete,
 }: SystemAppItemProps) {
     const { t } = useTranslation();
     const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
@@ -46,13 +52,13 @@ export function SystemAppItem({
         isDragging,
     } = useSortable({
         id: id,
-        disabled: !!isOverlay,
+        disabled: !!isOverlay || !sortableEnabled,
     });
 
     const style = {
-        transform: (isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
-        transition: isDragging ? undefined : transition,
-        opacity: isDragging ? 0 : 1,
+        transform: (!sortableEnabled || isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
+        transition: !sortableEnabled || isDragging ? undefined : transition,
+        opacity: !sortableEnabled ? 1 : (isDragging ? 0 : 1),
         zIndex: isOverlay ? 100 : undefined,
     };
 
@@ -80,6 +86,18 @@ export function SystemAppItem({
         onPrefetch();
     };
 
+    const handleEdit = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onEdit?.();
+    };
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDelete?.();
+    };
+
     // 如果标题是系统 Key，则进行动态翻译，以支持语言即时切换
     const displayTitle = title?.startsWith('sys_') ? t(title) : title;
 
@@ -88,7 +106,7 @@ export function SystemAppItem({
             ref={setNodeRef}
             style={style}
             className={cn(
-                "group flex flex-col items-center gap-1.5 w-14",
+                "group relative flex flex-col items-center gap-1.5 w-14",
                 isEditing && !isDragging && !isOverlay && "animate-[shake_0.5s_ease-in-out_infinite]",
                 isOverlay && "scale-110 rotate-3 cursor-grabbing",
                 className
@@ -96,6 +114,26 @@ export function SystemAppItem({
             {...(isOverlay ? {} : attributes)}
             {...(isOverlay ? {} : listeners)}
         >
+            <div className={cn(
+                "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
+                (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+            )}>
+                <button
+                    onClick={handleEdit}
+                    className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                    title="Edit"
+                >
+                    <Edit2 size={10} />
+                </button>
+                <button
+                    onClick={handleDelete}
+                    className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                    title="Remove"
+                >
+                    <X size={10} />
+                </button>
+            </div>
+
             <div className="relative">
                 <ItemIcon
                     title={displayTitle}

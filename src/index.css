@@ -207,3 +207,22 @@
     }
   }
 }
+
+/* Launcher grid drag/resize placeholder: keep native size, customize visual style. */
+.react-grid-layout .react-grid-item.react-grid-placeholder {
+  border-radius: 16px !important;
+  background: rgb(148 163 184 / 32%) !important;
+  border: 1px solid rgb(148 163 184 / 55%) !important;
+  box-shadow:
+    0 10px 24px rgb(15 23 42 / 20%),
+    inset 0 1px 0 rgb(255 255 255 / 28%);
+  opacity: 1 !important;
+}
+
+.dark .react-grid-layout .react-grid-item.react-grid-placeholder {
+  background: rgb(100 116 139 / 36%) !important;
+  border-color: rgb(148 163 184 / 50%) !important;
+  box-shadow:
+    0 10px 24px rgb(0 0 0 / 40%),
+    inset 0 1px 0 rgb(255 255 255 / 12%);
+}

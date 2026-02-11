@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { ShortcutDialog } from "../tag/ShortcutDialog";
 import type { SystemType } from "./systemRegistry";
-import { SYSTEM_APP_IDS, type SystemAppId } from "./appManifest";
+import { getAppSurfaceFramePreset, SYSTEM_APP_IDS, type SystemAppId } from "./appManifest";
 import { getModalRenderer, resolveModalRuntimeAppId } from "./appRuntimeRegistry";
 import { AppSurfaceBridgeProvider, createAppSurfaceBridge } from "./appSurfaceBridge";
 import { useAppLauncher } from "./useAppLauncher";
@@ -41,7 +41,12 @@ function SystemModalRuntime({ appId, open, onOpenChange }: SystemModalRuntimePro
 
     return (
         <AppSurfaceBridgeProvider value={bridge}>
-            <Dialog open={open} onOpenChange={onOpenChange} />
+            <Dialog
+                open={open}
+                onOpenChange={onOpenChange}
+                appId={appId}
+                framePreset={getAppSurfaceFramePreset(appId, "modal")}
+            />
         </AppSurfaceBridgeProvider>
     );
 }

@@ -1,7 +1,7 @@
 import { Suspense, useMemo } from "react";
 import { getSidebarRenderer } from "@/apps/launcher/system/appRuntimeRegistry";
 import { createAppSurfaceBridge, AppSurfaceBridgeProvider } from "@/apps/launcher/system/appSurfaceBridge";
-import { isSystemAppId, type SystemAppId, supportsSurface } from "@/apps/launcher/system/appManifest";
+import { getAppSurfaceFramePreset, isSystemAppId, type SystemAppId, supportsSurface } from "@/apps/launcher/system/appManifest";
 import { useAppLauncher } from "@/apps/launcher/system/useAppLauncher";
 
 const FALLBACK_APP: SystemAppId = "ai";
@@ -44,7 +44,11 @@ function App() {
     return (
         <Suspense fallback={<div className="h-screen w-screen bg-background/60" />}>
             <AppSurfaceBridgeProvider value={bridge}>
-                <Renderer onClose={() => undefined} />
+                <Renderer
+                    onClose={() => undefined}
+                    appId={appId}
+                    framePreset={getAppSurfaceFramePreset(appId, "sidebar")}
+                />
             </AppSurfaceBridgeProvider>
         </Suspense>
     );

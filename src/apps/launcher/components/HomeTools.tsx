@@ -1,6 +1,6 @@
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { useItemStore } from "@/apps/launcher/store/item";
-import { Edit2, FolderPlus, Trash2, Settings, Plus } from "lucide-react";
+import { Edit2, FolderPlus, Trash2, Settings, Plus, LayoutGrid } from "lucide-react";
 import { cn } from "@/platform/core/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -18,7 +18,7 @@ import {
 export function HomeTools() {
     const { t } = useTranslation();
     const { isEditing, toggleEditing, selectedTagIds, clearSelection, setActiveSystemDialog } = useUIStore();
-    const { batchGroupItems, batchRemoveItems } = useItemStore();
+    const { batchGroupItems, batchRemoveItems, organizeItems } = useItemStore();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const handleBatchGroup = () => {
@@ -88,6 +88,14 @@ export function HomeTools() {
                 title={t('add_shortcut')}
             >
                 <Plus size={18} className="text-foreground/70" />
+            </button>
+
+            <button
+                onClick={organizeItems}
+                className="p-2.5 glass-button rounded-xl active:scale-95"
+                title={t('organize_icons')}
+            >
+                <LayoutGrid size={18} className="text-foreground/70" />
             </button>
 
             <button

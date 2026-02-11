@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { LayoutGrid } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/platform/shared/ui/popover";
 import { cn } from "@/platform/core/utils";
-import { AppLayerShell } from "@/platform/shared/components/surface/AppLayerShell";
+import { AppSurfacePanel } from "./AppSurfacePanel";
 import {
     DEFAULT_SIDE_APPS,
     type SystemAppId,
@@ -107,6 +107,8 @@ interface BaseSidePageProps {
     floatingApps?: FloatingAppItem[];
     appName?: string;
     floatingPreset?: "none" | "header";
+    surfacePreset?: "free" | "semi" | "sidebar";
+    onClose?: () => void;
     className?: string;
     backgroundClassName?: string;
     contentClassName?: string;
@@ -121,10 +123,10 @@ export function BaseSidePage({
     floatingApps,
     appName,
     floatingPreset = "none",
+    surfacePreset = "free",
+    onClose,
     className,
-    backgroundClassName,
-    contentClassName,
-    floatingClassName
+    contentClassName
 }: BaseSidePageProps) {
     const renderFloatingPreset = (): React.ReactNode => {
         if (floatingPreset === "header") {
@@ -140,23 +142,26 @@ export function BaseSidePage({
     };
 
     return (
-        <AppLayerShell
-            className={cn("w-full h-screen font-sans select-none text-[13px]", className)}
+        <AppSurfacePanel
+            preset={surfacePreset}
+            title={surfacePreset === "semi" ? appName : undefined}
+            actions={surfacePreset === "semi" ? floatingHeader : undefined}
+            onClose={surfacePreset === "semi" ? onClose : undefined}
+            className={cn("select-none text-[13px]", className)}
             background={background}
-            content={<div className="flex flex-col h-full">{content}</div>}
+            content={<div className={cn("flex flex-col h-full", contentClassName)}>{content}</div>}
             floating={(
                 <>
-                    <div className="pointer-events-auto">
-                        {renderFloatingPreset()}
-                    </div>
+                    {surfacePreset === "free" && (
+                        <div className="pointer-events-auto">
+                            {renderFloatingPreset()}
+                        </div>
+                    )}
                     <div className="pointer-events-auto">
                         {floating}
                     </div>
                 </>
             )}
-            backgroundClassName={backgroundClassName}
-            contentClassName={contentClassName}
-            floatingClassName={floatingClassName}
         />
     );
 }

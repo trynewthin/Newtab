@@ -1,15 +1,19 @@
 import { lazy } from "react";
 import type { ComponentType, LazyExoticComponent } from "react";
-import type { SystemAppId, SystemType } from "./appManifest";
+import type { AppSurfaceFramePreset, SystemAppId, SystemType } from "./appManifest";
 import { isSystemAppId, SYSTEM_APP_IDS, SYSTEM_APP_MANIFEST } from "./appManifest";
 
 export interface AppModalRendererProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    appId?: SystemAppId;
+    framePreset?: AppSurfaceFramePreset;
 }
 
 export interface AppSidebarRendererProps {
     onClose: () => void;
+    appId?: SystemAppId;
+    framePreset?: AppSurfaceFramePreset;
 }
 
 export interface AppPageRendererProps {
@@ -43,6 +47,7 @@ const modalLoaders: Record<SystemAppId, () => Promise<{ default: ComponentType<A
     bookmarks: () => import("@/apps/bookmarks").then((m) => ({ default: m.BookmarksDialog })),
     history: () => import("@/apps/history").then((m) => ({ default: m.HistoryDialog })),
     paper: () => import("@/apps/paper").then((m) => ({ default: m.PaperDialog })),
+    "component-market": () => import("@/apps/component-market").then((m) => ({ default: m.ComponentMarketDialog })),
 };
 
 const sidebarLoaders: Partial<Record<SystemAppId, () => Promise<{ default: ComponentType<AppSidebarRendererProps> }>>> = {
@@ -70,6 +75,7 @@ const DownloadsDialog = lazy(modalLoaders.downloads);
 const BookmarksDialog = lazy(modalLoaders.bookmarks);
 const HistoryDialog = lazy(modalLoaders.history);
 const PaperDialog = lazy(modalLoaders.paper);
+const ComponentMarketDialog = lazy(modalLoaders["component-market"]);
 const PaperPage = lazy(pageLoaders.paper!);
 const PaperSidebar = lazy(sidebarLoaders.paper!);
 const AiSidebar = lazy(sidebarLoaders.ai!);
@@ -83,6 +89,7 @@ const RUNTIMES: SystemRuntimeMap = {
     bookmarks: { id: "bookmarks", modal: BookmarksDialog },
     history: { id: "history", modal: HistoryDialog },
     paper: { id: "paper", modal: PaperDialog, sidebar: PaperSidebar, page: PaperPage },
+    "component-market": { id: "component-market", modal: ComponentMarketDialog },
 };
 
 function validateRuntimeSurfaceCoverage() {

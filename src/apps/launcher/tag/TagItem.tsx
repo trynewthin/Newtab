@@ -17,9 +17,19 @@ interface TagItemProps {
     isOverlay?: boolean;
     isNearTarget?: boolean;
     isHoverTarget?: boolean;
+    sortableEnabled?: boolean;
 }
 
-export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: TagItemProps) {
+export function TagItem({
+    item,
+    onEdit,
+    onDeletePrompt,
+    onClick,
+    isOverlay,
+    isNearTarget,
+    isHoverTarget,
+    sortableEnabled = true,
+}: TagItemProps) {
     const { t } = useTranslation();
     const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
     const isSelected = selectedTagIds.includes(item.id);
@@ -36,13 +46,13 @@ export function TagItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNe
         isDragging,
     } = useSortable({
         id: item.id,
-        disabled: !!isOverlay,
+        disabled: !!isOverlay || !sortableEnabled,
     });
 
     const style = {
-        transform: (isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
-        transition: isDragging ? undefined : transition,
-        opacity: isDragging ? 0 : 1,
+        transform: (!sortableEnabled || isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
+        transition: !sortableEnabled || isDragging ? undefined : transition,
+        opacity: !sortableEnabled ? 1 : (isDragging ? 0 : 1),
         zIndex: isOverlay ? 100 : undefined,
     };
 

@@ -1,10 +1,11 @@
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { X, Edit2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/platform/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ItemIcon } from "../base/ItemIcon";
+import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/platform/state/core/itemTypes";
 
 interface FolderItemProps {
@@ -15,13 +16,33 @@ interface FolderItemProps {
     isOverlay?: boolean;
     isNearTarget?: boolean;
     isHoverTarget?: boolean;
+    sortableEnabled?: boolean;
 }
 
-export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, isNearTarget, isHoverTarget }: FolderItemProps) {
+export function FolderItem({
+    item,
+    onEdit,
+    onDeletePrompt,
+    onClick,
+    isOverlay,
+    isNearTarget,
+    isHoverTarget,
+    sortableEnabled = true,
+}: FolderItemProps) {
     const { isEditing, selectedTagIds } = useUIStore();
     const isSelected = selectedTagIds.includes(item.id);
 
-    const [childIcons, setChildIcons] = useState<string[]>([]);
+    const [resolvedChildIcons, setResolvedChildIcons] = useState<Record<string, string>>({});
+    const previewChildren = useMemo(() => item.children?.slice(0, 4) ?? [], [item.children]);
+    const previewSignature = useMemo(
+        () => previewChildren.map((child) => {
+            if (child.kind === "app") {
+                return `${child.id}:app:${child.icon ?? ""}`;
+            }
+            return `${child.id}:tag:${child.icon ?? ""}:${child.iconDataUrl ?? ""}:${child.url ?? ""}:${child.backgroundColor ?? ""}:${child.iconSize ?? ""}`;
+        }).join("|"),
+        [previewChildren]
+    );
 
     const {
         attributes,
@@ -32,28 +53,61 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
         isDragging,
     } = useSortable({
         id: item.id,
-        disabled: !!isOverlay,
+        disabled: !!isOverlay || !sortableEnabled,
     });
 
     const style = {
-        transform: (isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
-        transition: isDragging ? undefined : transition,
-        opacity: isDragging ? 0 : 1,
+        transform: (!sortableEnabled || isNearTarget || isHoverTarget || !transform) ? undefined : CSS.Translate.toString(transform),
+        transition: !sortableEnabled || isDragging ? undefined : transition,
+        opacity: !sortableEnabled ? 1 : (isDragging ? 0 : 1),
         zIndex: isOverlay ? 100 : undefined,
     };
 
-    // 加载子项的图标
+    // 解析 folder 预览中 tag 的 idb:// 图标缓存；首次 miss 时短重试一次，避免“成组后需刷新”。
     useEffect(() => {
-        const children = item.children || [];
-        const icons = children.slice(0, 4).map(child => {
-            if (child.kind === 'app') return child.icon || "";
-            if (child.icon && child.icon.length < 4) {
-                return child.icon; // emoji
+        let cancelled = false;
+
+        const resolveIcons = async (attempt: 0 | 1) => {
+            const next: Record<string, string> = {};
+            let unresolvedCount = 0;
+
+            await Promise.all(
+                previewChildren.map(async (child) => {
+                    if (child.kind !== "tag") return;
+                    if (!child.iconDataUrl?.startsWith("idb://")) return;
+
+                    const key = child.iconDataUrl.replace("idb://", "");
+                    try {
+                        const data = await backgroundStorage.getIcon(key);
+                        if (!data) {
+                            unresolvedCount += 1;
+                            return;
+                        }
+                        next[child.id] = data;
+                    } catch {
+                        unresolvedCount += 1;
+                    }
+                })
+            );
+
+            if (!cancelled) {
+                setResolvedChildIcons(next);
+
+                if (attempt === 0 && unresolvedCount > 0) {
+                    setTimeout(() => {
+                        if (!cancelled) {
+                            void resolveIcons(1);
+                        }
+                    }, 180);
+                }
             }
-            return child.icon || `https://www.google.com/s2/favicons?domain=${child.url}&sz=64`;
-        });
-        setChildIcons(icons);
-    }, [item.id, item.children]);
+        };
+
+        void resolveIcons(0);
+        return () => {
+            cancelled = true;
+        };
+    }, [previewSignature]);
 
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -82,35 +136,36 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
     };
 
     const renderGridIcon = (index: number) => {
-        if (index >= childIcons.length) {
-            return null;
-        }
-
-        childIcons[index];
-        const child = item.children?.[index];
+        const child = previewChildren[index];
         if (!child) return null;
 
-        const isApp = child.kind === 'app';
-        // 彻底去透明，确保图标轮廓与主背景有清晰隔离
-        const bg = isApp ? 'rgb(255, 255, 255)' : (child.backgroundColor ?? "rgb(255, 255, 255)");
-        const userScale = child.kind === 'tag' ? (child.iconSize || 1) : 1;
-
-        // 统一缩放基准：利用 ItemIcon 内部自带的 0.85 比例，叠加 1.35x 约为满格
-        const finalScale = 1.35 * userScale;
-
-        return (
-            <div className="flex items-center justify-center w-full h-full overflow-hidden">
+        if (child.kind === "app") {
+            return (
                 <ItemIcon
                     title={child.title}
                     icon={child.icon}
-                    iconDataUrl={isApp ? undefined : (child.kind === 'tag' ? child.iconDataUrl : undefined)}
-                    isSystem={isApp}
-                    backgroundColor={bg}
-                    scale={finalScale}
-                    // 强制覆盖 ItemIcon 内部的 [85%] 约束，使得微型图标能够真正撑满格子空间并居中
-                    className="w-full h-full rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)] [&>div]:w-full [&>div]:h-full"
+                    isSystem
+                    scale={0.85}
+                    className="w-full h-full rounded-[10px] !bg-white dark:!bg-black text-black dark:text-white"
                 />
-            </div>
+            );
+        }
+
+        const faviconUrl = child.icon || `https://www.google.com/s2/favicons?domain=${child.url}&sz=64`;
+        const resolvedIconDataUrl = resolvedChildIcons[child.id]
+            || (child.iconDataUrl && !child.iconDataUrl.startsWith("idb://") ? child.iconDataUrl : "")
+            || faviconUrl;
+
+        return (
+            <ItemIcon
+                title={child.title}
+                icon={child.icon}
+                iconDataUrl={resolvedIconDataUrl}
+                isSystem={false}
+                scale={child.iconSize || 1.3}
+                backgroundColor={child.backgroundColor ?? "transparent"}
+                className="w-full h-full rounded-[10px]"
+            />
         );
     };
 
@@ -149,17 +204,22 @@ export function FolderItem({ item, onEdit, onDeletePrompt, onClick, isOverlay, i
             <ItemIcon
                 onClick={handleClick}
                 className={cn(
-                    "relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow",
-                    "bg-primary/10 dark:bg-primary/15 backdrop-blur-xl",
+                    "relative flex items-center justify-center w-14 h-14 rounded-2xl border border-white/35 dark:border-white/15",
+                    "bg-white/16 dark:bg-black/25 backdrop-blur-xl shadow-[0_10px_24px_rgba(8,24,48,0.24)] hover:shadow-[0_14px_30px_rgba(8,24,48,0.32)] transition-all duration-200",
                     isEditing ? "cursor-pointer" : "cursor-pointer",
                     isOverlay && "cursor-grabbing shadow-2xl",
                     isSelected && "shadow-[0_0_0_2px_rgba(var(--color-primary),1),0_0_12px_rgba(var(--color-primary),0.5)]"
                 )}
             >
-                {/* 精调布局：增加 gap 到 4px，p-1.5 配合 w-11，确保四宫格图标间距匀称且居中 */}
-                <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-1.5">
+                <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-[2px]">
                     {[0, 1, 2, 3].map((index) => (
-                        <div key={index} className="w-full h-full">
+                        <div
+                            key={index}
+                            className={cn(
+                                "w-full h-full rounded-[10px] overflow-hidden",
+                                previewChildren[index] ? "bg-transparent" : "bg-black/10 dark:bg-white/10"
+                            )}
+                        >
                             {renderGridIcon(index)}
                         </div>
                     ))}

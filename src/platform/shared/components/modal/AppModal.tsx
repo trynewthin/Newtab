@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/platform/core/utils"
-import { SidebarModal } from "./Modal"
+import { AppSurfaceModal } from "./AppSurfaceModal"
 
 /**
  * AppModal - High-level abstraction for App-like dialogs with a Sidebar, Header, and Footer.
@@ -41,42 +41,31 @@ export function AppModal({
     className,
 }: AppModalProps) {
     return (
-        <SidebarModal
+        <AppSurfaceModal
             open={open}
             onOpenChange={onOpenChange}
+            preset="sidebar"
             sidebar={sidebar}
-            isCollapsed={isCollapsed}
-            contentClassName="bg-background"
-        >
-            {/* Mobile Overlay - Automatically handled */}
-            {showMobileMenu && onCloseMobileMenu && (
-                <div
-                    className="absolute inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
-                    onClick={onCloseMobileMenu}
-                />
-            )}
-
-            <div className={cn("flex-1 flex flex-col h-full relative overflow-hidden bg-background", className)}>
-                {/* Header Zone */}
-                {header && (
-                    <div className="relative z-20 shrink-0">
-                        {header}
+            sidebarCollapsed={isCollapsed}
+            header={header}
+            footer={footer}
+            background={<div className="absolute inset-0 bg-background" />}
+            floating={
+                showMobileMenu && onCloseMobileMenu ? (
+                    <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
+                        onClick={onCloseMobileMenu}
+                    />
+                ) : null
+            }
+            content={(
+                <div className={cn("flex h-full flex-1 flex-col overflow-hidden bg-background", className)}>
+                    <div className="relative z-10 flex-1 overflow-hidden">
+                        {children}
                     </div>
-                )}
-
-                {/* Main Content Zone */}
-                <div className="flex-1 relative z-10 overflow-hidden">
-                    {children}
                 </div>
-
-                {/* Footer Zone */}
-                {footer && (
-                    <div className="relative z-20 shrink-0">
-                        {footer}
-                    </div>
-                )}
-            </div>
-        </SidebarModal>
+            )}
+        />
     )
 }
 

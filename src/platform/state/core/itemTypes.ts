@@ -1,4 +1,4 @@
-export type ItemKind = 'tag' | 'app' | 'folder';
+export type ItemKind = 'tag' | 'app' | 'folder' | 'widget';
 
 export interface BaseItem {
     id: string;
@@ -29,7 +29,15 @@ export interface SystemAppItem extends BaseItem {
     icon?: string; // App 图标，通常由注册表提供默认值，但也允许覆盖
 }
 
-// 3. Folder (文件夹)
+// 3. Launcher Widget（独立组件）
+export interface LauncherWidgetItem extends BaseItem {
+    kind: 'widget';
+    widgetId: string;
+    ownerAppId?: string;
+    icon?: string;
+}
+
+// 4. Folder (文件夹)
 export interface FolderItem extends BaseItem {
     kind: 'folder';
     children: (WebTagItem | SystemAppItem)[]; // Folder 通常不嵌套 Folder
@@ -37,6 +45,6 @@ export interface FolderItem extends BaseItem {
 }
 
 // Union Type
-export type GridItem = WebTagItem | SystemAppItem | FolderItem;
+export type GridItem = WebTagItem | SystemAppItem | LauncherWidgetItem | FolderItem;
 
 export type ItemId = string;

@@ -1,6 +1,6 @@
 import { cn } from "@/platform/core/utils";
 import { renderSystemIcon } from "../system/systemIcons";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Globe } from "lucide-react";
 
 export interface ItemIconProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -38,6 +38,7 @@ export function ItemIcon({
     active,
     ...props // 透传剩余的 HTML 属性 (onClick, role, tabIndex 等)
 }: ItemIconProps) {
+    const [imageFailed, setImageFailed] = useState(false);
 
     // Resolve Image Source
     // 逻辑：iconDataUrl (Cache) > icon (URL/Str) > Favicon Service Fallback
@@ -47,8 +48,15 @@ export function ItemIcon({
         return "";
     }, [icon, iconDataUrl]);
 
+    // 图标来源变化后重置失败态，避免“首次失败后永久隐藏直到刷新”。
+    useEffect(() => {
+        setImageFailed(false);
+    }, [imageSrc]);
+
+    const hasImageContent = Boolean(imageSrc) && !imageFailed;
+
     // 判断是否有有效的图标内容
-    const hasIconContent = Boolean((isSystem && icon) || (icon && icon.length < 4) || imageSrc);
+    const hasIconContent = Boolean((isSystem && icon) || (icon && icon.length < 4) || hasImageContent);
 
     const renderIconContent = () => {
         const contentStyle = { transform: `scale(${scale})` };
@@ -74,16 +82,14 @@ export function ItemIcon({
         }
 
         // 3. Image
-        if (imageSrc) {
+        if (hasImageContent) {
             return (
                 <div style={contentStyle} className="w-[85%] h-[85%] flex items-center justify-center select-none">
                     <img
                         src={imageSrc}
                         alt={title || "icon"}
                         className="w-full h-full object-cover pointer-events-none select-none"
-                        onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                        }}
+                        onError={() => setImageFailed(true)}
                     />
                 </div>
             );

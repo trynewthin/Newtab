@@ -346,7 +346,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
     };
 
     const handleEditItem = (item: GridItemType) => {
-        if (item.kind === 'app' || item.kind === 'folder') return;
+        if (item.kind !== "tag") return;
         setEditingItem(item);
         setIsEditDialogOpen(true);
     };

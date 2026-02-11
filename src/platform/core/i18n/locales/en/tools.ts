@@ -15,6 +15,7 @@ export const tools = {
     delete_shortcut_confirm: "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
     ungroup: "Ungroup",
     add_shortcut: "Add Shortcut",
+    organize_icons: "Organize Icons",
     edit_shortcut: "Edit Shortcut",
     shortcut: "Shortcut",
     market: "Market",

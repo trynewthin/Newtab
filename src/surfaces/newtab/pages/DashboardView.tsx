@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { SearchBar } from "@/apps/search/components/SearchBar";
 import { BasePage } from "@/platform/shared/layout";
 import { AppGrid } from "@/apps/launcher";
 import { motion } from "framer-motion";
@@ -9,6 +8,7 @@ import { warmupModalRuntimes } from "@/apps/launcher/system/appRuntimeRegistry";
 const HomeTools = lazy(() =>
     import("@/apps/launcher/components/HomeTools").then((m) => ({ default: m.HomeTools }))
 );
+const DASHBOARD_GRID_TOP_INSET_PX = 168;
 
 export function DashboardView() {
     // Enable hash routing for system dialogs
@@ -64,34 +64,23 @@ export function DashboardView() {
 
     return (
         <BasePage
-            className="py-0 px-0 flex flex-col items-center relative overflow-hidden"
+            className="py-0 px-0 flex h-full flex-col items-center relative overflow-visible"
             tools={showTools ? (
                 <Suspense fallback={null}>
                     <HomeTools />
                 </Suspense>
             ) : null}
         >
-            {/* 1. Search Area */}
-            <motion.div
-                initial={{ y: 200, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -50, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="w-full max-w-2xl px-4 z-50 flex flex-col items-center mt-32"
-            >
-                <SearchBar />
-            </motion.div>
-
-            {/* 2. Main Content (App Grid) */}
+            {/* Content Layer */}
             <motion.div
                 key="content-grid"
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="w-full flex-1 min-h-0 overflow-hidden mt-6"
+                className="relative z-20 w-full h-full min-h-0 overflow-visible"
             >
-                <AppGrid />
+                <AppGrid topInsetPx={DASHBOARD_GRID_TOP_INSET_PX} />
             </motion.div>
         </BasePage>
     );

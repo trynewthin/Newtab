@@ -11,6 +11,7 @@ interface UIState {
     isEditing: boolean;
     selectedTagIds: string[];
     activeSystemDialog: SystemDialogType | null;
+    isFolderPreviewVisible: boolean;
 
     setEditing: (status: boolean) => void;
     toggleEditing: () => void;
@@ -21,12 +22,14 @@ interface UIState {
 
     // 弹窗管理
     setActiveSystemDialog: (type: SystemDialogType | null) => void;
+    setFolderPreviewVisible: (visible: boolean) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
     isEditing: false,
     selectedTagIds: [],
     activeSystemDialog: null,
+    isFolderPreviewVisible: false,
 
     setEditing: (status) => set({
         isEditing: status,
@@ -47,6 +50,7 @@ export const useUIStore = create<UIState>((set) => ({
     clearSelection: () => set({ selectedTagIds: [] }),
 
     setActiveSystemDialog: (type) => set({ activeSystemDialog: type }),
+    setFolderPreviewVisible: (visible) => set({ isFolderPreviewVisible: visible }),
 }));
 
 /**

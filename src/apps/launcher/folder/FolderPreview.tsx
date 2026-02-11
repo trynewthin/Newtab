@@ -23,6 +23,7 @@ import {
 import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import { cn } from "@/platform/core/utils";
 import { ShortcutDialog } from "../tag/ShortcutDialog";
+import GlassSurface from "@/components/GlassSurface";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)
 let lastClickPos = {
@@ -424,36 +425,55 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
                     ref={setRefs}
                     style={{ transformOrigin } as React.CSSProperties}
                     className={cn(
-                        "relative overflow-hidden rounded-[32px] transition-all duration-300 ease-in-out p-6 w-[340px] h-[340px] shadow-2xl",
+                        "relative transition-all duration-300 ease-in-out w-[340px] h-[340px] shadow-2xl",
                         entered ? "opacity-100 scale-100" : "opacity-0 scale-50"
                     )}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Mixed Background Layers - Base White/Black + Primary Tint */}
-                    <div className="absolute inset-0 bg-white/30 dark:bg-black/50 backdrop-blur-3xl border border-white/20 dark:border-white/10 -z-20" />
-                    <div className="absolute inset-0 bg-primary/10 dark:bg-primary/20 pointer-events-none -z-10" />
-
-                    <div className="relative z-10 grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 h-full overflow-y-auto overflow-x-hidden content-start [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-3 pb-4 px-1">
-                        <SortableContext
-                            items={displayItems.map(item => item.id)}
-                            strategy={rectSortingStrategy}
-                        >
-                            {displayItems.map((item) =>
-                                isPlaceholder(item) ? (
-                                    <EmptySlot key={item.id} id={item.id} />
-                                ) : (
-                                    <div key={item.id} className="overflow-visible">
-                                        <GridItem
-                                            item={item as GridItemType}
-                                            onEdit={handleEditItem}
-                                            onDeletePrompt={handleRemoveFromFolder}
-                                            onClick={onClickTag}
-                                        />
-                                    </div>
-                                )
-                            )}
-                        </SortableContext>
-                    </div>
+                    <GlassSurface
+                        width="100%"
+                        height="100%"
+                        borderRadius={32}
+                        backgroundOpacity={0.2}
+                        saturation={1.24}
+                        brightness={56}
+                        opacity={0.94}
+                        blur={11}
+                        displace={5.0}
+                        borderWidth={0.08}
+                        distortionScale={-150}
+                        redOffset={4}
+                        greenOffset={12}
+                        blueOffset={22}
+                        mixBlendMode="screen"
+                        className="h-full w-full p-0"
+                    >
+                        <section className="relative z-10 h-full w-full p-6">
+                            <div className="h-full w-full overflow-y-auto overflow-x-hidden">
+                                <div className="relative grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 content-start">
+                                    <SortableContext
+                                        items={displayItems.map(item => item.id)}
+                                        strategy={rectSortingStrategy}
+                                    >
+                                        {displayItems.map((item) =>
+                                            isPlaceholder(item) ? (
+                                                <EmptySlot key={item.id} id={item.id} />
+                                            ) : (
+                                                <div key={item.id} className="overflow-visible">
+                                                    <GridItem
+                                                        item={item as GridItemType}
+                                                        onEdit={handleEditItem}
+                                                        onDeletePrompt={handleRemoveFromFolder}
+                                                        onClick={onClickTag}
+                                                    />
+                                                </div>
+                                            )
+                                        )}
+                                    </SortableContext>
+                                </div>
+                            </div>
+                        </section>
+                    </GlassSurface>
                 </div>
             </div>
 

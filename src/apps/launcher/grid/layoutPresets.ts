@@ -21,6 +21,7 @@ export type GridPresetKey = keyof typeof GRID_ITEM_PRESETS;
 export const DEFAULT_GRID_PRESET: GridPresetKey = "1x1";
 
 export type GridTileVariant = "icon" | "panel";
+export type GridResizeAxis = "both" | "horizontal" | "vertical";
 
 export interface GridItemLayoutCapability {
     variant: GridTileVariant;
@@ -28,6 +29,11 @@ export interface GridItemLayoutCapability {
     resizable: boolean;
     defaultPreset: GridPresetKey;
     allowedPresets: readonly GridPresetKey[];
+    minW: number;
+    maxW: number;
+    minH: number;
+    maxH: number;
+    resizeAxis: GridResizeAxis;
 }
 
 export function getDefaultGridSize() {
@@ -40,6 +46,11 @@ const ICON_ONLY_CAPABILITY: GridItemLayoutCapability = {
     resizable: false,
     defaultPreset: "1x1",
     allowedPresets: ["1x1"],
+    minW: 1,
+    maxW: 1,
+    minH: 1,
+    maxH: 1,
+    resizeAxis: "both",
 };
 
 function isGridPresetKey(value: string): value is GridPresetKey {
@@ -73,6 +84,11 @@ function getAppIconCapability(item: GridItem): GridItemLayoutCapability {
         resizable: launcher.icon.resizable,
         defaultPreset,
         allowedPresets,
+        minW: GRID_ITEM_PRESETS[defaultPreset].w,
+        maxW: GRID_ITEM_PRESETS[defaultPreset].w,
+        minH: GRID_ITEM_PRESETS[defaultPreset].h,
+        maxH: GRID_ITEM_PRESETS[defaultPreset].h,
+        resizeAxis: "both",
     };
 }
 
@@ -87,19 +103,34 @@ export function getItemLayoutCapability(item: GridItem): GridItemLayoutCapabilit
                 resizable: false,
                 defaultPreset: "2x2",
                 allowedPresets: ["2x2"],
+                minW: 2,
+                maxW: 2,
+                minH: 2,
+                maxH: 2,
+                resizeAxis: "both",
             };
         }
 
         const defaultPreset = isGridPresetKey(widget.defaultPreset)
             ? widget.defaultPreset
             : "2x2";
+        const defaultSize = GRID_ITEM_PRESETS[defaultPreset];
         const allowedPresets = normalizeAllowedPresets(widget.supportedPresets, defaultPreset);
+        const minW = Math.max(1, Math.floor(widget.resizeRange?.minW ?? defaultSize.w));
+        const maxW = Math.max(minW, Math.floor(widget.resizeRange?.maxW ?? defaultSize.w));
+        const minH = Math.max(1, Math.floor(widget.resizeRange?.minH ?? defaultSize.h));
+        const maxH = Math.max(minH, Math.floor(widget.resizeRange?.maxH ?? defaultSize.h));
         return {
             variant: widget.variant,
             draggable: widget.draggable,
             resizable: widget.resizable,
             defaultPreset,
             allowedPresets,
+            minW,
+            maxW,
+            minH,
+            maxH,
+            resizeAxis: widget.resizeRange?.axis ?? "both",
         };
     }
 
@@ -114,20 +145,42 @@ export function resolvePresetSize(preset: GridPresetKey) {
     return GRID_ITEM_PRESETS[preset];
 }
 
+function clampToRange(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
+}
+
 export function sanitizeGridSize(item: GridItem): { w: number; h: number } {
     const capability = getItemLayoutCapability(item);
     const fallback = resolvePresetSize(capability.defaultPreset);
     const currentPreset = resolveGridPreset(item);
+    let rawW: number = fallback.w;
+    let rawH: number = fallback.h;
 
-    if (currentPreset === "custom") {
-        return fallback;
+    if (currentPreset !== "custom" && capability.allowedPresets.includes(currentPreset)) {
+        const presetSize = resolvePresetSize(currentPreset);
+        rawW = presetSize.w;
+        rawH = presetSize.h;
+    } else if (typeof item.w === "number" && typeof item.h === "number" && capability.resizable) {
+        rawW = Math.floor(item.w);
+        rawH = Math.floor(item.h);
     }
 
-    if (!capability.allowedPresets.includes(currentPreset)) {
-        return fallback;
+    const clampedW = clampToRange(rawW, capability.minW, capability.maxW);
+    const clampedH = clampToRange(rawH, capability.minH, capability.maxH);
+
+    if (!capability.resizable) {
+        return { w: fallback.w, h: fallback.h };
     }
 
-    return resolvePresetSize(currentPreset);
+    if (capability.resizeAxis === "horizontal") {
+        return { w: clampedW, h: clampToRange(fallback.h, capability.minH, capability.maxH) };
+    }
+
+    if (capability.resizeAxis === "vertical") {
+        return { w: clampToRange(fallback.w, capability.minW, capability.maxW), h: clampedH };
+    }
+
+    return { w: clampedW, h: clampedH };
 }
 
 export function resolveGridPreset(item: Pick<GridItem, "w" | "h">): GridPresetKey | "custom" {

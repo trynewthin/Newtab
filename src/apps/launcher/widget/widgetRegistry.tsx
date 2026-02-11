@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/platform/core/utils";
 import type { LauncherWidgetItem } from "@/platform/state/core/itemTypes";
-import { useUIStore } from "@/apps/launcher/store/ui";
-import { Edit2, X } from "lucide-react";
+import { ItemActionMenu } from "@/apps/launcher/base/ItemActionMenu";
+import { useTranslation } from "react-i18next";
+import GlassSurface from "@/components/GlassSurface";
 import {
     type LauncherTilePreset,
     type LauncherTileVariant,
@@ -14,8 +15,19 @@ import { renderSystemIcon } from "@/apps/launcher/system/systemIcons";
 export interface WidgetRenderProps {
     item: LauncherWidgetItem;
     preset: LauncherTilePreset;
+    gridSize: { w: number; h: number };
     className?: string;
     onActivate?: (event?: React.MouseEvent) => void;
+}
+
+export type WidgetResizeAxis = "both" | "horizontal" | "vertical";
+
+export interface WidgetResizeRange {
+    minW: number;
+    maxW: number;
+    minH: number;
+    maxH: number;
+    axis?: WidgetResizeAxis;
 }
 
 export interface SystemWidgetManifestItem {
@@ -29,7 +41,49 @@ export interface SystemWidgetManifestItem {
     resizable: boolean;
     defaultPreset: LauncherTilePreset;
     supportedPresets: readonly LauncherTilePreset[];
+    resizeRange?: WidgetResizeRange;
     renderer: React.ComponentType<WidgetRenderProps>;
+}
+
+function resolveLocalizedTitle(
+    t: (key: string, options?: Record<string, unknown>) => string,
+    title: string
+): string {
+    if (title.startsWith("sys_") || title.startsWith("widget_")) {
+        return t(title);
+    }
+    return title;
+}
+
+function WidgetGlassPanel({
+    className,
+    children,
+}: {
+    className?: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <GlassSurface
+            width="100%"
+            height="100%"
+            borderRadius={16}
+            backgroundOpacity={0.2}
+            saturation={1.24}
+            brightness={56}
+            opacity={0.94}
+            blur={11}
+            displace={5.0}
+            borderWidth={0.08}
+            distortionScale={-150}
+            redOffset={4}
+            greenOffset={12}
+            blueOffset={22}
+            mixBlendMode="screen"
+            className={cn("h-full w-full", className)}
+        >
+            {children}
+        </GlassSurface>
+    );
 }
 
 function WidgetCardFrame({
@@ -55,17 +109,18 @@ function WidgetCardFrame({
                 }
             }}
             className={cn(
-                "group flex h-full w-full rounded-2xl border border-white/20 bg-white/55 p-3 text-left backdrop-blur-md transition-all hover:bg-white/70 dark:border-white/10 dark:bg-black/35 dark:hover:bg-black/45",
-                "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                "group h-full w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                 className
             )}
         >
-            <div className="flex h-full w-full flex-col justify-between">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black shadow-sm dark:bg-black dark:text-white">
-                    {renderSystemIcon(item.icon || "", "h-4 w-4")}
+            <WidgetGlassPanel className="p-3">
+                <div className="flex h-full w-full flex-col justify-between">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg text-white/95">
+                        {renderSystemIcon(item.icon || "", "h-4 w-4")}
+                    </div>
+                    {children}
                 </div>
-                {children}
-            </div>
+            </WidgetGlassPanel>
         </div>
     );
 }
@@ -98,6 +153,8 @@ function getClockParts(now: Date) {
     const weekProgress = (weekDay + dayProgress) / 7;
 
     return {
+        hours,
+        minutes,
         timeHM: `${hours}:${minutes}`,
         seconds,
         dateShort: formatClockDate(now),
@@ -122,15 +179,163 @@ function ProgressBar({
 
     return (
         <div className={cn("space-y-1", compact && "space-y-0.5")}>
-            <div className={cn("flex items-center justify-between text-muted-foreground", compact ? "text-[9px]" : "text-[10px]")}>
+            <div className={cn("flex items-center justify-between text-white/72", compact ? "text-[9px]" : "text-[10px]")}>
                 <span>{label}</span>
                 <span>{percent}%</span>
             </div>
-            <div className={cn("w-full rounded-full bg-black/10 dark:bg-white/10", compact ? "h-1.5" : "h-2")}>
+            <div className={cn("w-full rounded-full bg-white/20", compact ? "h-1.5" : "h-2")}>
                 <div
-                    className="h-full rounded-full bg-foreground/80 transition-[width] duration-300 ease-out"
+                    className="h-full rounded-full bg-white/90 transition-[width] duration-300 ease-out"
                     style={{ width: `${percent}%` }}
                 />
+            </div>
+        </div>
+    );
+}
+
+type ClockToken =
+    | "timePair"
+    | "seconds"
+    | "weekday"
+    | "dateShort"
+    | "dateLong"
+    | "dayProgress"
+    | "weekProgress";
+
+type ClockTokenFamily = "time" | "seconds" | "weekday" | "date" | "day" | "week";
+type ClockLayoutMode = "narrow" | "balanced" | "wide" | "ultra" | "fallback";
+
+interface ClockTokenSpec {
+    token: ClockToken;
+    family: ClockTokenFamily;
+    densityCost: number;
+    utility: number;
+    minWidth?: number;
+    minHeight?: number;
+    requires?: readonly ClockToken[];
+    conflicts?: readonly ClockToken[];
+}
+
+interface ClockLayoutPlan {
+    mode: ClockLayoutMode;
+    tokens: Set<ClockToken>;
+    density: number;
+    targetDensity: number;
+}
+
+const CLOCK_TOKEN_SPECS: readonly ClockTokenSpec[] = [
+    { token: "timePair", family: "time", densityCost: 12, utility: 100 },
+    { token: "seconds", family: "seconds", densityCost: 3, utility: 24 },
+    { token: "weekday", family: "weekday", densityCost: 3, utility: 18 },
+    { token: "dateShort", family: "date", densityCost: 3, utility: 22 },
+    { token: "dateLong", family: "date", densityCost: 5, utility: 26, minWidth: 4, conflicts: ["dateShort"] },
+    { token: "dayProgress", family: "day", densityCost: 5, utility: 20, minWidth: 2 },
+    { token: "weekProgress", family: "week", densityCost: 5, utility: 16, minWidth: 3, requires: ["dayProgress"] },
+] as const;
+
+function resolveClockLayoutMode(width: number, height: number): ClockLayoutMode {
+    if (height === 2) {
+        if (width <= 1) return "narrow";
+        if (width === 2) return "balanced";
+        if (width === 3) return "wide";
+        return "ultra";
+    }
+    return "fallback";
+}
+
+function resolveClockTargetDensity(width: number): number {
+    if (width <= 1) return 0.78;
+    if (width === 2) return 0.84;
+    if (width === 3) return 0.9;
+    return 0.93;
+}
+
+function resolveTokenUtility(spec: ClockTokenSpec, width: number): number {
+    if (spec.token === "dateLong") {
+        return width >= 4 ? spec.utility + 8 : spec.utility - 10;
+    }
+    if (spec.token === "weekProgress") {
+        return width >= 3 ? spec.utility + 2 : spec.utility - 8;
+    }
+    return spec.utility;
+}
+
+function buildClockLayoutPlan(width: number, height: number): ClockLayoutPlan {
+    const mode = resolveClockLayoutMode(width, height);
+    const targetDensity = resolveClockTargetDensity(width);
+    const capacity = Math.max(1, width * height * 12);
+    const selected = new Set<ClockToken>(["timePair"]);
+    const selectedFamilies = new Set<ClockTokenFamily>(["time"]);
+    const tokenMap = new Map(CLOCK_TOKEN_SPECS.map((spec) => [spec.token, spec]));
+    let usedCost = tokenMap.get("timePair")?.densityCost ?? 12;
+
+    const candidates = CLOCK_TOKEN_SPECS
+        .filter((spec) => spec.token !== "timePair")
+        .sort((a, b) => resolveTokenUtility(b, width) - resolveTokenUtility(a, width));
+
+    for (const spec of candidates) {
+        if (typeof spec.minWidth === "number" && width < spec.minWidth) continue;
+        if (typeof spec.minHeight === "number" && height < spec.minHeight) continue;
+        if (selectedFamilies.has(spec.family)) continue;
+        if (spec.requires && !spec.requires.every((token) => selected.has(token))) continue;
+        if (spec.conflicts && spec.conflicts.some((token) => selected.has(token))) continue;
+
+        const projectedDensity = (usedCost + spec.densityCost) / capacity;
+        if (projectedDensity > targetDensity + 0.06) continue;
+
+        selected.add(spec.token);
+        selectedFamilies.add(spec.family);
+        usedCost += spec.densityCost;
+    }
+
+    if (!selected.has("dateShort") && !selected.has("dateLong")) {
+        const preferredDate = width >= 4 ? "dateLong" : "dateShort";
+        const fallbackDate = preferredDate === "dateLong" ? "dateShort" : "dateLong";
+        const preferredSpec = tokenMap.get(preferredDate);
+        if (
+            preferredSpec &&
+            (!preferredSpec.minWidth || width >= preferredSpec.minWidth) &&
+            (!preferredSpec.minHeight || height >= preferredSpec.minHeight) &&
+            (usedCost + preferredSpec.densityCost) / capacity <= targetDensity + 0.08
+        ) {
+            selected.add(preferredDate);
+            selectedFamilies.add("date");
+            usedCost += preferredSpec.densityCost;
+        } else {
+            const fallbackSpec = tokenMap.get(fallbackDate);
+            if (
+                fallbackSpec &&
+                (!fallbackSpec.minWidth || width >= fallbackSpec.minWidth) &&
+                (!fallbackSpec.minHeight || height >= fallbackSpec.minHeight) &&
+                (usedCost + fallbackSpec.densityCost) / capacity <= targetDensity + 0.1
+            ) {
+                selected.add(fallbackDate);
+                selectedFamilies.add("date");
+                usedCost += fallbackSpec.densityCost;
+            }
+        }
+    }
+
+    const density = Math.min(1, usedCost / capacity);
+    return { mode, tokens: selected, density, targetDensity };
+}
+
+function TimeSegment({
+    label,
+    value,
+    compact = false,
+}: {
+    label: string;
+    value: string;
+    compact?: boolean;
+}) {
+    return (
+        <div className="space-y-1 px-1 py-0.5">
+            <div className={cn("text-white/72", compact ? "text-[9px]" : "text-[10px]")}>
+                {label}
+            </div>
+            <div className={cn("font-semibold leading-none text-white", compact ? "text-[1.45rem]" : "text-[1.8rem]")}>
+                {value}
             </div>
         </div>
     );
@@ -157,17 +362,19 @@ function ClockWidgetShell({
                 }
             }}
             className={cn(
-                "group h-full w-full rounded-2xl border border-white/20 bg-white/55 p-3 text-left backdrop-blur-md transition-all hover:bg-white/70 dark:border-white/10 dark:bg-black/35 dark:hover:bg-black/45",
-                "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                "group h-full w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                 className
             )}
         >
-            {children}
+            <WidgetGlassPanel className="p-3 text-left">
+                {children}
+            </WidgetGlassPanel>
         </div>
     );
 }
 
-function ClockWidgetRenderer({ preset, className, onActivate }: WidgetRenderProps) {
+function ClockWidgetRenderer({ gridSize, className, onActivate }: WidgetRenderProps) {
+    const { t } = useTranslation();
     const [now, setNow] = useState(() => new Date());
 
     useEffect(() => {
@@ -178,113 +385,144 @@ function ClockWidgetRenderer({ preset, className, onActivate }: WidgetRenderProp
     }, []);
 
     const parts = getClockParts(now);
-    const isWideCompact = preset === "2x1";
-    const isTallCompact = preset === "1x2";
-    const isMedium = preset === "2x2";
-    const isTallExtended = preset === "2x4";
+    const width = Math.max(1, Math.round(gridSize.w));
+    const height = Math.max(1, Math.round(gridSize.h));
+    const plan = buildClockLayoutPlan(width, height);
+    const mode = plan.mode;
+
+    const show = (token: ClockToken) => plan.tokens.has(token);
+    const activeDateText = show("dateLong") ? parts.dateLong : parts.dateShort;
+    const splitTime = (
+        <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-1.5">
+            <TimeSegment label={t("clock_h_short")} value={parts.hours} compact={width <= 2} />
+            <div className="pb-1 text-center text-xl font-semibold text-white/88">:</div>
+            <TimeSegment label={t("clock_m_short")} value={parts.minutes} compact={width <= 2} />
+        </div>
+    );
 
     return (
         <ClockWidgetShell className={className} onActivate={onActivate}>
             <div className="flex h-full min-h-0 flex-col overflow-hidden">
-                {isWideCompact ? (
-                    <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_1fr] items-end gap-2">
-                        <div className={cn(
-                            "font-semibold leading-none tracking-tight text-foreground",
-                            "text-[2.05rem]"
-                        )}>
-                            {parts.timeHM}
-                        </div>
-                        <div className="space-y-1 text-right">
-                            <div className="text-xs font-medium text-foreground/90">{parts.dateShort}</div>
-                            <div className="text-[11px] text-muted-foreground">Sec {parts.seconds}</div>
-                        </div>
-                    </div>
-                ) : null}
-
-                {isTallCompact ? (
-                    <div className="flex min-h-0 flex-1 flex-col justify-between">
-                        <div>
-                            <div className="text-[2rem] font-semibold leading-none tracking-tight text-foreground">
-                                {parts.timeHM}
-                            </div>
-                            <div className="mt-1 text-xs text-muted-foreground">{parts.weekdayLong}</div>
+                {mode === "narrow" ? (
+                    <div className="flex min-h-0 flex-1 flex-col justify-between gap-2">
+                        <div className="space-y-2">
+                            {splitTime}
+                            {show("weekday") ? (
+                                <div className="text-xs text-white/72">{parts.weekdayLong}</div>
+                            ) : null}
                         </div>
                         <div className="space-y-1">
-                            <div className="text-xs font-medium text-foreground/90">{parts.dateShort}</div>
-                            <div className="text-[11px] text-muted-foreground">Sec {parts.seconds}</div>
-                            <ProgressBar label="Day" value={parts.dayProgress} compact />
+                            {show("seconds") ? (
+                                <div className="text-[11px] text-white/72">{t("clock_seconds", { seconds: parts.seconds })}</div>
+                            ) : null}
+                            {(show("dateShort") || show("dateLong")) ? (
+                                <div className="text-xs font-medium text-white/88">{parts.dateShort}</div>
+                            ) : null}
                         </div>
                     </div>
                 ) : null}
 
-                {isMedium ? (
+                {mode === "balanced" ? (
+                    <div className="grid min-h-0 flex-1 grid-rows-[auto_auto_1fr] gap-2">
+                        {splitTime}
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                            {show("weekday") ? <div className="text-white/72">{parts.weekdayLong}</div> : <span />}
+                            {(show("dateShort") || show("dateLong")) ? <div className="text-right text-white/72">{parts.dateShort}</div> : <span />}
+                        </div>
+                        <div className="flex min-h-0 flex-col justify-end gap-1.5">
+                            {show("seconds") ? (
+                                <div className="text-[11px] text-white/72">{t("clock_seconds", { seconds: parts.seconds })}</div>
+                            ) : null}
+                            {show("dayProgress") ? (
+                                <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact />
+                            ) : null}
+                        </div>
+                    </div>
+                ) : null}
+
+                {mode === "wide" ? (
+                    <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-2.5">
+                        <div className="flex min-h-0 flex-col justify-between">
+                            <div className="space-y-2">
+                                {splitTime}
+                                <div className="space-y-1 text-xs text-white/72">
+                                    {show("weekday") ? <div>{parts.weekdayLong}</div> : null}
+                                </div>
+                            </div>
+                            {(show("dateShort") || show("dateLong")) ? (
+                                <div className="text-xs text-white/72">{activeDateText}</div>
+                            ) : null}
+                        </div>
+                        <div className="flex min-h-0 flex-col justify-between gap-2">
+                            <div className="space-y-1.5">
+                                {show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
+                                {show("weekProgress") ? <ProgressBar label={t("clock_week")} value={parts.weekProgress} compact /> : null}
+                            </div>
+                            {show("seconds") ? (
+                                <div className="px-2 py-1.5 text-[11px] text-white/72">
+                                    {t("clock_seconds", { seconds: parts.seconds })}
+                                </div>
+                            ) : null}
+                        </div>
+                    </div>
+                ) : null}
+
+                {mode === "ultra" ? (
+                    <div className="grid min-h-0 flex-1 grid-cols-[1.1fr_1fr_1fr] gap-2.5">
+                        <div className="flex min-h-0 flex-col justify-between gap-2">
+                            {splitTime}
+                            <div className="space-y-1 text-xs text-white/72">
+                                {show("weekday") ? <div>{parts.weekdayLong}</div> : null}
+                            </div>
+                        </div>
+                        <div className="flex min-h-0 flex-col justify-between gap-2">
+                            <div className="space-y-1 px-2.5 py-2">
+                                {(show("dateShort") || show("dateLong")) ? (
+                                    <div className="text-xs text-white/72">{activeDateText}</div>
+                                ) : null}
+                                {show("seconds") ? (
+                                    <div className="text-sm font-medium text-white/88">{t("clock_seconds", { seconds: parts.seconds })}</div>
+                                ) : null}
+                            </div>
+                            {show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
+                        </div>
+                        <div className="flex min-h-0 flex-col justify-between gap-2">
+                            {show("weekProgress") ? <ProgressBar label={t("clock_week")} value={parts.weekProgress} compact /> : null}
+                            {!show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
+                        </div>
+                    </div>
+                ) : null}
+
+                {mode === "fallback" ? (
                     <div className="flex min-h-0 flex-1 flex-col justify-between">
-                        <div>
-                            <div className="text-[2.2rem] font-semibold leading-none tracking-tight text-foreground">
-                                {parts.timeHM}
-                            </div>
-                            <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
-                                <span>{parts.dateShort}</span>
-                                <span>Sec {parts.seconds}</span>
-                            </div>
+                        <div className="space-y-2">
+                            {splitTime}
+                            {(show("dateShort") || show("dateLong")) ? <div className="text-xs text-white/72">{activeDateText}</div> : null}
                         </div>
                         <div className="space-y-1.5">
-                            <ProgressBar label="Day" value={parts.dayProgress} compact />
-                            <ProgressBar label="Week" value={parts.weekProgress} compact />
-                        </div>
-                    </div>
-                ) : null}
-
-                {isTallExtended ? (
-                    <div className="flex min-h-0 flex-1 flex-col justify-between">
-                        <div>
-                            <div className="text-[2.2rem] font-semibold leading-none tracking-tight text-foreground">
-                                {parts.timeHM}
-                            </div>
-                            <div className="mt-1 text-xs text-muted-foreground">{parts.dateLong}</div>
-                            <div className="text-xs text-muted-foreground">{parts.weekdayLong}</div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <ProgressBar label="Day" value={parts.dayProgress} compact />
-                            <ProgressBar label="Week" value={parts.weekProgress} compact />
-                            <div className="grid grid-cols-3 gap-1.5 rounded-lg bg-black/5 p-1.5 text-center dark:bg-white/5">
-                                <div>
-                                    <div className="text-[9px] text-muted-foreground">H</div>
-                                    <div className="text-xs font-semibold">{parts.timeHM.slice(0, 2)}</div>
-                                </div>
-                                <div>
-                                    <div className="text-[9px] text-muted-foreground">M</div>
-                                    <div className="text-xs font-semibold">{parts.timeHM.slice(3, 5)}</div>
-                                </div>
-                                <div>
-                                    <div className="text-[9px] text-muted-foreground">S</div>
-                                    <div className="text-xs font-semibold">{parts.seconds}</div>
-                                </div>
-                            </div>
+                            {show("seconds") ? <div className="text-[11px] text-white/72">{t("clock_seconds", { seconds: parts.seconds })}</div> : null}
+                            {show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
+                            {show("weekProgress") ? <ProgressBar label={t("clock_week")} value={parts.weekProgress} compact /> : null}
                         </div>
                     </div>
                 ) : null}
             </div>
-
-            {!isWideCompact && !isTallCompact && !isMedium && !isTallExtended ? (
-                <div className="text-xs text-muted-foreground">
-                    {parts.dateShort}
-                </div>
-            ) : null}
         </ClockWidgetShell>
     );
 }
 
 function AppShortcutWidgetRenderer({ item, className, onActivate }: WidgetRenderProps) {
+    const { t } = useTranslation();
+    const displayTitle = resolveLocalizedTitle(t, item.title);
+
     return (
         <WidgetCardFrame item={item} className={className} onActivate={onActivate}>
             <div className="space-y-1">
-                <div className="line-clamp-1 text-sm font-semibold text-foreground">
-                    {item.title}
+                <div className="line-clamp-1 text-sm font-semibold text-white/95">
+                    {displayTitle}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                    Open App
+                <div className="text-xs text-white/72">
+                    {t("open_app")}
                 </div>
             </div>
         </WidgetCardFrame>
@@ -294,35 +532,28 @@ function AppShortcutWidgetRenderer({ item, className, onActivate }: WidgetRender
 export const SYSTEM_WIDGET_MANIFEST = [
     {
         id: "clock",
-        title: "Clock",
+        title: "widget_clock",
         icon: "Timer",
-        launchAppId: "pomodoro",
         variant: "panel",
         draggable: true,
-        resizable: false,
-        defaultPreset: "2x1",
-        supportedPresets: ["2x1", "1x2", "2x2", "2x4"],
+        resizable: true,
+        defaultPreset: "2x2",
+        supportedPresets: ["1x2", "2x2"],
+        resizeRange: {
+            minW: 1,
+            maxW: 4,
+            minH: 2,
+            maxH: 2,
+            axis: "horizontal",
+        },
         renderer: ClockWidgetRenderer,
     },
     {
         id: "ai-assistant-panel",
-        title: "AI Assistant",
+        title: "widget_ai_assistant_panel",
         icon: "Sparkles",
         ownerAppId: "ai",
         launchAppId: "ai",
-        variant: "panel",
-        draggable: true,
-        resizable: false,
-        defaultPreset: "2x2",
-        supportedPresets: ["2x1", "1x2", "2x2", "2x4"],
-        renderer: AppShortcutWidgetRenderer,
-    },
-    {
-        id: "paper-notes-panel",
-        title: "Paper",
-        icon: "FileText",
-        ownerAppId: "paper",
-        launchAppId: "paper",
         variant: "panel",
         draggable: true,
         resizable: false,
@@ -352,8 +583,6 @@ export function resolveLegacyWidgetId(appId: string): SystemWidgetId | null {
     switch (appId) {
         case "ai":
             return "ai-assistant-panel";
-        case "paper":
-            return "paper-notes-panel";
         default:
             return null;
     }
@@ -376,6 +605,7 @@ export function resolveWidgetLaunchAppId(widgetId: string, ownerAppId?: string):
 interface LauncherWidgetItemProps {
     item: LauncherWidgetItem;
     preset: LauncherTilePreset;
+    gridSize: { w: number; h: number };
     className?: string;
     onActivate?: (event?: React.MouseEvent) => void;
     onEdit?: (item: LauncherWidgetItem) => void;
@@ -386,89 +616,64 @@ interface LauncherWidgetItemProps {
 export function LauncherWidgetItem({
     item,
     preset,
+    gridSize,
     className,
     onActivate,
     onEdit,
     onDeletePrompt,
     isOverlay,
 }: LauncherWidgetItemProps) {
-    const { isEditing } = useUIStore();
+    const { t } = useTranslation();
     const widget = getWidgetManifestItem(item.widgetId);
     const Renderer = widget?.renderer ?? AppShortcutWidgetRenderer;
 
-    const handleEdit = (event: React.MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
+    const handleEdit = () => {
         onEdit?.(item);
     };
 
-    const handleDelete = (event: React.MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
+    const handleDelete = () => {
         onDeletePrompt?.(item);
     };
 
     if (!widget) {
         return (
             <div className={cn("group relative h-full w-full", className)}>
-                <div className={cn(
-                    "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
-                    (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-                )}>
-                    <button
-                        onClick={handleEdit}
-                        className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                        title="Edit"
-                    >
-                        <Edit2 size={10} />
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                        title="Remove"
-                    >
-                        <X size={10} />
-                    </button>
-                </div>
-
-                <Renderer
-                    item={item}
-                    preset={preset}
-                    className="h-full w-full"
-                    onActivate={onActivate}
-                />
+                <ItemActionMenu
+                    disabled={!!isOverlay}
+                    onEdit={() => onEdit?.(item)}
+                    onDelete={() => onDeletePrompt?.(item)}
+                    editLabel={t("edit")}
+                    deleteLabel={t("remove")}
+                >
+                    <Renderer
+                        item={item}
+                        preset={preset}
+                        gridSize={gridSize}
+                        className="h-full w-full"
+                        onActivate={onActivate}
+                    />
+                </ItemActionMenu>
             </div>
         );
     }
 
     return (
         <div className={cn("group relative h-full w-full", className)}>
-            <div className={cn(
-                "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
-                (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-            )}>
-                <button
-                    onClick={handleEdit}
-                    className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Edit"
-                >
-                    <Edit2 size={10} />
-                </button>
-                <button
-                    onClick={handleDelete}
-                    className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Remove"
-                >
-                    <X size={10} />
-                </button>
-            </div>
-
-            <Renderer
-                item={item}
-                preset={preset}
-                className="h-full w-full"
-                onActivate={onActivate}
-            />
+            <ItemActionMenu
+                disabled={!!isOverlay}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                editLabel={t("edit")}
+                deleteLabel={t("remove")}
+            >
+                <Renderer
+                    item={item}
+                    preset={preset}
+                    gridSize={gridSize}
+                    className="h-full w-full"
+                    onActivate={onActivate}
+                />
+            </ItemActionMenu>
         </div>
     );
 }

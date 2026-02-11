@@ -12,6 +12,7 @@ import type {
 import { SYSTEM_ITEMS } from '@/apps/launcher';
 import { getWidgetManifestItem, isSystemWidgetId, resolveLegacyWidgetId } from '@/apps/launcher/widget';
 import { GRID_ITEM_PRESETS } from '@/apps/launcher/grid/layoutPresets';
+import { isSystemAppBlocked, isSystemAppId } from '@/apps/launcher/system/appManifest';
 
 type NewItemInput =
     | Omit<WebTagItem, 'id' | 'kind'>
@@ -40,18 +41,18 @@ function migrateLegacyWidgetItem(item: GridItem): GridItem {
         typeof item.appId === "string"
     ) {
         const widgetId = resolveLegacyWidgetId(item.appId);
-        if (widgetId) {
-            const widget = getWidgetManifestItem(widgetId);
-            const fallbackSize = GRID_ITEM_PRESETS[widget?.defaultPreset ?? "2x2"];
-            return {
+                if (widgetId) {
+                    const widget = getWidgetManifestItem(widgetId);
+                    const fallbackSize = GRID_ITEM_PRESETS[widget?.defaultPreset ?? "2x2"];
+                    return {
                 id: item.id,
-                kind: "widget",
-                widgetId,
-                ownerAppId: item.appId,
-                title: item.title || widget?.title || "Widget",
-                icon: item.icon || widget?.icon,
-                x: item.x,
-                y: item.y,
+                        kind: "widget",
+                        widgetId,
+                        ownerAppId: item.appId,
+                        title: item.title || widget?.title || "widget_generic",
+                        icon: item.icon || widget?.icon,
+                        x: item.x,
+                        y: item.y,
                 w: item.w ?? fallbackSize.w,
                 h: item.h ?? fallbackSize.h,
             };
@@ -59,6 +60,42 @@ function migrateLegacyWidgetItem(item: GridItem): GridItem {
     }
 
     return item;
+}
+
+function stripUnavailableItems(items: GridItem[]): GridItem[] {
+    const next: GridItem[] = [];
+    const shouldDropApp = (appId: string) => !isSystemAppId(appId) || isSystemAppBlocked(appId);
+    const shouldDropWidget = (widgetId: string) => !isSystemWidgetId(widgetId) || !getWidgetManifestItem(widgetId);
+
+    for (const item of items) {
+        if (item.kind === "app" && shouldDropApp(item.appId)) {
+            continue;
+        }
+
+        if (item.kind === "widget" && shouldDropWidget(item.widgetId)) {
+            continue;
+        }
+
+        if (item.kind === "folder") {
+            const filteredChildren = item.children.filter(
+                (child) => !(child.kind === "app" && shouldDropApp(child.appId))
+            );
+
+            if (filteredChildren.length === 0) {
+                continue;
+            }
+
+            next.push({
+                ...item,
+                children: filteredChildren,
+            });
+            continue;
+        }
+
+        next.push(item);
+    }
+
+    return next;
 }
 
 // Map SYSTEM_ITEMS to new SystemAppItem format
@@ -91,7 +128,7 @@ export const useItemStore = create<ItemState>()(
                         ...itemData,
                         id,
                         kind: 'widget',
-                        title: itemData.title || widget?.title || "Widget",
+                        title: itemData.title || widget?.title || "widget_generic",
                         icon: itemData.icon || widget?.icon,
                     } as LauncherWidgetItem;
                 } else if ("appId" in itemData && typeof itemData.appId === "string") {
@@ -260,7 +297,7 @@ export const useItemStore = create<ItemState>()(
         }),
         {
             ...createPersistConfig('app-items'),
-            version: 6,
+            version: 9,
             migrate: (persistedState: unknown) => {
                 if (!persistedState || typeof persistedState !== "object") {
                     return persistedState;
@@ -273,7 +310,7 @@ export const useItemStore = create<ItemState>()(
 
                 return {
                     ...state,
-                    items: state.items.map((item) => migrateLegacyWidgetItem(item)),
+                    items: stripUnavailableItems(state.items.map((item) => migrateLegacyWidgetItem(item))),
                 };
             },
         }

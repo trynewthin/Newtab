@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { ShortcutDialog } from "../tag/ShortcutDialog";
 import type { SystemType } from "./systemRegistry";
-import { getAppSurfaceFramePreset, SYSTEM_APP_IDS, type SystemAppId } from "./appManifest";
+import { ENABLED_SYSTEM_APP_IDS, getAppSurfaceFramePreset, type SystemAppId } from "./appManifest";
 import { getModalRenderer, resolveModalRuntimeAppId } from "./appRuntimeRegistry";
 import { AppSurfaceBridgeProvider, createAppSurfaceBridge } from "./appSurfaceBridge";
 import { useAppLauncher } from "./useAppLauncher";
@@ -13,7 +13,7 @@ interface SystemDialogHostProps {
 
 type ModalRuntimeKey = SystemAppId | "add";
 
-const MODAL_KEYS = [...SYSTEM_APP_IDS, "add"] as const satisfies readonly ModalRuntimeKey[];
+const MODAL_KEYS = [...ENABLED_SYSTEM_APP_IDS, "add"] as const satisfies readonly ModalRuntimeKey[];
 
 const EMPTY_MOUNTED = MODAL_KEYS.reduce<Record<ModalRuntimeKey, boolean>>((acc, key) => {
     acc[key] = false;
@@ -82,7 +82,7 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
                 />
             )}
 
-            {SYSTEM_APP_IDS.map((appId) => {
+            {ENABLED_SYSTEM_APP_IDS.map((appId) => {
                 if (!mounted[appId]) return null;
                 return (
                     <SystemModalRuntime

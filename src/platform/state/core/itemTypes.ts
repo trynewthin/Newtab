@@ -25,7 +25,7 @@ export interface WebTagItem extends BaseItem {
 // 2. System App (系统应用)
 export interface SystemAppItem extends BaseItem {
     kind: 'app';
-    appId: string; // 'settings' | 'todo' | 'pomodoro' | 'ai'
+    appId: string; // e.g. 'settings' | 'ai'
     icon?: string; // App 图标，通常由注册表提供默认值，但也允许覆盖
 }
 

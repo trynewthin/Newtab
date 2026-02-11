@@ -1,5 +1,5 @@
 import type { SystemAppId, SystemType as ManifestSystemType } from "./appManifest";
-import { SYSTEM_APP_MANIFEST } from "./appManifest";
+import { ENABLED_SYSTEM_APP_MANIFEST } from "./appManifest";
 
 export type SystemType = ManifestSystemType;
 
@@ -10,7 +10,7 @@ export interface SystemItem {
 }
 
 export const SYSTEM_ITEMS: SystemItem[] = [
-    ...SYSTEM_APP_MANIFEST.map((app) => ({
+    ...ENABLED_SYSTEM_APP_MANIFEST.map((app) => ({
         type: app.id,
         title: app.title,
         icon: app.icon,

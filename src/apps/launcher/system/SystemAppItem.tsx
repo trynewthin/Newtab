@@ -4,8 +4,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
 import { useUIStore } from "@/apps/launcher/store/ui";
-import { Check, Edit2, X } from "lucide-react";
+import { Check } from "lucide-react";
 import { useRef } from "react";
+import { ItemActionMenu } from "../base/ItemActionMenu";
 import {
     ITEM_HOVER_SCALE_CLASS,
     ITEM_INTERACTION_ANIMATION_CLASS,
@@ -91,15 +92,11 @@ export function SystemAppItem({
         onPrefetch();
     };
 
-    const handleEdit = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleEdit = () => {
         onEdit?.();
     };
 
-    const handleDelete = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleDelete = () => {
         onDelete?.();
     };
 
@@ -119,75 +116,63 @@ export function SystemAppItem({
             {...(isOverlay ? {} : attributes)}
             {...(isOverlay ? {} : listeners)}
         >
-            <div className={cn(
-                "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
-                (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-            )}>
-                <button
-                    onClick={handleEdit}
-                    className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Edit"
-                >
-                    <Edit2 size={10} />
-                </button>
-                <button
-                    onClick={handleDelete}
-                    className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Remove"
-                >
-                    <X size={10} />
-                </button>
-            </div>
-
             <div className="relative">
-                <ItemIcon
-                    title={displayTitle}
-                    icon={icon}
-                    isSystem={true} // 告诉 ItemIcon 这是一个系统应用，它会处理系统图标的渲染逻辑
-                    scale={0.85} // Reduced scale for minimalist look
-                    // Light: White BG, Black Icon
-                    // Dark: Black BG, White Icon
-                    // Use !important to override inline style backgroundColor="transparent" from ItemIcon default
-                    className={cn(
-                        "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow transition-colors duration-300",
-                        "!bg-white dark:!bg-black",
-                        "text-black dark:text-white",
-                        "cursor-pointer",
-                        isOverlay && "cursor-grabbing shadow-2xl",
-                        ITEM_INTERACTION_ANIMATION_CLASS,
-                        ITEM_HOVER_SCALE_CLASS,
-                        isSelected && ITEM_SELECTED_SCALE_CLASS
-                    )}
-                    role="button"
-                    onClick={handleClick}
-                    onMouseEnter={triggerPrefetch}
-                    onFocus={triggerPrefetch}
-                    onTouchStart={triggerPrefetch}
+                <ItemActionMenu
+                    disabled={!!isOverlay}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    editLabel={t("edit")}
+                    deleteLabel={t("remove")}
                 >
-                    {isEditing && (
-                        <div className={cn(
-                            "absolute inset-0 z-30 flex items-center justify-center transition-all pointer-events-none",
-                            isSelected ? "bg-black/5" : ""
-                        )}>
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    toggleTagSelection(id);
-                                }}
-                                className={cn(
-                                    "pointer-events-auto w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
-                                    isSelected
-                                        ? "bg-primary border-primary scale-110 shadow-lg text-white"
-                                        : "border-white/50 bg-black/20 hover:bg-black/30 hover:border-white/70 hover:scale-105"
-                                )}
-                            >
-                                {isSelected && <Check size={16} strokeWidth={3} />}
-                            </button>
-                        </div>
-                    )}
-                </ItemIcon>
+                    <ItemIcon
+                        title={displayTitle}
+                        icon={icon}
+                        isSystem={true} // 告诉 ItemIcon 这是一个系统应用，它会处理系统图标的渲染逻辑
+                        scale={0.85} // Reduced scale for minimalist look
+                        // Light: White BG, Black Icon
+                        // Dark: Black BG, White Icon
+                        // Use !important to override inline style backgroundColor="transparent" from ItemIcon default
+                        className={cn(
+                            "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow transition-colors duration-300",
+                            "!bg-white dark:!bg-black",
+                            "text-black dark:text-white",
+                            "cursor-pointer",
+                            isOverlay && "cursor-grabbing shadow-2xl",
+                            ITEM_INTERACTION_ANIMATION_CLASS,
+                            ITEM_HOVER_SCALE_CLASS,
+                            isSelected && ITEM_SELECTED_SCALE_CLASS
+                        )}
+                        role="button"
+                        onClick={handleClick}
+                        onMouseEnter={triggerPrefetch}
+                        onFocus={triggerPrefetch}
+                        onTouchStart={triggerPrefetch}
+                    >
+                        {isEditing && (
+                            <div className={cn(
+                                "absolute inset-0 z-30 flex items-center justify-center transition-all pointer-events-none",
+                                isSelected ? "bg-black/5" : ""
+                            )}>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        toggleTagSelection(id);
+                                    }}
+                                    className={cn(
+                                        "pointer-events-auto w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
+                                        isSelected
+                                            ? "bg-primary border-primary scale-110 shadow-lg text-white"
+                                            : "border-white/50 bg-black/20 hover:bg-black/30 hover:border-white/70 hover:scale-105"
+                                    )}
+                                >
+                                    {isSelected && <Check size={16} strokeWidth={3} />}
+                                </button>
+                            </div>
+                        )}
+                    </ItemIcon>
+                </ItemActionMenu>
             </div>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-md text-white select-none">

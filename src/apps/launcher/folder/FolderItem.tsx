@@ -1,10 +1,11 @@
 import { useUIStore } from "@/apps/launcher/store/ui";
-import { X, Edit2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/platform/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ItemIcon } from "../base/ItemIcon";
+import { ItemActionMenu } from "../base/ItemActionMenu";
 import {
     ITEM_HOVER_SCALE_CLASS,
     ITEM_INTERACTION_ANIMATION_CLASS,
@@ -34,6 +35,7 @@ export function FolderItem({
     isHoverTarget,
     sortableEnabled = true,
 }: FolderItemProps) {
+    const { t } = useTranslation();
     const { isEditing, selectedTagIds } = useUIStore();
     const isSelected = selectedTagIds.includes(item.id);
 
@@ -114,15 +116,11 @@ export function FolderItem({
         };
     }, [previewSignature]);
 
-    const handleDelete = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleDelete = () => {
         onDeletePrompt(item);
     };
 
-    const handleEdit = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleEdit = () => {
         onEdit(item);
     };
 
@@ -186,52 +184,40 @@ export function FolderItem({
             {...(isOverlay ? {} : attributes)}
             {...(isOverlay ? {} : listeners)}
         >
-            <div className={cn(
-                "absolute -top-3 -right-3 flex gap-1 transition-all z-20 p-1 rounded-full bg-background/50 backdrop-blur-md border shadow-sm",
-                (isEditing && !isOverlay) ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-            )}>
-                <button
-                    onClick={handleEdit}
-                    className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Edit"
-                >
-                    <Edit2 size={10} />
-                </button>
-                <button
-                    onClick={handleDelete}
-                    className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer"
-                    title="Remove"
-                >
-                    <X size={10} />
-                </button>
-            </div>
-
-            <ItemIcon
-                onClick={handleClick}
-                className={cn(
-                    "relative flex items-center justify-center w-14 h-14 rounded-2xl border border-white/35 dark:border-white/15",
-                    "bg-white/16 dark:bg-black/25 backdrop-blur-xl shadow-[0_10px_24px_rgba(8,24,48,0.24)] hover:shadow-[0_14px_30px_rgba(8,24,48,0.32)] transition-all duration-200",
-                    isEditing ? "cursor-pointer" : "cursor-pointer",
-                    isOverlay && "cursor-grabbing shadow-2xl",
-                    ITEM_INTERACTION_ANIMATION_CLASS,
-                    ITEM_HOVER_SCALE_CLASS,
-                    isSelected && ITEM_SELECTED_SCALE_CLASS
-                )}
+            <ItemActionMenu
+                disabled={!!isOverlay}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                editLabel={t("edit")}
+                deleteLabel={t("remove")}
             >
-                <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-[2px]">
-                    {[0, 1, 2, 3].map((index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                                "w-full h-full rounded-[10px] overflow-hidden",
-                                previewChildren[index] ? "bg-transparent" : "bg-black/10 dark:bg-white/10"
-                            )}
-                        >
-                            {renderGridIcon(index)}
-                        </div>
-                    ))}
-                </div>
-            </ItemIcon>
+                <ItemIcon
+                    onClick={handleClick}
+                    className={cn(
+                        "relative flex items-center justify-center w-14 h-14 rounded-2xl border border-white/35 dark:border-white/15",
+                        "bg-white/16 dark:bg-black/25 backdrop-blur-xl shadow-[0_10px_24px_rgba(8,24,48,0.24)] hover:shadow-[0_14px_30px_rgba(8,24,48,0.32)] transition-all duration-200",
+                        isEditing ? "cursor-pointer" : "cursor-pointer",
+                        isOverlay && "cursor-grabbing shadow-2xl",
+                        ITEM_INTERACTION_ANIMATION_CLASS,
+                        ITEM_HOVER_SCALE_CLASS,
+                        isSelected && ITEM_SELECTED_SCALE_CLASS
+                    )}
+                >
+                    <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-[2px]">
+                        {[0, 1, 2, 3].map((index) => (
+                            <div
+                                key={index}
+                                className={cn(
+                                    "w-full h-full rounded-[10px] overflow-hidden",
+                                    previewChildren[index] ? "bg-transparent" : "bg-black/10 dark:bg-white/10"
+                                )}
+                            >
+                                {renderGridIcon(index)}
+                            </div>
+                        ))}
+                    </div>
+                </ItemIcon>
+            </ItemActionMenu>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-md text-white select-none">
                 {item.title}

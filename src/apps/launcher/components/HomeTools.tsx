@@ -37,11 +37,13 @@ export function HomeTools() {
         toggleEditing();
     };
 
+    const neutralToolButtonClass = "p-2.5 glass-button rounded-xl border border-black/10 dark:border-white/20 text-black/85 hover:text-black dark:text-white/90 dark:hover:text-white active:scale-95";
+
     return (
         <GlassSurface
             width="auto"
             height="auto"
-            borderRadius={20}
+            borderRadius={28}
             blur={10}
             backgroundOpacity={0.14}
             saturation={1.2}
@@ -84,36 +86,36 @@ export function HomeTools() {
                     className={cn(
                         "p-2.5 rounded-xl transition-all shadow-sm border backdrop-blur-md active:scale-95",
                         isEditing
-                            ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
-                            : "glass-button"
+                            ? "bg-primary text-white border-primary shadow-xl shadow-primary/20"
+                            : neutralToolButtonClass
                     )}
                     title={isEditing ? t('exit_edit_mode') : t('enter_edit_mode')}
                 >
-                    <Edit2 size={18} className={isEditing ? "text-primary-foreground" : "text-foreground/70"} />
+                    <Edit2 size={18} className="text-current" />
                 </button>
 
                 <button
                     onClick={() => setActiveSystemDialog('add')}
-                    className="p-2.5 glass-button rounded-xl active:scale-95"
+                    className={neutralToolButtonClass}
                     title={t('add_shortcut')}
                 >
-                    <Plus size={18} className="text-foreground/70" />
+                    <Plus size={18} className="text-current" />
                 </button>
 
                 <button
                     onClick={organizeItems}
-                    className="p-2.5 glass-button rounded-xl active:scale-95"
+                    className={neutralToolButtonClass}
                     title={t('organize_icons')}
                 >
-                    <LayoutGrid size={18} className="text-foreground/70" />
+                    <LayoutGrid size={18} className="text-current" />
                 </button>
 
                 <button
                     onClick={() => setActiveSystemDialog('settings')}
-                    className="p-2.5 glass-button rounded-xl active:scale-90"
+                    className={neutralToolButtonClass}
                     title={t('settings')}
                 >
-                    <Settings size={18} className="text-foreground/70" />
+                    <Settings size={18} className="text-current" />
                 </button>
 
                 {/* 鎵归噺鍒犻櫎纭瀵硅瘽妗?*/}

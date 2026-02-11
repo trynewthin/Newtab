@@ -266,7 +266,7 @@ export function TagConfigForm({
                                     <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                                 </div>
                             ) : (
-                                t('no_icons_found', 'No icons found')
+                                t('no_icons_found')
                             )}
                         </div>
                     )}

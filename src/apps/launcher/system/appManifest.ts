@@ -82,7 +82,7 @@ const SETTINGS_FRAMES = {
 export const SYSTEM_APP_MANIFEST = [
     {
         id: "settings",
-        title: "Settings",
+        title: "sys_settings",
         icon: "Settings",
         surfaces: { modal: true, page: false },
         frames: SETTINGS_FRAMES,
@@ -91,7 +91,7 @@ export const SYSTEM_APP_MANIFEST = [
     },
     {
         id: "ai",
-        title: "AI Assistant",
+        title: "sys_ai",
         icon: "Sparkles",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
@@ -100,7 +100,7 @@ export const SYSTEM_APP_MANIFEST = [
     },
     {
         id: "downloads",
-        title: "Downloads",
+        title: "sys_downloads",
         icon: "Downloads",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
@@ -109,7 +109,7 @@ export const SYSTEM_APP_MANIFEST = [
     },
     {
         id: "bookmarks",
-        title: "Bookmarks",
+        title: "sys_bookmarks",
         icon: "Bookmarks",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
@@ -118,7 +118,7 @@ export const SYSTEM_APP_MANIFEST = [
     },
     {
         id: "history",
-        title: "History",
+        title: "sys_history",
         icon: "History",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
@@ -127,7 +127,7 @@ export const SYSTEM_APP_MANIFEST = [
     },
     {
         id: "component-market",
-        title: "Component Market",
+        title: "sys_component_market",
         icon: "Grid3x3",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,

@@ -2,13 +2,9 @@ export * from './core/types';
 export * from './core/storage';
 export * from '@/apps/launcher/store/ui';
 export * from '@/apps/settings/store';
-export * from '@/apps/pomodoro/store';
-export * from '@/apps/todo/store';
 export * from '@/apps/launcher/store/item';
 
 import { useSettingsStore } from '@/apps/settings/store';
-import { usePomodoroStore } from '@/apps/pomodoro/store';
-import { useTodoStore } from '@/apps/todo/store';
 import { useItemStore } from '@/apps/launcher/store/item';
 import { storageRegistry } from './persistence/registry';
 
@@ -22,7 +18,5 @@ import { storageRegistry } from './persistence/registry';
 // ============================================================================
 
 storageRegistry.registerRehydrator('app-settings', () => useSettingsStore.persist.rehydrate());
-storageRegistry.registerRehydrator('app-pomodoro', () => usePomodoroStore.persist.rehydrate());
-storageRegistry.registerRehydrator('app-todos', () => useTodoStore.persist.rehydrate());
 storageRegistry.registerRehydrator('app-items', () => useItemStore.persist.rehydrate());
 

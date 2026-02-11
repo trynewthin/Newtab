@@ -31,10 +31,6 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
 const { w: DEFAULT_W, h: DEFAULT_H } = getDefaultGridSize();
-const MIN_W = GRID_ITEM_PRESETS["1x1"].w;
-const MIN_H = GRID_ITEM_PRESETS["1x1"].h;
-const MAX_W = 12;
-const MAX_H = 12;
 const GRID_CONTAINER_PADDING: [number, number] = [0, 0];
 const GRID_GAP: [number, number] = [GRID_MARGIN, GRID_MARGIN];
 const CLICK_SUPPRESS_AFTER_DRAG_MS = 220;
@@ -45,8 +41,9 @@ const MAX_SEMANTIC_COLS = 12;
 const TARGET_SEMANTIC_CELL_PX = 92;
 const BOTTOM_FADE_HEIGHT_REM = 7;
 const SCROLL_BOTTOM_SAFE_GAP_REM = 2;
-const ICON_UNIT_W = GRID_ITEM_PRESETS["1x1"].w;
-const ICON_UNIT_H = GRID_ITEM_PRESETS["1x1"].h;
+const VACANCY_HORIZONTAL_WEIGHT = 1;
+const VACANCY_UPWARD_WEIGHT = 0.65;
+const VACANCY_DOWNWARD_WEIGHT = 1.45;
 
 function clamp(n: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, n));
@@ -118,8 +115,9 @@ function createLayout(items: GridItemType[], totalCols: number, reflowOnShrink: 
     for (const item of ordered) {
         const capability = getItemLayoutCapability(item);
         const sanitized = sanitizeGridSize(item);
-        const w = snapDown(clamp(sanitized.w ?? DEFAULT_W, MIN_W, totalCols), GRID_STEP_X);
-        const h = snapDown(clamp(sanitized.h ?? DEFAULT_H, MIN_H, MAX_H), GRID_STEP_Y);
+        const bounds = resolveItemSizeBounds(item, totalCols);
+        const w = snapDown(clamp(sanitized.w ?? DEFAULT_W, bounds.minW, bounds.maxW), GRID_STEP_X);
+        const h = snapDown(clamp(sanitized.h ?? DEFAULT_H, bounds.minH, bounds.maxH), GRID_STEP_Y);
 
         let x = item.x;
         let y = item.y;
@@ -141,10 +139,10 @@ function createLayout(items: GridItemType[], totalCols: number, reflowOnShrink: 
             y: y as number,
             w,
             h,
-            minW: MIN_W,
-            minH: MIN_H,
-            maxW: MAX_W,
-            maxH: MAX_H,
+            minW: bounds.minW,
+            minH: bounds.minH,
+            maxW: bounds.maxW,
+            maxH: bounds.maxH,
             isDraggable: capability.draggable,
             isResizable: capability.resizable,
         };
@@ -173,7 +171,7 @@ function createLayout(items: GridItemType[], totalCols: number, reflowOnShrink: 
     return placed;
 }
 
-type DirectionalShiftInput = {
+type VacancyReflowInput = {
     id: string;
     fromX: number;
     fromY: number;
@@ -183,77 +181,169 @@ type DirectionalShiftInput = {
     h: number;
 };
 
-function applyDirectionalShiftLayout(
+type GridSizeBounds = {
+    minW: number;
+    maxW: number;
+    minH: number;
+    maxH: number;
+};
+
+function resolveItemSizeBounds(item: GridItemType, totalCols: number): GridSizeBounds {
+    const capability = getItemLayoutCapability(item);
+    const fallback = sanitizeGridSize(item);
+
+    const minW = snapDown(clamp(capability.minW, GRID_STEP_X, totalCols), GRID_STEP_X);
+    const maxW = snapDown(clamp(capability.maxW, minW, totalCols), GRID_STEP_X);
+    const minH = snapDown(clamp(capability.minH, GRID_STEP_Y, 12), GRID_STEP_Y);
+    const maxH = snapDown(clamp(capability.maxH, minH, 12), GRID_STEP_Y);
+
+    if (!capability.resizable) {
+        return {
+            minW: fallback.w,
+            maxW: fallback.w,
+            minH: fallback.h,
+            maxH: fallback.h,
+        };
+    }
+
+    if (capability.resizeAxis === "horizontal") {
+        const fixedH = snapDown(clamp(fallback.h, minH, maxH), GRID_STEP_Y);
+        return {
+            minW,
+            maxW,
+            minH: fixedH,
+            maxH: fixedH,
+        };
+    }
+
+    if (capability.resizeAxis === "vertical") {
+        const fixedW = snapDown(clamp(fallback.w, minW, maxW), GRID_STEP_X);
+        return {
+            minW: fixedW,
+            maxW: fixedW,
+            minH,
+            maxH,
+        };
+    }
+
+    return { minW, maxW, minH, maxH };
+}
+
+function isWithinGridBounds(item: LayoutItem, totalCols: number): boolean {
+    return item.x >= 0 && item.y >= 0 && item.x + item.w <= totalCols;
+}
+
+function findNearestVacantPosition(
+    occupied: LayoutItem[],
+    moving: LayoutItem,
+    totalCols: number,
+    preferredX: number,
+    preferredY: number
+): { x: number; y: number } | null {
+    const maxX = Math.max(totalCols - moving.w, 0);
+    const targetX = snapDown(clamp(preferredX, 0, maxX), GRID_STEP_X);
+    const targetY = snapDown(Math.max(0, preferredY), GRID_STEP_Y);
+    const maxBottom = occupied.length > 0 ? Math.max(...occupied.map((entry) => entry.y + entry.h)) : 0;
+    const searchMaxY = Math.max(targetY + GRID_STEP_Y * 24, maxBottom + moving.h + GRID_STEP_Y * 8);
+
+    let best: { x: number; y: number; score: number } | null = null;
+
+    for (let y = 0; y <= searchMaxY; y += GRID_STEP_Y) {
+        for (let x = 0; x <= maxX; x += GRID_STEP_X) {
+            const candidate: LayoutItem = {
+                i: "__candidate__",
+                x,
+                y,
+                w: moving.w,
+                h: moving.h,
+            };
+            if (occupied.some((entry) => collides(candidate, entry))) continue;
+
+            const deltaX = Math.abs(x - targetX);
+            const deltaY = y - targetY;
+            const verticalScore = deltaY <= 0
+                ? Math.abs(deltaY) * VACANCY_UPWARD_WEIGHT
+                : deltaY * VACANCY_DOWNWARD_WEIGHT;
+            const score = deltaX * VACANCY_HORIZONTAL_WEIGHT + verticalScore;
+            if (!best || score < best.score || (score === best.score && (y < best.y || (y === best.y && x < best.x)))) {
+                best = { x, y, score };
+            }
+        }
+    }
+
+    return best ? { x: best.x, y: best.y } : null;
+}
+
+function applyNearestVacancyLayout(
     baseLayout: Layout,
-    move: DirectionalShiftInput,
+    move: VacancyReflowInput,
     totalCols: number
 ): Layout | null {
     const dx = move.toX - move.fromX;
     const dy = move.toY - move.fromY;
     if (dx === 0 && dy === 0) return null;
 
-    // 当前补位语义仅用于 1x1 图标，避免大尺寸组件在链式位移中产生不可预期冲突。
-    if (move.w !== ICON_UNIT_W || move.h !== ICON_UNIT_H) return null;
-
-    const prefersHorizontal = Math.abs(dx) >= Math.abs(dy);
-    const direction = prefersHorizontal
-        ? (dx < 0 ? "left" : dx > 0 ? "right" : null)
-        : (dy < 0 ? "up" : dy > 0 ? "down" : null);
-    if (!direction) return null;
-
     const next = baseLayout.map((entry) => ({ ...entry }));
     const dragged = next.find((entry) => entry.i === move.id);
     if (!dragged) return null;
 
-    if ((direction === "left" || direction === "right") && move.fromY !== move.toY) {
-        return null;
-    }
-    if ((direction === "up" || direction === "down") && move.fromX !== move.toX) {
-        return null;
-    }
+    const maxX = Math.max(totalCols - move.w, 0);
+    const normalizedToX = snapDown(clamp(move.toX, 0, maxX), GRID_STEP_X);
+    const normalizedToY = snapDown(Math.max(0, move.toY), GRID_STEP_Y);
+    const normalizedFromY = snapDown(Math.max(0, move.fromY), GRID_STEP_Y);
 
-    const canParticipate = (entry: LayoutItem): boolean =>
-        entry.i !== move.id && entry.w === move.w && entry.h === move.h;
+    dragged.x = normalizedToX;
+    dragged.y = normalizedToY;
+    dragged.w = move.w;
+    dragged.h = move.h;
 
-    if (direction === "left") {
-        for (const entry of next) {
-            if (!canParticipate(entry)) continue;
-            if (entry.y !== move.toY) continue;
-            if (entry.x >= move.toX && entry.x < move.fromX) {
-                entry.x += move.w;
-            }
+    if (!isWithinGridBounds(dragged, totalCols)) return null;
+
+    const orderMap = new Map(baseLayout.map((entry, index) => [entry.i, index]));
+    const sortByOriginalOrder = (a: LayoutItem, b: LayoutItem) =>
+        (orderMap.get(a.i) ?? 0) - (orderMap.get(b.i) ?? 0);
+
+    const collectCollisionsWithDragged = (): LayoutItem[] =>
+        next
+            .filter((entry) => entry.i !== dragged.i && collides(entry, dragged))
+            .sort(sortByOriginalOrder);
+
+    let pending = collectCollisionsWithDragged();
+
+    while (pending.length > 0) {
+        const displaced = pending.shift();
+        if (!displaced) break;
+
+        const occupied = next.filter((entry) => entry.i !== displaced.i);
+        const sourceMaxX = Math.max(totalCols - displaced.w, 0);
+        const normalizedFromX = snapDown(clamp(move.fromX, 0, sourceMaxX), GRID_STEP_X);
+        const sourceBackfillCandidate: LayoutItem = {
+            i: "__source_backfill_candidate__",
+            x: normalizedFromX,
+            y: normalizedFromY,
+            w: displaced.w,
+            h: displaced.h,
+        };
+        const canBackfillSource =
+            isWithinGridBounds(sourceBackfillCandidate, totalCols) &&
+            !occupied.some((entry) => collides(sourceBackfillCandidate, entry));
+
+        if (canBackfillSource) {
+            displaced.x = sourceBackfillCandidate.x;
+            displaced.y = sourceBackfillCandidate.y;
+        } else {
+            const nearest = findNearestVacantPosition(occupied, displaced, totalCols, displaced.x, displaced.y);
+            if (!nearest) return null;
+
+            displaced.x = nearest.x;
+            displaced.y = nearest.y;
         }
-    } else if (direction === "right") {
-        for (const entry of next) {
-            if (!canParticipate(entry)) continue;
-            if (entry.y !== move.toY) continue;
-            if (entry.x <= move.toX && entry.x > move.fromX) {
-                entry.x -= move.w;
-            }
-        }
-    } else if (direction === "up") {
-        for (const entry of next) {
-            if (!canParticipate(entry)) continue;
-            if (entry.x !== move.toX) continue;
-            if (entry.y >= move.toY && entry.y < move.fromY) {
-                entry.y += move.h;
-            }
-        }
-    } else if (direction === "down") {
-        for (const entry of next) {
-            if (!canParticipate(entry)) continue;
-            if (entry.x !== move.toX) continue;
-            if (entry.y <= move.toY && entry.y > move.fromY) {
-                entry.y -= move.h;
-            }
-        }
+
+        pending = collectCollisionsWithDragged();
     }
-
-    dragged.x = move.toX;
-    dragged.y = move.toY;
 
     for (const entry of next) {
-        if (entry.x < 0 || entry.y < 0 || entry.x + entry.w > totalCols) {
+        if (!isWithinGridBounds(entry, totalCols)) {
             return null;
         }
     }
@@ -278,7 +368,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
 
     const { items, setItems, removeItem, ungroupFolder } = useItemStore();
 
-    const { isEditing } = useUIStore();
+    const { isEditing, setFolderPreviewVisible } = useUIStore();
     const { launchApp } = useAppLauncher();
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -318,7 +408,11 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         itemsRef.current = items;
     }, [items]);
 
-    // 历史数据兜底：把旧尺寸（如 2x3）矫正到当前能力模型允许的尺寸（1x1=2x2）。
+    useEffect(() => {
+        return () => setFolderPreviewVisible(false);
+    }, [setFolderPreviewVisible]);
+
+    // 历史数据兜底：把旧尺寸（如 2x3）矫正到当前能力模型允许的尺寸范围。
     useEffect(() => {
         const normalized = items.map((item) => {
             const size = sanitizeGridSize(item);
@@ -365,6 +459,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         }
 
         if (item.kind === 'folder') {
+            setFolderPreviewVisible(true);
             setOpenFolder(item);
             return;
         }
@@ -424,11 +519,12 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
 
             const sanitized = sanitizeGridSize(item);
             const capability = getItemLayoutCapability(item);
+            const bounds = resolveItemSizeBounds(item, totalCols);
             const nextW = capability.resizable
-                ? snapDown(clamp(snapNearest(entry.w, GRID_STEP_X), MIN_W, totalCols), GRID_STEP_X)
+                ? snapDown(clamp(snapNearest(entry.w, GRID_STEP_X), bounds.minW, bounds.maxW), GRID_STEP_X)
                 : snapDown(sanitized.w, GRID_STEP_X);
             const nextH = capability.resizable
-                ? snapDown(clamp(snapNearest(entry.h, GRID_STEP_Y), MIN_H, MAX_H), GRID_STEP_Y)
+                ? snapDown(clamp(snapNearest(entry.h, GRID_STEP_Y), bounds.minH, bounds.maxH), GRID_STEP_Y)
                 : snapDown(sanitized.h, GRID_STEP_Y);
             const maxX = totalCols - nextW;
             const nextX = snapDown(clamp(snapNearest(entry.x, GRID_STEP_X), 0, maxX), GRID_STEP_X);
@@ -466,8 +562,17 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const handleDrag = useCallback((nextLayout: Layout, oldItem: LayoutItem | null, newItem: LayoutItem | null) => {
         if (!oldItem || !newItem) return;
 
-        const snappedW = snapDown(clamp(snapNearest(newItem.w, GRID_STEP_X), MIN_W, totalCols), GRID_STEP_X);
-        const snappedH = snapDown(clamp(snapNearest(newItem.h, GRID_STEP_Y), MIN_H, MAX_H), GRID_STEP_Y);
+        const sourceItem = itemsRef.current.find((item) => item.id === newItem.i);
+        const bounds = sourceItem
+            ? resolveItemSizeBounds(sourceItem, totalCols)
+            : {
+                minW: GRID_ITEM_PRESETS["1x1"].w,
+                maxW: totalCols,
+                minH: GRID_ITEM_PRESETS["1x1"].h,
+                maxH: 12,
+            };
+        const snappedW = snapDown(clamp(snapNearest(newItem.w, GRID_STEP_X), bounds.minW, bounds.maxW), GRID_STEP_X);
+        const snappedH = snapDown(clamp(snapNearest(newItem.h, GRID_STEP_Y), bounds.minH, bounds.maxH), GRID_STEP_Y);
         const maxX = totalCols - snappedW;
         const fromX = snapDown(clamp(snapNearest(oldItem.x, GRID_STEP_X), 0, maxX), GRID_STEP_X);
         const fromY = snapDown(Math.max(0, snapNearest(oldItem.y, GRID_STEP_Y)), GRID_STEP_Y);
@@ -475,7 +580,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         const toY = snapDown(Math.max(0, snapNearest(newItem.y, GRID_STEP_Y)), GRID_STEP_Y);
 
         const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols, false);
-        const shiftedLayout = applyDirectionalShiftLayout(
+        const shiftedLayout = applyNearestVacancyLayout(
             baseLayout,
             {
                 id: newItem.i,
@@ -511,8 +616,17 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             return;
         }
 
-        const snappedW = snapDown(clamp(snapNearest(newItem.w, GRID_STEP_X), MIN_W, totalCols), GRID_STEP_X);
-        const snappedH = snapDown(clamp(snapNearest(newItem.h, GRID_STEP_Y), MIN_H, MAX_H), GRID_STEP_Y);
+        const sourceItem = itemsRef.current.find((item) => item.id === newItem.i);
+        const bounds = sourceItem
+            ? resolveItemSizeBounds(sourceItem, totalCols)
+            : {
+                minW: GRID_ITEM_PRESETS["1x1"].w,
+                maxW: totalCols,
+                minH: GRID_ITEM_PRESETS["1x1"].h,
+                maxH: 12,
+            };
+        const snappedW = snapDown(clamp(snapNearest(newItem.w, GRID_STEP_X), bounds.minW, bounds.maxW), GRID_STEP_X);
+        const snappedH = snapDown(clamp(snapNearest(newItem.h, GRID_STEP_Y), bounds.minH, bounds.maxH), GRID_STEP_Y);
         const maxX = totalCols - snappedW;
         const fromX = snapDown(clamp(snapNearest(oldItem.x, GRID_STEP_X), 0, maxX), GRID_STEP_X);
         const fromY = snapDown(Math.max(0, snapNearest(oldItem.y, GRID_STEP_Y)), GRID_STEP_Y);
@@ -520,7 +634,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         const toY = snapDown(Math.max(0, snapNearest(newItem.y, GRID_STEP_Y)), GRID_STEP_Y);
 
         const baseLayout = createLayout(itemsRef.current, totalCols, false);
-        const shiftedLayout = applyDirectionalShiftLayout(
+        const shiftedLayout = applyNearestVacancyLayout(
             baseLayout,
             {
                 id: newItem.i,
@@ -604,7 +718,10 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                 {openFolder && (
                     <FolderPreview
                         folder={openFolder}
-                        onClose={() => setOpenFolder(null)}
+                        onClose={() => {
+                            setFolderPreviewVisible(false);
+                            setOpenFolder(null);
+                        }}
                         onClickTag={handleItemClick}
                         onDeletePrompt={handleDeletePrompt}
                     />

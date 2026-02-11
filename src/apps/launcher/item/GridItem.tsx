@@ -10,7 +10,7 @@ import { SystemAppItem } from "@/apps/launcher/system/SystemAppItem";
 import { isSystemAppId } from "@/apps/launcher/system/appManifest";
 import { preloadModalRuntime } from "@/apps/launcher/system/appRuntimeRegistry";
 import { LauncherWidgetItem as LauncherWidgetRenderer } from "@/apps/launcher/widget";
-import { resolveGridPreset } from "@/apps/launcher/grid/layoutPresets";
+import { GRID_ITEM_PRESETS, resolveGridPreset } from "@/apps/launcher/grid/layoutPresets";
 
 interface GridItemProps {
     item: GridItemType;
@@ -65,11 +65,17 @@ export function GridItem({
     if (item.kind === "widget") {
         const resolvedPreset = resolveGridPreset(item);
         const preset = resolvedPreset === "custom" ? "2x2" : resolvedPreset;
+        const fallbackSize = GRID_ITEM_PRESETS[preset];
+        const gridSize = {
+            w: typeof item.w === "number" ? item.w : fallbackSize.w,
+            h: typeof item.h === "number" ? item.h : fallbackSize.h,
+        };
 
         return (
             <LauncherWidgetRenderer
                 item={item as LauncherWidgetItem}
                 preset={preset}
+                gridSize={gridSize}
                 className="h-full w-full"
                 onActivate={(e) => onClick && onClick(item, e)}
                 onEdit={(target) => onEdit?.(target)}

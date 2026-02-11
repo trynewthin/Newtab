@@ -9,10 +9,9 @@ export function PanelGridTile({ isEditing, children }: PanelGridTileProps) {
     return (
         <BaseGridTile
             isEditing={isEditing}
-            contentClassName="flex h-full w-full items-start justify-start p-2"
+            contentClassName="h-full w-full p-2"
         >
             {children}
         </BaseGridTile>
     );
 }
-

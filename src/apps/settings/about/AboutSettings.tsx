@@ -22,7 +22,7 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
             />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-3xl mx-auto p-6 space-y-8 pb-10">
+                <div className="mx-auto max-w-3xl space-y-6 p-5 pb-12">
                     {/* Version Info Section */}
                     <SettingsSection
                         icon={Info}
@@ -30,7 +30,7 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                         title={t('version_info')}
                     >
                         <SettingsItem label={t('current_version')}>
-                            <span className="text-sm font-mono bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
+                            <span className="rounded-full border border-border/70 bg-background px-2 py-0.5 font-mono text-sm font-semibold text-foreground">
                                 v{APP_METADATA.version}
                             </span>
                         </SettingsItem>
@@ -49,12 +49,12 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                                         <img
                                             src={APP_METADATA.author.avatar}
                                             alt=""
-                                            className="w-5 h-5 rounded-full ring-1 ring-primary/20"
+                                            className="w-5 h-5 rounded-full ring-1 ring-border/60"
                                         />
                                     )}
-                                    <span className="text-sm font-bold">{APP_METADATA.author.name}</span>
-                                    <div className="p-1 bg-red-500/10 rounded-full">
-                                        <Heart size={12} className="text-red-500 fill-red-500" />
+                                    <span className="text-sm font-semibold">{APP_METADATA.author.name}</span>
+                                    <div className="rounded-full border border-border/60 bg-background p-1">
+                                        <Heart size={12} className="text-foreground/70 fill-foreground/70" />
                                     </div>
                                 </div>
                             </SettingsItem>
@@ -63,7 +63,7 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                                     href={APP_METADATA.author.github}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-1.5 text-sm font-bold text-primary hover:underline"
+                                    className="flex items-center gap-1.5 text-sm font-semibold text-foreground hover:underline"
                                 >
                                     <Github size={14} />
                                     {APP_METADATA.author.github.split('/').pop()}
@@ -80,10 +80,15 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                     >
                         <div className="space-y-4">
                             {APP_METADATA.changelog.map((log, index) => (
-                                <div key={index} className="relative pl-4 border-l-2 border-primary/20 space-y-1">
-                                    <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-primary shadow-sm shadow-primary/30" />
-                                    <span className="text-[10px] font-black opacity-30 tracking-widest">{log.date}</span>
-                                    <p className="text-sm font-medium leading-relaxed">{log.content}</p>
+                                <div key={index} className="relative space-y-1.5 border-l-2 border-border/70 pl-4">
+                                    <div className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-foreground/55" />
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">{log.date}</span>
+                                        <span className="rounded-full border border-border/70 bg-background px-2 py-0.5 text-[10px] font-semibold leading-none text-foreground/80">
+                                            {log.tag}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm leading-relaxed text-foreground/90">{log.content}</p>
                                 </div>
                             ))}
                         </div>

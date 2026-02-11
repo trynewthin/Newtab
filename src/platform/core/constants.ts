@@ -62,15 +62,16 @@ export const SEARCH_ENGINES = [
 ];
 
 export const APP_METADATA = {
-    version: "0.1.0",
+    version: "0.2",
     author: {
         name: "TryNewThin",
         github: "https://github.com/trynewthin",
         avatar: "https://github.com/trynewthin.png"
     },
     changelog: [
-        { date: "2026-01-15", content: "新增搜索引擎自定义功能，深度集成 Favicon 抓取。" },
-        { date: "2026-01-14", content: "重构实况活动卡片架构，提升组件灵活性。" },
-        { date: "2026-01-12", content: "优化主题自定义逻辑，支持更多纯色主题。" }
+        { date: "2026-02-11", tag: "v0.2", content: "完成主页与应用容器架构升级：统一背景层/内容层/浮动层，优化 modal 与 app-surface 基建适配。" },
+        { date: "2026-02-10", tag: "v0.2", content: "重写启动台网格与补位策略：支持多比例组件、最近空位回填、拖拽编辑稳定性与视觉一致性优化。" },
+        { date: "2026-02-09", tag: "v0.2", content: "上线独立组件体系与组件市场，新增多比例时钟组件并优化内部信息密度与布局算法。" },
+        { date: "2026-02-08", tag: "v0.2", content: "完成设置与数据系统升级：备份/恢复携带版本信息并自动迁移，整体 UI 风格收敛为简约中性设计语言。" }
     ]
 };

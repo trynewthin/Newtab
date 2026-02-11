@@ -64,7 +64,7 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
                                 onClick={createSession}
                                 className={cn(
                                     "flex items-center justify-center gap-2 rounded-xl transition-all active:scale-95 shadow-sm border",
-                                    "bg-primary text-primary-foreground border-primary/20",
+                                    "bg-foreground text-background border-foreground/20 hover:opacity-90",
                                     isSidebarCollapsed && !showMobileMenu ? "w-10 h-10 mx-auto" : "w-full h-11 px-4 text-xs font-bold uppercase tracking-wider"
                                 )}
                                 title={t('new_chat')}
@@ -92,7 +92,7 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
                                             e.stopPropagation();
                                             deleteSession(session.id);
                                         }}
-                                        className="p-1 px-1.5 rounded-md hover:bg-destructive/10 hover:text-destructive transition-all"
+                                        className="rounded-md p-1 px-1.5 text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
                                     >
                                         <Trash2 size={12} />
                                     </button>
@@ -104,7 +104,7 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
             }
             header={
                 <SidebarHeader
-                    title={t('sys_ai') || "AI Assistant"}
+                    title={t('sys_ai')}
                     icon={Bot}
                     description={activeModel?.name || t('ai_ready')}
                     onMenuClick={() => setShowMobileMenu(true)}
@@ -113,7 +113,7 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
                 />
             }
             footer={
-                <div className="p-6">
+                <div className="p-4 sm:p-5">
                     <div className="max-w-4xl mx-auto w-full">
                         <ChatInput
                             models={models}

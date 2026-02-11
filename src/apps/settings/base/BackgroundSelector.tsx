@@ -27,44 +27,44 @@ export function BackgroundSelector() {
     const themeEffectPresets = [
         {
             id: "color-bends",
-            name: "Color Bends",
-            description: "Dynamic shader ribbons",
+            nameKey: "theme_color_bends",
+            descriptionKey: "theme_color_bends_desc",
             preview: "bg-linear-to-br from-rose-400 via-indigo-500 to-cyan-300"
         },
         {
             id: "light-pillar",
-            name: "Light Pillar",
-            description: "Volumetric neon beam",
+            nameKey: "theme_light_pillar",
+            descriptionKey: "theme_light_pillar_desc",
             preview: "bg-linear-to-b from-indigo-300 via-violet-500 to-pink-400"
         },
         {
             id: "silk",
-            name: "Silk",
-            description: "Soft animated fabric",
+            nameKey: "theme_silk",
+            descriptionKey: "theme_silk_desc",
             preview: "bg-linear-to-br from-slate-700 via-indigo-600 to-zinc-500"
         },
         {
             id: "floating-lines",
-            name: "Floating Lines",
-            description: "Layered wave lines",
+            nameKey: "theme_floating_lines",
+            descriptionKey: "theme_floating_lines_desc",
             preview: "bg-linear-to-br from-sky-400 via-blue-600 to-indigo-700"
         },
         {
             id: "aurora",
-            name: "Aurora",
-            description: "Northern glow field",
+            nameKey: "theme_aurora",
+            descriptionKey: "theme_aurora_desc",
             preview: "bg-linear-to-br from-violet-500 via-cyan-400 to-emerald-300"
         },
         {
             id: "particles",
-            name: "Particles",
-            description: "Ambient star particles",
+            nameKey: "theme_particles",
+            descriptionKey: "theme_particles_desc",
             preview: "bg-linear-to-br from-slate-900 via-blue-900 to-indigo-950"
         },
         {
             id: "prismatic-burst",
-            name: "Prismatic Burst",
-            description: "Prism ray explosion",
+            nameKey: "theme_prismatic_burst",
+            descriptionKey: "theme_prismatic_burst_desc",
             preview: "bg-linear-to-br from-fuchsia-500 via-blue-500 to-cyan-300"
         }
     ] as const;
@@ -89,14 +89,15 @@ export function BackgroundSelector() {
             value: color
         });
     };
+    const getGradientLabel = (name: string) => t(`gradient_${name.toLowerCase()}`);
 
     return (
         <div className="space-y-8">
             <SettingsSection
                 icon={Sparkles}
                 iconColor="text-cyan-500"
-                title="Theme Effects"
-                description="Animated backgrounds for theme mode"
+                title={t("theme_effects")}
+                description={t("theme_effects_desc")}
             >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {themeEffectPresets.map((theme) => (
@@ -114,8 +115,8 @@ export function BackgroundSelector() {
                             <div className="absolute inset-0 bg-black/20" />
                             <div className="relative z-10 h-full flex items-center justify-between px-4">
                                 <div className="text-left text-white">
-                                    <div className="text-xs font-bold tracking-wider uppercase">{theme.name}</div>
-                                    <div className="text-[11px] text-white/80">{theme.description}</div>
+                                    <div className="text-xs font-bold tracking-wider uppercase">{t(theme.nameKey)}</div>
+                                    <div className="text-[11px] text-white/80">{t(theme.descriptionKey)}</div>
                                 </div>
                                 {activeThemeId === theme.id && (
                                     <div className="flex items-center justify-center w-5 h-5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white">
@@ -260,7 +261,7 @@ export function BackgroundSelector() {
                 icon={Droplet}
                 iconColor="text-purple-500"
                 title={t('solid_colors')}
-                description={t('solid_colors_desc') || "Simple solid backgrounds"}
+                description={t('solid_colors_desc')}
             >
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
                     {solidColors.map((color) => (
@@ -311,7 +312,7 @@ export function BackgroundSelector() {
                 icon={Palette}
                 iconColor="text-pink-500"
                 title={t('gradients')}
-                description={t('gradients_desc') || "Beautiful gradients"}
+                description={t('gradients_desc')}
             >
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                     {gradientPresets.map((preset) => (
@@ -332,7 +333,7 @@ export function BackgroundSelector() {
                             <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
                             <span className="absolute bottom-1.5 left-2 text-[9px] font-bold text-white/90 uppercase tracking-wider drop-shadow-sm">
-                                {preset.name}
+                                {getGradientLabel(preset.name)}
                             </span>
 
                             {backgroundConfig.value === preset.value && (

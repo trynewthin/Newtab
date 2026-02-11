@@ -20,31 +20,32 @@ interface SettingsSectionProps {
 
 export function SettingsSection({
     icon: Icon,
-    iconColor = "text-primary",
+    iconColor,
     title,
     description,
     children,
     className
 }: SettingsSectionProps) {
+    void iconColor;
     return (
-        <div className={cn("space-y-4", className)}>
+        <div className={cn("space-y-3.5", className)}>
             {/* Section Header */}
             <div className="flex items-center gap-2">
                 {Icon && (
-                    <div className={cn("p-2 rounded-lg", iconColor, `bg-${iconColor.split('-')[1]}-500/10`)}>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-background text-foreground/80">
                         <Icon size={18} />
                     </div>
                 )}
                 <div>
-                    <h3 className="text-sm font-medium text-foreground">{title}</h3>
+                    <h3 className="text-sm font-semibold tracking-tight text-foreground">{title}</h3>
                     {description && (
-                        <p className="text-xs text-muted-foreground">{description}</p>
+                        <p className="text-xs text-muted-foreground/90">{description}</p>
                     )}
                 </div>
             </div>
 
             {/* Section Content */}
-            <div className="bg-secondary/20 p-4 rounded-2xl border border-border/20 space-y-4">
+            <div className="modal-minimal-panel space-y-3.5">
                 {children}
             </div>
         </div>
@@ -107,7 +108,7 @@ interface SettingsGroupProps {
 export function SettingsGroup({ children, className }: SettingsGroupProps) {
     return (
         <div className={cn(
-            "bg-secondary/20 p-4 rounded-2xl border border-border/20 space-y-4",
+            "modal-minimal-panel space-y-3.5",
             className
         )}>
             {children}
@@ -148,8 +149,8 @@ export function SettingsButtonGroup({
                         className={cn(
                             "flex-1 flex items-center justify-center px-4 py-2 rounded-xl border transition-all",
                             isActive
-                                ? "border-primary bg-primary/5 text-primary shadow-sm font-medium"
-                                : "border-border/20 hover:border-primary/40 hover:bg-secondary/30 text-muted-foreground"
+                                ? "border-foreground/20 bg-foreground/8 text-foreground shadow-sm font-medium"
+                                : "border-border/60 hover:border-foreground/20 hover:bg-foreground/6 text-muted-foreground"
                         )}
                     >
                         <span className="text-sm">{option.label}</span>
@@ -185,7 +186,7 @@ export function SettingsActionButtons({ actions, className }: SettingsActionButt
                     <button
                         key={action.id}
                         onClick={action.onClick}
-                        className="flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl border border-border/20 hover:border-primary/40 hover:bg-primary/5 transition-all text-foreground/80"
+                        className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border/60 p-2.5 text-foreground/80 transition-all hover:border-foreground/20 hover:bg-foreground/6"
                     >
                         {Icon && <Icon size={16} />}
                         <span className="text-sm font-medium">{action.label}</span>

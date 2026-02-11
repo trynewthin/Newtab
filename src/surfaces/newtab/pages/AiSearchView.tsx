@@ -8,6 +8,7 @@ import { useAiSearch } from "@/apps/ai-search/hooks/useAiSearch";
 import { AiSearchResults } from "@/apps/ai-search/components/AiSearchResults";
 import { cn } from "@/platform/core/utils";
 import { useTranslation } from "react-i18next";
+import GradualBlur from "@/components/GradualBlur";
 
 export function AiSearchView() {
     const { t } = useTranslation();
@@ -41,26 +42,50 @@ export function AiSearchView() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="w-full h-full bg-background"
+            className="w-full h-full"
         >
             <BasePage className="py-0 px-0 flex flex-col items-center relative h-screen overflow-hidden">
                 {/* 1. Results Area (Main Content - Top) */}
-                <motion.div
+                <motion.section
                     key="ai-result-area"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="w-full h-full overflow-y-auto scrollbar-none pt-6 pb-60 px-4 max-w-4xl mx-auto relative z-10"
+                    className="w-full h-full max-w-4xl mx-auto relative z-10 overflow-hidden"
                 >
-                    <AiSearchResults
-                        status={status}
-                        cards={response?.cards || []}
-                        summary={response?.summary}
-                        error={error}
-                        className="pb-8"
+                    <div className="w-full h-full overflow-y-auto scrollbar-none pt-24 pb-60 px-4">
+                        <AiSearchResults
+                            status={status}
+                            cards={response?.cards || []}
+                            summary={response?.summary}
+                            error={error}
+                            className="pb-8"
+                        />
+                    </div>
+
+                    <GradualBlur
+                        target="parent"
+                        position="top"
+                        height="6rem"
+                        strength={2}
+                        divCount={5}
+                        curve="bezier"
+                        exponential
+                        opacity={1}
                     />
-                </motion.div>
+
+                    <GradualBlur
+                        target="parent"
+                        position="bottom"
+                        height="7rem"
+                        strength={2}
+                        divCount={5}
+                        curve="bezier"
+                        exponential
+                        opacity={1}
+                    />
+                </motion.section>
 
                 {/* 2. Fixed Control Center (Centered at Middle-Bottom) */}
                 <div className="fixed bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center gap-6 pb-12 z-50">
@@ -77,21 +102,17 @@ export function AiSearchView() {
                                 >
                                     <button
                                         onClick={cancel}
-                                        className="relative group flex items-center gap-2.5 px-4 py-2 rounded-full bg-background/80 backdrop-blur-md text-foreground font-semibold shadow-xl border border-border/50 transition-all hover:scale-105 active:scale-95 overflow-hidden"
+                                        className="group relative flex items-center gap-2.5 overflow-hidden rounded-full border border-border/70 bg-background/92 px-4 py-2 font-semibold text-foreground shadow-lg transition-all hover:scale-105 active:scale-95"
                                     >
-                                        {/* Rotating Border Glow (Surrounding Light) */}
-                                        <div className="absolute inset-[-200%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_60%,var(--color-primary),transparent_100%)] opacity-40 group-hover:opacity-100 transition-opacity" />
-
-                                        {/* Inner Background to keep content crisp */}
-                                        <div className="absolute inset-px bg-background/90 rounded-full z-0" />
+                                        <div className="absolute inset-px rounded-full bg-background/95 z-0" />
 
                                         <div className="relative z-10 flex items-center gap-2">
                                             <div className="relative">
-                                                <StopCircle size={18} className="text-destructive" />
+                                                <StopCircle size={18} className="text-foreground/85" />
                                                 <motion.div
                                                     animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
                                                     transition={{ repeat: Infinity, duration: 2 }}
-                                                    className="absolute inset-0 bg-destructive/30 rounded-full -z-10"
+                                                    className="absolute inset-0 -z-10 rounded-full bg-foreground/20"
                                                 />
                                             </div>
                                             <span className="text-sm tracking-tight text-foreground max-w-[200px] truncate">
@@ -124,20 +145,13 @@ export function AiSearchView() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                     className="fixed inset-x-0 bottom-0 h-[35vh] pointer-events-none z-40 overflow-visible"
-                    style={{
-                        maskImage: 'linear-gradient(to top, black 20%, transparent 100%)',
-                        WebkitMaskImage: 'linear-gradient(to top, black 20%, transparent 100%)'
-                    }}
                 >
-                    {/* Atmosphere Layer - Smoothes background transition */}
-                    <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent z-10" />
-
                     {/* Moving Light Orbs */}
                     <div className={cn(
                         "absolute inset-0 transition-all duration-1000 mix-blend-screen dark:mix-blend-lighten",
                         isLoading ? "opacity-100 scale-110" : "opacity-30 scale-100"
                     )}>
-                        {/* Orb 1: Cyan/Primary */}
+                        {/* Orb 1 */}
                         <motion.div
                             animate={{
                                 x: isLoading ? [-200, 200, -200] : [-100, 100, -100],
@@ -149,10 +163,10 @@ export function AiSearchView() {
                                 repeat: Infinity,
                                 ease: "easeInOut",
                             }}
-                            className="absolute bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-primary/30 rounded-full blur-[120px]"
+                            className="absolute bottom-[-10%] left-[10%] h-[500px] w-[500px] rounded-full bg-foreground/18 blur-[120px]"
                         />
 
-                        {/* Orb 2: Purple/Indigo */}
+                        {/* Orb 2 */}
                         <motion.div
                             animate={{
                                 x: isLoading ? [200, -200, 200] : [100, -100, 100],
@@ -164,10 +178,10 @@ export function AiSearchView() {
                                 repeat: Infinity,
                                 ease: "easeInOut",
                             }}
-                            className="absolute bottom-[-15%] right-[15%] w-[600px] h-[600px] bg-indigo-500/25 rounded-full blur-[140px]"
+                            className="absolute bottom-[-15%] right-[15%] h-[600px] w-[600px] rounded-full bg-foreground/15 blur-[140px]"
                         />
 
-                        {/* Orb 3: Success/Green (Energy Surge during load) */}
+                        {/* Orb 3 */}
                         <motion.div
                             animate={{
                                 y: isLoading ? [150, 0, 150] : [200, 150, 200],
@@ -178,17 +192,10 @@ export function AiSearchView() {
                                 repeat: Infinity,
                                 ease: "easeInOut",
                             }}
-                            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-400/15 rounded-full blur-[100px]"
+                            className="absolute bottom-0 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-foreground/10 blur-[100px]"
                         />
                     </div>
                 </motion.div>
-
-                <style>{`
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-            `}</style>
             </BasePage>
         </motion.div>
     );

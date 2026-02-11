@@ -158,8 +158,8 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                             <button
                                 type="button"
                                 onClick={handleExitAiMode}
-                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-muted-foreground hover:text-destructive shrink-0 border border-black/20 dark:border-white/20 rounded-full bg-black/5 dark:bg-white/5"
-                                title="Exit AI Search"
+                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-white hover:text-white/90 shrink-0 rounded-full bg-transparent hover:bg-white/10"
+                                title={t("exit_ai_search")}
                             >
                                 <LogOut size={16} />
                             </button>
@@ -223,7 +223,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                 }}
                                 onKeyDown={handleKeyDown}
                                 onFocus={() => query.trim() && setShowSuggestions(true)}
-                                placeholder={isAiMode ? "Ask or search anything..." : t('search_placeholder')}
+                                placeholder={isAiMode ? t("ask_or_search_anything") : t('search_placeholder')}
                                 className="h-full w-full border-0 shadow-none px-0 py-0 text-base md:text-lg ring-0 focus-visible:ring-0 rounded-none text-white dark:text-black placeholder:text-white/55 dark:placeholder:text-black/45 font-medium"
                             />
                         </div>
@@ -233,7 +233,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                             <button
                                 type="submit"
                                 className="h-8 w-8 flex items-center justify-center text-white/90 dark:text-black/90 hover:text-white dark:hover:text-black transition-all active:scale-90"
-                                title={isAiMode ? "Search again" : "Search"}
+                                title={isAiMode ? t("search_again") : t("search")}
                             >
                                 <Search size={18} strokeWidth={2.5} />
                             </button>

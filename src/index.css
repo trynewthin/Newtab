@@ -48,6 +48,60 @@
   --ring: oklch(0.65 0.15 255 / 50%);
 }
 
+/* Modal-only neutral design scope */
+.modal-minimal-scope {
+  --primary: oklch(0.2 0 0);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
+  --accent: oklch(0.92 0 0 / 42%);
+  --accent-foreground: oklch(0.2 0 0);
+  --destructive: oklch(0.26 0 0);
+  --ring: oklch(0.32 0 0 / 45%);
+  --border: oklch(0.83 0 0);
+  --input: oklch(0.9 0 0);
+}
+
+.dark .modal-minimal-scope {
+  --primary: oklch(0.92 0 0);
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.24 0 0);
+  --secondary-foreground: oklch(0.93 0 0);
+  --accent: oklch(0.3 0 0 / 42%);
+  --accent-foreground: oklch(0.95 0 0);
+  --destructive: oklch(0.82 0 0);
+  --ring: oklch(0.75 0 0 / 45%);
+  --border: oklch(0.36 0 0);
+  --input: oklch(0.28 0 0);
+}
+
+/* Popup-only neutral design scope */
+.popup-minimal-scope {
+  --primary: oklch(0.2 0 0);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
+  --accent: oklch(0.92 0 0 / 38%);
+  --accent-foreground: oklch(0.2 0 0);
+  --destructive: oklch(0.26 0 0);
+  --ring: oklch(0.32 0 0 / 45%);
+  --border: oklch(0.84 0 0);
+  --input: oklch(0.9 0 0);
+}
+
+.dark .popup-minimal-scope {
+  --primary: oklch(0.92 0 0);
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.24 0 0);
+  --secondary-foreground: oklch(0.93 0 0);
+  --accent: oklch(0.3 0 0 / 38%);
+  --accent-foreground: oklch(0.95 0 0);
+  --destructive: oklch(0.82 0 0);
+  --ring: oklch(0.75 0 0 / 45%);
+  --border: oklch(0.36 0 0);
+  --input: oklch(0.28 0 0);
+}
+
 @theme inline {
   --font-sans: 'Inter', 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', monospace;
@@ -146,6 +200,26 @@
 
   .glass-button {
     @apply bg-white/50 dark:bg-white/10 hover:bg-white/70 dark:hover:bg-white/20 backdrop-blur-md border border-white/30 dark:border-white/20 shadow-sm transition-all duration-300;
+  }
+
+  .modal-minimal-card {
+    @apply rounded-2xl border border-border/70 bg-background/85 p-3 shadow-sm;
+  }
+
+  .modal-minimal-chip {
+    @apply rounded-xl border border-border/70 bg-background px-2.5 py-1 text-[11px] font-medium tracking-wide text-muted-foreground;
+  }
+
+  .modal-minimal-input {
+    @apply h-8 rounded-xl border border-border/70 bg-background/85 px-3 text-[13px] text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:border-foreground/25;
+  }
+
+  .modal-minimal-panel {
+    @apply rounded-2xl border border-border/70 bg-background/85 p-4 shadow-sm;
+  }
+
+  .modal-minimal-divider {
+    @apply h-px w-full bg-border/60;
   }
 
   /* Bento Grid helpers */

@@ -19,9 +19,11 @@ const LEGACY_IDB_FILE = "idb-kv.json";
 
 const EXPLICIT_LOCAL_STORAGE_KEYS = [
     "i18nextLng",
-    "paper-storage",
     "app-ai-meta-storage",
 ];
+const DEPRECATED_LOCAL_STORAGE_KEYS = new Set([
+    "paper-storage",
+]);
 
 export interface DataArchiveManifest {
     format: typeof DATA_ARCHIVE_FORMAT;
@@ -67,12 +69,13 @@ function collectManagedLocalStorageKeys(): string[] {
     for (let i = 0; i < localStorage.length; i += 1) {
         const key = localStorage.key(i);
         if (!key) continue;
+        if (DEPRECATED_LOCAL_STORAGE_KEYS.has(key)) continue;
         if (key.startsWith("app-") || key.endsWith("-storage")) {
             keys.add(key);
         }
     }
 
-    return Array.from(keys);
+    return Array.from(keys).filter((key) => !DEPRECATED_LOCAL_STORAGE_KEYS.has(key));
 }
 
 function collectStoreVersions(): Record<string, number> {
@@ -294,12 +297,14 @@ async function restoreBundle(bundle: DataArchiveBundle): Promise<void> {
     const localStorageKeysToClear = new Set([
         ...collectManagedLocalStorageKeys(),
         ...Object.keys(normalized.payload.localStorage),
+        ...DEPRECATED_LOCAL_STORAGE_KEYS,
     ]);
 
     for (const key of localStorageKeysToClear) {
         localStorage.removeItem(key);
     }
     for (const [key, value] of Object.entries(normalized.payload.localStorage)) {
+        if (DEPRECATED_LOCAL_STORAGE_KEYS.has(key)) continue;
         localStorage.setItem(key, value);
     }
 

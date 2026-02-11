@@ -22,7 +22,7 @@ export function FeatureSettings({ onOpenMobileMenu, onClose }: FeatureSettingsPr
             />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-3xl mx-auto p-6 space-y-8">
+                <div className="mx-auto max-w-3xl space-y-6 p-5">
                     {/* System Components Section */}
                     <SettingsSection
                         icon={Box}
@@ -34,8 +34,8 @@ export function FeatureSettings({ onOpenMobileMenu, onClose }: FeatureSettingsPr
                     </SettingsSection>
 
                     {/* Coming Soon Placeholder */}
-                    <div className="p-8 border-2 border-dashed border-border/10 rounded-2xl flex flex-col items-center justify-center text-center opacity-30">
-                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/80 p-8 text-center">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
                             {t('coming_soon')}
                         </p>
                     </div>

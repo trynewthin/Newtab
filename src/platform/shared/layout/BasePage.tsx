@@ -1,6 +1,7 @@
 import { cn } from "@/platform/core/utils";
 import React from "react";
 import { Toolbar } from "@/platform/shared/components";
+import { useUIStore } from "@/apps/launcher/store/ui";
 
 const TOOLBAR_TRIGGER_TOP_PX = 140;
 
@@ -10,6 +11,8 @@ interface BasePageProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function BasePage({ children, className, tools, ...props }: BasePageProps) {
+    const isModalVisible = useUIStore((state) => state.activeSystemDialog !== null);
+    const isFolderPreviewVisible = useUIStore((state) => state.isFolderPreviewVisible);
     const [supportsHoverReveal, setSupportsHoverReveal] = React.useState(false);
     const [isNearTop, setIsNearTop] = React.useState(false);
     const [isToolbarHovered, setIsToolbarHovered] = React.useState(false);
@@ -26,7 +29,7 @@ export function BasePage({ children, className, tools, ...props }: BasePageProps
     }, [tools]);
 
     React.useEffect(() => {
-        if (!tools || !supportsHoverReveal || typeof window === "undefined") return;
+        if (!tools || !supportsHoverReveal || isModalVisible || isFolderPreviewVisible || typeof window === "undefined") return;
 
         let rafId = 0;
         const onMouseMove = (event: MouseEvent) => {
@@ -48,9 +51,9 @@ export function BasePage({ children, className, tools, ...props }: BasePageProps
                 window.cancelAnimationFrame(rafId);
             }
         };
-    }, [tools, supportsHoverReveal]);
+    }, [tools, supportsHoverReveal, isModalVisible, isFolderPreviewVisible]);
 
-    const toolbarVisible = Boolean(tools) && (!supportsHoverReveal || isNearTop || isToolbarHovered);
+    const toolbarVisible = Boolean(tools) && !isModalVisible && !isFolderPreviewVisible && (!supportsHoverReveal || isNearTop || isToolbarHovered);
 
     return (
         <div

@@ -3,6 +3,7 @@ import { MessageRenderer } from "./MessageRenderer";
 import type { Message, ModelConfig } from "@/apps/ai-companion";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/platform/core/utils";
+import { useTranslation } from "react-i18next";
 
 interface ChatViewProps {
     messages: Message[];
@@ -12,6 +13,7 @@ interface ChatViewProps {
 }
 
 export function ChatView({ messages, activeModel, isLoading, className }: ChatViewProps) {
+    const { t } = useTranslation();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -24,12 +26,12 @@ export function ChatView({ messages, activeModel, isLoading, className }: ChatVi
     return (
         <div className={cn("h-full w-full overflow-y-auto px-4 py-4 space-y-5 custom-scrollbar pb-4", className)}>
             {messages.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-[60%] text-center px-6 opacity-40 select-none">
-                    <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mb-4">
-                        <Sparkles size={32} className="text-primary" />
+                <div className="flex h-[60%] select-none flex-col items-center justify-center px-6 text-center opacity-65">
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border border-border/70 bg-background">
+                        <Sparkles size={32} className="text-foreground/75" />
                     </div>
-                    <h3 className="font-bold text-lg mb-1">Visual Web Agent</h3>
-                    <p className="text-sm text-muted-foreground">Ready to browse, click, and explore.</p>
+                    <h3 className="mb-1 text-lg font-semibold tracking-tight">{t("visual_web_agent_title")}</h3>
+                    <p className="text-sm text-muted-foreground/80">{t("visual_web_agent_desc")}</p>
                 </div>
             )}
 

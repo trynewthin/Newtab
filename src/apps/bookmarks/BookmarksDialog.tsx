@@ -119,7 +119,7 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
             onCloseMobileMenu={() => setShowMobileMenu(false)}
             sidebar={
                 <Sidebar
-                    title={t('bookmarks', 'Bookmarks')}
+                    title={t('bookmarks')}
                     isCollapsed={isSidebarCollapsed}
                     onCollapseChange={setIsSidebarCollapsed}
                     showMobileMenu={showMobileMenu}
@@ -127,7 +127,7 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                 >
                     <SidebarItem
                         icon={LayoutGrid}
-                        label={t('all_bookmarks', 'All Bookmarks')}
+                        label={t('all_bookmarks')}
                         isActive={currentFolderId === "0" && !searchQuery}
                         onClick={goHome}
                     />
@@ -153,45 +153,45 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
             header={
                 <div className="flex flex-col">
                     <SidebarHeader
-                        title={t('bookmarks', 'Bookmarks')}
+                        title={t('bookmarks')}
                         icon={Bookmark}
-                        description={searchQuery ? t('searching', 'Searching...') : (path.length > 0 ? path[path.length - 1].title : t('all_bookmarks', 'All Bookmarks'))}
+                        description={searchQuery ? t('searching') : (path.length > 0 ? path[path.length - 1].title : t('all_bookmarks'))}
                         onMenuClick={() => setShowMobileMenu(true)}
                         onClose={() => onOpenChange(false)}
                         className="border-b-0"
                     >
                         <div className="relative group hidden sm:block w-48 lg:w-64 transition-all focus-within:w-64 lg:focus-within:w-80">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={14} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-foreground transition-colors" size={14} />
                             <input
                                 value={searchQuery}
                                 onChange={handleSearch}
-                                placeholder={t('search_bookmarks', 'Search...')}
-                                className="w-full bg-secondary/30 border border-transparent focus:border-primary/20 focus:bg-background rounded-lg h-8 pl-9 pr-3 text-[13px] transition-all focus:outline-none"
+                                placeholder={t('search_bookmarks')}
+                                className="w-full modal-minimal-input pl-9 pr-3"
                             />
                         </div>
                     </SidebarHeader>
 
-                    <div className="px-6 py-2 flex items-center justify-between gap-4 border-b border-border/40 bg-background/50 backdrop-blur-md">
+                    <div className="flex items-center justify-between gap-4 border-b border-border/60 bg-background/90 px-5 py-2.5">
                         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
                             <button
                                 onClick={goHome}
                                 className={cn(
                                     "p-2 rounded-lg transition-colors",
-                                    currentFolderId === "0" ? "bg-amber-500/10 text-amber-600" : "hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500"
+                                    currentFolderId === "0" ? "bg-foreground/10 text-foreground" : "hover:bg-foreground/8 text-muted-foreground"
                                 )}
                             >
                                 <Home size={16} />
                             </button>
                             {path.map((p, i) => (
                                 <React.Fragment key={p.id}>
-                                    <ChevronRight size={14} className="text-zinc-300 shrink-0" />
+                                    <ChevronRight size={14} className="text-muted-foreground/50 shrink-0" />
                                     <button
                                         onClick={() => {
                                             const newPath = path.slice(0, i + 1);
                                             setPath(newPath);
                                             setCurrentFolderId(p.id);
                                         }}
-                                        className="px-2 py-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-bold text-zinc-600 dark:text-zinc-400 whitespace-nowrap"
+                                        className="whitespace-nowrap rounded-lg px-2 py-1 text-xs font-semibold text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground"
                                     >
                                         {p.title}
                                     </button>
@@ -200,20 +200,20 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                         </div>
 
                         {/* Mobile Search - icon only or small bar if needed */}
-                        <div className="sm:hidden relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary/50 text-muted-foreground transition-all">
+                        <div className="sm:hidden relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-foreground/8 text-muted-foreground transition-all">
                             <Search size={16} />
                         </div>
                     </div>
                 </div>
             }
         >
-            <div className="h-full overflow-y-auto custom-scrollbar p-6">
+            <div className="h-full overflow-y-auto custom-scrollbar p-4 sm:p-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {bookmarks.length === 0 ? (
-                        <div className="col-span-full flex flex-col items-center justify-center py-32 text-muted-foreground/30 space-y-4 text-center px-4">
-                            <Inbox size={48} strokeWidth={1.5} className="opacity-20" />
-                            <span className="italic font-serif block">
-                                {searchQuery ? t('no_bookmarks_found', 'No results found') : t('folder_empty', 'This folder is empty')}
+                        <div className="col-span-full flex flex-col items-center justify-center px-4 py-24 text-center text-muted-foreground/60 space-y-3">
+                            <Inbox size={44} strokeWidth={1.5} className="opacity-40" />
+                            <span className="block text-sm">
+                                {searchQuery ? t('no_bookmarks_found') : t('folder_empty')}
                             </span>
                         </div>
                     ) : (
@@ -222,13 +222,12 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                                 key={node.id}
                                 onClick={() => handleNodeClick(node)}
                                 className={cn(
-                                    "group relative flex items-center gap-3 p-3.5 rounded-2xl transition-all duration-200 cursor-pointer border border-border/40",
-                                    "bg-secondary/10 hover:bg-secondary/30 hover:shadow-sm hover:scale-[1.01] hover:border-border/80",
+                                    "group relative flex cursor-pointer items-center gap-3 rounded-2xl border border-border/60 bg-background/85 p-3 transition-all duration-200",
+                                    "hover:border-foreground/20 hover:bg-background hover:shadow-sm",
                                 )}
                             >
                                 <div className={cn(
-                                    "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border border-border/40 shadow-inner",
-                                    node.url ? "bg-background" : "bg-primary/5"
+                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-background shadow-inner"
                                 )}>
                                     {node.url ? (
                                         <img
@@ -240,16 +239,16 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                                             }}
                                         />
                                     ) : (
-                                        <Folder size={20} className="text-primary/60 transition-transform group-hover:scale-110" fill="currentColor" fillOpacity={0.2} />
+                                        <Folder size={20} className="text-foreground/65 transition-transform group-hover:scale-110" fill="currentColor" fillOpacity={0.12} />
                                     )}
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-[13px] font-bold text-foreground/90 truncate tracking-tight group-hover:text-primary transition-colors">
-                                        {node.title || (node.url ? new URL(node.url).hostname : "Untitled")}
+                                    <div className="truncate text-[13px] font-semibold tracking-tight text-foreground transition-colors">
+                                        {node.title || (node.url ? new URL(node.url).hostname : t("untitled"))}
                                     </div>
                                     {node.url && (
-                                        <div className="text-[10px] text-muted-foreground truncate italic mt-0.5">
+                                        <div className="mt-0.5 truncate text-[10px] text-muted-foreground/80">
                                             {new URL(node.url).hostname}
                                         </div>
                                     )}
@@ -264,15 +263,15 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                                         className={cn(
                                             "h-8 flex items-center justify-center rounded-lg transition-all gap-1.5",
                                             confirmingId === node.id
-                                                ? "bg-destructive text-white px-2 shadow-lg shadow-destructive/20 animate-pulse"
-                                                : "w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                                ? "bg-foreground text-background px-2 shadow-lg animate-pulse"
+                                                : "w-8 text-muted-foreground hover:text-foreground hover:bg-foreground/8"
                                         )}
-                                        title={confirmingId === node.id ? "Confirm Delete" : "Delete Bookmark"}
+                                        title={confirmingId === node.id ? t("confirm_delete") : t("delete_bookmark")}
                                     >
                                         {confirmingId === node.id ? (
                                             <>
                                                 <AlertCircle size={14} strokeWidth={3} />
-                                                <span className="text-[10px] font-bold uppercase whitespace-nowrap">Confirm?</span>
+                                                <span className="text-[10px] font-bold uppercase whitespace-nowrap">{t("confirm_short")}</span>
                                             </>
                                         ) : (
                                             <Trash2 size={16} />

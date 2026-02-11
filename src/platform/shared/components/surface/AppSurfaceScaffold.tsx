@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/platform/core/utils";
 import { AppLayerShell } from "./AppLayerShell";
+import { useTranslation } from "react-i18next";
 
 export type AppSurfaceScaffoldPreset = "free" | "semi" | "sidebar";
 
@@ -29,12 +30,14 @@ function SemiFloatingHeader({
     onClose?: () => void;
     actions?: ReactNode;
 }) {
+    const { t } = useTranslation();
+
     return (
         <div className="absolute inset-x-0 top-0 z-30 pointer-events-none p-4">
             <div className="flex items-start justify-between gap-3">
                 <div className="pointer-events-auto min-w-0">
                     {title ? (
-                        <div className="max-w-[70vw] truncate rounded-full border border-border/50 bg-background/80 px-4 py-2 text-sm font-semibold shadow-sm backdrop-blur-md">
+                        <div className="max-w-[70vw] truncate rounded-2xl border border-border/70 bg-background/90 px-3 py-1.5 text-sm font-semibold tracking-tight shadow-sm">
                             {title}
                         </div>
                     ) : null}
@@ -46,8 +49,8 @@ function SemiFloatingHeader({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 bg-background/80 text-foreground/80 shadow-sm backdrop-blur-md transition-all hover:bg-background"
-                            aria-label="Close"
+                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/90 text-foreground/80 shadow-sm transition-all hover:bg-background"
+                            aria-label={t("close")}
                         >
                             <X size={16} />
                         </button>
@@ -142,4 +145,3 @@ export function AppSurfaceScaffold({
         />
     );
 }
-

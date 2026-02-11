@@ -45,7 +45,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
             persistenceManager.downloadBackup(blob);
         } catch (error) {
             console.error('Export failed:', error);
-            alert(t('export_fail') || 'Export failed');
+            alert(t('export_fail'));
         }
     };
 
@@ -68,7 +68,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                 }
 
                 const confirmText = t("restore_confirm_with_version", {
-                    appVersion: inspection.appVersion || "unknown",
+                    appVersion: inspection.appVersion || t("unknown"),
                     sourceSchema: inspection.sourceSchemaVersion,
                     targetSchema: inspection.targetSchemaVersion,
                     strategy: inspection.requiresMigration
@@ -82,7 +82,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
                 await persistenceManager.importData(file);
                 alert(t('restore_success_with_version', {
-                    appVersion: inspection.appVersion || "unknown",
+                    appVersion: inspection.appVersion || t("unknown"),
                     schema: inspection.targetSchemaVersion,
                 }));
                 window.location.reload();
@@ -103,8 +103,8 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
     // Language options with display names
     const languageOptions = {
-        zh: '简体中文',
-        en: 'English'
+        zh: t('language_name_zh'),
+        en: t('language_name_en')
     };
 
     const currentLanguage = i18n.language.startsWith('zh') ? 'zh' : 'en';
@@ -138,7 +138,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
             />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-3xl mx-auto p-6 space-y-8 pb-20">
+                <div className="mx-auto max-w-3xl space-y-6 p-5 pb-16">
                     {/* System Preference - Theme Section */}
                     <SettingsSection
                         icon={SettingsIcon}
@@ -148,7 +148,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                     >
                         <SettingsItem label={t('theme_mode')}>
                             <Select value={theme} onValueChange={(value) => setTheme(value as any)}>
-                                <SelectTrigger className="w-[180px] h-9 bg-background/40 border-border/30">
+                                <SelectTrigger className="h-9 w-[180px] rounded-xl border-border/70 bg-background/85">
                                     <SelectValue>
                                         {themeOptions[theme as keyof typeof themeOptions]}
                                     </SelectValue>
@@ -172,7 +172,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                         <div className="space-y-4">
                             <SettingsItem label={t('search_engine')}>
                                 <Select value={searchEngine} onValueChange={(val) => val && setSearchEngine(val)}>
-                                    <SelectTrigger className="w-[180px] h-9 bg-background/40 border-border/30">
+                                    <SelectTrigger className="h-9 w-[180px] rounded-xl border-border/70 bg-background/85">
                                         <SelectValue>
                                             <div className="flex items-center gap-2">
                                                 <img src={currentEngine.icon} alt="" className="w-3.5 h-3.5" />
@@ -195,20 +195,20 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
                             {/* Custom Engines List */}
                             <div className="space-y-2 mt-4">
-                                <h4 className="text-sm font-bold opacity-40 px-1">{t('custom_engines')}</h4>
+                                <h4 className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">{t('custom_engines')}</h4>
                                 <div className="grid gap-2">
                                     {customSearchEngines.map((engine) => (
-                                        <div key={engine.value} className="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-border/10 group/engine">
+                                        <div key={engine.value} className="group/engine flex items-center justify-between rounded-xl border border-border/60 bg-background/80 p-3">
                                             <div className="flex items-center gap-3 min-w-0">
                                                 <img src={engine.icon} alt="" className="w-4 h-4 rounded shadow-sm" />
                                                 <div className="flex flex-col min-w-0">
-                                                    <span className="text-sm font-bold truncate">{engine.name}</span>
-                                                    <span className="text-[10px] opacity-40 truncate font-mono">{engine.url}</span>
+                                                    <span className="truncate text-sm font-semibold">{engine.name}</span>
+                                                    <span className="truncate font-mono text-[10px] text-muted-foreground/70">{engine.url}</span>
                                                 </div>
                                             </div>
                                             <button
                                                 onClick={() => removeCustomSearchEngine(engine.value)}
-                                                className="p-2 opacity-0 group-hover/engine:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+                                                className="p-2 opacity-0 text-muted-foreground transition-all group-hover/engine:opacity-100 hover:bg-foreground/8 hover:text-foreground rounded-lg"
                                             >
                                                 <Trash2 size={14} />
                                             </button>
@@ -218,29 +218,29 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                     {!isAdding ? (
                                         <button
                                             onClick={() => setIsAdding(true)}
-                                            className="w-full h-12 flex items-center justify-center gap-2 rounded-xl border border-dashed border-border/30 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all text-sm font-bold"
+                                            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 text-sm font-semibold text-muted-foreground transition-all hover:bg-foreground/6 hover:text-foreground"
                                         >
                                             <Plus size={16} />
                                             {t('add_custom_engine')}
                                         </button>
                                     ) : (
-                                        <div className="p-4 rounded-2xl bg-muted/40 border border-border/20 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                        <div className="space-y-3 rounded-2xl border border-border/70 bg-background/88 p-4 animate-in fade-in slide-in-from-top-2">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest opacity-40">{t('engine_name')}</label>
+                                                <label className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">{t('engine_name')}</label>
                                                 <Input
                                                     value={newEngine.name}
                                                     onChange={(e) => setNewEngine(prev => ({ ...prev, name: e.target.value }))}
                                                     placeholder={t('engine_name_placeholder')}
-                                                    className="h-9 bg-background/50"
+                                                    className="h-9 border-border/70 bg-background/90"
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest opacity-40">{t('engine_url')}</label>
+                                                <label className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">{t('engine_url')}</label>
                                                 <Input
                                                     value={newEngine.url}
                                                     onChange={(e) => setNewEngine(prev => ({ ...prev, url: e.target.value }))}
                                                     placeholder={t('engine_url_placeholder')}
-                                                    className="h-9 bg-background/50 font-mono text-xs"
+                                                    className="h-9 border-border/70 bg-background/90 font-mono text-xs"
                                                 />
                                             </div>
                                             <div className="flex justify-end gap-2 pt-2">
@@ -271,14 +271,14 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                     }
                                 }}
                             >
-                                <SelectTrigger className="w-[180px] h-9 bg-background/40 border-border/30">
+                                <SelectTrigger className="h-9 w-[180px] rounded-xl border-border/70 bg-background/85">
                                     <SelectValue>
                                         {languageOptions[currentLanguage as keyof typeof languageOptions]}
                                     </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="zh">简体中文</SelectItem>
-                                    <SelectItem value="en">English</SelectItem>
+                                    <SelectItem value="zh">{languageOptions.zh}</SelectItem>
+                                    <SelectItem value="en">{languageOptions.en}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </SettingsItem>

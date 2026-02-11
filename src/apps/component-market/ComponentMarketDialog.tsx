@@ -16,6 +16,7 @@ import {
     type SystemWidgetManifestItem,
 } from "@/apps/launcher/widget";
 import { Plus, Square, RectangleHorizontal, RectangleVertical } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ComponentMarketDialogProps {
     open: boolean;
@@ -29,10 +30,23 @@ function getPresetSize(preset: LauncherTilePreset) {
     return GRID_ITEM_PRESETS[preset];
 }
 
-function getSurfaceLabel(app: SystemAppManifestItem): string {
+function resolveLocalizedTitle(
+    t: (key: string, options?: Record<string, unknown>) => string,
+    title: string
+): string {
+    if (title.startsWith("sys_") || title.startsWith("widget_")) {
+        return t(title);
+    }
+    return title;
+}
+
+function getSurfaceLabel(
+    app: SystemAppManifestItem,
+    t: (key: string, options?: Record<string, unknown>) => string
+): string {
     const labels: string[] = [];
-    if (app.surfaces.modal) labels.push("Modal");
-    if (app.surfaces.page) labels.push("Page");
+    if (app.surfaces.modal) labels.push(t("surface_modal"));
+    if (app.surfaces.page) labels.push(t("surface_page"));
     return labels.join(" / ");
 }
 
@@ -43,6 +57,7 @@ function renderPresetGlyph(preset: LauncherTilePreset) {
 }
 
 export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi" }: ComponentMarketDialogProps) {
+    const { t } = useTranslation();
     const { addItem } = useItemStore();
 
     const apps = useMemo<SystemAppManifestItem[]>(() => [...ENABLED_SYSTEM_APP_MANIFEST], []);
@@ -76,7 +91,7 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
             <div className="space-y-5">
                 <section className="space-y-2.5">
                     <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        App Icons
+                        {t("component_market_app_icons")}
                     </div>
                     <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
                         {apps.map((app) => (
@@ -91,10 +106,10 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
                                         </div>
                                         <div className="min-w-0">
                                             <div className="truncate text-sm font-semibold tracking-tight text-foreground">
-                                                {app.title}
+                                                {resolveLocalizedTitle(t, app.title)}
                                             </div>
                                             <div className="text-[11px] text-muted-foreground">
-                                                {getSurfaceLabel(app)}
+                                                {getSurfaceLabel(app, t)}
                                             </div>
                                         </div>
                                     </div>
@@ -106,7 +121,7 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
                                             onClick={() => handleAddIcon(app)}
                                         >
                                             <Plus className="h-3.5 w-3.5" />
-                                            Icon 1x1
+                                            {t("component_market_icon_preset", { preset: "1x1" })}
                                         </Button>
                                     </div>
                                 </div>
@@ -117,7 +132,7 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
 
                 <section className="space-y-2.5">
                     <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        Components
+                        {t("component_market_components")}
                     </div>
                     <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
                         {widgets.map((widget) => {
@@ -134,10 +149,12 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="truncate text-sm font-semibold tracking-tight text-foreground">
-                                                    {widget.title}
+                                                    {resolveLocalizedTitle(t, widget.title)}
                                                 </div>
                                                 <div className="text-[11px] text-muted-foreground">
-                                                    {owner ? `Owner: ${owner.title}` : "Standalone Component"}
+                                                    {owner
+                                                        ? t("component_market_owner", { owner: resolveLocalizedTitle(t, owner.title) })
+                                                        : t("component_market_standalone")}
                                                 </div>
                                             </div>
                                         </div>
@@ -172,7 +189,7 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
             open={open}
             onOpenChange={onOpenChange}
             preset={framePreset}
-            title="Component Market"
+            title={t("component_market_title")}
             content={content}
             background={<div className="absolute inset-0 bg-background" />}
         />

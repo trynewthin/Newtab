@@ -21,7 +21,7 @@ export function App() {
                 <div
                     className={cn(
                         "relative z-10 w-full h-full transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                        isModalVisible && "opacity-0 pointer-events-none"
+                        isModalVisible && "pointer-events-none"
                     )}
                 >
                     <AppRouter />

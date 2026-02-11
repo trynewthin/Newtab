@@ -5,6 +5,11 @@ import { useTranslation } from "react-i18next"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons"
 
+type SidebarHeaderIconComponent = React.ComponentType<{
+    size?: number;
+    className?: string;
+}>;
+
 export interface SidebarHeaderProps {
     title: React.ReactNode
     icon?: LucideIcon | React.ElementType
@@ -25,10 +30,11 @@ export function SidebarHeader({
     className
 }: SidebarHeaderProps) {
     const { t } = useTranslation();
+    const IconComponent = Icon as SidebarHeaderIconComponent | undefined;
 
     return (
         <header className={cn(
-            "h-14 shrink-0 border-b border-border/40 flex items-center justify-between px-4 md:px-6 bg-background z-20 transition-all",
+            "z-20 flex h-14 shrink-0 items-center justify-between border-b border-border/60 bg-background/92 px-4 transition-all md:px-6",
             className
         )}>
             <div className="flex items-center gap-3 min-w-0 overflow-hidden pr-2">
@@ -36,7 +42,7 @@ export function SidebarHeader({
                 {onMenuClick && (
                     <button
                         onClick={onMenuClick}
-                        className="md:hidden p-2 rounded-lg hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-all shrink-0"
+                        className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all shrink-0"
                         aria-label={t('open_menu')}
                     >
                         <HugeiconsIcon icon={Menu01Icon} size={20} strokeWidth={2.5} />
@@ -45,17 +51,17 @@ export function SidebarHeader({
 
                 <div className="flex items-center gap-3 min-w-0">
                     {/* Icon */}
-                    {Icon && (
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
-                            <Icon size={18} />
+                    {IconComponent && (
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background text-foreground/80">
+                            <IconComponent size={18} />
                         </div>
                     )}
 
                     {/* Title & Description */}
                     <div className="flex flex-col justify-center min-w-0 overflow-hidden">
-                        <h2 className="text-sm font-bold leading-tight truncate">{title}</h2>
+                        <h2 className="truncate text-sm font-semibold leading-tight tracking-tight">{title}</h2>
                         {description && (
-                            <p className="text-[10px] text-muted-foreground truncate opacity-60 font-medium">
+                            <p className="truncate text-[10px] font-medium text-muted-foreground/80">
                                 {description}
                             </p>
                         )}
@@ -70,7 +76,7 @@ export function SidebarHeader({
                 {onClose && (
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all flex items-center justify-center group"
+                        className="group flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
                         title={t('close')}
                     >
                         <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />

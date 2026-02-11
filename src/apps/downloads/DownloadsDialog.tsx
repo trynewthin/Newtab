@@ -118,36 +118,36 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
     };
 
     const getStatusColor = (item: chrome.downloads.DownloadItem) => {
-        if (item.state === 'complete') return 'text-green-500 bg-green-500/10';
-        if (item.state === 'interrupted') return 'text-rose-500 bg-rose-500/10';
-        if (item.state === 'in_progress') return 'text-blue-500 bg-blue-500/10';
-        return 'text-zinc-400 bg-zinc-400/10';
+        if (item.state === 'in_progress') return 'text-foreground bg-foreground/10';
+        if (item.state === 'complete') return 'text-foreground bg-foreground/8';
+        if (item.state === 'interrupted') return 'text-muted-foreground bg-foreground/6';
+        return 'text-muted-foreground bg-foreground/6';
     };
 
     const getFileIcon = (filename: string) => {
         const ext = filename.split('.').pop()?.toLowerCase();
-        if (!ext) return <FileIcon size={24} className="opacity-60" />;
+        if (!ext) return <FileIcon size={24} className="text-foreground/65" />;
 
         if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'].includes(ext)) {
-            return <FileImage size={24} className="text-amber-500/80" />;
+            return <FileImage size={24} className="text-foreground/65" />;
         }
         if (['mp4', 'mkv', 'mov', 'avi', 'webm', 'flv'].includes(ext)) {
-            return <FileVideo size={24} className="text-indigo-500/80" />;
+            return <FileVideo size={24} className="text-foreground/65" />;
         }
         if (['mp3', 'wav', 'flac', 'ogg', 'm4a'].includes(ext)) {
-            return <FileAudio size={24} className="text-emerald-500/80" />;
+            return <FileAudio size={24} className="text-foreground/65" />;
         }
         if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
-            return <FileArchive size={24} className="text-rose-500/80" />;
+            return <FileArchive size={24} className="text-foreground/65" />;
         }
         if (['js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'py', 'c', 'cpp', 'java', 'go', 'sh'].includes(ext)) {
-            return <FileCode size={24} className="text-blue-500/80" />;
+            return <FileCode size={24} className="text-foreground/65" />;
         }
         if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'md', 'txt'].includes(ext)) {
-            return <FileText size={24} className="text-sky-500/80" />;
+            return <FileText size={24} className="text-foreground/65" />;
         }
 
-        return <FileIcon size={24} className="opacity-60" />;
+        return <FileIcon size={24} className="text-foreground/65" />;
     };
 
     return (
@@ -159,7 +159,7 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
             onCloseMobileMenu={() => setShowMobileMenu(false)}
             sidebar={
                 <Sidebar
-                    title={t('downloads', 'Downloads')}
+                    title={t('downloads')}
                     isCollapsed={isSidebarCollapsed}
                     onCollapseChange={setIsSidebarCollapsed}
                     showMobileMenu={showMobileMenu}
@@ -167,25 +167,25 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                 >
                     <SidebarItem
                         icon={Inbox}
-                        label={t('all_downloads', 'All')}
+                        label={t('all_downloads')}
                         isActive={filter === 'all'}
                         onClick={() => { setFilter('all'); setShowMobileMenu(false); }}
                     />
                     <SidebarItem
                         icon={Clock}
-                        label={t('in_progress', 'In Progress')}
+                        label={t('in_progress')}
                         isActive={filter === 'in_progress'}
                         onClick={() => { setFilter('in_progress'); setShowMobileMenu(false); }}
                     />
                     <SidebarItem
                         icon={CheckCircle2}
-                        label={t('completed', 'Completed')}
+                        label={t('completed')}
                         isActive={filter === 'complete'}
                         onClick={() => { setFilter('complete'); setShowMobileMenu(false); }}
                     />
                     <SidebarItem
                         icon={AlertTriangle}
-                        label={t('interrupted', 'Interrupted')}
+                        label={t('interrupted')}
                         isActive={filter === 'interrupted'}
                         onClick={() => { setFilter('interrupted'); setShowMobileMenu(false); }}
                     />
@@ -193,35 +193,35 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
             }
             header={
                 <SidebarHeader
-                    title={t('downloads', 'Downloads')}
+                    title={t('downloads')}
                     icon={DownloadCloud}
-                    description={searchQuery ? t('searching', 'Searching...') : (
-                        filter === 'all' ? t('all_downloads', 'All Downloads') :
-                            filter === 'in_progress' ? t('in_progress', 'Downloading...') :
-                                filter === 'complete' ? t('completed', 'Finished') : t('interrupted', 'Failed')
+                    description={searchQuery ? t('searching') : (
+                        filter === 'all' ? t('all_downloads') :
+                            filter === 'in_progress' ? t('in_progress') :
+                                filter === 'complete' ? t('completed') : t('interrupted')
                     )}
                     onMenuClick={() => setShowMobileMenu(true)}
                     onClose={() => onOpenChange(false)}
                 >
                     <div className="relative group hidden sm:block w-48 lg:w-64 transition-all focus-within:w-64 lg:focus-within:w-80">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={14} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-foreground transition-colors" size={14} />
                         <input
                             value={searchQuery}
                             onChange={handleSearch}
-                            placeholder={t('search_downloads', 'Search...')}
-                            className="w-full bg-secondary/30 border border-transparent focus:border-primary/20 focus:bg-background rounded-lg h-8 pl-9 pr-3 text-[13px] transition-all focus:outline-none"
+                            placeholder={t('search_downloads')}
+                            className="w-full modal-minimal-input pl-9 pr-3"
                         />
                     </div>
                 </SidebarHeader>
             }
         >
-            <div className="h-full overflow-y-auto custom-scrollbar p-6">
+            <div className="h-full overflow-y-auto custom-scrollbar p-4 sm:p-5">
                 <div className="flex flex-col gap-3">
                     {filteredDownloads.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-32 text-muted-foreground/30 space-y-4 text-center">
-                            <Inbox size={48} strokeWidth={1.5} className="opacity-20" />
-                            <span className="italic font-serif">
-                                {searchQuery ? t('no_downloads_found', 'No results found') : t('no_downloads', 'Nothing here')}
+                        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground/60 space-y-3 text-center">
+                            <Inbox size={44} strokeWidth={1.5} className="opacity-40" />
+                            <span className="text-sm">
+                                {searchQuery ? t('no_downloads_found') : t('no_downloads')}
                             </span>
                         </div>
                     ) : (
@@ -229,13 +229,13 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                             <div
                                 key={item.id}
                                 className={cn(
-                                    "group relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 border border-border/40",
-                                    "bg-secondary/10 hover:bg-secondary/20 hover:border-border/80 shadow-xs",
+                                    "group relative flex items-center gap-4 rounded-2xl border border-border/60 bg-background/88 p-3.5 transition-all duration-200 shadow-xs",
+                                    "hover:border-foreground/20 hover:bg-background",
                                     item.state === 'interrupted' && "opacity-80"
                                 )}
                             >
                                 {/* Icon Column */}
-                                <div className="h-14 w-14 rounded-2xl bg-background/50 flex items-center justify-center shrink-0 border border-border/20 shadow-inner group-hover:scale-105 transition-transform">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-background shadow-inner transition-transform">
                                     {getFileIcon(item.filename)}
                                 </div>
 
@@ -248,7 +248,7 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                                     </div>
                                     <div className="flex items-center gap-2 mt-1.5 overflow-hidden">
                                         <span className={cn("text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider flex items-center gap-1 shrink-0", getStatusColor(item))}>
-                                            {item.state === 'in_progress' && <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />}
+                                            {item.state === 'in_progress' && <span className="w-1.5 h-1.5 bg-foreground rounded-full animate-pulse" />}
                                             {item.state}
                                         </span>
                                         <span className="text-[10px] text-muted-foreground font-bold uppercase shrink-0">{formatSize(item.fileSize)}</span>
@@ -258,9 +258,9 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
 
                                     {/* Progress Bar */}
                                     {item.state === 'in_progress' && (
-                                        <div className="mt-3 w-full h-1.5 bg-secondary/30 rounded-full overflow-hidden border border-border/20">
+                                        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full border border-border/60 bg-foreground/10">
                                             <div
-                                                className="h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)] transition-all duration-300"
+                                                className="h-full bg-foreground transition-all duration-300"
                                                 style={{ width: `${(item.bytesReceived / (item.totalBytes || 1)) * 100}%` }}
                                             />
                                         </div>
@@ -272,26 +272,26 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                                     {item.state === 'in_progress' ? (
                                         <>
                                             {item.paused ? (
-                                                <button onClick={() => handleResume(item.id)} className="h-9 w-9 flex items-center justify-center rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-all" title="Resume">
+                                                <button onClick={() => handleResume(item.id)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground/10 text-foreground hover:bg-foreground/15 transition-all" title={t("resume")}>
                                                     <Play size={18} fill="currentColor" />
                                                 </button>
                                             ) : (
-                                                <button onClick={() => handlePause(item.id)} className="h-9 w-9 flex items-center justify-center rounded-xl bg-secondary/50 text-foreground hover:bg-secondary transition-all" title="Pause">
+                                                <button onClick={() => handlePause(item.id)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground/8 text-foreground hover:bg-foreground/12 transition-all" title={t("pause")}>
                                                     <Pause size={18} fill="currentColor" />
                                                 </button>
                                             )}
-                                            <button onClick={() => handleCancel(item.id)} className="h-9 w-9 flex items-center justify-center rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all" title="Cancel">
+                                            <button onClick={() => handleCancel(item.id)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground/8 text-foreground hover:bg-foreground/15 transition-all" title={t("cancel")}>
                                                 <X size={18} strokeWidth={3} />
                                             </button>
                                         </>
                                     ) : item.state === 'complete' ? (
                                         <>
-                                            <button onClick={() => handleShow(item.id)} className="h-10 w-10 flex items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all" title="Show in folder">
+                                            <button onClick={() => handleShow(item.id)} className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all" title={t("show_in_folder")}>
                                                 <Folder size={20} />
                                             </button>
                                         </>
                                     ) : (
-                                        <button onClick={() => fetchDownloads()} className="h-10 w-10 flex items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary transition-all" title="Retry">
+                                        <button onClick={() => fetchDownloads()} className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-foreground/8 transition-all" title={t("retry")}>
                                             <RotateCcw size={20} />
                                         </button>
                                     )}
@@ -301,14 +301,14 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                                         className={cn(
                                             "h-10 px-3 flex items-center justify-center rounded-xl transition-all gap-2 min-w-[40px] font-bold text-[11px] uppercase tracking-wider",
                                             confirmingId === item.id
-                                                ? "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20 animate-pulse"
-                                                : "text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10"
+                                                ? "bg-foreground text-background shadow-lg animate-pulse"
+                                                : "text-muted-foreground/50 hover:text-foreground hover:bg-foreground/8"
                                         )}
                                     >
                                         {confirmingId === item.id ? (
                                             <>
                                                 <AlertCircle size={16} strokeWidth={3} />
-                                                <span>Delete?</span>
+                                                <span>{t("delete_short")}</span>
                                             </>
                                         ) : (
                                             <Trash2 size={20} />

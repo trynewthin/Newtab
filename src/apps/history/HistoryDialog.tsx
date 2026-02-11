@@ -93,7 +93,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
         const yesterdayStr = yesterday.toLocaleDateString();
 
         if (!deferredSearchQuery && (filter === 'all' || filter === 'today')) {
-            groups[t('today', 'Today')] = [];
+            groups[t('today')] = [];
         }
 
         const filtered = historyItems.filter(item => {
@@ -123,8 +123,8 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
             const dateStr = date.toLocaleDateString();
 
             let displayDate = dateStr;
-            if (dateStr === todayStr) displayDate = t('today', 'Today');
-            else if (dateStr === yesterdayStr) displayDate = t('yesterday', 'Yesterday');
+            if (dateStr === todayStr) displayDate = t('today');
+            else if (dateStr === yesterdayStr) displayDate = t('yesterday');
 
             if (!groups[displayDate]) {
                 groups[displayDate] = [];
@@ -165,7 +165,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                 onCloseMobileMenu={() => setShowMobileMenu(false)}
                 sidebar={
                     <Sidebar
-                        title={t('history', 'History')}
+                        title={t('history')}
                         isCollapsed={isSidebarCollapsed}
                         onCollapseChange={setIsSidebarCollapsed}
                         showMobileMenu={showMobileMenu}
@@ -173,7 +173,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                         footer={
                             <SidebarItem
                                 icon={Trash2}
-                                label={t('clear_history', 'Clear')}
+                                label={t('clear_history')}
                                 onClick={() => setIsClearConfirmOpen(true)}
                                 className="text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 transition-colors"
                             />
@@ -181,25 +181,25 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                     >
                         <SidebarItem
                             icon={Clock}
-                            label={t('today', 'Today')}
+                            label={t('today')}
                             isActive={filter === 'today'}
                             onClick={() => { setFilter('today'); setShowMobileMenu(false); }}
                         />
                         <SidebarItem
                             icon={Calendar}
-                            label={t('yesterday', 'Yesterday')}
+                            label={t('yesterday')}
                             isActive={filter === 'yesterday'}
                             onClick={() => { setFilter('yesterday'); setShowMobileMenu(false); }}
                         />
                         <SidebarItem
                             icon={Filter}
-                            label={t('last_7_days', 'Last 7 Days')}
+                            label={t('last_7_days')}
                             isActive={filter === 'week'}
                             onClick={() => { setFilter('week'); setShowMobileMenu(false); }}
                         />
                         <SidebarItem
                             icon={ChevronRight}
-                            label={t('older', 'Older')}
+                            label={t('older')}
                             isActive={filter === 'older'}
                             onClick={() => { setFilter('older'); setShowMobileMenu(false); }}
                         />
@@ -212,58 +212,58 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                     </Sidebar>
                 }
                 header={
-                    <SidebarHeader
-                        title={t('history', 'History')}
+                <SidebarHeader
+                        title={t('history')}
                         icon={History}
-                        description={searchQuery ? t('searching', 'Searching...') : t('history_desc', 'Browser History')}
+                        description={searchQuery ? t('searching') : t('history_desc')}
                         onMenuClick={() => setShowMobileMenu(true)}
                         onClose={() => onOpenChange(false)}
                     >
                         <div className="relative group hidden sm:block w-48 lg:w-64 transition-all focus-within:w-64 lg:focus-within:w-80">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={14} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-foreground transition-colors" size={14} />
                             <input
                                 value={searchQuery}
                                 onChange={handleSearch}
-                                placeholder={t('search_history', 'Search history...')}
-                                className="w-full bg-secondary/30 border border-transparent focus:border-primary/20 focus:bg-background rounded-lg h-8 pl-9 pr-3 text-[13px] transition-all focus:outline-none"
+                                placeholder={t('search_history')}
+                                className="w-full modal-minimal-input pl-9 pr-3"
                             />
                         </div>
                     </SidebarHeader>
                 }
             >
-                <div className="h-full overflow-y-auto custom-scrollbar p-6 bg-background">
+                <div className="h-full overflow-y-auto custom-scrollbar bg-background p-4 sm:p-5">
                     {groupedHistory.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-32 text-muted-foreground/30 space-y-4 text-center">
-                            <SearchX size={48} strokeWidth={1.5} className="opacity-20" />
-                            <span className="italic font-serif">
-                                {searchQuery ? t('no_history_found', 'No results found') : t('no_history', 'No history yet')}
+                        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground/60 space-y-3 text-center">
+                            <SearchX size={44} strokeWidth={1.5} className="opacity-40" />
+                            <span className="text-sm">
+                                {searchQuery ? t('no_history_found') : t('no_history')}
                             </span>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-8 pb-12">
+                        <div className="flex flex-col gap-6 pb-10">
                             {groupedHistory.map((group) => (
                                 <div key={group.date} className="flex flex-col gap-3">
                                     <div className="flex items-center gap-3 px-2">
-                                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
                                             {group.date}
                                         </h3>
                                         <div className="h-px flex-1 bg-linear-to-r from-border/50 to-transparent" />
                                         <span className="text-[10px] font-bold text-muted-foreground/30 tabular-nums">
-                                            {group.items.length} {t('items', 'items')}
+                                            {group.items.length} {t('items')}
                                         </span>
                                     </div>
                                     <div className="grid grid-cols-1 gap-1">
                                         {group.items.map((item) => (
                                             <div
                                                 key={item.id + (item.lastVisitTime || 0)}
-                                                className="group flex items-center gap-4 p-2.5 rounded-xl hover:bg-secondary/20 transition-all cursor-pointer border border-transparent hover:border-border/10"
+                                                className="group flex cursor-pointer items-center gap-3 rounded-xl border border-transparent p-2.5 transition-all hover:border-border/50 hover:bg-foreground/5"
                                                 onClick={() => window.open(item.url, '_blank')}
                                             >
-                                                <div className="h-10 w-10 rounded-lg bg-background flex items-center justify-center shrink-0 border border-border/10 group-hover:scale-105 transition-transform shadow-sm overflow-hidden">
+                                                <div className="h-9 w-9 rounded-lg bg-background flex items-center justify-center shrink-0 border border-border/60 transition-transform shadow-sm overflow-hidden">
                                                     <img
                                                         src={getFavicon(item.url || '')}
                                                         alt=""
-                                                        className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-opacity"
+                                                        className="w-4.5 h-4.5 opacity-80 group-hover:opacity-100 transition-opacity"
                                                         onError={(e) => {
                                                             (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="%23eee"/></svg>';
                                                         }}
@@ -271,7 +271,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors tracking-tight">
+                                                        <span className="truncate text-sm font-semibold tracking-tight text-foreground transition-colors">
                                                             {item.title || item.url}
                                                         </span>
                                                     </div>
@@ -290,8 +290,8 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                                                             e.stopPropagation();
                                                             handleDelete(item.url!);
                                                         }}
-                                                        className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
-                                                        title="Remove from history"
+                                                        className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all"
+                                                        title={t("remove_from_history")}
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
@@ -309,9 +309,9 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                                 <div className="flex justify-center p-4">
                                     <button
                                         onClick={loadMore}
-                                        className="group flex flex-col items-center gap-2 px-8 py-3 rounded-2xl bg-secondary/20 hover:bg-secondary/40 border border-border/5 transition-all text-muted-foreground hover:text-primary active:scale-95"
+                                        className="group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-background/90 px-8 py-3 text-muted-foreground transition-all hover:bg-foreground/6 hover:text-foreground active:scale-95"
                                     >
-                                        <span className="text-[10px] font-black uppercase tracking-widest">{t('more', 'Show More')}</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest">{t('more')}</span>
                                         <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
                                     </button>
                                 </div>
@@ -324,25 +324,25 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
             <AlertDialog open={isClearConfirmOpen} onOpenChange={setIsClearConfirmOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogMedia className="bg-rose-500/10 text-rose-500">
+                        <AlertDialogMedia className="bg-foreground/10 text-foreground">
                             <AlertTriangle />
                         </AlertDialogMedia>
                         <AlertDialogTitle>
-                            {t('clear_history', 'Clear History')}
+                            {t('clear_history')}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            {t('clear_history_confirm_desc', 'This action cannot be undone. All your browsing history will be permanently deleted from this browser.')}
+                            {t('clear_history_confirm_desc')}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>
-                            {t('cancel', 'Cancel')}
+                            {t('cancel')}
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleClearAll}
-                            className="bg-rose-500 hover:bg-rose-600 shadow-rose-500/20"
+                            className="bg-foreground text-background hover:bg-foreground/90"
                         >
-                            {t('confirm_delete', 'Delete Everything')}
+                            {t('confirm_delete')}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

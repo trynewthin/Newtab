@@ -4,6 +4,7 @@ import { cn } from "@/platform/core/utils";
 import { useAiStore, type Message, type ModelConfig } from "@/apps/ai-companion";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useTranslation } from "react-i18next";
 
 interface MessageRendererProps {
     messages: Message[];
@@ -11,6 +12,7 @@ interface MessageRendererProps {
 }
 
 function CopyButton({ content }: { content: any }) {
+    const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
     const handleCopy = async () => {
         try {
@@ -30,26 +32,27 @@ function CopyButton({ content }: { content: any }) {
     return (
         <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-all mt-1 -ml-1 w-fit group"
+            className="group mt-1 -ml-1 flex w-fit items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-semibold text-muted-foreground/60 transition-all hover:bg-foreground/8 hover:text-foreground"
         >
             {copied ? (
-                <><CheckCheck size={12} className="text-emerald-500" /><span className="text-emerald-500/80 uppercase tracking-widest">Copied</span></>
+                <><CheckCheck size={12} className="text-foreground" /><span className="uppercase tracking-[0.16em] text-foreground/80">{t("copied")}</span></>
             ) : (
-                <><Copy size={11} className="group-hover:scale-110 transition-transform" /><span className="uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Copy</span></>
+                <><Copy size={11} className="transition-transform group-hover:scale-110" /><span className="opacity-0 transition-opacity uppercase tracking-[0.16em] group-hover:opacity-100">{t("copy")}</span></>
             )}
         </button>
     );
 }
 
 export function MessageRenderer({ messages, activeModel }: MessageRendererProps) {
+    const { t } = useTranslation();
     const isLoading = useAiStore(s => s.isLoading);
 
     const renderReasoningBlock = (reasoning: string) => {
         if (!reasoning) return null;
         return (
-            <div className="mb-4 bg-secondary/10 border-l-2 border-primary/20 pl-4 py-2 rounded-r-xl group/reasoning">
-                <div className="flex items-center gap-2 mb-1.5 opacity-40 group-hover/reasoning:opacity-60 transition-opacity">
-                    <Brain size={12} /><span className="text-[10px] font-black uppercase tracking-widest">Thinking Process</span>
+            <div className="group/reasoning mb-4 rounded-r-xl border-l-2 border-border/70 bg-foreground/4 py-2 pl-4">
+                <div className="mb-1.5 flex items-center gap-2 opacity-45 transition-opacity group-hover/reasoning:opacity-65">
+                    <Brain size={12} /><span className="text-[10px] font-black uppercase tracking-widest">{t("thinking_process")}</span>
                 </div>
                 <div className="text-[13.5px] text-muted-foreground/80 italic leading-relaxed ai-content">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{reasoning}</ReactMarkdown>
@@ -82,9 +85,9 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                                     ul: ({ children }) => <ul className="list-disc list-inside mb-3 ml-1 space-y-1.5">{children}</ul>,
                                     ol: ({ children }) => <ol className="list-decimal list-inside mb-3 ml-1 space-y-1.5">{children}</ol>,
                                     li: ({ children }) => <li className="text-[14.5px] leading-snug">{children}</li>,
-                                    code: ({ children }) => <code className="bg-secondary/50 px-1.5 py-0.5 rounded-md text-[13px] font-mono border border-border/10 text-primary/80">{children}</code>,
-                                    pre: ({ children }) => (<pre className="bg-secondary/30 p-3 rounded-xl overflow-x-auto my-3 border border-border/20 text-[13px] font-mono shadow-inner scrollbar-none text-foreground/90 font-medium">{children}</pre>),
-                                    blockquote: ({ children }) => (<blockquote className="border-l-4 border-primary/30 pl-4 py-1 italic text-muted-foreground my-2 bg-primary/5 rounded-lg">{children}</blockquote>),
+                                    code: ({ children }) => <code className="rounded-md border border-border/60 bg-background/90 px-1.5 py-0.5 font-mono text-[13px] text-foreground/90">{children}</code>,
+                                    pre: ({ children }) => (<pre className="my-3 overflow-x-auto rounded-xl border border-border/70 bg-background/90 p-3 font-mono text-[13px] font-medium text-foreground/90 shadow-inner scrollbar-none">{children}</pre>),
+                                    blockquote: ({ children }) => (<blockquote className="my-2 rounded-lg border-l-4 border-border/70 bg-foreground/4 py-1 pl-4 italic text-muted-foreground">{children}</blockquote>),
                                 }}
                             >
                                 {displayContent}
@@ -102,8 +105,12 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                     {content.map((item, idx) => {
                         if (item?.type === "image_url") {
                             return (
-                                <div key={idx} className="mt-1 rounded-xl overflow-hidden border border-white/10 shadow-lg max-w-[240px] group transition-all hover:ring-2 hover:ring-primary/20 cursor-zoom-in" onClick={() => window.open(item.image_url.url, '_blank')}>
-                                    <img src={item.image_url.url} alt="Browser Frame" className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-300" />
+                                <div
+                                    key={idx}
+                                    className="group mt-1 max-w-[240px] cursor-zoom-in overflow-hidden rounded-xl border border-border/70 shadow-lg transition-all hover:ring-2 hover:ring-foreground/20"
+                                    onClick={() => window.open(item.image_url.url, '_blank')}
+                                >
+                                    <img src={item.image_url.url} alt={t("browser_frame")} className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-300" />
                                 </div>
                             );
                         }
@@ -123,9 +130,9 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                     <span className="text-[11px] font-bold tracking-tight text-muted-foreground truncate uppercase">{label}</span>
                 </div>
                 {!isFinished && isLoading ? (
-                    <div className="w-3 h-3 border border-primary/20 border-t-primary rounded-full animate-spin shrink-0" />
+                    <div className="h-3 w-3 shrink-0 animate-spin rounded-full border border-foreground/20 border-t-foreground" />
                 ) : (
-                    <div className="text-emerald-500/60"><Check size={12} strokeWidth={3} /></div>
+                    <div className="text-foreground/65"><Check size={12} strokeWidth={3} /></div>
                 )}
             </div>
         </div>
@@ -171,7 +178,7 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
                 if (typeof content === 'object' && content?.__type === 'vision_screenshot') {
                     elements.push(
                         <div key={`screenshot-${i}`} className="mt-1 mb-3 ml-1 rounded-xl overflow-hidden border border-white/10 shadow-lg max-w-[240px] cursor-zoom-in" onClick={() => window.open(content.screenshot, '_blank')}>
-                            <img src={content.screenshot} alt="Observation" className="w-full h-auto opacity-80 hover:opacity-100 transition-opacity" />
+                            <img src={content.screenshot} alt={t("observation")} className="w-full h-auto opacity-80 hover:opacity-100 transition-opacity" />
                         </div>
                     );
                 }
@@ -179,7 +186,7 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
             }
 
             if (msg.role === 'assistant' && msg.isIntermediate) {
-                const label = typeof msg.content === 'string' ? msg.content.trim().split('\n')[0].slice(0, 50) : "Thinking...";
+                const label = typeof msg.content === 'string' ? msg.content.trim().split('\n')[0].slice(0, 50) : t("thinking_default");
                 elements.push(
                     <ActionLine
                         key={`inter-${i}`}
@@ -194,7 +201,7 @@ export function MessageRenderer({ messages, activeModel }: MessageRendererProps)
             if (msg.content || msg.role === 'user') {
                 elements.push(
                     <div key={`chat-${i}`} className={cn("flex flex-col gap-1.5 w-full animate-in fade-in slide-in-from-bottom-2 my-2", msg.role === 'user' ? "items-end" : "items-start")}>
-                        <div className={cn("transition-all", msg.role === 'user' ? "max-w-[85%] bg-primary/95 text-primary-foreground px-4 py-2.5 rounded-2xl shadow-sm text-[14px] font-medium" : "max-w-full bg-transparent text-foreground/90 py-1")}>
+                        <div className={cn("transition-all", msg.role === 'user' ? "max-w-[85%] rounded-2xl bg-foreground px-4 py-2.5 text-[14px] font-medium text-background shadow-sm" : "max-w-full bg-transparent py-1 text-foreground/90")}>
                             {msg.role === 'assistant' && (msg as any).reasoning_content && renderReasoningBlock((msg as any).reasoning_content)}
                             {renderMessageContent(msg.content, msg.role === 'assistant')}
                             {msg.role === 'assistant' && !msg.isIntermediate && <CopyButton content={msg.content} />}

@@ -4,6 +4,7 @@ import { Input } from "@/platform/shared/ui/input";
 import { cn } from "@/platform/core/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/platform/shared/ui/popover";
 import type { ModelConfig } from "@/apps/ai-companion";
+import { useTranslation } from "react-i18next";
 
 interface ChatInputProps {
     models: ModelConfig[];
@@ -24,6 +25,7 @@ export function ChatInput({
     onSend,
     onStop
 }: ChatInputProps) {
+    const { t } = useTranslation();
     const [inputValue, setInputValue] = useState("");
     const [isModelOpen, setIsModelOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -51,22 +53,22 @@ export function ChatInput({
     return (
         <div className={cn(
             "relative flex items-end gap-2 p-1.5 rounded-[22px] transition-all duration-300",
-            "bg-background/40 backdrop-blur-md border border-white/10 shadow-lg ring-1 ring-black/5",
-            "focus-within:bg-background/60 focus-within:ring-primary/20 focus-within:border-primary/30"
+            "border border-border/70 bg-background/90 shadow-sm ring-1 ring-black/5 dark:ring-white/5",
+            "focus-within:bg-background focus-within:border-foreground/20 focus-within:ring-foreground/15"
         )}>
             <div className="pb-0.5">
                 <Popover open={isModelOpen} onOpenChange={setIsModelOpen}>
                     <PopoverTrigger className={cn(
                         "flex items-center gap-1.5 pl-3 pr-2 py-2 rounded-xl transition-all duration-300 outline-none",
-                        "hover:bg-background/50 text-muted-foreground hover:text-foreground",
+                        "hover:bg-foreground/8 text-muted-foreground hover:text-foreground",
                         isModelOpen && "bg-background text-foreground",
-                        isLoading && "text-primary animate-pulse"
+                        isLoading && "text-foreground animate-pulse"
                     )}>
                         <Sparkles size={16} className={cn(isLoading && "animate-spin-slow")} />
                         <ChevronUp size={12} className={cn("transition-transform duration-300 opacity-50", isModelOpen ? "rotate-180" : "")} />
                     </PopoverTrigger>
-                    <PopoverContent align="start" side="top" className="w-[200px] p-1.5 bg-background/95 backdrop-blur-xl shadow-xl rounded-xl border-border/40 mb-2">
-                        <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Select Model</div>
+                    <PopoverContent align="start" side="top" className="mb-2 w-[220px] rounded-xl border border-border/70 bg-background/95 p-1.5 shadow-xl">
+                        <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">{t("select_model")}</div>
                         {models.map(m => (
                             <button
                                 key={m.id}
@@ -77,8 +79,8 @@ export function ChatInput({
                                 className={cn(
                                     "w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-all group",
                                     activeModelId === m.id
-                                        ? "bg-primary text-primary-foreground"
-                                        : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+                                        ? "bg-foreground text-background"
+                                        : "text-muted-foreground hover:bg-foreground/8 hover:text-foreground"
                                 )}
                             >
                                 <span className="truncate">{m.name}</span>
@@ -94,9 +96,9 @@ export function ChatInput({
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={isLoading ? "Agent is working..." : (activeModel ? `Message ${activeModel.name}...` : "Type a message...")}
+                placeholder={isLoading ? t("agent_working") : (activeModel ? t("message_model_placeholder", { model: activeModel.name }) : t("type_message_placeholder"))}
                 disabled={isLoading}
-                className="flex-1 border-none shadow-none bg-transparent focus-visible:ring-0 px-3 py-2.5 text-sm min-h-[40px] placeholder:text-muted-foreground/30 font-medium"
+                className="min-h-[40px] flex-1 border-none bg-transparent px-3 py-2.5 text-sm font-medium shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
                 autoComplete="off"
             />
 
@@ -104,8 +106,8 @@ export function ChatInput({
                 {isLoading ? (
                     <button
                         onClick={onStop}
-                        className="w-9 h-9 rounded-xl bg-destructive text-white shadow-lg shadow-destructive/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center group"
-                        title="Stop Generation"
+                        className="group flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background shadow-sm transition-all hover:scale-105 active:scale-95"
+                        title={t("stop_generation")}
                     >
                         <Square size={14} fill="currentColor" className="group-hover:opacity-80 transition-opacity" />
                     </button>
@@ -116,7 +118,7 @@ export function ChatInput({
                         className={cn(
                             "w-9 h-9 rounded-xl transition-all duration-300 flex items-center justify-center",
                             inputValue.trim()
-                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-105 active:scale-95"
+                                ? "bg-foreground text-background shadow-sm hover:scale-105 active:scale-95"
                                 : "bg-muted text-muted-foreground/40 cursor-not-allowed"
                         )}
                     >

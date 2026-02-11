@@ -66,7 +66,7 @@ export function IconManagerTab() {
                                 {t(`sys_${icon.type}`)}
                             </span>
                             <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/40 mt-0.5">
-                                {isAdded ? t('enabled') || "Enabled" : t('disabled') || "Disabled"}
+                                {isAdded ? t('enabled') : t('disabled')}
                             </span>
                         </div>
 

@@ -8,13 +8,14 @@ import { SettingsSection } from "./SettingComponents";
 export function ThemeColorSelector() {
     const { t } = useTranslation();
     const { primaryColor, setPrimaryColor } = useSettingsStore();
+    const getColorLabel = (name: string) => t(`color_${name.toLowerCase()}`);
 
     return (
         <SettingsSection
             icon={Palette}
             iconColor="text-indigo-500"
             title={t('primary_color_system')}
-            description={t('select_accent_color') || "Choose a primary accent color"}
+            description={t('select_accent_color')}
         >
             <div className="flex flex-wrap justify-start gap-3">
                 {PRIMARY_COLORS.map((color) => (
@@ -28,7 +29,7 @@ export function ThemeColorSelector() {
                                 : "hover:scale-110 bg-background ring-1 ring-border/10 hover:shadow-md"
                         )}
                         style={{ backgroundColor: color.value }}
-                        title={color.name}
+                        title={getColorLabel(color.name)}
                     >
                         {primaryColor === color.value && (
                             <Check className="text-white drop-shadow-md animate-in zoom-in duration-300" size={20} strokeWidth={3.5} />
@@ -36,7 +37,7 @@ export function ThemeColorSelector() {
 
                         {/* Tooltip hint on hover */}
                         <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-foreground text-background text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap">
-                            {color.name}
+                            {getColorLabel(color.name)}
                         </span>
                     </button>
                 ))}

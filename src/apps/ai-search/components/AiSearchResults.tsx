@@ -31,16 +31,16 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-2xl bg-card/40 backdrop-blur-sm border border-border/50 p-4 shadow-sm space-y-4"
+                    className="space-y-4 rounded-2xl border border-border/60 bg-background/85 p-4 shadow-sm"
                 >
                     <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-lg bg-primary/5 animate-pulse" />
+                        <div className="h-7 w-7 animate-pulse rounded-lg bg-foreground/8" />
                         <div className="space-y-2 flex-1">
-                            <div className="h-3 bg-primary/10 rounded w-24 animate-pulse" />
-                            <div className="h-2 bg-muted/50 rounded w-32 animate-pulse" />
+                            <div className="h-3 w-24 animate-pulse rounded bg-foreground/10" />
+                            <div className="h-2 w-32 animate-pulse rounded bg-muted/50" />
                         </div>
                     </div>
-                    <div className="pt-3 border-t border-border/30 space-y-2">
+                    <div className="space-y-2 border-t border-border/50 pt-3">
                         <div className="h-3 bg-muted/60 rounded w-full animate-pulse" />
                         <div className="h-3 bg-muted/60 rounded w-[90%] animate-pulse" />
                         <div className="h-3 bg-muted/60 rounded w-[40%] animate-pulse" />
@@ -56,7 +56,7 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
-                                className="rounded-2xl bg-card/50 border border-border/50 p-4 space-y-3"
+                                className="space-y-3 rounded-2xl border border-border/60 bg-background/82 p-4"
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="w-6 h-6 rounded-full bg-muted animate-pulse" />
@@ -83,14 +83,14 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                 animate={{ opacity: 1, scale: 1 }}
                 className={cn("flex flex-col items-center justify-center py-16 text-center", className)}
             >
-                <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                    <AlertCircle size={32} className="text-destructive" />
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-border/70 bg-foreground/8">
+                    <AlertCircle size={30} className="text-foreground/75" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{t('search_failed')}</h3>
-                <p className="text-sm text-destructive font-medium mb-1">
+                <h3 className="mb-2 text-lg font-semibold text-foreground">{t('search_failed')}</h3>
+                <p className="mb-1 text-sm font-medium text-foreground/85">
                     {error || t('search_failed_general')}
                 </p>
-                <p className="text-xs text-muted-foreground max-w-sm">
+                <p className="max-w-sm text-xs text-muted-foreground/85">
                     {window.location.hostname === 'localhost'
                         ? t('search_failed_localhost_hint')
                         : t('search_failed_general_hint')}
@@ -107,11 +107,11 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                 animate={{ opacity: 1 }}
                 className={cn("flex flex-col items-center justify-center min-h-[60vh] text-center", className)}
             >
-                <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-6">
-                    <Sparkles size={32} className="text-primary/40 animate-pulse" />
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-border/70 bg-background/88">
+                    <Sparkles size={32} className="animate-pulse text-foreground/40" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-3 tracking-tight">{t('ready_to_search_title')}</h3>
-                <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+                <p className="max-w-sm text-sm leading-relaxed text-muted-foreground/85">
                     {t('ready_to_search_desc')}
                 </p>
             </motion.div>
@@ -126,19 +126,18 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 p-4 shadow-sm"
+                    className="rounded-2xl border border-border/60 bg-background/88 p-4 shadow-sm"
                 >
                     <div className="flex flex-col gap-3">
                         {/* Header consistent with ResultCard */}
                         <div className="flex items-center gap-3">
-                            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <Sparkles size={14} className="text-primary" />
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-foreground/10">
+                                <Sparkles size={14} className="text-foreground/80" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">
+                                <h4 className="text-sm font-semibold text-foreground uppercase tracking-[0.16em]">
                                     {t('generated_by_ai')}
                                 </h4>
-                                <p className="text-xs text-muted-foreground truncate">{t('neural_search_engine')}</p>
                             </div>
                         </div>
 
@@ -161,11 +160,11 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                             }
 
                             return (
-                                <div className="pt-2 border-t border-border/30 space-y-4">
+                                <div className="space-y-4 border-t border-border/50 pt-2">
                                     {thoughtContent && (
                                         <details className="group">
-                                            <summary className="list-none flex items-center gap-2 cursor-pointer text-xs font-semibold text-muted-foreground hover:text-primary transition-colors select-none">
-                                                <div className="flex items-center gap-2 bg-muted/40 px-2 py-1 rounded-md group-open:bg-primary/10 group-open:text-primary transition-colors">
+                                            <summary className="list-none flex cursor-pointer select-none items-center gap-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground">
+                                                <div className="flex items-center gap-2 rounded-md bg-foreground/6 px-2 py-1 transition-colors group-open:bg-foreground/10 group-open:text-foreground">
                                                     <Brain size={12} />
                                                     <span>{t('thinking_process')}</span>
                                                     <ChevronDown size={12} className="transition-transform group-open:rotate-180" />
@@ -174,7 +173,7 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                                             <motion.div
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: "auto" }}
-                                                className="mt-2 text-xs text-muted-foreground/80 leading-relaxed font-mono bg-muted/20 p-3 rounded-xl border border-border/30 overflow-hidden"
+                                                className="mt-2 overflow-hidden rounded-xl border border-border/60 bg-background/92 p-3 font-mono text-xs leading-relaxed text-muted-foreground/85"
                                             >
                                                 <ReactMarkdown>{thoughtContent}</ReactMarkdown>
                                             </motion.div>
@@ -186,7 +185,7 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                                         <AiArtifactRenderer artifact={artifactData} />
                                     )}
 
-                                    <div className="prose dark:prose-invert max-w-none text-base text-muted-foreground leading-relaxed marker:text-muted-foreground/50">
+                                    <div className="prose dark:prose-invert max-w-none text-base leading-relaxed text-muted-foreground marker:text-muted-foreground/50">
                                         <ReactMarkdown>{cleanSummary}</ReactMarkdown>
                                     </div>
                                 </div>
@@ -198,7 +197,7 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
 
             {/* Results count */}
             <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground font-medium">
+                <p className="text-xs font-medium text-muted-foreground/85">
                     {t('found_relevant_sources', { count: cards.length })}
                 </p>
             </div>
@@ -228,11 +227,11 @@ function ResultCard({ card, index }: { card: SearchResultCard; index: number }) 
             transition={{ delay: index * 0.05 }}
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
-            className="group block rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 p-4 shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+            className="group block rounded-2xl border border-border/60 bg-background/88 p-4 shadow-sm transition-all duration-300 hover:border-foreground/20 hover:shadow-lg"
         >
             {/* Header */}
             <div className="flex items-center gap-3 mb-3">
-                <div className="w-7 h-7 rounded-lg bg-muted/50 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-foreground/6">
                     {favicon ? (
                         <img
                             src={favicon}
@@ -247,23 +246,23 @@ function ResultCard({ card, index }: { card: SearchResultCard; index: number }) 
                     )}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                    <h4 className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-foreground/75">
                         {card.title}
                     </h4>
-                    <p className="text-xs text-muted-foreground truncate">{domain}</p>
+                    <p className="truncate text-xs text-muted-foreground/85">{domain}</p>
                 </div>
-                <ExternalLink size={14} className="text-muted-foreground/50 group-hover:text-primary transition-colors shrink-0" />
+                <ExternalLink size={14} className="shrink-0 text-muted-foreground/55 transition-colors group-hover:text-foreground/80" />
             </div>
 
             {/* Content summary */}
-            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+            <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground/90">
                 {card.summary}
             </p>
 
             {/* Source tag */}
             {card.source && (
-                <div className="mt-3 pt-3 border-t border-border/30">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted/50 text-xs font-medium text-muted-foreground">
+                <div className="mt-3 border-t border-border/50 pt-3">
+                    <span className="inline-flex items-center rounded-full border border-border/60 bg-background px-2 py-0.5 text-xs font-medium text-muted-foreground/85">
                         {card.source}
                     </span>
                 </div>

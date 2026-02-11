@@ -96,20 +96,20 @@ export default function Popup() {
             }, 1200); // 稍微延长一点，让用户看到成功状态
         } catch (err) {
             console.error("Popup submit error:", err);
-            alert(t('save_failed', 'Failed to save bookmark'));
+            alert(t('save_failed'));
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const checkIcon = (
-        <div className="absolute inset-0 z-100 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-16 h-16 bg-primary/20 text-primary rounded-full flex items-center justify-center shadow-lg animate-in zoom-in spin-in-12 duration-300">
+        <div className="absolute inset-0 z-100 flex flex-col items-center justify-center bg-background/92 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="w-16 h-16 rounded-full border border-border/70 bg-foreground/8 text-foreground flex items-center justify-center shadow-sm animate-in zoom-in duration-250">
                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
             </div>
-            <p className="mt-4 text-lg font-black tracking-tight text-foreground animate-in slide-in-from-bottom-2 duration-300">
+            <p className="mt-4 text-base font-semibold tracking-tight text-foreground animate-in slide-in-from-bottom-2 duration-300">
                 {existingItem ? t('updated') : t('added')}
             </p>
         </div>
@@ -138,10 +138,10 @@ export default function Popup() {
     }, [isReady, title, url, iconStr, existingItem]);
 
     return (
-        <div className="w-full min-h-[400px] bg-background text-foreground overflow-x-hidden flex flex-col relative pb-4">
+        <div className="popup-minimal-scope w-full min-h-[400px] bg-background text-foreground overflow-x-hidden flex flex-col relative p-3">
             {isSuccess && checkIcon}
 
-            <div className="p-4 flex-1">
+            <div className="flex-1 rounded-2xl border border-border/70 bg-card/85 p-4 shadow-sm">
                 {isReady ? (
                     <TagConfigForm
                         key={existingItem ? `edit-${existingItem.id}` : `add-${url}`}
@@ -150,10 +150,10 @@ export default function Popup() {
                         showUrlField={false}
                         autoFocus={false}
                     >
-                        <div className="pt-4">
+                        <div className="pt-3">
                             <Button
                                 type="submit"
-                                className="w-full h-11 px-6 rounded-2xl shadow-xl shadow-primary/20 font-bold transition-all active:scale-[0.98]"
+                                className="w-full h-10 rounded-xl bg-foreground text-background hover:bg-foreground/90 shadow-none font-medium transition-all active:scale-[0.98]"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? t('saving') : (existingItem ? t('update_bookmark') : t('add_bookmark'))}
@@ -162,8 +162,8 @@ export default function Popup() {
                     </TagConfigForm>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-64 gap-3">
-                        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{t('loading')}</span>
+                        <div className="w-7 h-7 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+                        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.14em]">{t('loading')}</span>
                     </div>
                 )}
             </div>

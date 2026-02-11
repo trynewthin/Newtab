@@ -6,6 +6,7 @@ import { cn } from "@/platform/core/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { ModalButton } from "./ModalButton"
+import { useTranslation } from "react-i18next"
 
 // Global tracker for the last mouse down position to determine modal animation origin
 let lastClickPos = {
@@ -36,7 +37,7 @@ function ModalOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
         <DialogPrimitive.Backdrop
             data-slot="modal-overlay"
             className={cn(
-                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/40 backdrop-blur-sm duration-300 fixed inset-0 z-999",
+                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/24 backdrop-blur-[2px] duration-300 fixed inset-0 z-999",
                 className
             )}
             {...props}
@@ -87,6 +88,7 @@ function BaseModal({
     scrollable = true,
     ...props
 }: BaseModalProps) {
+    const { t } = useTranslation();
     const [transformOrigin, setTransformOrigin] = React.useState<string>("center");
 
     // Use useLayoutEffect to ensure origin is set BEFORE any animation attributes are applied
@@ -141,23 +143,23 @@ function BaseModal({
                         UNIFIED_SIZE_CLASS
                     )}
                 >
-                    <div className="relative w-full h-full sm:rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 isolate">
+                    <div className="modal-minimal-scope relative h-full w-full overflow-hidden shadow-2xl ring-1 ring-black/10 isolate sm:rounded-[24px] dark:ring-white/10">
 
                         {/* === Layer 3: Background (Fixed) === */}
                         <div className="absolute inset-0 z-0 pointer-events-none">
-                            {background ? background : <div className="absolute inset-0 bg-background/80 backdrop-blur-xl" />}
+                            {background ? background : <div className="absolute inset-0 bg-background/95" />}
                         </div>
 
                         {/* === Layer 2: Content (Scrolls within Fixed Frame) === */}
                         <div className="absolute inset-0 z-10 flex flex-col">
                             <div className={cn(
                                 "flex-1 w-full h-full",
-                                scrollable ? "overflow-y-auto scrollbar-hide px-6 py-6 pb-20" : "overflow-hidden relative",
+                                scrollable ? "overflow-y-auto scrollbar-hide px-4 py-4 pb-14 sm:px-5 sm:py-5 sm:pb-16" : "overflow-hidden relative",
                                 contentClassName
                             )}>
                                 {/* Spacer for Header */}
                                 {scrollable && (showTitle || showCloseButton || actions || header) && (
-                                    <div className="h-10 w-full shrink-0 mb-1" />
+                                    <div className="h-8 w-full shrink-0" />
                                 )}
                                 {children}
                             </div>
@@ -174,7 +176,7 @@ function BaseModal({
 
                             {/* Top Gradient */}
                             {showGradientShadow && (
-                                <div className="absolute top-0 left-0 right-0 h-24 bg-linear-to-b from-black/5 to-transparent z-[-1]" />
+                                <div className="absolute top-0 left-0 right-0 h-16 bg-linear-to-b from-black/4 to-transparent z-[-1]" />
                             )}
 
                             {/* Top Section */}
@@ -184,13 +186,13 @@ function BaseModal({
                                         {header}
                                     </div>
                                 ) : (
-                                    <div className="p-4">
+                                    <div className="px-4 py-3">
                                         <div className="flex items-start justify-between gap-4">
                                             {/* Left: Title */}
                                             <div className="pointer-events-auto min-w-0 flex-1">
                                                 {showTitle && title && (
-                                                    <div className="bg-background/80 backdrop-blur-md border border-border/50 shadow-sm px-4 py-2 rounded-full flex items-center gap-2 max-w-full sm:max-w-fit w-fit">
-                                                        <span className="font-semibold text-sm truncate">{title}</span>
+                                                    <div className="max-w-full w-fit sm:max-w-fit rounded-2xl border border-border/70 bg-background/90 px-3 py-1.5 shadow-sm">
+                                                        <span className="truncate text-sm font-semibold tracking-tight">{title}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -203,7 +205,7 @@ function BaseModal({
                                                         render={
                                                             <ModalButton>
                                                                 <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
-                                                                <span className="sr-only">Close</span>
+                                                                <span className="sr-only">{t("close")}</span>
                                                             </ModalButton>
                                                         }
                                                     />

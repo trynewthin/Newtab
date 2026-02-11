@@ -5,6 +5,11 @@ import { useTranslation } from "react-i18next"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 
+type SidebarIconComponent = React.ComponentType<{
+    size?: number;
+    className?: string;
+}>;
+
 // 创建 Context 来下发侧边栏状态
 interface SidebarContextValue {
     isCollapsed: boolean;
@@ -49,19 +54,19 @@ export function Sidebar({
         <SidebarContext.Provider value={contextValue}>
             <aside
                 className={cn(
-                    "flex flex-col h-full bg-secondary/5 border-r border-border/40 transition-all duration-300 ease-in-out shrink-0 relative overflow-hidden",
+                    "relative flex h-full shrink-0 flex-col overflow-hidden border-r border-border/60 bg-background/78 backdrop-blur-sm transition-all duration-300 ease-in-out",
                     // Width
                     isCollapsed ? "w-16" : "w-[260px]",
                     // Mobile absolute positioning
                     "absolute md:relative z-50 h-full",
                     !showMobileMenu && "-translate-x-full md:translate-x-0",
-                    showMobileMenu && "translate-x-0 shadow-2xl md:shadow-none bg-background md:bg-transparent w-[280px]",
+                    showMobileMenu && "translate-x-0 shadow-2xl md:shadow-none bg-background w-[280px]",
                     className
                 )}
             >
                 {/* Sidebar Header */}
                 <div className={cn(
-                    "h-14 flex items-center shrink-0 border-b border-border/40 transition-all",
+                    "h-14 flex items-center shrink-0 border-b border-border/60 transition-all",
                     isCollapsed && !showMobileMenu ? "justify-center px-0" : "justify-between px-4"
                 )}>
                     {(showMobileMenu || !isCollapsed) && (
@@ -76,7 +81,7 @@ export function Sidebar({
                             <button
                                 onClick={() => onCollapseChange(!isCollapsed)}
                                 className={cn(
-                                    "hidden md:flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-all",
+                                    "hidden md:flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/8 transition-all",
                                     "w-8 h-8",
                                     isCollapsed ? "" : "ml-auto"
                                 )}
@@ -90,7 +95,7 @@ export function Sidebar({
                         {showMobileMenu && onCloseMobileMenu && (
                             <button
                                 onClick={onCloseMobileMenu}
-                                className="p-1.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive md:hidden transition-all"
+                                className="p-1.5 rounded-lg text-muted-foreground hover:bg-foreground/8 hover:text-foreground md:hidden transition-all"
                             >
                                 <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} size={20} />
                             </button>
@@ -139,6 +144,7 @@ export function SidebarItem({
     badge,
 }: SidebarItemProps) {
     const context = React.useContext(SidebarContext);
+    const IconComponent = Icon as SidebarIconComponent;
 
     // 核心逻辑内化：
     // 如果在 Sidebar 内部使用，自动计算：桌面端看折叠状态，移动端菜单打开时强制展示全文
@@ -157,8 +163,8 @@ export function SidebarItem({
                     ? "justify-center w-full h-12"
                     : "justify-between w-full px-3 py-2.5 outline-none",
                 isActive
-                    ? "bg-primary/10 text-primary font-bold shadow-xs"
-                    : "hover:bg-secondary/50 text-muted-foreground hover:text-foreground font-medium",
+                    ? "bg-foreground/10 text-foreground font-semibold shadow-xs"
+                    : "hover:bg-foreground/6 text-muted-foreground hover:text-foreground font-medium",
                 className
             )}
             title={effectiveCollapsed ? label : undefined}
@@ -167,7 +173,7 @@ export function SidebarItem({
                 "flex items-center min-w-0 transition-all",
                 effectiveCollapsed ? "gap-0 justify-center w-full" : "gap-3 pr-2 flex-1"
             )}>
-                <Icon
+                <IconComponent
                     size={effectiveCollapsed ? 20 : 18}
                     className={cn(
                         "shrink-0 transition-opacity",

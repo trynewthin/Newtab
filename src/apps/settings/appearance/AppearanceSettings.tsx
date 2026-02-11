@@ -22,7 +22,7 @@ export function AppearanceSettings({ onOpenMobileMenu, onClose }: AppearanceSett
             />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-3xl mx-auto p-6 space-y-8">
+                <div className="mx-auto max-w-3xl space-y-6 p-5">
                     {/* Theme Color Selector at Top */}
                     <ThemeColorSelector />
 

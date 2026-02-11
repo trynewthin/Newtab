@@ -26,3 +26,11 @@ dist-ssr
 .agent
 .shared
 .windsurf
+
+# planning-with-files artifacts
+task_plan.md
+findings.md
+progress.md
+
+# bun-only lockfile policy
+package-lock.json

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSettingsStore } from "@/apps/settings/store";
+import ColorBends from "@/components/ColorBends";
 
 export function BackgroundLayer() {
     const { backgroundConfig, primaryColor } = useSettingsStore();
@@ -35,16 +36,38 @@ export function BackgroundLayer() {
                 // Scale up slightly to hide blur edges
                 baseStyle.transform = 'scale(1.1)';
             }
+        } else if (type === 'theme') {
+            baseStyle.backgroundColor = '#050b1a';
         }
 
         return baseStyle;
     };
+
+    const isColorBendsTheme = backgroundConfig.type === 'theme' && backgroundConfig.value === 'color-bends';
 
     return (
         <div
             className="absolute inset-0 z-0 transition-all duration-500 ease-in-out"
             style={getBackgroundStyle()}
         >
+            {isColorBendsTheme && (
+                <ColorBends
+                    className="absolute inset-0"
+                    colors={[primaryColor || "#ff5c7a", "#8a5cff", "#00ffd1"]}
+                    rotation={0}
+                    speed={0.2}
+                    scale={1}
+                    frequency={1}
+                    warpStrength={1}
+                    mouseInfluence={1}
+                    parallax={0.5}
+                    noise={0.1}
+                    transparent
+                    autoRotate={0}
+                    color=""
+                />
+            )}
+
             {/* Overlay mask for dimming effect */}
             {backgroundConfig.overlay != null && backgroundConfig.overlay > 0 && (
                 <div

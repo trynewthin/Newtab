@@ -1,6 +1,6 @@
 import { useSettingsStore } from "@/apps/settings/store";
 import { cn } from "@/platform/core/utils";
-import { Check, Upload, Plus, Image as ImageIcon, Palette, Droplet } from "lucide-react";
+import { Check, Upload, Plus, Image as ImageIcon, Palette, Droplet, Sparkles } from "lucide-react";
 import { Input } from "@/platform/shared/ui/input";
 import { Button } from "@/platform/shared/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -22,6 +22,7 @@ export function BackgroundSelector() {
 
     const gradientPresets = BACKGROUND_PRESETS.filter(p => p.type === 'gradient');
     const colorInputRef = useRef<HTMLInputElement>(null);
+    const isColorBendsTheme = backgroundConfig.type === 'theme' && backgroundConfig.value === 'color-bends';
 
     const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const color = e.target.value;
@@ -46,6 +47,37 @@ export function BackgroundSelector() {
 
     return (
         <div className="space-y-8">
+            <SettingsSection
+                icon={Sparkles}
+                iconColor="text-cyan-500"
+                title="Theme Effects"
+                description="Animated backgrounds for theme mode"
+            >
+                <button
+                    onClick={() => setBackgroundConfig({ type: 'theme', value: 'color-bends' })}
+                    className={cn(
+                        "group relative w-full h-20 rounded-2xl overflow-hidden transition-all duration-500 border",
+                        isColorBendsTheme
+                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background/10 scale-[0.99] shadow-xl shadow-primary/20 border-primary/40"
+                            : "border-border/30 hover:border-primary/50 hover:scale-[1.01] active:scale-[0.99]"
+                    )}
+                >
+                    <div className="absolute inset-0 bg-linear-to-br from-rose-400 via-indigo-500 to-cyan-300 opacity-90 transition-transform duration-700 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-black/15" />
+                    <div className="relative z-10 h-full flex items-center justify-between px-4">
+                        <div className="text-left text-white">
+                            <div className="text-xs font-bold tracking-wider uppercase">Color Bends</div>
+                            <div className="text-[11px] text-white/80">Dynamic shader background</div>
+                        </div>
+                        {isColorBendsTheme && (
+                            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white">
+                                <Check size={12} strokeWidth={3} />
+                            </div>
+                        )}
+                    </div>
+                </button>
+            </SettingsSection>
+
             {/* 1. Custom Image Upload */}
             <SettingsSection
                 icon={ImageIcon}

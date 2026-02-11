@@ -6,6 +6,7 @@ import { cn } from "@/platform/core/utils";
 import { useTranslation } from "react-i18next";
 import { SEARCH_ENGINES } from "@/platform/core/constants";
 import { useNavigate } from "react-router-dom";
+import GlassSurface from "@/components/GlassSurface";
 
 interface SearchBarProps {
     initialQuery?: string;
@@ -131,95 +132,112 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
         <div className="w-full relative group" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-30">
                 {/* Main Pill Container */}
-                <div className={cn(
-                    "flex gap-2 items-center rounded-full px-3 transition-all duration-300",
-                    "bg-white/40 dark:bg-black/40 backdrop-blur-3xl border border-white/20 dark:border-white/10 shadow-2xl shadow-primary/10",
-                    "h-12 md:h-14"
-                )}>
-                    {/* LEFT SIDE: Logic based on isAiMode */}
-                    {isAiMode ? (
-                        <button
-                            type="button"
-                            onClick={handleExitAiMode}
-                            className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-muted-foreground hover:text-destructive shrink-0 border border-black/20 dark:border-white/20 rounded-full bg-black/5 dark:bg-white/5"
-                            title="Exit AI Search"
-                        >
-                            <LogOut size={16} />
-                        </button>
-                    ) : (
-                        /* Engine Selector */
-                        <div className="relative shrink-0">
-                            <button
-                                type="button"
-                                onClick={() => setEngineMenuOpen((v) => !v)}
-                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform btn-no-style"
-                            >
-                                {currentEngine.value === 'ai' ? (
-                                    <Sparkles className="w-5.5 h-5.5 text-primary" strokeWidth={2.2} />
-                                ) : (
-                                    <img
-                                        src={currentEngine.icon}
-                                        alt=""
-                                        className="w-full h-full rounded-full object-contain"
-                                    />
-                                )}
-                            </button>
-                            {engineMenuOpen && (
-                                <div className="absolute top-[calc(100%+8px)] left-0 w-60 p-2 rounded-2xl bg-background/90 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-none z-50">
-                                    <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
-                                        {allEngines.map((engine) => (
-                                            <button
-                                                key={engine.value}
-                                                type="button"
-                                                onClick={() => handleEngineSelect(engine.value)}
-                                                className={cn(
-                                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
-                                                    engine.value === searchEngine
-                                                        ? 'bg-primary/20 text-primary font-bold'
-                                                        : 'text-foreground hover:bg-white/5'
-                                                )}
-                                            >
-                                                <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                                                    {engine.value === 'ai' ? (
-                                                        <Sparkles size={18} className="text-primary" />
-                                                    ) : (
-                                                        <img src={engine.icon} alt="" className="w-4.5 h-4.5 rounded-sm object-contain" />
-                                                    )}
-                                                </div>
-                                                <span className="text-sm font-medium">{engine.name}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    <div className="flex-1 h-full flex items-center">
-                        <Input
-                            type="text"
-                            autoFocus
-                            value={query}
-                            onChange={(e) => {
-                                setQuery(e.target.value);
-                                setActiveIndex(-1);
-                            }}
-                            onKeyDown={handleKeyDown}
-                            onFocus={() => query.trim() && setShowSuggestions(true)}
-                            placeholder={isAiMode ? "Ask or search anything..." : t('search_placeholder')}
-                            className="h-full w-full border-0 shadow-none px-0 py-0 text-base md:text-lg ring-0 focus-visible:ring-0 rounded-none text-foreground placeholder:text-foreground/30 font-medium"
+                <div className="relative h-12 md:h-14">
+                    <div className="absolute inset-0 pointer-events-none">
+                        <GlassSurface
+                            width="100%"
+                            height="100%"
+                            borderRadius={50}
+                            displace={3.0}
+                            distortionScale={-180}
+                            redOffset={0}
+                            greenOffset={10}
+                            blueOffset={20}
+                            brightness={50}
+                            opacity={0.93}
+                            mixBlendMode="screen"
+                            className="w-full h-full"
                         />
                     </div>
 
-                    {/* RIGHT SIDE: Action Buttons */}
-                    <div className="flex items-center gap-1">
-                        <button
-                            type="submit"
-                            className="h-8 w-8 flex items-center justify-center text-primary/80 hover:text-primary transition-all active:scale-90"
-                            title={isAiMode ? "Search again" : "Search"}
-                        >
-                            <Search size={18} strokeWidth={2.5} />
-                        </button>
+                    <div className={cn(
+                        "relative z-10 flex gap-2 items-center h-full rounded-full px-3 transition-all duration-300"
+                    )}>
+                        {/* LEFT SIDE: Logic based on isAiMode */}
+                        {isAiMode ? (
+                            <button
+                                type="button"
+                                onClick={handleExitAiMode}
+                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-muted-foreground hover:text-destructive shrink-0 border border-black/20 dark:border-white/20 rounded-full bg-black/5 dark:bg-white/5"
+                                title="Exit AI Search"
+                            >
+                                <LogOut size={16} />
+                            </button>
+                        ) : (
+                            /* Engine Selector */
+                            <div className="relative shrink-0">
+                                <button
+                                    type="button"
+                                    onClick={() => setEngineMenuOpen((v) => !v)}
+                                    className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform btn-no-style"
+                                >
+                                    {currentEngine.value === 'ai' ? (
+                                        <Sparkles className="w-5.5 h-5.5 text-white dark:text-black" strokeWidth={2.2} />
+                                    ) : (
+                                        <img
+                                            src={currentEngine.icon}
+                                            alt=""
+                                            className="w-full h-full rounded-full object-contain"
+                                        />
+                                    )}
+                                </button>
+                                {engineMenuOpen && (
+                                    <div className="absolute top-[calc(100%+8px)] left-0 w-60 p-2 rounded-2xl bg-background/90 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-none z-50">
+                                        <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                            {allEngines.map((engine) => (
+                                                <button
+                                                    key={engine.value}
+                                                    type="button"
+                                                    onClick={() => handleEngineSelect(engine.value)}
+                                                    className={cn(
+                                                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
+                                                        engine.value === searchEngine
+                                                            ? 'bg-primary/20 text-primary font-bold'
+                                                            : 'text-foreground hover:bg-white/5'
+                                                    )}
+                                                >
+                                                    <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                                                        {engine.value === 'ai' ? (
+                                                            <Sparkles size={18} className="text-primary" />
+                                                        ) : (
+                                                            <img src={engine.icon} alt="" className="w-4.5 h-4.5 rounded-sm object-contain" />
+                                                        )}
+                                                    </div>
+                                                    <span className="text-sm font-medium">{engine.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="flex-1 h-full flex items-center">
+                            <Input
+                                type="text"
+                                autoFocus
+                                value={query}
+                                onChange={(e) => {
+                                    setQuery(e.target.value);
+                                    setActiveIndex(-1);
+                                }}
+                                onKeyDown={handleKeyDown}
+                                onFocus={() => query.trim() && setShowSuggestions(true)}
+                                placeholder={isAiMode ? "Ask or search anything..." : t('search_placeholder')}
+                                className="h-full w-full border-0 shadow-none px-0 py-0 text-base md:text-lg ring-0 focus-visible:ring-0 rounded-none text-white dark:text-black placeholder:text-white/55 dark:placeholder:text-black/45 font-medium"
+                            />
+                        </div>
+
+                        {/* RIGHT SIDE: Action Buttons */}
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="submit"
+                                className="h-8 w-8 flex items-center justify-center text-white/90 dark:text-black/90 hover:text-white dark:hover:text-black transition-all active:scale-90"
+                                title={isAiMode ? "Search again" : "Search"}
+                            >
+                                <Search size={18} strokeWidth={2.5} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -259,4 +277,3 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
         </div>
     );
 }
-

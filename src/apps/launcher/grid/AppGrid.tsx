@@ -376,7 +376,6 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             launchApp(item.appId, {
                 ctrlKey: event?.ctrlKey,
                 metaKey: event?.metaKey,
-                altKey: event?.altKey,
             });
             return;
         }
@@ -386,7 +385,6 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             launchApp(appId, {
                 ctrlKey: event?.ctrlKey,
                 metaKey: event?.metaKey,
-                altKey: event?.altKey,
             });
             return;
         }

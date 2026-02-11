@@ -4,8 +4,8 @@ import { Button } from "@/platform/shared/ui/button";
 import { useItemStore } from "@/apps/launcher/store/item";
 import {
     type AppSurfaceFramePreset,
+    ENABLED_SYSTEM_APP_MANIFEST,
     getAppManifestItem,
-    SYSTEM_APP_MANIFEST,
     type LauncherTilePreset,
     type SystemAppManifestItem,
 } from "@/apps/launcher/system/appManifest";
@@ -32,7 +32,6 @@ function getPresetSize(preset: LauncherTilePreset) {
 function getSurfaceLabel(app: SystemAppManifestItem): string {
     const labels: string[] = [];
     if (app.surfaces.modal) labels.push("Modal");
-    if (app.surfaces.sidebar) labels.push("Sidepanel");
     if (app.surfaces.page) labels.push("Page");
     return labels.join(" / ");
 }
@@ -46,7 +45,7 @@ function renderPresetGlyph(preset: LauncherTilePreset) {
 export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi" }: ComponentMarketDialogProps) {
     const { addItem } = useItemStore();
 
-    const apps = useMemo<SystemAppManifestItem[]>(() => [...SYSTEM_APP_MANIFEST], []);
+    const apps = useMemo<SystemAppManifestItem[]>(() => [...ENABLED_SYSTEM_APP_MANIFEST], []);
     const widgets = useMemo<SystemWidgetManifestItem[]>(() => [...SYSTEM_WIDGET_MANIFEST], []);
 
     const handleAddIcon = (app: SystemAppManifestItem) => {
@@ -73,28 +72,28 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
     };
 
     const content = (
-        <div className="mx-auto h-[min(72vh,calc(100dvh-8.5rem))] w-full max-w-5xl overflow-y-auto px-5 py-4 custom-scrollbar sm:px-6 sm:py-5">
-            <div className="space-y-6">
-                <section className="space-y-3">
-                    <div className="px-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        <div className="mx-auto h-[min(76vh,calc(100dvh-7rem))] w-full max-w-5xl overflow-y-auto px-4 py-4 custom-scrollbar sm:px-5 sm:py-5">
+            <div className="space-y-5">
+                <section className="space-y-2.5">
+                    <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                         App Icons
                     </div>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
                         {apps.map((app) => (
                             <div
                                 key={app.id}
-                                className="rounded-2xl border border-white/20 bg-white/50 p-4 backdrop-blur-md dark:border-white/10 dark:bg-black/30"
+                                className="modal-minimal-card"
                             >
-                                <div className="flex min-h-[122px] flex-col justify-between gap-4">
+                                <div className="space-y-3">
                                     <div className="flex min-w-0 items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black shadow-sm dark:bg-black dark:text-white">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground shadow-xs">
                                             {renderSystemIcon(app.icon, "h-5 w-5")}
                                         </div>
                                         <div className="min-w-0">
-                                            <div className="truncate text-sm font-semibold text-foreground">
+                                            <div className="truncate text-sm font-semibold tracking-tight text-foreground">
                                                 {app.title}
                                             </div>
-                                            <div className="text-xs text-muted-foreground">
+                                            <div className="text-[11px] text-muted-foreground">
                                                 {getSurfaceLabel(app)}
                                             </div>
                                         </div>
@@ -116,28 +115,28 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
                     </div>
                 </section>
 
-                <section className="space-y-3">
-                    <div className="px-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                <section className="space-y-2.5">
+                    <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                         Components
                     </div>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
                         {widgets.map((widget) => {
                             const owner = widget.ownerAppId ? getAppManifestItem(widget.ownerAppId) : null;
                             return (
                                 <div
                                     key={widget.id}
-                                    className="rounded-2xl border border-white/20 bg-white/50 p-4 backdrop-blur-md dark:border-white/10 dark:bg-black/30"
+                                    className="modal-minimal-card"
                                 >
-                                    <div className="flex min-h-[162px] flex-col justify-between gap-4">
+                                    <div className="space-y-3">
                                         <div className="flex min-w-0 items-center gap-3">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black shadow-sm dark:bg-black dark:text-white">
+                                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground shadow-xs">
                                                 {renderSystemIcon(widget.icon, "h-5 w-5")}
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="truncate text-sm font-semibold text-foreground">
+                                                <div className="truncate text-sm font-semibold tracking-tight text-foreground">
                                                     {widget.title}
                                                 </div>
-                                                <div className="text-xs text-muted-foreground">
+                                                <div className="text-[11px] text-muted-foreground">
                                                     {owner ? `Owner: ${owner.title}` : "Standalone Component"}
                                                 </div>
                                             </div>

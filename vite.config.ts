@@ -15,11 +15,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@store": path.resolve(__dirname, "./src/store"),
-      "@lib": path.resolve(__dirname, "./src/lib"),
-      "@components": path.resolve(__dirname, "./src/components"),
-      "@newtab": path.resolve(__dirname, "./src/newtab"),
-      "@popup": path.resolve(__dirname, "./src/popup"),
+      "@apps": path.resolve(__dirname, "./src/apps"),
+      "@platform": path.resolve(__dirname, "./src/platform"),
+      "@surfaces": path.resolve(__dirname, "./src/surfaces"),
     },
   },
   server: {
@@ -31,3 +29,4 @@ export default defineConfig({
     }
   },
 })
+

@@ -1,0 +1,54 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { createPersistConfig } from '@/platform/state/core/storage';
+import type { PomodoroConfig, PomodoroStatus } from '@/platform/state/core/types';
+
+interface PomodoroState {
+    config: PomodoroConfig;
+    status: PomodoroStatus;
+
+    setConfig: (config: Partial<PomodoroConfig>) => void;
+    setStatus: (status: Partial<PomodoroStatus>) => void;
+
+    // Actions
+    reset: () => void;
+}
+
+const DEFAULT_CONFIG: PomodoroConfig = {
+    workMinutes: 25,
+    breakMinutes: 5,
+    rounds: 4,
+    enablePrepare: false,
+    prepareMinutes: 1,
+    enableLongBreak: false,
+    longBreakInterval: 4,
+    longBreakMinutes: 15,
+};
+
+const INITIAL_STATUS: PomodoroStatus = {
+    isRunning: false,
+    mode: 'work',
+    endTime: null,
+    currentRound: 1,
+};
+
+export const usePomodoroStore = create<PomodoroState>()(
+    persist(
+        (set) => ({
+            config: DEFAULT_CONFIG,
+            status: INITIAL_STATUS,
+
+            setConfig: (config: Partial<PomodoroConfig>) => set((state: PomodoroState) => ({
+                config: { ...state.config, ...config }
+            })),
+
+            setStatus: (status: Partial<PomodoroStatus>) => set((state: PomodoroState) => ({
+                status: { ...state.status, ...status }
+            })),
+
+            reset: () => set({ status: INITIAL_STATUS }),
+        }),
+        createPersistConfig('app-pomodoro')
+    )
+);
+

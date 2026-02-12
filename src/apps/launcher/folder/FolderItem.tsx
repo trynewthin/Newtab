@@ -36,6 +36,7 @@ export function FolderItem({
     isHoverTarget,
     sortableEnabled = true,
 }: FolderItemProps) {
+    const FOLDER_CARD_RADIUS_PX = 16;
     const { t } = useTranslation();
     const { isEditing, selectedTagIds } = useUIStore();
     const isSelected = selectedTagIds.includes(item.id);
@@ -203,7 +204,7 @@ export function FolderItem({
                         }
                     }}
                     className={cn(
-                        "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl",
+                        "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-[16px]",
                         "cursor-pointer shadow-[0_10px_24px_rgba(8,24,48,0.24)] transition-all duration-200 hover:shadow-[0_14px_30px_rgba(8,24,48,0.32)]",
                         isOverlay && "cursor-grabbing shadow-2xl",
                         ITEM_INTERACTION_ANIMATION_CLASS,
@@ -212,7 +213,11 @@ export function FolderItem({
                     )}
                 >
                     <div className="pointer-events-none absolute inset-0">
-                        <AppSurface variant="widget" className="h-full w-full rounded-2xl" />
+                        <AppSurface
+                            variant="widget"
+                            borderRadius={FOLDER_CARD_RADIUS_PX}
+                            className="h-full w-full rounded-[16px]"
+                        />
                     </div>
                     <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-[2px]">
                         {[0, 1, 2, 3].map((index) => (

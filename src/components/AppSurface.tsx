@@ -1,16 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSettingsStore } from "@/apps/settings/store";
 import { cn } from "@/platform/core/utils";
 import {
     type AppSurfaceMaterial,
     type AppSurfaceTone,
     type AppSurfaceVariant,
-    type RaysOrigin,
     mergeSurfaceMaterialConfig,
 } from "@/platform/core/surfaceMaterials";
 import GlassSurface, { type GlassSurfaceProps } from "@/components/GlassSurface";
 
 type SurfacePresetMap = Record<AppSurfaceVariant, { light: Partial<GlassSurfaceProps>; dark: Partial<GlassSurfaceProps> }>;
+type FrostedPreset = {
+    backgroundOpacity: number;
+    saturation: number;
+    blur: number;
+    borderOpacity: number;
+    highlightOpacity: number;
+    shadowOpacity: number;
+    borderRadius: number;
+};
+type FrostedPresetMap = Record<AppSurfaceVariant, { light: FrostedPreset; dark: FrostedPreset }>;
 
 const DISTORTION_VARIANT_PRESETS: SurfacePresetMap = {
     base: {
@@ -35,61 +44,28 @@ const DISTORTION_VARIANT_PRESETS: SurfacePresetMap = {
     },
 };
 
-const RAYS_VARIANT_PRESETS: SurfacePresetMap = {
+const FROSTED_VARIANT_PRESETS: FrostedPresetMap = {
     base: {
-        light: { backgroundOpacity: 0.16, saturation: 1.1, brightness: 52, opacity: 0.94, blur: 10, displace: 0.2 },
-        dark: { backgroundOpacity: 0.22, saturation: 1.18, brightness: 58, opacity: 0.96, blur: 11, displace: 0.2 },
+        light: { backgroundOpacity: 0.5, saturation: 1.15, blur: 18, borderOpacity: 0.32, highlightOpacity: 0.2, shadowOpacity: 0.16, borderRadius: 18 },
+        dark: { backgroundOpacity: 0.26, saturation: 1.22, blur: 16, borderOpacity: 0.24, highlightOpacity: 0.17, shadowOpacity: 0.2, borderRadius: 18 },
     },
     toolbar: {
-        light: { borderRadius: 28, backgroundOpacity: 0.16, saturation: 1.08, brightness: 52, opacity: 0.94, blur: 10, displace: 0.2 },
-        dark: { borderRadius: 28, backgroundOpacity: 0.22, saturation: 1.16, brightness: 58, opacity: 0.96, blur: 11, displace: 0.2 },
+        light: { backgroundOpacity: 0.48, saturation: 1.12, blur: 17, borderOpacity: 0.32, highlightOpacity: 0.2, shadowOpacity: 0.15, borderRadius: 28 },
+        dark: { backgroundOpacity: 0.24, saturation: 1.2, blur: 15, borderOpacity: 0.22, highlightOpacity: 0.16, shadowOpacity: 0.2, borderRadius: 28 },
     },
     "search-bar": {
-        light: { width: "100%", height: "100%", borderRadius: 50, backgroundOpacity: 0.16, saturation: 1.08, brightness: 52, opacity: 0.94, blur: 10, displace: 0.2 },
-        dark: { width: "100%", height: "100%", borderRadius: 50, backgroundOpacity: 0.22, saturation: 1.16, brightness: 58, opacity: 0.96, blur: 11, displace: 0.2 },
+        light: { backgroundOpacity: 0.5, saturation: 1.12, blur: 19, borderOpacity: 0.34, highlightOpacity: 0.22, shadowOpacity: 0.15, borderRadius: 50 },
+        dark: { backgroundOpacity: 0.26, saturation: 1.22, blur: 16, borderOpacity: 0.24, highlightOpacity: 0.17, shadowOpacity: 0.2, borderRadius: 50 },
     },
     widget: {
-        light: { width: "100%", height: "100%", borderRadius: 16, backgroundOpacity: 0.16, saturation: 1.1, brightness: 52, opacity: 0.94, blur: 10, displace: 0.2 },
-        dark: { width: "100%", height: "100%", borderRadius: 16, backgroundOpacity: 0.22, saturation: 1.18, brightness: 58, opacity: 0.96, blur: 11, displace: 0.2 },
+        light: { backgroundOpacity: 0.5, saturation: 1.16, blur: 17, borderOpacity: 0.32, highlightOpacity: 0.2, shadowOpacity: 0.15, borderRadius: 16 },
+        dark: { backgroundOpacity: 0.25, saturation: 1.24, blur: 15, borderOpacity: 0.24, highlightOpacity: 0.16, shadowOpacity: 0.2, borderRadius: 16 },
     },
     "folder-preview": {
-        light: { width: "100%", height: "100%", borderRadius: 32, backgroundOpacity: 0.16, saturation: 1.1, brightness: 52, opacity: 0.94, blur: 10, displace: 0.2 },
-        dark: { width: "100%", height: "100%", borderRadius: 32, backgroundOpacity: 0.22, saturation: 1.18, brightness: 58, opacity: 0.96, blur: 11, displace: 0.2 },
+        light: { backgroundOpacity: 0.5, saturation: 1.15, blur: 18, borderOpacity: 0.32, highlightOpacity: 0.21, shadowOpacity: 0.16, borderRadius: 32 },
+        dark: { backgroundOpacity: 0.26, saturation: 1.22, blur: 16, borderOpacity: 0.24, highlightOpacity: 0.17, shadowOpacity: 0.2, borderRadius: 32 },
     },
 };
-
-const RAY_ORIGIN_MAP: Record<RaysOrigin, { x: number; y: number; angle: number }> = {
-    "top-center": { x: 50, y: 0, angle: 180 },
-    "top-left": { x: 0, y: 0, angle: 135 },
-    "top-right": { x: 100, y: 0, angle: 225 },
-    right: { x: 100, y: 50, angle: 270 },
-    left: { x: 0, y: 50, angle: 90 },
-    "bottom-center": { x: 50, y: 100, angle: 0 },
-    "bottom-right": { x: 100, y: 100, angle: 315 },
-    "bottom-left": { x: 0, y: 100, angle: 45 },
-};
-
-const NOISE_SVG_DATA_URL =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E";
-
-function clamp(value: number, min: number, max: number): number {
-    return Math.max(min, Math.min(max, value));
-}
-
-function hexToRgba(hex: string, alpha: number): string {
-    const normalized = hex.trim().replace("#", "");
-    const full = normalized.length === 3
-        ? normalized.split("").map((ch) => ch + ch).join("")
-        : normalized;
-
-    if (full.length !== 6) {
-        return `rgba(255,255,255,${alpha})`;
-    }
-    const r = parseInt(full.slice(0, 2), 16);
-    const g = parseInt(full.slice(2, 4), 16);
-    const b = parseInt(full.slice(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 
 function useResolvedTone(explicitTone: AppSurfaceTone | undefined): "light" | "dark" {
     const theme = useSettingsStore((state) => state.theme);
@@ -113,106 +89,6 @@ function useResolvedTone(explicitTone: AppSurfaceTone | undefined): "light" | "d
     return systemDark ? "dark" : "light";
 }
 
-function RaysOverlay({
-    raysOrigin,
-    raysColor,
-    raysSpeed,
-    lightSpread,
-    rayLength,
-    pulsating,
-    fadeDistance,
-    saturation,
-    followMouse,
-    mouseInfluence,
-    noiseAmount,
-    distortion,
-    className,
-}: {
-    raysOrigin: RaysOrigin;
-    raysColor: string;
-    raysSpeed: number;
-    lightSpread: number;
-    rayLength: number;
-    pulsating: boolean;
-    fadeDistance: number;
-    saturation: number;
-    followMouse: boolean;
-    mouseInfluence: number;
-    noiseAmount: number;
-    distortion: number;
-    className: string;
-}) {
-    const overlayRef = useRef<HTMLDivElement>(null);
-    const mouseAngleRef = useRef(0);
-    const [tick, setTick] = useState(0);
-    const originMeta = RAY_ORIGIN_MAP[raysOrigin];
-
-    useEffect(() => {
-        let raf = 0;
-        const start = performance.now();
-        const loop = (now: number) => {
-            setTick((now - start) / 1000);
-            raf = window.requestAnimationFrame(loop);
-        };
-        raf = window.requestAnimationFrame(loop);
-        return () => window.cancelAnimationFrame(raf);
-    }, []);
-
-    useEffect(() => {
-        if (!followMouse) return;
-        const handleMouseMove = (event: MouseEvent) => {
-            const rect = overlayRef.current?.getBoundingClientRect();
-            if (!rect) return;
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top + rect.height / 2;
-            mouseAngleRef.current = (Math.atan2(event.clientY - cy, event.clientX - cx) * 180) / Math.PI;
-        };
-        window.addEventListener("mousemove", handleMouseMove, { passive: true });
-        return () => window.removeEventListener("mousemove", handleMouseMove);
-    }, [followMouse]);
-
-    const pulse = pulsating ? 0.82 + Math.sin(tick * raysSpeed * 2.4) * 0.18 : 1;
-    const baseRotation = originMeta.angle + tick * raysSpeed * 22;
-    const mouseRotation = followMouse ? mouseAngleRef.current * clamp(mouseInfluence, 0, 1) : 0;
-    const rotation = baseRotation + mouseRotation;
-
-    const spreadDeg = 6 + clamp(lightSpread, 0.05, 1.5) * 26;
-    const activeRayDeg = spreadDeg * 0.34;
-    const fadeStop = 20 + clamp(fadeDistance, 0.05, 2) * 60;
-    const rayOpacity = clamp(0.1 + clamp(saturation, 0, 1.5) * 0.32, 0.08, 0.82) * pulse;
-    const rayColorWithAlpha = hexToRgba(raysColor, rayOpacity);
-    const rayScale = 1 + (clamp(rayLength, 0.2, 2) - 1) * 0.5;
-    const distortionValue = clamp(distortion, 0, 1) * 6;
-
-    return (
-        <>
-            <div
-                ref={overlayRef}
-                className={cn("absolute inset-0 pointer-events-none", className)}
-                style={{
-                    backgroundImage: `repeating-conic-gradient(from ${rotation}deg at ${originMeta.x}% ${originMeta.y}%, rgba(0,0,0,0) 0deg, ${rayColorWithAlpha} ${activeRayDeg}deg, rgba(0,0,0,0) ${spreadDeg}deg)`,
-                    mixBlendMode: "screen",
-                    transform: `scale(${rayScale})`,
-                    transformOrigin: `${originMeta.x}% ${originMeta.y}%`,
-                    filter: `blur(${distortionValue}px) saturate(${clamp(saturation, 0, 1.5)})`,
-                    WebkitMaskImage: `radial-gradient(circle at ${originMeta.x}% ${originMeta.y}%, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0) ${fadeStop}%)`,
-                    maskImage: `radial-gradient(circle at ${originMeta.x}% ${originMeta.y}%, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0) ${fadeStop}%)`,
-                }}
-            />
-            {noiseAmount > 0 ? (
-                <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                        backgroundImage: `url("${NOISE_SVG_DATA_URL}")`,
-                        opacity: clamp(noiseAmount, 0, 1) * 0.14,
-                        mixBlendMode: "soft-light",
-                    }}
-                />
-            ) : null}
-        </>
-    );
-}
-
 export interface AppSurfaceProps extends GlassSurfaceProps {
     material?: AppSurfaceMaterial;
     variant?: AppSurfaceVariant;
@@ -226,6 +102,9 @@ export function AppSurface({
     className,
     style,
     children,
+    width,
+    height,
+    borderRadius,
     ...restProps
 }: AppSurfaceProps) {
     const activeMaterial = useSettingsStore((state) => state.surfaceMaterial);
@@ -234,39 +113,134 @@ export function AppSurface({
     );
     const resolvedMaterial = overrideMaterial ?? activeMaterial;
     const resolvedTone = useResolvedTone(tone);
+    const stabilizeCorners = variant === "widget" || variant === "folder-preview";
 
-    if (resolvedMaterial === "glass-rays") {
-        const preset = RAYS_VARIANT_PRESETS[variant][resolvedTone];
-        const raysConfig = materialConfig["glass-rays"];
+    if (resolvedMaterial === "mac-frosted") {
+        const preset = FROSTED_VARIANT_PRESETS[variant][resolvedTone];
+        const config = materialConfig["mac-frosted"];
+        const merged = { ...preset, ...config };
+        const resolvedBorderRadius = borderRadius ?? preset.borderRadius;
+        const resolvedWidth = width ?? "100%";
+        const resolvedHeight = height ?? "100%";
+
+        const backgroundColor = resolvedTone === "dark"
+            ? `rgb(15 23 42 / ${merged.backgroundOpacity})`
+            : `rgb(255 255 255 / ${merged.backgroundOpacity})`;
+
+        const borderColor = resolvedTone === "dark"
+            ? `rgb(255 255 255 / ${merged.borderOpacity})`
+            : `rgb(255 255 255 / ${Math.min(merged.borderOpacity + 0.1, 0.58)})`;
+
+        const shadowColor = resolvedTone === "dark"
+            ? `rgb(0 0 0 / ${merged.shadowOpacity})`
+            : `rgb(15 23 42 / ${merged.shadowOpacity * 0.72})`;
+
+        const topHighlight = resolvedTone === "dark"
+            ? `rgb(255 255 255 / ${merged.highlightOpacity})`
+            : `rgb(255 255 255 / ${Math.min(merged.highlightOpacity + 0.12, 0.78)})`;
+
+        const centerHighlight = resolvedTone === "dark"
+            ? `rgb(255 255 255 / ${merged.highlightOpacity * 0.55})`
+            : `rgb(255 255 255 / ${Math.min(merged.highlightOpacity + 0.06, 0.64)})`;
 
         return (
-            <GlassSurface
-                {...preset}
-                {...restProps}
-                className={cn("relative", className)}
-                style={style}
+            <div
+                className={cn("relative overflow-hidden", className)}
+                style={{
+                    width: resolvedWidth,
+                    height: resolvedHeight,
+                    borderRadius: resolvedBorderRadius,
+                    ...(stabilizeCorners ? { clipPath: `inset(0 round ${resolvedBorderRadius}px)` } : {}),
+                    backdropFilter: `blur(${merged.blur}px) saturate(${merged.saturation})`,
+                    WebkitBackdropFilter: `blur(${merged.blur}px) saturate(${merged.saturation})`,
+                    backgroundColor,
+                    ...(stabilizeCorners ? {} : { border: `1px solid ${borderColor}` }),
+                    boxShadow: `0 12px 30px ${shadowColor}, inset 0 1px 0 ${topHighlight}`,
+                    ...style,
+                }}
             >
-                <RaysOverlay {...raysConfig} />
+                {stabilizeCorners ? (
+                    <div
+                        className="absolute inset-0 pointer-events-none rounded-[inherit]"
+                        style={{
+                            border: `1px solid ${borderColor}`,
+                        }}
+                    />
+                ) : null}
+                <div
+                    className="absolute inset-0 pointer-events-none rounded-[inherit]"
+                    style={{
+                        background: `linear-gradient(180deg, ${topHighlight} 0%, rgb(255 255 255 / 0) 48%)`,
+                    }}
+                />
+                <div
+                    className="absolute inset-0 pointer-events-none rounded-[inherit]"
+                    style={{
+                        background: `radial-gradient(120% 82% at 50% 0%, ${centerHighlight} 0%, rgb(255 255 255 / 0) 72%)`,
+                    }}
+                />
                 <div className="relative z-10 h-full w-full">
                     {children}
                 </div>
-            </GlassSurface>
+            </div>
         );
     }
 
     const distortionPreset = DISTORTION_VARIANT_PRESETS[variant][resolvedTone];
     const distortionConfig = materialConfig["glass-distortion"];
+    const resolvedBorderRadius = borderRadius ?? distortionPreset.borderRadius ?? 20;
+    const resolvedWidth = width ?? distortionPreset.width ?? "100%";
+    const resolvedHeight = height ?? distortionPreset.height ?? "100%";
+    const distortionRingColor = resolvedTone === "dark"
+        ? "rgb(255 255 255 / 0.24)"
+        : "rgb(255 255 255 / 0.46)";
+
+    if (!stabilizeCorners) {
+        return (
+            <GlassSurface
+                {...distortionPreset}
+                {...distortionConfig}
+                width={resolvedWidth}
+                height={resolvedHeight}
+                borderRadius={resolvedBorderRadius}
+                {...restProps}
+                className={cn(className)}
+                style={style}
+            >
+                {children}
+            </GlassSurface>
+        );
+    }
 
     return (
-        <GlassSurface
-            {...distortionPreset}
-            {...distortionConfig}
-            {...restProps}
-            className={cn(className)}
-            style={style}
+        <div
+            className={cn("relative overflow-hidden", className)}
+            style={{
+                width: resolvedWidth,
+                height: resolvedHeight,
+                borderRadius: resolvedBorderRadius,
+                clipPath: `inset(0 round ${resolvedBorderRadius}px)`,
+                ...style,
+            }}
         >
-            {children}
-        </GlassSurface>
+            <GlassSurface
+                {...distortionPreset}
+                {...distortionConfig}
+                width="100%"
+                height="100%"
+                borderRadius={resolvedBorderRadius}
+                {...restProps}
+                className="h-full w-full rounded-[inherit]"
+            >
+                {children}
+            </GlassSurface>
+            <div
+                className="absolute inset-0 pointer-events-none rounded-[inherit]"
+                style={{
+                    border: `1px solid ${distortionRingColor}`,
+                }}
+            />
+        </div>
     );
 }
 

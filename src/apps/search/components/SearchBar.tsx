@@ -35,7 +35,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
 
     useEffect(() => {
         const fetchSuggestions = async () => {
-            if (!query.trim() || isAiMode) {
+            if (!query.trim() || isAiMode || engineMenuOpen) {
                 setSuggestions([]);
                 setShowSuggestions(false);
                 return;
@@ -55,17 +55,47 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
 
         const timer = setTimeout(fetchSuggestions, 200);
         return () => clearTimeout(timer);
-    }, [query, isAiMode]);
+    }, [query, isAiMode, engineMenuOpen]);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setShowSuggestions(false);
-                setEngineMenuOpen(false);
+        const closeOverlays = () => {
+            setShowSuggestions(false);
+            setEngineMenuOpen(false);
+        };
+
+        const isOutsideContainer = (target: EventTarget | null) => {
+            if (!containerRef.current) return true;
+            if (!(target instanceof Node)) return true;
+            return !containerRef.current.contains(target);
+        };
+
+        const handlePointerDown = (event: PointerEvent) => {
+            if (isOutsideContainer(event.target)) {
+                closeOverlays();
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+
+        const handleFocusIn = (event: FocusEvent) => {
+            if (isOutsideContainer(event.target)) {
+                closeOverlays();
+            }
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                closeOverlays();
+            }
+        };
+
+        document.addEventListener("pointerdown", handlePointerDown, true);
+        document.addEventListener("focusin", handleFocusIn, true);
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerDown, true);
+            document.removeEventListener("focusin", handleFocusIn, true);
+            document.removeEventListener("keydown", handleKeyDown);
+        };
     }, []);
 
     const performSearch = (searchQuery: string) => {
@@ -155,7 +185,15 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                             <div className="relative shrink-0">
                                 <button
                                     type="button"
-                                    onClick={() => setEngineMenuOpen((v) => !v)}
+                                    onClick={() =>
+                                        setEngineMenuOpen((v) => {
+                                            const next = !v;
+                                            if (next) {
+                                                setShowSuggestions(false);
+                                            }
+                                            return next;
+                                        })
+                                    }
                                     className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform btn-no-style"
                                 >
                                     {currentEngine.value === 'ai' ? (
@@ -169,8 +207,18 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                     )}
                                 </button>
                                 {engineMenuOpen && (
-                                    <div className="absolute top-[calc(100%+8px)] left-0 w-60 p-2 rounded-2xl bg-background/90 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-none z-50">
-                                        <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    <div className="absolute top-[calc(100%+16px)] left-[-6px] w-60 rounded-2xl overflow-hidden shadow-none z-50">
+                                        <div className="absolute inset-0 pointer-events-none">
+                                            <AppSurface
+                                                variant="base"
+                                                width="100%"
+                                                height="100%"
+                                                borderRadius={16}
+                                                className="h-full w-full"
+                                            />
+                                        </div>
+                                        <div className="relative z-10 p-2 border border-white/10 rounded-2xl">
+                                            <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
                                             {allEngines.map((engine) => (
                                                 <button
                                                     key={engine.value}
@@ -179,13 +227,13 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                                     className={cn(
                                                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
                                                         engine.value === searchEngine
-                                                            ? 'bg-primary/20 text-primary font-bold'
-                                                            : 'text-foreground hover:bg-white/5'
+                                                            ? 'bg-white/28 text-foreground font-semibold'
+                                                            : 'text-foreground hover:bg-white/20'
                                                     )}
                                                 >
                                                     <div className="w-5 h-5 flex items-center justify-center shrink-0">
                                                         {engine.value === 'ai' ? (
-                                                            <Sparkles size={18} className="text-primary" />
+                                                            <Sparkles size={18} className="text-foreground" />
                                                         ) : (
                                                             <img src={engine.icon} alt="" className="w-4.5 h-4.5 rounded-sm object-contain" />
                                                         )}
@@ -193,6 +241,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                                     <span className="text-sm font-medium">{engine.name}</span>
                                                 </button>
                                             ))}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -209,9 +258,14 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                     setActiveIndex(-1);
                                 }}
                                 onKeyDown={handleKeyDown}
-                                onFocus={() => query.trim() && setShowSuggestions(true)}
+                                onFocus={() => {
+                                    setEngineMenuOpen(false);
+                                    if (query.trim()) {
+                                        setShowSuggestions(true);
+                                    }
+                                }}
                                 placeholder={isAiMode ? t("ask_or_search_anything") : t('search_placeholder')}
-                                className="h-full w-full border-0 shadow-none px-0 py-0 text-base md:text-lg ring-0 focus-visible:ring-0 rounded-none text-white dark:text-black placeholder:text-white/55 dark:placeholder:text-black/45 font-medium"
+                                className="text-surface-input h-full w-full border-0 shadow-none px-0 py-0 text-base md:text-lg ring-0 focus-visible:ring-0 rounded-none font-medium"
                             />
                         </div>
 
@@ -239,9 +293,19 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
             `}</style>
 
             {/* Suggestions - Minimalist */}
-            {!isAiMode && showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-[calc(100%+8px)] z-40 left-0 right-0 rounded-3xl p-2 border border-white/10 bg-background/90 backdrop-blur-3xl shadow-none">
-                    <ul className="space-y-1">
+            {!isAiMode && !engineMenuOpen && showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-[calc(100%+8px)] z-40 left-0 right-0 rounded-3xl overflow-hidden shadow-none">
+                    <div className="absolute inset-0 pointer-events-none">
+                        <AppSurface
+                            variant="base"
+                            width="100%"
+                            height="100%"
+                            borderRadius={24}
+                            className="h-full w-full"
+                        />
+                    </div>
+                    <div className="relative z-10 p-2 border border-white/10 rounded-3xl">
+                        <ul className="space-y-1">
                         {suggestions.map((suggestion, index) => (
                             <li
                                 key={index}
@@ -250,15 +314,16 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                 className={cn(
                                     "px-4 py-3.5 rounded-2xl cursor-pointer flex items-center gap-3 transition-colors",
                                     index === activeIndex
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-foreground hover:bg-white/5"
+                                        ? "bg-white/28 text-foreground"
+                                        : "text-foreground hover:bg-white/20"
                                 )}
                             >
                                 <Search size={16} className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")} />
                                 <span className="text-base font-medium">{suggestion}</span>
                             </li>
                         ))}
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
             )}
         </div>

@@ -21,7 +21,7 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
-      className={cn("flex flex-1 text-left", className)}
+      className={cn("flex flex-1 text-left !text-slate-900 dark:!text-slate-100", className)}
       {...props}
     />
   )
@@ -81,7 +81,7 @@ function SelectContent({
       >
         <SelectPrimitive.Popup
           data-slot="select-content"
-          className={cn("bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-32 rounded-lg shadow-md ring-1 duration-100 relative isolate z-50 max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto", className)}
+          className={cn("!bg-white/96 dark:!bg-zinc-900/96 !text-slate-900 dark:!text-slate-100 backdrop-blur-md border border-black/10 dark:border-white/15 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-black/10 dark:ring-white/10 min-w-32 rounded-lg shadow-md ring-1 duration-100 relative isolate z-50 max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto", className)}
           {...props}
         >
           <SelectScrollUpButton />
@@ -115,7 +115,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-xs !text-slate-900 dark:!text-slate-100 outline-none hover:bg-black/8 dark:hover:bg-white/10 focus:bg-black/10 dark:focus:bg-white/12 focus:!text-slate-900 dark:focus:!text-slate-100 data-disabled:pointer-events-none data-disabled:opacity-50",
         className
       )}
       {...props}

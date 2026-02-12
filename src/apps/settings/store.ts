@@ -15,6 +15,7 @@ import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     mergeDynamicBackgroundConfig,
 } from '@/platform/core/dynamicBackgrounds';
+import type { TextSurfaceFontPreset } from '@/platform/core/textSurface';
 
 interface SettingsState {
     // Theme & Appearance
@@ -23,6 +24,8 @@ interface SettingsState {
 
     primaryColor: string;
     setPrimaryColor: (color: string) => void;
+    textSurfaceFontPreset: TextSurfaceFontPreset;
+    setTextSurfaceFontPreset: (preset: TextSurfaceFontPreset) => void;
 
     surfaceMaterial: AppSurfaceMaterial;
     setSurfaceMaterial: (material: AppSurfaceMaterial) => void;
@@ -69,6 +72,8 @@ export const useSettingsStore = create<SettingsState>()(
 
             primaryColor: 'hsl(217 91% 60%)', // Blue as default
             setPrimaryColor: (color: string) => set({ primaryColor: color }),
+            textSurfaceFontPreset: 'sans',
+            setTextSurfaceFontPreset: (preset: TextSurfaceFontPreset) => set({ textSurfaceFontPreset: preset }),
 
             surfaceMaterial: 'glass-distortion',
             setSurfaceMaterial: (material: AppSurfaceMaterial) => set({ surfaceMaterial: material }),
@@ -154,9 +159,17 @@ export const useSettingsStore = create<SettingsState>()(
         createPersistConfig('app-settings', {
             merge: (persistedState: unknown, currentState: SettingsState) => {
                 const persisted = (persistedState as Partial<SettingsState> | undefined) ?? {};
+                const persistedSurfaceMaterial = persisted.surfaceMaterial as string | undefined;
+                const normalizedSurfaceMaterial: AppSurfaceMaterial =
+                    persistedSurfaceMaterial === "mac-frosted" ||
+                        persistedSurfaceMaterial === "glass-distortion"
+                            ? persistedSurfaceMaterial
+                            : "glass-distortion";
+
                 return {
                     ...currentState,
                     ...persisted,
+                    surfaceMaterial: normalizedSurfaceMaterial,
                     surfaceMaterialConfig: mergeSurfaceMaterialConfig(
                         (persisted.surfaceMaterialConfig as Partial<AppSurfaceMaterialConfigMap> | undefined) ?? undefined
                     ),

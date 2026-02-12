@@ -192,7 +192,7 @@ function BaseModal({
                                             <div className="pointer-events-auto min-w-0 flex-1">
                                                 {showTitle && title && (
                                                     <div className="max-w-full w-fit sm:max-w-fit rounded-2xl border border-border/70 bg-background/90 px-3 py-1.5 shadow-sm">
-                                                        <span className="truncate text-sm font-semibold tracking-tight">{title}</span>
+                                                        <span className="truncate text-sm font-semibold tracking-tight text-foreground">{title}</span>
                                                     </div>
                                                 )}
                                             </div>

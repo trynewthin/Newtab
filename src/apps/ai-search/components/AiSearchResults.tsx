@@ -11,6 +11,7 @@ import { extractDomain, getFaviconUrl } from "../types";
 import ReactMarkdown from "react-markdown";
 import { useTranslation } from "react-i18next";
 import { AiArtifactRenderer, type ArtifactData } from "./AiArtifactRenderer";
+import AppSurface from "@/components/AppSurface";
 
 interface AiSearchResultsProps {
     status: AiSearchStatus;
@@ -22,6 +23,8 @@ interface AiSearchResultsProps {
 
 export function AiSearchResults({ status, cards, summary, error, className }: AiSearchResultsProps) {
     const { t } = useTranslation();
+    const isSummarizing = status === 'summarizing';
+    const RESULT_CARD_RADIUS_PX = 16;
 
     // Loading state - skeleton cards
     if (['searching', 'analyzing', 'planning', 'summarizing'].includes(status)) {
@@ -31,24 +34,45 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4 rounded-2xl border border-border/60 bg-background/85 p-4 shadow-sm"
+                    className="relative overflow-hidden rounded-[16px] p-4 shadow-sm min-h-[168px]"
                 >
-                    <div className="flex items-center gap-3">
-                        <div className="h-7 w-7 animate-pulse rounded-lg bg-foreground/8" />
-                        <div className="space-y-2 flex-1">
-                            <div className="h-3 w-24 animate-pulse rounded bg-foreground/10" />
-                            <div className="h-2 w-32 animate-pulse rounded bg-muted/50" />
-                        </div>
+                    <div className="absolute inset-0 pointer-events-none">
+                        <AppSurface variant="widget" width="100%" height="100%" borderRadius={RESULT_CARD_RADIUS_PX} className="h-full w-full rounded-[16px]" />
                     </div>
-                    <div className="space-y-2 border-t border-border/50 pt-3">
-                        <div className="h-3 bg-muted/60 rounded w-full animate-pulse" />
-                        <div className="h-3 bg-muted/60 rounded w-[90%] animate-pulse" />
-                        <div className="h-3 bg-muted/60 rounded w-[40%] animate-pulse" />
+                    <div className="relative z-10 h-full space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="h-7 w-7 animate-pulse rounded-lg bg-foreground/8" />
+                            <div className="space-y-2 flex-1">
+                                <div className="h-3 w-24 animate-pulse rounded bg-foreground/10" />
+                                <div className="h-2 w-32 animate-pulse rounded bg-muted/50" />
+                            </div>
+                        </div>
+                        <div className="space-y-2 border-t border-border/50 pt-3">
+                            <div className="h-3 bg-muted/60 rounded w-full animate-pulse" />
+                            <div className="h-3 bg-muted/60 rounded w-[90%] animate-pulse" />
+                            <div className="h-3 bg-muted/60 rounded w-[40%] animate-pulse" />
+                        </div>
                     </div>
                 </motion.div>
 
-                {/* Skeleton cards - only show during searching/analyzing */}
-                {['searching', 'analyzing'].includes(status) && (
+                {/* During summarizing, keep found result cards visible with generating animation. */}
+                {isSummarizing && cards.length > 0 && (
+                    <>
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs font-medium text-muted-foreground/85">
+                                {t('found_relevant_sources', { count: cards.length })}
+                            </p>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {cards.map((card, index) => (
+                                <ResultCard key={card.id} card={card} index={index} isGenerating />
+                            ))}
+                        </div>
+                    </>
+                )}
+
+                {/* Skeleton cards - show while searching/analyzing, or summarizing with no cards. */}
+                {(['searching', 'analyzing'].includes(status) || (isSummarizing && cards.length === 0)) && (
                     <div className="grid gap-4 sm:grid-cols-2">
                         {[1, 2, 3, 4].map((i) => (
                             <motion.div
@@ -56,16 +80,21 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
-                                className="space-y-3 rounded-2xl border border-border/60 bg-background/82 p-4"
+                                className="relative overflow-hidden rounded-[16px] p-4 min-h-[168px]"
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-muted animate-pulse" />
-                                    <div className="flex-1 h-4 bg-muted rounded animate-pulse" />
+                                <div className="absolute inset-0 pointer-events-none">
+                                    <AppSurface variant="widget" width="100%" height="100%" borderRadius={RESULT_CARD_RADIUS_PX} className="h-full w-full rounded-[16px]" />
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="h-3 bg-muted/70 rounded animate-pulse" />
-                                    <div className="h-3 bg-muted/70 rounded w-4/5 animate-pulse" />
-                                    <div className="h-3 bg-muted/70 rounded w-3/5 animate-pulse" />
+                                <div className="relative z-10 h-full space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-6 h-6 rounded-full bg-muted animate-pulse" />
+                                        <div className="flex-1 h-4 bg-muted rounded animate-pulse" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="h-3 bg-muted/70 rounded animate-pulse" />
+                                        <div className="h-3 bg-muted/70 rounded w-4/5 animate-pulse" />
+                                        <div className="h-3 bg-muted/70 rounded w-3/5 animate-pulse" />
+                                    </div>
                                 </div>
                             </motion.div>
                         ))}
@@ -126,9 +155,12 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-2xl border border-border/60 bg-background/88 p-4 shadow-sm"
+                    className="relative overflow-hidden rounded-[16px] p-4 shadow-sm"
                 >
-                    <div className="flex flex-col gap-3">
+                    <div className="absolute inset-0 pointer-events-none">
+                        <AppSurface variant="widget" width="100%" height="100%" borderRadius={RESULT_CARD_RADIUS_PX} className="h-full w-full rounded-[16px]" />
+                    </div>
+                    <div className="relative z-10 flex flex-col gap-3">
                         {/* Header consistent with ResultCard */}
                         <div className="flex items-center gap-3">
                             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-foreground/10">
@@ -213,7 +245,15 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
 }
 
 // Individual result card
-function ResultCard({ card, index }: { card: SearchResultCard; index: number }) {
+function ResultCard({
+    card,
+    index,
+    isGenerating = false,
+}: {
+    card: SearchResultCard;
+    index: number;
+    isGenerating?: boolean;
+}) {
     const domain = extractDomain(card.url);
     const favicon = card.favicon || getFaviconUrl(card.url);
 
@@ -227,46 +267,60 @@ function ResultCard({ card, index }: { card: SearchResultCard; index: number }) 
             transition={{ delay: index * 0.05 }}
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
-            className="group block rounded-2xl border border-border/60 bg-background/88 p-4 shadow-sm transition-all duration-300 hover:border-foreground/20 hover:shadow-lg"
+            className="group relative block overflow-hidden rounded-[16px] p-4 shadow-sm transition-all duration-300 hover:shadow-lg"
         >
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-foreground/6">
-                    {favicon ? (
-                        <img
-                            src={favicon}
-                            alt=""
-                            className="w-4 h-4 object-contain"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                        />
-                    ) : (
-                        <Globe size={14} className="text-muted-foreground" />
-                    )}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <h4 className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-foreground/75">
-                        {card.title}
-                    </h4>
-                    <p className="truncate text-xs text-muted-foreground/85">{domain}</p>
-                </div>
-                <ExternalLink size={14} className="shrink-0 text-muted-foreground/55 transition-colors group-hover:text-foreground/80" />
+            <div className="absolute inset-0 pointer-events-none">
+                <AppSurface variant="widget" width="100%" height="100%" borderRadius={16} className="h-full w-full rounded-[16px]" />
             </div>
-
-            {/* Content summary */}
-            <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground/90">
-                {card.summary}
-            </p>
-
-            {/* Source tag */}
-            {card.source && (
-                <div className="mt-3 border-t border-border/50 pt-3">
-                    <span className="inline-flex items-center rounded-full border border-border/60 bg-background px-2 py-0.5 text-xs font-medium text-muted-foreground/85">
-                        {card.source}
-                    </span>
-                </div>
+            {isGenerating && (
+                <motion.div
+                    aria-hidden
+                    className="absolute inset-0 pointer-events-none"
+                    animate={{ opacity: [0.06, 0.18, 0.06] }}
+                    transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ background: "linear-gradient(120deg, transparent 10%, rgb(255 255 255 / 16%) 50%, transparent 90%)" }}
+                />
             )}
+            <div className="relative z-10">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-3">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-foreground/6">
+                        {favicon ? (
+                            <img
+                                src={favicon}
+                                alt=""
+                                className="w-4 h-4 object-contain"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                            />
+                        ) : (
+                            <Globe size={14} className="text-muted-foreground" />
+                        )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h4 className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-foreground/75">
+                            {card.title}
+                        </h4>
+                        <p className="truncate text-xs text-muted-foreground/85">{domain}</p>
+                    </div>
+                    <ExternalLink size={14} className="shrink-0 text-muted-foreground/55 transition-colors group-hover:text-foreground/80" />
+                </div>
+
+                {/* Content summary */}
+                <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground/90">
+                    {card.summary}
+                </p>
+
+                {/* Source tag */}
+                {card.source && (
+                    <div className="mt-3 border-t border-border/50 pt-3">
+                        <span className="inline-flex items-center rounded-full border border-border/60 bg-background/70 px-2 py-0.5 text-xs font-medium text-muted-foreground/85">
+                            {card.source}
+                        </span>
+                    </div>
+                )}
+            </div>
         </motion.a>
     );
 }

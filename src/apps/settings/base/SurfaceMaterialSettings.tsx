@@ -4,16 +4,12 @@ import { useSettingsStore } from "@/apps/settings/store";
 import { SettingsItem, SettingsSection } from "@/apps/settings/base/SettingComponents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/platform/shared/ui/select";
 import { Slider } from "@/platform/shared/ui/slider";
-import { Switch } from "@/platform/shared/ui/switch";
-import { Input } from "@/platform/shared/ui/input";
 import {
     DEFAULT_APP_SURFACE_MATERIAL_CONFIG,
-    RAYS_ORIGIN_OPTIONS,
     mergeSurfaceMaterialConfig,
     type AppSurfaceMaterial,
     type AppSurfaceTone,
     type DistortionGlassMaterialConfig,
-    type RaysGlassMaterialConfig,
 } from "@/platform/core/surfaceMaterials";
 
 function NumberSlider({
@@ -58,14 +54,14 @@ export function SurfaceMaterialSettings() {
 
     const normalizedConfig = mergeSurfaceMaterialConfig(surfaceMaterialConfig);
     const distortionConfig = normalizedConfig["glass-distortion"];
-    const raysConfig = normalizedConfig["glass-rays"];
+    const frostedConfig = normalizedConfig["mac-frosted"];
 
     const updateDistortion = (patch: Partial<DistortionGlassMaterialConfig>) => {
         updateSurfaceMaterialConfig("glass-distortion", patch);
     };
 
-    const updateRays = (patch: Partial<RaysGlassMaterialConfig>) => {
-        updateSurfaceMaterialConfig("glass-rays", patch);
+    const updateFrosted = (patch: Partial<typeof frostedConfig>) => {
+        updateSurfaceMaterialConfig("mac-frosted", patch);
     };
 
     const resetCurrentMaterial = () => {
@@ -73,7 +69,18 @@ export function SurfaceMaterialSettings() {
             updateSurfaceMaterialConfig("glass-distortion", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["glass-distortion"]);
             return;
         }
-        updateSurfaceMaterialConfig("glass-rays", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["glass-rays"]);
+        updateSurfaceMaterialConfig("mac-frosted", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["mac-frosted"]);
+    };
+
+    const materialLabelMap: Record<AppSurfaceMaterial, string> = {
+        "glass-distortion": t("surface_material_glass_distortion"),
+        "mac-frosted": t("surface_material_mac_frosted"),
+    };
+
+    const toneLabelMap: Record<AppSurfaceTone, string> = {
+        auto: t("surface_tone_auto"),
+        light: t("surface_tone_light"),
+        dark: t("surface_tone_dark"),
     };
 
     return (
@@ -86,11 +93,11 @@ export function SurfaceMaterialSettings() {
             <SettingsItem label={t("surface_material_type")}>
                 <Select value={surfaceMaterial} onValueChange={(value) => setSurfaceMaterial(value as AppSurfaceMaterial)}>
                     <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
-                        <SelectValue />
+                        <SelectValue>{materialLabelMap[surfaceMaterial]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="glass-distortion">{t("surface_material_glass_distortion")}</SelectItem>
-                        <SelectItem value="glass-rays">{t("surface_material_glass_rays")}</SelectItem>
+                        <SelectItem value="mac-frosted">{t("surface_material_mac_frosted")}</SelectItem>
                     </SelectContent>
                 </Select>
             </SettingsItem>
@@ -98,7 +105,7 @@ export function SurfaceMaterialSettings() {
             <SettingsItem label={t("surface_material_tone")}>
                 <Select value={surfaceTone} onValueChange={(value) => setSurfaceTone(value as AppSurfaceTone)}>
                     <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
-                        <SelectValue />
+                        <SelectValue>{toneLabelMap[surfaceTone]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="auto">{t("surface_tone_auto")}</SelectItem>
@@ -180,66 +187,26 @@ export function SurfaceMaterialSettings() {
             ) : (
                 <div className="space-y-2.5">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
-                        {t("surface_material_customize_rays")}
+                        {t("surface_material_customize_frosted")}
                     </div>
 
-                    <SettingsItem label={t("surface_field_rays_origin")}>
-                        <Select value={raysConfig.raysOrigin} onValueChange={(value) => updateRays({ raysOrigin: value as RaysGlassMaterialConfig["raysOrigin"] })}>
-                            <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {RAYS_ORIGIN_OPTIONS.map((origin) => (
-                                    <SelectItem key={origin} value={origin}>{origin}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </SettingsItem>
-                    <SettingsItem label={t("surface_field_rays_color")}>
-                        <Input
-                            type="color"
-                            value={raysConfig.raysColor}
-                            onChange={(event) => updateRays({ raysColor: event.target.value })}
-                            className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
-                        />
-                    </SettingsItem>
-                    <SettingsItem label={t("surface_field_rays_speed")}>
-                        <NumberSlider value={raysConfig.raysSpeed} min={0} max={5} step={0.05} onChange={(v) => updateRays({ raysSpeed: v })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("surface_field_light_spread")}>
-                        <NumberSlider value={raysConfig.lightSpread} min={0} max={1.5} step={0.01} onChange={(v) => updateRays({ lightSpread: v })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("surface_field_ray_length")}>
-                        <NumberSlider value={raysConfig.rayLength} min={0.2} max={2} step={0.01} onChange={(v) => updateRays({ rayLength: v })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("surface_field_fade_distance")}>
-                        <NumberSlider value={raysConfig.fadeDistance} min={0.1} max={2} step={0.01} onChange={(v) => updateRays({ fadeDistance: v })} />
+                    <SettingsItem label={t("surface_field_background_opacity")}>
+                        <NumberSlider value={frostedConfig.backgroundOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ backgroundOpacity: v })} />
                     </SettingsItem>
                     <SettingsItem label={t("surface_field_saturation")}>
-                        <NumberSlider value={raysConfig.saturation} min={0} max={1.5} step={0.01} onChange={(v) => updateRays({ saturation: v })} />
+                        <NumberSlider value={frostedConfig.saturation} min={0} max={2} step={0.01} onChange={(v) => updateFrosted({ saturation: v })} />
                     </SettingsItem>
-                    <SettingsItem label={t("surface_field_mouse_influence")}>
-                        <NumberSlider value={raysConfig.mouseInfluence} min={0} max={1} step={0.01} onChange={(v) => updateRays({ mouseInfluence: v })} />
+                    <SettingsItem label={t("surface_field_blur")}>
+                        <NumberSlider value={frostedConfig.blur} min={0} max={30} step={0.1} onChange={(v) => updateFrosted({ blur: v })} />
                     </SettingsItem>
-                    <SettingsItem label={t("surface_field_noise_amount")}>
-                        <NumberSlider value={raysConfig.noiseAmount} min={0} max={1} step={0.01} onChange={(v) => updateRays({ noiseAmount: v })} />
+                    <SettingsItem label={t("surface_field_border_opacity")}>
+                        <NumberSlider value={frostedConfig.borderOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ borderOpacity: v })} />
                     </SettingsItem>
-                    <SettingsItem label={t("surface_field_distortion")}>
-                        <NumberSlider value={raysConfig.distortion} min={0} max={1} step={0.01} onChange={(v) => updateRays({ distortion: v })} />
+                    <SettingsItem label={t("surface_field_highlight_opacity")}>
+                        <NumberSlider value={frostedConfig.highlightOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ highlightOpacity: v })} />
                     </SettingsItem>
-                    <SettingsItem label={t("surface_field_rays_class_name")}>
-                        <Input
-                            value={raysConfig.className}
-                            onChange={(event) => updateRays({ className: event.target.value })}
-                            placeholder={t("surface_field_rays_class_name_placeholder")}
-                            className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85"
-                        />
-                    </SettingsItem>
-                    <SettingsItem label={t("surface_field_pulsating")}>
-                        <Switch checked={raysConfig.pulsating} onCheckedChange={(checked) => updateRays({ pulsating: checked })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("surface_field_follow_mouse")}>
-                        <Switch checked={raysConfig.followMouse} onCheckedChange={(checked) => updateRays({ followMouse: checked })} />
+                    <SettingsItem label={t("surface_field_shadow_opacity")}>
+                        <NumberSlider value={frostedConfig.shadowOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ shadowOpacity: v })} />
                     </SettingsItem>
                 </div>
             )}

@@ -11,9 +11,21 @@ import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     isDynamicBackgroundId,
 } from "@/platform/core/dynamicBackgrounds";
+import {
+    applyGlobalTextSurfaceFont,
+    applyGlobalTextSurfaceTone,
+    resolveTextSurfaceToneForImage,
+    resolveTextSurfaceToneSync,
+} from "@/platform/core/textSurface";
 
 export function BackgroundLayer() {
-    const { backgroundConfig, primaryColor, dynamicBackgroundConfig } = useSettingsStore();
+    const {
+        backgroundConfig,
+        primaryColor,
+        dynamicBackgroundConfig,
+        theme,
+        textSurfaceFontPreset,
+    } = useSettingsStore();
     const backgroundThemes = dynamicBackgroundConfig;
 
     // Apply global primary color
@@ -26,6 +38,35 @@ export function BackgroundLayer() {
             // For now, simple primary override.
         }
     }, [primaryColor]);
+
+    useEffect(() => {
+        let isDisposed = false;
+        const syncTone = resolveTextSurfaceToneSync({
+            backgroundConfig,
+            dynamicBackgroundConfig: backgroundThemes,
+            theme,
+        });
+        applyGlobalTextSurfaceTone(syncTone);
+
+        if (backgroundConfig.type === "image") {
+            resolveTextSurfaceToneForImage({
+                imageUrl: backgroundConfig.value,
+                overlay: backgroundConfig.overlay,
+                theme,
+            }).then((resolvedTone) => {
+                if (isDisposed) return;
+                applyGlobalTextSurfaceTone(resolvedTone);
+            });
+        }
+
+        return () => {
+            isDisposed = true;
+        };
+    }, [backgroundConfig, backgroundThemes, theme]);
+
+    useEffect(() => {
+        applyGlobalTextSurfaceFont(textSurfaceFontPreset);
+    }, [textSurfaceFontPreset]);
 
     const getBackgroundStyle = () => {
         const { type, value, blur } = backgroundConfig;

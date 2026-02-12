@@ -118,6 +118,12 @@ export function useAiSearch() {
 
             // STEP 4: SUMMARIZING - Generate Response
             // ============================================
+            const responseTimestamp = Date.now();
+            setResponse({
+                query: trimmedQuery,
+                cards,
+                timestamp: responseTimestamp
+            });
             setStatus('summarizing');
             setProgressMessage(t('thinking_step_summarizing'));
 
@@ -137,7 +143,7 @@ export function useAiSearch() {
                 query: trimmedQuery,
                 summary,
                 cards,
-                timestamp: Date.now()
+                timestamp: responseTimestamp
             });
             setStatus('complete');
             setProgressMessage('');

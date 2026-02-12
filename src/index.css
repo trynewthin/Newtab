@@ -7,6 +7,12 @@
 :root {
   --background: oklch(0.98 0.01 240);
   --foreground: oklch(0.15 0.02 240);
+  --text-surface-tone: dark;
+  --text-surface-foreground: var(--foreground);
+  --text-surface-strong-foreground: oklch(0.08 0 0);
+  --text-surface-muted-foreground: var(--muted-foreground);
+  --text-surface-font-preset: sans;
+  --text-surface-font-family: Inter, 'Plus Jakarta Sans', system-ui, sans-serif;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0.02 240);
   --popover: oklch(1 0 0);
@@ -30,6 +36,12 @@
 .dark {
   --background: oklch(0.12 0.02 240);
   --foreground: oklch(0.95 0.01 240);
+  --text-surface-tone: light;
+  --text-surface-foreground: var(--foreground);
+  --text-surface-strong-foreground: oklch(0.99 0 0);
+  --text-surface-muted-foreground: var(--muted-foreground);
+  --text-surface-font-preset: sans;
+  --text-surface-font-family: Inter, 'Plus Jakarta Sans', system-ui, sans-serif;
   --card: oklch(0.18 0.02 240);
   --card-foreground: oklch(0.95 0.01 240);
   --popover: oklch(0.15 0.02 240);
@@ -50,12 +62,17 @@
 
 /* Modal-only neutral design scope */
 .modal-minimal-scope {
+  color: var(--foreground);
+  --foreground: oklch(0.15 0.02 240);
+  --muted-foreground: oklch(0.45 0.02 240);
+  --card-foreground: oklch(0.15 0.02 240);
+  --popover-foreground: oklch(0.15 0.02 240);
+  --secondary-foreground: oklch(0.22 0 0);
+  --accent-foreground: oklch(0.2 0 0);
   --primary: oklch(0.2 0 0);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.94 0 0);
-  --secondary-foreground: oklch(0.22 0 0);
   --accent: oklch(0.92 0 0 / 42%);
-  --accent-foreground: oklch(0.2 0 0);
   --destructive: oklch(0.26 0 0);
   --ring: oklch(0.32 0 0 / 45%);
   --border: oklch(0.83 0 0);
@@ -63,12 +80,16 @@
 }
 
 .dark .modal-minimal-scope {
+  --foreground: oklch(0.95 0.01 240);
+  --muted-foreground: oklch(0.65 0.01 240);
+  --card-foreground: oklch(0.95 0.01 240);
+  --popover-foreground: oklch(0.95 0.01 240);
+  --secondary-foreground: oklch(0.93 0 0);
+  --accent-foreground: oklch(0.95 0 0);
   --primary: oklch(0.92 0 0);
   --primary-foreground: oklch(0.12 0 0);
   --secondary: oklch(0.24 0 0);
-  --secondary-foreground: oklch(0.93 0 0);
   --accent: oklch(0.3 0 0 / 42%);
-  --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.82 0 0);
   --ring: oklch(0.75 0 0 / 45%);
   --border: oklch(0.36 0 0);
@@ -77,12 +98,17 @@
 
 /* Popup-only neutral design scope */
 .popup-minimal-scope {
+  color: var(--foreground);
+  --foreground: oklch(0.15 0.02 240);
+  --muted-foreground: oklch(0.45 0.02 240);
+  --card-foreground: oklch(0.15 0.02 240);
+  --popover-foreground: oklch(0.15 0.02 240);
+  --secondary-foreground: oklch(0.22 0 0);
+  --accent-foreground: oklch(0.2 0 0);
   --primary: oklch(0.2 0 0);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.94 0 0);
-  --secondary-foreground: oklch(0.22 0 0);
   --accent: oklch(0.92 0 0 / 38%);
-  --accent-foreground: oklch(0.2 0 0);
   --destructive: oklch(0.26 0 0);
   --ring: oklch(0.32 0 0 / 45%);
   --border: oklch(0.84 0 0);
@@ -90,12 +116,16 @@
 }
 
 .dark .popup-minimal-scope {
+  --foreground: oklch(0.95 0.01 240);
+  --muted-foreground: oklch(0.65 0.01 240);
+  --card-foreground: oklch(0.95 0.01 240);
+  --popover-foreground: oklch(0.95 0.01 240);
+  --secondary-foreground: oklch(0.93 0 0);
+  --accent-foreground: oklch(0.95 0 0);
   --primary: oklch(0.92 0 0);
   --primary-foreground: oklch(0.12 0 0);
   --secondary: oklch(0.24 0 0);
-  --secondary-foreground: oklch(0.93 0 0);
   --accent: oklch(0.3 0 0 / 38%);
-  --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.82 0 0);
   --ring: oklch(0.75 0 0 / 45%);
   --border: oklch(0.36 0 0);
@@ -220,6 +250,19 @@
 
   .modal-minimal-divider {
     @apply h-px w-full bg-border/60;
+  }
+
+  .text-surface-input {
+    color: var(--text-surface-strong-foreground) !important;
+    caret-color: var(--text-surface-strong-foreground) !important;
+    -webkit-text-fill-color: var(--text-surface-strong-foreground) !important;
+    font-family: var(--text-surface-font-family) !important;
+  }
+
+  .text-surface-input::placeholder {
+    color: var(--text-surface-muted-foreground) !important;
+    -webkit-text-fill-color: var(--text-surface-muted-foreground) !important;
+    opacity: 1;
   }
 
   /* Bento Grid helpers */

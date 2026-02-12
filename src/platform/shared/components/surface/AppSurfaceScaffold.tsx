@@ -37,7 +37,7 @@ function SemiFloatingHeader({
             <div className="flex items-start justify-between gap-3">
                 <div className="pointer-events-auto min-w-0">
                     {title ? (
-                        <div className="max-w-[70vw] truncate rounded-2xl border border-border/70 bg-background/90 px-3 py-1.5 text-sm font-semibold tracking-tight shadow-sm">
+                        <div className="max-w-[70vw] truncate rounded-2xl border border-border/70 bg-background/90 px-3 py-1.5 text-sm font-semibold tracking-tight text-foreground shadow-sm">
                             {title}
                         </div>
                     ) : null}

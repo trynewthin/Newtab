@@ -1,16 +1,6 @@
-export type AppSurfaceMaterial = "glass-distortion" | "glass-rays";
+export type AppSurfaceMaterial = "glass-distortion" | "mac-frosted";
 export type AppSurfaceVariant = "base" | "toolbar" | "search-bar" | "widget" | "folder-preview";
 export type AppSurfaceTone = "auto" | "light" | "dark";
-
-export type RaysOrigin =
-    | "top-center"
-    | "top-left"
-    | "top-right"
-    | "right"
-    | "left"
-    | "bottom-center"
-    | "bottom-right"
-    | "bottom-left";
 
 export type SurfaceBlendMode =
     | "normal"
@@ -47,41 +37,23 @@ export interface DistortionGlassMaterialConfig {
     mixBlendMode: SurfaceBlendMode;
 }
 
-export interface RaysGlassMaterialConfig {
-    raysOrigin: RaysOrigin;
-    raysColor: string;
-    raysSpeed: number;
-    lightSpread: number;
-    rayLength: number;
-    pulsating: boolean;
-    fadeDistance: number;
+export interface MacFrostedMaterialConfig {
+    backgroundOpacity: number;
     saturation: number;
-    followMouse: boolean;
-    mouseInfluence: number;
-    noiseAmount: number;
-    distortion: number;
-    className: string;
+    blur: number;
+    borderOpacity: number;
+    highlightOpacity: number;
+    shadowOpacity: number;
 }
 
 export interface AppSurfaceMaterialConfigMap {
     "glass-distortion": DistortionGlassMaterialConfig;
-    "glass-rays": RaysGlassMaterialConfig;
+    "mac-frosted": MacFrostedMaterialConfig;
 }
 
 export const SURFACE_MATERIAL_OPTIONS: readonly AppSurfaceMaterial[] = [
     "glass-distortion",
-    "glass-rays",
-] as const;
-
-export const RAYS_ORIGIN_OPTIONS: readonly RaysOrigin[] = [
-    "top-center",
-    "top-left",
-    "top-right",
-    "right",
-    "left",
-    "bottom-center",
-    "bottom-right",
-    "bottom-left",
+    "mac-frosted",
 ] as const;
 
 export const DEFAULT_APP_SURFACE_MATERIAL_CONFIG: AppSurfaceMaterialConfigMap = {
@@ -99,27 +71,20 @@ export const DEFAULT_APP_SURFACE_MATERIAL_CONFIG: AppSurfaceMaterialConfigMap = 
         blueOffset: 22,
         mixBlendMode: "screen",
     },
-    "glass-rays": {
-        raysOrigin: "top-center",
-        raysColor: "#ffffff",
-        raysSpeed: 1,
-        lightSpread: 0.5,
-        rayLength: 1.0,
-        pulsating: false,
-        fadeDistance: 1.0,
-        saturation: 1.0,
-        followMouse: false,
-        mouseInfluence: 0.5,
-        noiseAmount: 0.0,
-        distortion: 0.0,
-        className: "",
+    "mac-frosted": {
+        backgroundOpacity: 0.28,
+        saturation: 1.2,
+        blur: 16,
+        borderOpacity: 0.24,
+        highlightOpacity: 0.18,
+        shadowOpacity: 0.17,
     },
 };
 
 export function mergeSurfaceMaterialConfig(
     partial?: Partial<{
         "glass-distortion": Partial<DistortionGlassMaterialConfig>;
-        "glass-rays": Partial<RaysGlassMaterialConfig>;
+        "mac-frosted": Partial<MacFrostedMaterialConfig>;
     }> | null
 ): AppSurfaceMaterialConfigMap {
     return {
@@ -127,9 +92,9 @@ export function mergeSurfaceMaterialConfig(
             ...DEFAULT_APP_SURFACE_MATERIAL_CONFIG["glass-distortion"],
             ...(partial?.["glass-distortion"] ?? {}),
         },
-        "glass-rays": {
-            ...DEFAULT_APP_SURFACE_MATERIAL_CONFIG["glass-rays"],
-            ...(partial?.["glass-rays"] ?? {}),
+        "mac-frosted": {
+            ...DEFAULT_APP_SURFACE_MATERIAL_CONFIG["mac-frosted"],
+            ...(partial?.["mac-frosted"] ?? {}),
         },
     };
 }

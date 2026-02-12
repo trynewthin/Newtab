@@ -8,7 +8,7 @@ import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
 import { storageRegistry } from "./registry";
 
 const DATA_ARCHIVE_FORMAT = "newtab-data-archive";
-const DATA_ARCHIVE_SCHEMA_VERSION = 1;
+const DATA_ARCHIVE_SCHEMA_VERSION = 2;
 const DATA_ARCHIVE_EXTENSION = ".ntb";
 const INDEXED_DB_IDB_KEYVAL_VERSION = 1;
 const INDEXED_DB_BACKGROUND_STORAGE_VERSION = 2;
@@ -283,7 +283,85 @@ function normalizeBundle(bundle: DataArchiveBundle): DataArchiveBundle {
             `Backup schema ${bundle.manifest.schemaVersion} is newer than supported ${DATA_ARCHIVE_SCHEMA_VERSION}`
         );
     }
+
+    if (bundle.manifest.schemaVersion < DATA_ARCHIVE_SCHEMA_VERSION) {
+        return migrateBundleToCurrentSchema(bundle);
+    }
+
     return bundle;
+}
+
+function migrateBundleToCurrentSchema(bundle: DataArchiveBundle): DataArchiveBundle {
+    let migrated = bundle;
+
+    if (migrated.manifest.schemaVersion < 2) {
+        migrated = migrateBundleToSchemaV2(migrated);
+    }
+
+    return {
+        ...migrated,
+        manifest: {
+            ...migrated.manifest,
+            schemaVersion: DATA_ARCHIVE_SCHEMA_VERSION,
+        },
+    };
+}
+
+function migrateBundleToSchemaV2(bundle: DataArchiveBundle): DataArchiveBundle {
+    const localStorageData = { ...bundle.payload.localStorage };
+    const appSettingsRaw = localStorageData["app-settings"];
+
+    if (typeof appSettingsRaw === "string") {
+        localStorageData["app-settings"] = migrateAppSettingsPayloadToV2(appSettingsRaw);
+    }
+
+    return {
+        ...bundle,
+        payload: {
+            ...bundle.payload,
+            localStorage: localStorageData,
+        },
+        manifest: {
+            ...bundle.manifest,
+            schemaVersion: 2,
+        },
+    };
+}
+
+function migrateAppSettingsPayloadToV2(raw: string): string {
+    try {
+        const parsed = JSON.parse(raw) as {
+            state?: Record<string, unknown>;
+            version?: number;
+        };
+
+        if (!parsed || typeof parsed !== "object" || !parsed.state || typeof parsed.state !== "object") {
+            return raw;
+        }
+
+        const nextState: Record<string, unknown> = { ...parsed.state };
+        const material = nextState.surfaceMaterial;
+
+        if (material === "glass-rays") {
+            nextState.surfaceMaterial = "glass-distortion";
+        } else if (material !== "glass-distortion" && material !== "mac-frosted") {
+            nextState.surfaceMaterial = "glass-distortion";
+        }
+
+        const config = nextState.surfaceMaterialConfig;
+        if (config && typeof config === "object") {
+            const configRecord = { ...(config as Record<string, unknown>) };
+            delete configRecord["glass-rays"];
+            nextState.surfaceMaterialConfig = configRecord;
+        }
+
+        return JSON.stringify({
+            ...parsed,
+            state: nextState,
+        });
+    } catch {
+        return raw;
+    }
 }
 
 function refreshRegisteredStores() {

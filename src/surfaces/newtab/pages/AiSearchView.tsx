@@ -9,6 +9,7 @@ import { AiSearchResults } from "@/apps/ai-search/components/AiSearchResults";
 import { cn } from "@/platform/core/utils";
 import { useTranslation } from "react-i18next";
 import GradualBlur from "@/components/GradualBlur";
+import AppSurface from "@/components/AppSurface";
 
 export function AiSearchView() {
     const { t } = useTranslation();
@@ -65,7 +66,7 @@ export function AiSearchView() {
                     </div>
 
                     <GradualBlur
-                        target="parent"
+                        target="page"
                         position="top"
                         height="6rem"
                         strength={2}
@@ -73,10 +74,11 @@ export function AiSearchView() {
                         curve="bezier"
                         exponential
                         opacity={1}
+                        zIndex={45}
                     />
 
                     <GradualBlur
-                        target="parent"
+                        target="page"
                         position="bottom"
                         height="7rem"
                         strength={2}
@@ -84,6 +86,7 @@ export function AiSearchView() {
                         curve="bezier"
                         exponential
                         opacity={1}
+                        zIndex={45}
                     />
                 </motion.section>
 
@@ -102,9 +105,17 @@ export function AiSearchView() {
                                 >
                                     <button
                                         onClick={cancel}
-                                        className="group relative flex items-center gap-2.5 overflow-hidden rounded-full border border-border/70 bg-background/92 px-4 py-2 font-semibold text-foreground shadow-lg transition-all hover:scale-105 active:scale-95"
+                                        className="group relative flex items-center gap-2.5 overflow-hidden rounded-full border border-border/70 px-4 py-2 font-semibold text-foreground shadow-lg transition-all hover:scale-105 active:scale-95"
                                     >
-                                        <div className="absolute inset-px rounded-full bg-background/95 z-0" />
+                                        <div className="absolute inset-0 pointer-events-none">
+                                            <AppSurface
+                                                variant="base"
+                                                width="100%"
+                                                height="100%"
+                                                borderRadius={999}
+                                                className="h-full w-full"
+                                            />
+                                        </div>
 
                                         <div className="relative z-10 flex items-center gap-2">
                                             <div className="relative">

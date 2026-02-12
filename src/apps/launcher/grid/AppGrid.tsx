@@ -11,6 +11,7 @@ import { resolveWidgetLaunchAppId } from "@/apps/launcher/widget";
 
 import { FolderPreview } from "../folder/FolderPreview";
 import GradualBlur from "@/components/GradualBlur";
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 import { useTranslation } from "react-i18next";
 import GridLayout, { noCompactor, useContainerWidth, type Layout, type LayoutItem } from "react-grid-layout";
@@ -281,7 +282,9 @@ function applyNearestVacancyLayout(
 ): Layout | null {
     const dx = move.toX - move.fromX;
     const dy = move.toY - move.fromY;
-    if (dx === 0 && dy === 0) return null;
+    if (dx === 0 && dy === 0) {
+        return baseLayout.map((entry) => ({ ...entry }));
+    }
 
     const next = baseLayout.map((entry) => ({ ...entry }));
     const dragged = next.find((entry) => entry.i === move.id);
@@ -290,6 +293,7 @@ function applyNearestVacancyLayout(
     const maxX = Math.max(totalCols - move.w, 0);
     const normalizedToX = snapDown(clamp(move.toX, 0, maxX), GRID_STEP_X);
     const normalizedToY = snapDown(Math.max(0, move.toY), GRID_STEP_Y);
+    const normalizedFromX = snapDown(clamp(move.fromX, 0, maxX), GRID_STEP_X);
     const normalizedFromY = snapDown(Math.max(0, move.fromY), GRID_STEP_Y);
 
     dragged.x = normalizedToX;
@@ -300,26 +304,59 @@ function applyNearestVacancyLayout(
     if (!isWithinGridBounds(dragged, totalCols)) return null;
 
     const orderMap = new Map(baseLayout.map((entry, index) => [entry.i, index]));
-    const sortByOriginalOrder = (a: LayoutItem, b: LayoutItem) =>
-        (orderMap.get(a.i) ?? 0) - (orderMap.get(b.i) ?? 0);
+    const overlapsRange = (startA: number, endA: number, startB: number, endB: number) =>
+        startA < endB && startB < endA;
+    const isHorizontalMove = Math.abs(dx) >= Math.abs(dy);
 
-    const collectCollisionsWithDragged = (): LayoutItem[] =>
-        next
-            .filter((entry) => entry.i !== dragged.i && collides(entry, dragged))
-            .sort(sortByOriginalOrder);
+    // 关键修复：
+    // 横向拖拽时不仅处理“与 dragged 直接碰撞”的项，还要把 source->target 走廊内的中间项纳入补位链，
+    // 否则会出现“右侧项被挤到下一行而中间项不跟随”的断链问题。
+    const corridorStartX = Math.min(normalizedFromX, normalizedToX);
+    const corridorEndX = Math.max(normalizedFromX + dragged.w, normalizedToX + dragged.w);
+    const corridorStartY = Math.min(normalizedFromY, normalizedToY);
+    const corridorEndY = Math.max(normalizedFromY + dragged.h, normalizedToY + dragged.h);
 
-    let pending = collectCollisionsWithDragged();
+    const pending = next.filter((entry) => {
+        if (entry.i === dragged.i) return false;
+        if (collides(entry, dragged)) return true;
 
-    while (pending.length > 0) {
-        const displaced = pending.shift();
-        if (!displaced) break;
+        if (isHorizontalMove && dx !== 0) {
+            const overlapsY = overlapsRange(entry.y, entry.y + entry.h, dragged.y, dragged.y + dragged.h);
+            const overlapsCorridorX = overlapsRange(entry.x, entry.x + entry.w, corridorStartX, corridorEndX);
+            return overlapsY && overlapsCorridorX;
+        }
 
+        if (!isHorizontalMove && dy !== 0) {
+            const overlapsX = overlapsRange(entry.x, entry.x + entry.w, dragged.x, dragged.x + dragged.w);
+            const overlapsCorridorY = overlapsRange(entry.y, entry.y + entry.h, corridorStartY, corridorEndY);
+            return overlapsX && overlapsCorridorY;
+        }
+
+        return false;
+    });
+
+    pending.sort((a, b) => {
+        if (isHorizontalMove && dx !== 0) {
+            if (a.y !== b.y) return a.y - b.y;
+            if (dx > 0) return a.x - b.x;
+            return b.x - a.x;
+        }
+
+        if (!isHorizontalMove && dy !== 0) {
+            if (a.x !== b.x) return a.x - b.x;
+            if (dy > 0) return a.y - b.y;
+            return b.y - a.y;
+        }
+
+        return (orderMap.get(a.i) ?? 0) - (orderMap.get(b.i) ?? 0);
+    });
+
+    for (const displaced of pending) {
         const occupied = next.filter((entry) => entry.i !== displaced.i);
         const sourceMaxX = Math.max(totalCols - displaced.w, 0);
-        const normalizedFromX = snapDown(clamp(move.fromX, 0, sourceMaxX), GRID_STEP_X);
         const sourceBackfillCandidate: LayoutItem = {
             i: "__source_backfill_candidate__",
-            x: normalizedFromX,
+            x: snapDown(clamp(normalizedFromX, 0, sourceMaxX), GRID_STEP_X),
             y: normalizedFromY,
             w: displaced.w,
             h: displaced.h,
@@ -331,15 +368,22 @@ function applyNearestVacancyLayout(
         if (canBackfillSource) {
             displaced.x = sourceBackfillCandidate.x;
             displaced.y = sourceBackfillCandidate.y;
-        } else {
-            const nearest = findNearestVacantPosition(occupied, displaced, totalCols, displaced.x, displaced.y);
-            if (!nearest) return null;
-
-            displaced.x = nearest.x;
-            displaced.y = nearest.y;
+            continue;
         }
 
-        pending = collectCollisionsWithDragged();
+        let preferredX = displaced.x;
+        let preferredY = displaced.y;
+        if (isHorizontalMove && dx !== 0) {
+            preferredX = displaced.x - Math.sign(dx) * GRID_STEP_X;
+        } else if (!isHorizontalMove && dy !== 0) {
+            preferredY = displaced.y - Math.sign(dy) * GRID_STEP_Y;
+        }
+
+        const nearest = findNearestVacantPosition(occupied, displaced, totalCols, preferredX, preferredY);
+        if (!nearest) return null;
+
+        displaced.x = nearest.x;
+        displaced.y = nearest.y;
     }
 
     for (const entry of next) {
@@ -366,7 +410,7 @@ interface AppGridProps {
 export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const { t } = useTranslation();
 
-    const { items, setItems, removeItem, ungroupFolder } = useItemStore();
+    const { items, layoutRevision, setItems, removeItem, ungroupFolder } = useItemStore();
 
     const { isEditing, setFolderPreviewVisible } = useUIStore();
     const { launchApp } = useAppLauncher();
@@ -562,6 +606,8 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const handleDrag = useCallback((nextLayout: Layout, oldItem: LayoutItem | null, newItem: LayoutItem | null) => {
         if (!oldItem || !newItem) return;
 
+        const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols, false);
+        const baseDragged = baseLayout.find((entry) => entry.i === newItem.i);
         const sourceItem = itemsRef.current.find((item) => item.id === newItem.i);
         const bounds = sourceItem
             ? resolveItemSizeBounds(sourceItem, totalCols)
@@ -574,12 +620,21 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         const snappedW = snapDown(clamp(snapNearest(newItem.w, GRID_STEP_X), bounds.minW, bounds.maxW), GRID_STEP_X);
         const snappedH = snapDown(clamp(snapNearest(newItem.h, GRID_STEP_Y), bounds.minH, bounds.maxH), GRID_STEP_Y);
         const maxX = totalCols - snappedW;
-        const fromX = snapDown(clamp(snapNearest(oldItem.x, GRID_STEP_X), 0, maxX), GRID_STEP_X);
-        const fromY = snapDown(Math.max(0, snapNearest(oldItem.y, GRID_STEP_Y)), GRID_STEP_Y);
+        const fromX = snapDown(
+            clamp(
+                snapNearest(baseDragged?.x ?? oldItem.x, GRID_STEP_X),
+                0,
+                maxX
+            ),
+            GRID_STEP_X
+        );
+        const fromY = snapDown(
+            Math.max(0, snapNearest(baseDragged?.y ?? oldItem.y, GRID_STEP_Y)),
+            GRID_STEP_Y
+        );
         const toX = snapDown(clamp(snapNearest(newItem.x, GRID_STEP_X), 0, maxX), GRID_STEP_X);
         const toY = snapDown(Math.max(0, snapNearest(newItem.y, GRID_STEP_Y)), GRID_STEP_Y);
 
-        const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols, false);
         const shiftedLayout = applyNearestVacancyLayout(
             baseLayout,
             {
@@ -609,13 +664,15 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const handleDragStop = useCallback((nextLayout: Layout, oldItem: LayoutItem | null, newItem: LayoutItem | null) => {
         isInteractingRef.current = false;
         suppressClickUntilRef.current = Date.now() + CLICK_SUPPRESS_AFTER_DRAG_MS;
-        dragStartLayoutRef.current = null;
 
         if (!oldItem || !newItem) {
+            dragStartLayoutRef.current = null;
             commitLayout(nextLayout);
             return;
         }
 
+        const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols, false);
+        const baseDragged = baseLayout.find((entry) => entry.i === newItem.i);
         const sourceItem = itemsRef.current.find((item) => item.id === newItem.i);
         const bounds = sourceItem
             ? resolveItemSizeBounds(sourceItem, totalCols)
@@ -628,12 +685,21 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         const snappedW = snapDown(clamp(snapNearest(newItem.w, GRID_STEP_X), bounds.minW, bounds.maxW), GRID_STEP_X);
         const snappedH = snapDown(clamp(snapNearest(newItem.h, GRID_STEP_Y), bounds.minH, bounds.maxH), GRID_STEP_Y);
         const maxX = totalCols - snappedW;
-        const fromX = snapDown(clamp(snapNearest(oldItem.x, GRID_STEP_X), 0, maxX), GRID_STEP_X);
-        const fromY = snapDown(Math.max(0, snapNearest(oldItem.y, GRID_STEP_Y)), GRID_STEP_Y);
+        const fromX = snapDown(
+            clamp(
+                snapNearest(baseDragged?.x ?? oldItem.x, GRID_STEP_X),
+                0,
+                maxX
+            ),
+            GRID_STEP_X
+        );
+        const fromY = snapDown(
+            Math.max(0, snapNearest(baseDragged?.y ?? oldItem.y, GRID_STEP_Y)),
+            GRID_STEP_Y
+        );
         const toX = snapDown(clamp(snapNearest(newItem.x, GRID_STEP_X), 0, maxX), GRID_STEP_X);
         const toY = snapDown(Math.max(0, snapNearest(newItem.y, GRID_STEP_Y)), GRID_STEP_Y);
 
-        const baseLayout = createLayout(itemsRef.current, totalCols, false);
         const shiftedLayout = applyNearestVacancyLayout(
             baseLayout,
             {
@@ -648,6 +714,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             totalCols
         );
 
+        dragStartLayoutRef.current = null;
         commitLayout(shiftedLayout ?? nextLayout);
     }, [commitLayout, totalCols]);
 
@@ -670,6 +737,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             >
                 {mounted && (
                     <GridLayout
+                        key={`launcher-grid-${layoutRevision}`}
                         width={width}
                         layout={layout}
                         gridConfig={{
@@ -776,6 +844,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                 curve="bezier"
                 exponential
                 opacity={1}
+                zIndex={LAYER_Z_INDEX.newtabContentOverlay}
             />
 
             <GradualBlur
@@ -787,6 +856,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                 curve="bezier"
                 exponential
                 opacity={1}
+                zIndex={LAYER_Z_INDEX.newtabContentOverlay}
             />
 
         </section>

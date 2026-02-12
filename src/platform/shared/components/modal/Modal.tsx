@@ -7,6 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { ModalButton } from "./ModalButton"
 import { useTranslation } from "react-i18next"
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex"
 
 // Global tracker for the last mouse down position to determine modal animation origin
 let lastClickPos = {
@@ -36,8 +37,9 @@ function ModalOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
     return (
         <DialogPrimitive.Backdrop
             data-slot="modal-overlay"
+            style={{ zIndex: LAYER_Z_INDEX.overlayBackdrop }}
             className={cn(
-                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/24 backdrop-blur-[2px] duration-300 fixed inset-0 z-999",
+                "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/24 backdrop-blur-[2px] duration-300 fixed inset-0",
                 className
             )}
             {...props}
@@ -128,10 +130,10 @@ function BaseModal({
                 <ModalOverlay />
                 <DialogPrimitive.Popup
                     data-slot="modal-content"
-                    style={{ transformOrigin } as React.CSSProperties}
+                    style={{ transformOrigin, zIndex: LAYER_Z_INDEX.overlayContent } as React.CSSProperties}
                     className={cn(
                         // Positioning - Mobile: Full Screen, Desktop: Centered
-                        "fixed inset-0 sm:top-1/2 sm:left-1/2 z-1000 sm:-translate-x-1/2 sm:-translate-y-1/2 outline-none",
+                        "fixed inset-0 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 outline-none",
                         // Animations - Symmetrical Zoom/Fade
                         "data-open:animate-in data-closed:animate-out",
                         "data-open:fade-in-0 data-closed:fade-out-0",

@@ -10,6 +10,7 @@ import { cn } from "@/platform/core/utils";
 import { useTranslation } from "react-i18next";
 import GradualBlur from "@/components/GradualBlur";
 import AppSurface from "@/components/AppSurface";
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 export function AiSearchView() {
     const { t } = useTranslation();
@@ -53,7 +54,8 @@ export function AiSearchView() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="w-full h-full max-w-4xl mx-auto relative z-10 overflow-hidden"
+                    className="w-full h-full max-w-4xl mx-auto relative overflow-hidden"
+                    style={{ zIndex: LAYER_Z_INDEX.newtabContent }}
                 >
                     <div className="w-full h-full overflow-y-auto scrollbar-none pt-24 pb-60 px-4">
                         <AiSearchResults
@@ -74,7 +76,7 @@ export function AiSearchView() {
                         curve="bezier"
                         exponential
                         opacity={1}
-                        zIndex={45}
+                        zIndex={LAYER_Z_INDEX.newtabFloating}
                     />
 
                     <GradualBlur
@@ -86,12 +88,15 @@ export function AiSearchView() {
                         curve="bezier"
                         exponential
                         opacity={1}
-                        zIndex={45}
+                        zIndex={LAYER_Z_INDEX.newtabFloating}
                     />
                 </motion.section>
 
                 {/* 2. Fixed Control Center (Centered at Middle-Bottom) */}
-                <div className="fixed bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center gap-6 pb-12 z-50">
+                <div
+                    className="fixed bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center gap-6 pb-12"
+                    style={{ zIndex: LAYER_Z_INDEX.newtabToolbar }}
+                >
 
                     {/* centered Stop Button Area (Above Search Bar) */}
                     <div className="h-12 flex items-center justify-center">
@@ -155,7 +160,8 @@ export function AiSearchView() {
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="fixed inset-x-0 bottom-0 h-[35vh] pointer-events-none z-40 overflow-visible"
+                    className="fixed inset-x-0 bottom-0 h-[35vh] pointer-events-none overflow-visible"
+                    style={{ zIndex: LAYER_Z_INDEX.newtabFloating }}
                 >
                     {/* Moving Light Orbs */}
                     <div className={cn(

@@ -21,9 +21,11 @@ import {
     useSortable,
 } from "@dnd-kit/sortable";
 import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/platform/core/utils";
 import { ShortcutDialog } from "../tag/ShortcutDialog";
 import AppSurface from "@/components/AppSurface";
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)
 let lastClickPos = {
@@ -373,25 +375,22 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
         setTimeout(onClose, 300); // Consistent with transition-duration
     };
 
-    return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={customCollisionDetection}
-            onDragStart={handleDragStart}
-            onDragMove={handleDragMove}
-            onDragEnd={handleDragEnd}
-        >
+    const previewLayer = (
+        <div className="fixed inset-0" style={{ zIndex: LAYER_Z_INDEX.overlayBackdrop }}>
             <div
+                style={{ zIndex: 0 }}
                 className={cn(
-                    "fixed inset-0 z-50 flex flex-col items-center justify-center transition-all duration-300",
-                    entered ? "opacity-100 backdrop-blur-md bg-black/5 dark:bg-black/10" : "opacity-0 backdrop-blur-0 bg-transparent pointer-events-none"
+                    "absolute inset-0 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/24 backdrop-blur-[2px] duration-300 transition-opacity",
+                    entered ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                 )}
                 onClick={handleClose}
-            >
+            />
+
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ zIndex: 10 }}>
                 {/* Title Animation Wrapper */}
                 <div
                     className={cn(
-                        "text-2xl font-medium text-white drop-shadow-md tracking-wide text-center pb-8 transition-all duration-300 ease-out",
+                        "pointer-events-auto text-2xl font-medium text-white drop-shadow-md tracking-wide text-center pb-8 transition-all duration-300 ease-out",
                         entered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
                     )}
                     onClick={(e) => {
@@ -425,7 +424,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
                     ref={setRefs}
                     style={{ transformOrigin } as React.CSSProperties}
                     className={cn(
-                        "relative transition-all duration-300 ease-in-out w-[340px] h-[340px] shadow-2xl",
+                        "pointer-events-auto relative transition-all duration-300 ease-in-out w-[340px] h-[340px] shadow-2xl",
                         entered ? "opacity-100 scale-100" : "opacity-0 scale-50"
                     )}
                     onClick={(e) => e.stopPropagation()}
@@ -459,18 +458,33 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
                     </AppSurface>
                 </div>
             </div>
+        </div>
+    );
 
-            <DragOverlay>
-                {activeTag ? (
-                    <GridItem
-                        item={activeTag}
-                        onEdit={() => { }}
-                        onDeletePrompt={() => { }}
-                        onClick={() => { }}
-                        isOverlay
-                    />
-                ) : null}
-            </DragOverlay>
+    const dragOverlayLayer = (
+        <DragOverlay zIndex={LAYER_Z_INDEX.overlayDrag}>
+            {activeTag ? (
+                <GridItem
+                    item={activeTag}
+                    onEdit={() => { }}
+                    onDeletePrompt={() => { }}
+                    onClick={() => { }}
+                    isOverlay
+                />
+            ) : null}
+        </DragOverlay>
+    );
+
+    return (
+        <DndContext
+            sensors={sensors}
+            collisionDetection={customCollisionDetection}
+            onDragStart={handleDragStart}
+            onDragMove={handleDragMove}
+            onDragEnd={handleDragEnd}
+        >
+            {typeof document !== "undefined" ? createPortal(previewLayer, document.body) : previewLayer}
+            {typeof document !== "undefined" ? createPortal(dragOverlayLayer, document.body) : dragOverlayLayer}
 
             <ShortcutDialog
                 open={isEditDialogOpen}

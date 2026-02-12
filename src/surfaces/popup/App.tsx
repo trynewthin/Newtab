@@ -103,7 +103,7 @@ export default function Popup() {
     };
 
     const checkIcon = (
-        <div className="absolute inset-0 z-100 flex flex-col items-center justify-center bg-background/92 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/92 backdrop-blur-md animate-in fade-in duration-200">
             <div className="w-16 h-16 rounded-full border border-border/70 bg-foreground/8 text-foreground flex items-center justify-center shadow-sm animate-in zoom-in duration-250">
                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

@@ -37,6 +37,12 @@ export function HomeTools() {
         toggleEditing();
     };
 
+    const handleOrganize = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        organizeItems();
+    };
+
     const neutralToolButtonClass = "p-2.5 glass-button rounded-xl border border-black/10 dark:border-white/20 text-black/85 hover:text-black dark:text-white/90 dark:hover:text-white active:scale-95";
 
     return (
@@ -95,7 +101,7 @@ export function HomeTools() {
                 </button>
 
                 <button
-                    onClick={organizeItems}
+                    onClick={handleOrganize}
                     className={neutralToolButtonClass}
                     title={t('organize_icons')}
                 >

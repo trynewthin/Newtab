@@ -7,6 +7,7 @@ import { Toaster } from "@/platform/shared/ui/sonner";
 import { HashRouter } from "react-router-dom";
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { cn } from "@/platform/core/utils";
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 export function App() {
     // 监听 LocalStorage 变化并同步状态 (解决 Popup 修改后 Newtab 不刷新问题)
@@ -19,8 +20,9 @@ export function App() {
             <div className="relative w-full h-full overflow-hidden">
                 <BackgroundLayer />
                 <div
+                    style={{ zIndex: LAYER_Z_INDEX.newtabContent }}
                     className={cn(
-                        "relative z-10 w-full h-full transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                        "relative w-full h-full transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                         isModalVisible && "pointer-events-none"
                     )}
                 >
@@ -29,7 +31,7 @@ export function App() {
                 <div
                     className={cn(
                         "transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                        isModalVisible && "opacity-0 pointer-events-none"
+                        isModalVisible && "pointer-events-none"
                     )}
                 >
                     <FloatLayer />

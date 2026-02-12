@@ -2,8 +2,10 @@ import { cn } from "@/platform/core/utils";
 import React from "react";
 import { Toolbar } from "@/platform/shared/components";
 import { useUIStore } from "@/apps/launcher/store/ui";
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
-const TOOLBAR_TRIGGER_TOP_PX = 140;
+const TOOLBAR_TRIGGER_TOP_PX = 64;
+const TOOLBAR_TRIGGER_HALF_WIDTH_PX = 320;
 
 interface BasePageProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
@@ -36,7 +38,9 @@ export function BasePage({ children, className, tools, ...props }: BasePageProps
             if (rafId) {
                 window.cancelAnimationFrame(rafId);
             }
-            const nextNearTop = event.clientY <= TOOLBAR_TRIGGER_TOP_PX;
+            const isNearTopEdge = event.clientY <= TOOLBAR_TRIGGER_TOP_PX;
+            const isNearCenterX = Math.abs(event.clientX - window.innerWidth / 2) <= TOOLBAR_TRIGGER_HALF_WIDTH_PX;
+            const nextNearTop = isNearTopEdge && isNearCenterX;
             rafId = window.requestAnimationFrame(() => setIsNearTop(nextNearTop));
         };
         const onMouseLeaveWindow = () => setIsNearTop(false);
@@ -63,8 +67,9 @@ export function BasePage({ children, className, tools, ...props }: BasePageProps
             {/* Top Center Tools */}
             {tools && (
                 <div
+                    style={{ zIndex: LAYER_Z_INDEX.newtabToolbar }}
                     className={cn(
-                        "absolute inset-x-0 top-0 z-50 flex justify-center pt-2",
+                        "absolute inset-x-0 top-0 flex justify-center pt-2",
                         toolbarVisible ? "pointer-events-auto" : "pointer-events-none"
                     )}
                 >

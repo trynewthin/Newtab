@@ -21,6 +21,7 @@ type NewItemInput =
 
 interface ItemState {
     items: GridItem[];
+    layoutRevision: number;
 
     addItem: (item: NewItemInput) => void;
     updateItem: (id: string, updates: Partial<GridItem>) => void;
@@ -113,6 +114,7 @@ export const useItemStore = create<ItemState>()(
     persist(
         (set) => ({
             items: DEFAULT_ITEMS,
+            layoutRevision: 0,
 
             addItem: (itemData: NewItemInput) => set((state: ItemState) => {
                 let newItem: GridItem;
@@ -276,12 +278,12 @@ export const useItemStore = create<ItemState>()(
                 const ordered = state.items
                     .map((item, index) => ({ item, index }))
                     .sort((a, b) => {
-                        const ay = typeof a.item.y === "number" ? a.item.y : Number.MAX_SAFE_INTEGER;
-                        const by = typeof b.item.y === "number" ? b.item.y : Number.MAX_SAFE_INTEGER;
+                        const ay = Number.isFinite(a.item.y) ? (a.item.y as number) : Number.MAX_SAFE_INTEGER;
+                        const by = Number.isFinite(b.item.y) ? (b.item.y as number) : Number.MAX_SAFE_INTEGER;
                         if (ay !== by) return ay - by;
 
-                        const ax = typeof a.item.x === "number" ? a.item.x : Number.MAX_SAFE_INTEGER;
-                        const bx = typeof b.item.x === "number" ? b.item.x : Number.MAX_SAFE_INTEGER;
+                        const ax = Number.isFinite(a.item.x) ? (a.item.x as number) : Number.MAX_SAFE_INTEGER;
+                        const bx = Number.isFinite(b.item.x) ? (b.item.x as number) : Number.MAX_SAFE_INTEGER;
                         if (ax !== bx) return ax - bx;
 
                         return a.index - b.index;
@@ -292,7 +294,11 @@ export const useItemStore = create<ItemState>()(
                         y: undefined,
                     }) as GridItem);
 
-                return { items: ordered };
+                return {
+                    items: ordered,
+                    // 强制让网格在“一键整理”后重建一次，避免 RGL 内部状态偶发不同步。
+                    layoutRevision: state.layoutRevision + 1,
+                };
             }),
         }),
         {

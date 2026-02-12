@@ -5,6 +5,7 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 
 import { cn } from "@/platform/core/utils"
 import { Button } from "@/platform/shared/ui/button"
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -29,8 +30,9 @@ function AlertDialogOverlay({
   return (
     <AlertDialogPrimitive.Backdrop
       data-slot="alert-dialog-overlay"
+      style={{ zIndex: LAYER_Z_INDEX.alertBackdrop }}
       className={cn(
-        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-2000 bg-black/20 backdrop-blur-[2px] duration-300",
+        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate bg-black/20 backdrop-blur-[2px] duration-300",
         className
       )}
       {...props}
@@ -51,10 +53,10 @@ function AlertDialogContent({
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"
         data-size={size}
-        style={{ transformOrigin: 'center' }}
+        style={{ transformOrigin: 'center', zIndex: LAYER_Z_INDEX.alertContent }}
         className={cn(
           "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 duration-300",
-          "modal-minimal-scope fixed top-1/2 left-1/2 z-2001 grid w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border/70 bg-background/95 p-5 shadow-2xl outline-none",
+          "modal-minimal-scope fixed top-1/2 left-1/2 grid w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border/70 bg-background/95 p-5 shadow-2xl outline-none",
           "data-[size=default]:max-w-md data-[size=sm]:max-w-64",
           "group/alert-dialog-content",
           className

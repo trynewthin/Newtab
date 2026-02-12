@@ -4,6 +4,7 @@ import { AppGrid } from "@/apps/launcher";
 import { motion } from "framer-motion";
 import { useSystemDialogRouter } from "@/apps/launcher/store/ui";
 import { warmupModalRuntimes } from "@/apps/launcher/system/appRuntimeRegistry";
+import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 const HomeTools = lazy(() =>
     import("@/apps/launcher/components/HomeTools").then((m) => ({ default: m.HomeTools }))
@@ -78,7 +79,8 @@ export function DashboardView() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="relative z-20 w-full h-full min-h-0 overflow-visible"
+                className="relative w-full h-full min-h-0 overflow-visible"
+                style={{ zIndex: LAYER_Z_INDEX.newtabContentOverlay }}
             >
                 <AppGrid topInsetPx={DASHBOARD_GRID_TOP_INSET_PX} />
             </motion.div>

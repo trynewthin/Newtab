@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import type { CSSProperties, PropsWithChildren } from 'react';
 import * as math from 'mathjs';
+import { LAYER_Z_INDEX } from '@/platform/core/layerZIndex';
 
 type GradualBlurProps = PropsWithChildren<{
   position?: 'top' | 'bottom' | 'left' | 'right';
@@ -52,7 +53,7 @@ const DEFAULT_CONFIG: Partial<GradualBlurProps> = {
   height: '6rem',
   divCount: 5,
   exponential: false,
-  zIndex: 1000,
+  zIndex: LAYER_Z_INDEX.newtabContentOverlay,
   animated: false,
   duration: '0.3s',
   easing: 'ease-out',

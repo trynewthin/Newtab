@@ -6,7 +6,7 @@ import { cn } from "@/platform/core/utils";
 import { useTranslation } from "react-i18next";
 import { SEARCH_ENGINES } from "@/platform/core/constants";
 import { useNavigate } from "react-router-dom";
-import GlassSurface from "@/components/GlassSurface";
+import AppSurface from "@/components/AppSurface";
 
 interface SearchBarProps {
     initialQuery?: string;
@@ -134,20 +134,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                 {/* Main Pill Container */}
                 <div className="relative h-12 md:h-14">
                     <div className="absolute inset-0 pointer-events-none">
-                        <GlassSurface
-                            width="100%"
-                            height="100%"
-                            borderRadius={50}
-                            displace={3.0}
-                            distortionScale={-180}
-                            redOffset={0}
-                            greenOffset={10}
-                            blueOffset={20}
-                            brightness={50}
-                            opacity={0.93}
-                            mixBlendMode="screen"
-                            className="w-full h-full"
-                        />
+                        <AppSurface variant="search-bar" className="h-full w-full" />
                     </div>
 
                     <div className={cn(
@@ -277,3 +264,4 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
         </div>
     );
 }
+

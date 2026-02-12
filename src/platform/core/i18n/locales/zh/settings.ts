@@ -2,7 +2,7 @@ export const settings = {
     general: "常规",
     features: "功能",
     general_settings: "常规设置",
-    general_settings_desc: "管理系统主题、语言、搜索引擎以及数据。",
+    general_settings_desc: "管理语言、搜索引擎以及数据。",
     theme_mode: "外观主题",
     theme_mode_desc: "选择明亮、暗黑或随系统自动切换。",
     light: "明亮",

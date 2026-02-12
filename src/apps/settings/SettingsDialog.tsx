@@ -63,7 +63,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     />
                     <SidebarItem
                         icon={Palette}
-                        label={t('appearance')}
+                        label={t('theme_settings')}
                         isActive={activeTab === 'appearance'}
                         isCollapsed={effectiveCollapsed}
                         onClick={() => { setActiveTab('appearance'); setShowMobileMenu(false); }}

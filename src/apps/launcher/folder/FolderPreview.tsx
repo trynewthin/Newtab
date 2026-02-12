@@ -23,7 +23,7 @@ import {
 import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import { cn } from "@/platform/core/utils";
 import { ShortcutDialog } from "../tag/ShortcutDialog";
-import GlassSurface from "@/components/GlassSurface";
+import AppSurface from "@/components/AppSurface";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)
 let lastClickPos = {
@@ -430,24 +430,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
                     )}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <GlassSurface
-                        width="100%"
-                        height="100%"
-                        borderRadius={32}
-                        backgroundOpacity={0.2}
-                        saturation={1.24}
-                        brightness={56}
-                        opacity={0.94}
-                        blur={11}
-                        displace={5.0}
-                        borderWidth={0.08}
-                        distortionScale={-150}
-                        redOffset={4}
-                        greenOffset={12}
-                        blueOffset={22}
-                        mixBlendMode="screen"
-                        className="h-full w-full p-0"
-                    >
+                    <AppSurface variant="folder-preview" className="h-full w-full p-0">
                         <section className="relative z-10 h-full w-full p-6">
                             <div className="h-full w-full overflow-y-auto overflow-x-hidden">
                                 <div className="relative grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 content-start">
@@ -473,7 +456,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
                                 </div>
                             </div>
                         </section>
-                    </GlassSurface>
+                    </AppSurface>
                 </div>
             </div>
 
@@ -497,4 +480,5 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
         </DndContext>
     );
 }
+
 

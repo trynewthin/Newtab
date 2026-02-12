@@ -7,9 +7,14 @@ import FloatingLines from "@/components/FloatingLines";
 import Aurora from "@/components/Aurora";
 import Particles from "@/components/Particles";
 import PrismaticBurst from "@/components/PrismaticBurst";
+import {
+    DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
+    isDynamicBackgroundId,
+} from "@/platform/core/dynamicBackgrounds";
 
 export function BackgroundLayer() {
-    const { backgroundConfig, primaryColor } = useSettingsStore();
+    const { backgroundConfig, primaryColor, dynamicBackgroundConfig } = useSettingsStore();
+    const backgroundThemes = dynamicBackgroundConfig;
 
     // Apply global primary color
     useEffect(() => {
@@ -49,116 +54,132 @@ export function BackgroundLayer() {
         return baseStyle;
     };
 
-    const activeTheme = backgroundConfig.type === 'theme' ? backgroundConfig.value : null;
+    const activeTheme = backgroundConfig.type === 'theme' && isDynamicBackgroundId(backgroundConfig.value)
+        ? backgroundConfig.value
+        : null;
 
     const renderThemeBackground = () => {
         switch (activeTheme) {
-            case "color-bends":
+            case "color-bends": {
+                const config = backgroundThemes["color-bends"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["color-bends"];
                 return (
                     <ColorBends
                         className="absolute inset-0 pointer-events-none"
-                        colors={[primaryColor || "#ff5c7a", "#8a5cff", "#00ffd1"]}
+                        colors={config.colors}
                         rotation={0}
-                        speed={0.2}
-                        scale={1}
-                        frequency={1}
-                        warpStrength={1}
+                        speed={config.speed}
+                        scale={config.scale}
+                        frequency={config.frequency}
+                        warpStrength={config.warpStrength}
                         mouseInfluence={1}
                         parallax={0.5}
-                        noise={0.1}
+                        noise={config.noise}
                         transparent
                         autoRotate={0}
                         color=""
                     />
                 );
+            }
 
-            case "light-pillar":
+            case "light-pillar": {
+                const config = backgroundThemes["light-pillar"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["light-pillar"];
                 return (
                     <LightPillar
                         className="absolute inset-0 pointer-events-none"
-                        topColor="#6ea8ff"
-                        bottomColor="#f6b5ff"
-                        intensity={1.05}
-                        rotationSpeed={0.28}
+                        topColor={config.topColor}
+                        bottomColor={config.bottomColor}
+                        intensity={config.intensity}
+                        rotationSpeed={config.rotationSpeed}
                         interactive={false}
-                        glowAmount={0.006}
-                        pillarWidth={3.0}
-                        pillarHeight={0.42}
-                        noiseIntensity={0.45}
+                        glowAmount={config.glowAmount}
+                        pillarWidth={config.pillarWidth}
+                        pillarHeight={config.pillarHeight}
+                        noiseIntensity={config.noiseIntensity}
                         mixBlendMode="screen"
-                        quality="medium"
+                        quality={config.quality}
                     />
                 );
+            }
 
-            case "silk":
+            case "silk": {
+                const config = backgroundThemes.silk ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.silk;
                 return (
                     <div className="absolute inset-0 pointer-events-none">
-                        <Silk speed={4.2} scale={1.05} color="#8d86c9" noiseIntensity={1.35} rotation={0.2} />
+                        <Silk speed={config.speed} scale={config.scale} color={config.color} noiseIntensity={config.noiseIntensity} rotation={config.rotation} />
                     </div>
                 );
+            }
 
-            case "floating-lines":
+            case "floating-lines": {
+                const config = backgroundThemes["floating-lines"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["floating-lines"];
                 return (
                     <div className="absolute inset-0 pointer-events-none">
                         <FloatingLines
-                            linesGradient={["#7ab8ff", "#b899ff", "#f8fbff"]}
+                            linesGradient={config.linesGradient}
                             enabledWaves={["top", "middle", "bottom"]}
-                            lineCount={[7, 8, 6]}
-                            lineDistance={[6, 5, 4]}
-                            animationSpeed={0.9}
+                            lineCount={config.lineCount}
+                            lineDistance={config.lineDistance}
+                            animationSpeed={config.animationSpeed}
                             interactive={false}
-                            parallax={false}
+                            parallax={config.parallax}
                             mixBlendMode="screen"
                         />
                     </div>
                 );
+            }
 
-            case "aurora":
+            case "aurora": {
+                const config = backgroundThemes.aurora ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.aurora;
                 return (
                     <div className="absolute inset-0 pointer-events-none">
                         <Aurora
-                            colorStops={["#4c6fff", "#35d6c7", "#8a7bff"]}
-                            amplitude={1.1}
-                            blend={0.55}
-                            speed={0.65}
+                            colorStops={config.colorStops}
+                            amplitude={config.amplitude}
+                            blend={config.blend}
+                            speed={config.speed}
                         />
                     </div>
                 );
+            }
 
-            case "particles":
+            case "particles": {
+                const config = backgroundThemes.particles ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles;
                 return (
                     <div className="absolute inset-0 pointer-events-none">
                         <Particles
-                            particleCount={260}
-                            particleSpread={10}
-                            speed={0.12}
-                            particleColors={["#c5ddff", "#ffffff", "#bfc8ff"]}
+                            particleCount={config.particleCount}
+                            particleSpread={config.particleSpread}
+                            speed={config.speed}
+                            particleColors={config.particleColors}
                             moveParticlesOnHover={false}
                             alphaParticles
-                            particleBaseSize={110}
-                            sizeRandomness={0.8}
-                            cameraDistance={20}
+                            particleBaseSize={config.particleBaseSize}
+                            sizeRandomness={config.sizeRandomness}
+                            cameraDistance={config.cameraDistance}
                             disableRotation={false}
                             pixelRatio={1}
                         />
                     </div>
                 );
+            }
 
-            case "prismatic-burst":
+            case "prismatic-burst": {
+                const config = backgroundThemes["prismatic-burst"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"];
                 return (
                     <div className="absolute inset-0 pointer-events-none">
                         <PrismaticBurst
-                            intensity={1.7}
-                            speed={0.45}
-                            animationType="rotate3d"
-                            colors={["#86a9ff", "#66e5d6", "#d2b4ff", "#f0f6ff"]}
-                            distort={7}
-                            hoverDampness={0.35}
-                            rayCount={16}
+                            intensity={config.intensity}
+                            speed={config.speed}
+                            animationType={config.animationType}
+                            colors={config.colors}
+                            distort={config.distort}
+                            hoverDampness={config.hoverDampness}
+                            rayCount={config.rayCount}
                             mixBlendMode="screen"
                         />
                     </div>
                 );
+            }
 
             default:
                 return null;

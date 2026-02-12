@@ -13,6 +13,7 @@ import {
 } from "../base/selectionStyles";
 import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/platform/state/core/itemTypes";
+import AppSurface from "@/components/AppSurface";
 
 interface FolderItemProps {
     item: FolderItemType;
@@ -124,15 +125,15 @@ export function FolderItem({
         onEdit(item);
     };
 
-    const handleClick = (e: React.MouseEvent) => {
+    const handleClick = (event?: React.MouseEvent | React.KeyboardEvent) => {
         if (isOverlay) {
-            e.preventDefault();
+            event?.preventDefault();
             return;
         }
 
         // Folder logic: In editing mode, folders are NOT selectable.
         // Clicking them will still open the folder preview.
-        e.preventDefault();
+        event?.preventDefault();
         if (onClick) {
             onClick(item);
         }
@@ -191,18 +192,28 @@ export function FolderItem({
                 editLabel={t("edit")}
                 deleteLabel={t("remove")}
             >
-                <ItemIcon
+                <div
                     onClick={handleClick}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            handleClick(event);
+                        }
+                    }}
                     className={cn(
-                        "relative flex items-center justify-center w-14 h-14 rounded-2xl border border-white/35 dark:border-white/15",
-                        "bg-white/16 dark:bg-black/25 backdrop-blur-xl shadow-[0_10px_24px_rgba(8,24,48,0.24)] hover:shadow-[0_14px_30px_rgba(8,24,48,0.32)] transition-all duration-200",
-                        isEditing ? "cursor-pointer" : "cursor-pointer",
+                        "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl",
+                        "cursor-pointer shadow-[0_10px_24px_rgba(8,24,48,0.24)] transition-all duration-200 hover:shadow-[0_14px_30px_rgba(8,24,48,0.32)]",
                         isOverlay && "cursor-grabbing shadow-2xl",
                         ITEM_INTERACTION_ANIMATION_CLASS,
                         ITEM_HOVER_SCALE_CLASS,
                         isSelected && ITEM_SELECTED_SCALE_CLASS
                     )}
                 >
+                    <div className="pointer-events-none absolute inset-0">
+                        <AppSurface variant="widget" className="h-full w-full rounded-2xl" />
+                    </div>
                     <div className="relative z-10 w-11 h-11 grid grid-cols-2 grid-rows-2 gap-[4px] p-[2px]">
                         {[0, 1, 2, 3].map((index) => (
                             <div
@@ -216,7 +227,7 @@ export function FolderItem({
                             </div>
                         ))}
                     </div>
-                </ItemIcon>
+                </div>
             </ItemActionMenu>
 
             <span className="text-xs text-center font-medium truncate w-full max-w-[80px] drop-shadow-md text-white select-none">

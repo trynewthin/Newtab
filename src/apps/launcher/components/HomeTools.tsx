@@ -4,7 +4,7 @@ import { Edit2, FolderPlus, Trash2, Settings, Plus, LayoutGrid } from "lucide-re
 import { cn } from "@/platform/core/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import GlassSurface from "@/components/GlassSurface";
+import AppSurface from "@/components/AppSurface";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -40,15 +40,7 @@ export function HomeTools() {
     const neutralToolButtonClass = "p-2.5 glass-button rounded-xl border border-black/10 dark:border-white/20 text-black/85 hover:text-black dark:text-white/90 dark:hover:text-white active:scale-95";
 
     return (
-        <GlassSurface
-            width="auto"
-            height="auto"
-            borderRadius={28}
-            blur={10}
-            backgroundOpacity={0.14}
-            saturation={1.2}
-            className="pointer-events-auto"
-        >
+        <AppSurface variant="toolbar" width="auto" height="auto" className="pointer-events-auto">
             <div className="group flex items-center gap-3 px-2 py-1.5">
                 {/* 鎵归噺鎿嶄綔鎸夐挳缁?*/}
                 {isEditing && selectedTagIds.length > 0 && (
@@ -139,7 +131,7 @@ export function HomeTools() {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-        </GlassSurface>
+        </AppSurface>
     );
 }
 

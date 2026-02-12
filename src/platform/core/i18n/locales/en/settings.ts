@@ -2,7 +2,7 @@ export const settings = {
     general: "General",
     features: "Features",
     general_settings: "General",
-    general_settings_desc: "Manage system theme, language, search engine, and data.",
+    general_settings_desc: "Manage language, search engine, and data.",
     theme_mode: "Theme Mode",
     theme_mode_desc: "Select light, dark, or system theme.",
     light: "Light",

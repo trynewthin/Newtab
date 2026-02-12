@@ -3,7 +3,7 @@ import { cn } from "@/platform/core/utils";
 import type { LauncherWidgetItem } from "@/platform/state/core/itemTypes";
 import { ItemActionMenu } from "@/apps/launcher/base/ItemActionMenu";
 import { useTranslation } from "react-i18next";
-import GlassSurface from "@/components/GlassSurface";
+import AppSurface from "@/components/AppSurface";
 import {
     type LauncherTilePreset,
     type LauncherTileVariant,
@@ -63,26 +63,9 @@ function WidgetGlassPanel({
     children: React.ReactNode;
 }) {
     return (
-        <GlassSurface
-            width="100%"
-            height="100%"
-            borderRadius={16}
-            backgroundOpacity={0.2}
-            saturation={1.24}
-            brightness={56}
-            opacity={0.94}
-            blur={11}
-            displace={5.0}
-            borderWidth={0.08}
-            distortionScale={-150}
-            redOffset={4}
-            greenOffset={12}
-            blueOffset={22}
-            mixBlendMode="screen"
-            className={cn("h-full w-full", className)}
-        >
+        <AppSurface variant="widget" className={cn("h-full w-full", className)}>
             {children}
-        </GlassSurface>
+        </AppSurface>
     );
 }
 
@@ -677,3 +660,4 @@ export function LauncherWidgetItem({
         </div>
     );
 }
+

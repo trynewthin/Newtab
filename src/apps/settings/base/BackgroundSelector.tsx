@@ -9,12 +9,25 @@ import { BACKGROUND_PRESETS } from "@/apps/settings/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
 import { SettingsSection } from "./SettingComponents";
 import { useRef } from "react";
+import ColorBends from "@/components/ColorBends";
+import LightPillar from "@/components/LightPillar";
+import Silk from "@/components/Silk";
+import FloatingLines from "@/components/FloatingLines";
+import Aurora from "@/components/Aurora";
+import Particles from "@/components/Particles";
+import PrismaticBurst from "@/components/PrismaticBurst";
+import {
+    DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
+    isDynamicBackgroundId,
+} from "@/platform/core/dynamicBackgrounds";
+import { DynamicBackgroundConfigPanel } from "./DynamicBackgroundConfigPanel";
 
 export function BackgroundSelector() {
     const { t } = useTranslation();
     const {
         backgroundConfig,
         setBackgroundConfig,
+        dynamicBackgroundConfig,
         solidColors,
         addSolidColor,
         removeSolidColor
@@ -22,52 +35,185 @@ export function BackgroundSelector() {
 
     const gradientPresets = BACKGROUND_PRESETS.filter(p => p.type === 'gradient');
     const colorInputRef = useRef<HTMLInputElement>(null);
-    const activeThemeId = backgroundConfig.type === 'theme' ? backgroundConfig.value : null;
+    const activeThemeId = backgroundConfig.type === 'theme' && isDynamicBackgroundId(backgroundConfig.value)
+        ? backgroundConfig.value
+        : null;
 
     const themeEffectPresets = [
         {
             id: "color-bends",
             nameKey: "theme_color_bends",
             descriptionKey: "theme_color_bends_desc",
-            preview: "bg-linear-to-br from-rose-400 via-indigo-500 to-cyan-300"
         },
         {
             id: "light-pillar",
             nameKey: "theme_light_pillar",
             descriptionKey: "theme_light_pillar_desc",
-            preview: "bg-linear-to-b from-indigo-300 via-violet-500 to-pink-400"
         },
         {
             id: "silk",
             nameKey: "theme_silk",
             descriptionKey: "theme_silk_desc",
-            preview: "bg-linear-to-br from-slate-700 via-indigo-600 to-zinc-500"
         },
         {
             id: "floating-lines",
             nameKey: "theme_floating_lines",
             descriptionKey: "theme_floating_lines_desc",
-            preview: "bg-linear-to-br from-sky-400 via-blue-600 to-indigo-700"
         },
         {
             id: "aurora",
             nameKey: "theme_aurora",
             descriptionKey: "theme_aurora_desc",
-            preview: "bg-linear-to-br from-violet-500 via-cyan-400 to-emerald-300"
         },
         {
             id: "particles",
             nameKey: "theme_particles",
             descriptionKey: "theme_particles_desc",
-            preview: "bg-linear-to-br from-slate-900 via-blue-900 to-indigo-950"
         },
         {
             id: "prismatic-burst",
             nameKey: "theme_prismatic_burst",
             descriptionKey: "theme_prismatic_burst_desc",
-            preview: "bg-linear-to-br from-fuchsia-500 via-blue-500 to-cyan-300"
         }
     ] as const;
+    const activeThemeMeta = activeThemeId
+        ? themeEffectPresets.find((item) => item.id === activeThemeId) ?? null
+        : null;
+
+    const renderDynamicThemePreview = (themeId: string) => {
+        switch (themeId) {
+            case "color-bends":
+                {
+                    const config = dynamicBackgroundConfig["color-bends"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["color-bends"];
+                return (
+                    <ColorBends
+                        className="absolute inset-0 pointer-events-none"
+                        colors={config.colors}
+                        rotation={0}
+                        speed={config.speed}
+                        scale={config.scale}
+                        frequency={config.frequency}
+                        warpStrength={config.warpStrength}
+                        mouseInfluence={0}
+                        parallax={0}
+                        noise={config.noise}
+                        transparent
+                        autoRotate={0}
+                        color=""
+                    />
+                );
+                }
+
+            case "light-pillar":
+                {
+                    const config = dynamicBackgroundConfig["light-pillar"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["light-pillar"];
+                return (
+                    <LightPillar
+                        className="absolute inset-0 pointer-events-none"
+                        topColor={config.topColor}
+                        bottomColor={config.bottomColor}
+                        intensity={config.intensity}
+                        rotationSpeed={config.rotationSpeed}
+                        interactive={false}
+                        glowAmount={config.glowAmount}
+                        pillarWidth={config.pillarWidth}
+                        pillarHeight={config.pillarHeight}
+                        noiseIntensity={config.noiseIntensity}
+                        mixBlendMode="screen"
+                        quality={config.quality}
+                    />
+                );
+                }
+
+            case "silk":
+                {
+                    const config = dynamicBackgroundConfig.silk ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.silk;
+                return (
+                    <div className="absolute inset-0 pointer-events-none">
+                        <Silk speed={config.speed} scale={config.scale} color={config.color} noiseIntensity={config.noiseIntensity} rotation={config.rotation} />
+                    </div>
+                );
+                }
+
+            case "floating-lines":
+                {
+                    const config = dynamicBackgroundConfig["floating-lines"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["floating-lines"];
+                return (
+                    <div className="absolute inset-0 pointer-events-none">
+                        <FloatingLines
+                            linesGradient={config.linesGradient}
+                            enabledWaves={["top", "middle", "bottom"]}
+                            lineCount={config.lineCount}
+                            lineDistance={config.lineDistance}
+                            animationSpeed={config.animationSpeed}
+                            interactive={false}
+                            parallax={config.parallax}
+                            mixBlendMode="screen"
+                        />
+                    </div>
+                );
+                }
+
+            case "aurora":
+                {
+                    const config = dynamicBackgroundConfig.aurora ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.aurora;
+                return (
+                    <div className="absolute inset-0 pointer-events-none">
+                        <Aurora
+                            colorStops={config.colorStops}
+                            amplitude={config.amplitude}
+                            blend={config.blend}
+                            speed={config.speed}
+                        />
+                    </div>
+                );
+                }
+
+            case "particles":
+                {
+                    const config = dynamicBackgroundConfig.particles ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles;
+                return (
+                    <div className="absolute inset-0 pointer-events-none">
+                        <Particles
+                            particleCount={config.particleCount}
+                            particleSpread={config.particleSpread}
+                            speed={config.speed}
+                            particleColors={config.particleColors}
+                            moveParticlesOnHover={false}
+                            alphaParticles
+                            particleBaseSize={config.particleBaseSize}
+                            sizeRandomness={config.sizeRandomness}
+                            cameraDistance={config.cameraDistance}
+                            disableRotation={false}
+                            pixelRatio={1}
+                        />
+                    </div>
+                );
+                }
+
+            case "prismatic-burst":
+                {
+                    const config = dynamicBackgroundConfig["prismatic-burst"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"];
+                return (
+                    <div className="absolute inset-0 pointer-events-none">
+                        <PrismaticBurst
+                            intensity={config.intensity}
+                            speed={config.speed}
+                            animationType={config.animationType}
+                            colors={config.colors}
+                            distort={config.distort}
+                            hoverDampness={config.hoverDampness}
+                            rayCount={config.rayCount}
+                            mixBlendMode="screen"
+                        />
+                    </div>
+                );
+                }
+
+            default:
+                return null;
+        }
+    };
 
     const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const color = e.target.value;
@@ -96,8 +242,8 @@ export function BackgroundSelector() {
             <SettingsSection
                 icon={Sparkles}
                 iconColor="text-cyan-500"
-                title={t("theme_effects")}
-                description={t("theme_effects_desc")}
+                title={t("dynamic_backgrounds")}
+                description={t("dynamic_backgrounds_desc")}
             >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {themeEffectPresets.map((theme) => (
@@ -105,14 +251,17 @@ export function BackgroundSelector() {
                             key={theme.id}
                             onClick={() => setBackgroundConfig({ type: 'theme', value: theme.id })}
                             className={cn(
-                                "group relative w-full h-20 rounded-2xl overflow-hidden transition-all duration-500 border",
+                                "group relative w-full h-24 rounded-2xl overflow-hidden transition-all duration-500 border",
                                 activeThemeId === theme.id
                                     ? "ring-2 ring-primary ring-offset-2 ring-offset-background/10 scale-[0.99] shadow-xl shadow-primary/20 border-primary/40"
                                     : "border-border/30 hover:border-primary/50 hover:scale-[1.01] active:scale-[0.99]"
                             )}
                         >
-                            <div className={cn("absolute inset-0 opacity-90 transition-transform duration-700 group-hover:scale-105", theme.preview)} />
-                            <div className="absolute inset-0 bg-black/20" />
+                            <div className="absolute inset-0 pointer-events-none">
+                                <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
+                                {renderDynamicThemePreview(theme.id)}
+                            </div>
+                            <div className="absolute inset-0 bg-black/28" />
                             <div className="relative z-10 h-full flex items-center justify-between px-4">
                                 <div className="text-left text-white">
                                     <div className="text-xs font-bold tracking-wider uppercase">{t(theme.nameKey)}</div>
@@ -127,6 +276,31 @@ export function BackgroundSelector() {
                         </button>
                     ))}
                 </div>
+                {activeThemeId ? (
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+                        <div className="lg:sticky lg:top-2 lg:self-start">
+                            <div className="rounded-2xl border border-border/65 bg-background/82 p-2.5">
+                                <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">
+                                    {t("live_preview")}
+                                </div>
+                                <div className="relative h-52 overflow-hidden rounded-xl border border-border/60">
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
+                                        {renderDynamicThemePreview(activeThemeId)}
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/25" />
+                                    {activeThemeMeta ? (
+                                        <div className="absolute bottom-0 left-0 right-0 z-10 bg-linear-to-t from-black/65 to-transparent px-3 py-2 text-white">
+                                            <div className="text-[11px] font-bold uppercase tracking-[0.14em]">{t(activeThemeMeta.nameKey)}</div>
+                                            <div className="text-[11px] text-white/80">{t(activeThemeMeta.descriptionKey)}</div>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        </div>
+                        <DynamicBackgroundConfigPanel backgroundId={activeThemeId} />
+                    </div>
+                ) : null}
             </SettingsSection>
 
             {/* 1. Custom Image Upload */}

@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { SidebarHeader } from "@/platform/shared/components";
 import { SettingsSection, SettingsItem, SettingsActionButtons } from "../base/SettingComponents";
-import { Settings as SettingsIcon, Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
+import { Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/platform/shared/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SEARCH_ENGINES, APP_METADATA } from "@/platform/core/constants";
 import { Input } from "@/platform/shared/ui/input";
 import { Button } from "@/platform/shared/ui/button";
@@ -18,26 +18,12 @@ interface GeneralSettingsProps {
 export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsProps) {
     const { t, i18n } = useTranslation();
     const {
-        theme,
-        setTheme,
         searchEngine,
         setSearchEngine,
         customSearchEngines,
         addCustomSearchEngine,
         removeCustomSearchEngine
     } = useSettingsStore();
-
-    // Side effect to update DOM when theme changes in store
-    useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark");
-        if (theme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-            root.classList.add(systemTheme);
-        } else {
-            root.classList.add(theme);
-        }
-    }, [theme]);
 
     const handleExportData = async () => {
         try {
@@ -94,13 +80,6 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
         input.click();
     };
 
-    // Theme options with display names
-    const themeOptions = {
-        light: t('light'),
-        dark: t('dark'),
-        system: t('system')
-    };
-
     // Language options with display names
     const languageOptions = {
         zh: t('language_name_zh'),
@@ -139,29 +118,6 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <div className="mx-auto max-w-3xl space-y-6 p-5 pb-16">
-                    {/* System Preference - Theme Section */}
-                    <SettingsSection
-                        icon={SettingsIcon}
-                        iconColor="text-blue-500"
-                        title={t('theme_mode')}
-                        description={t('theme_mode_desc')}
-                    >
-                        <SettingsItem label={t('theme_mode')}>
-                            <Select value={theme} onValueChange={(value) => setTheme(value as any)}>
-                                <SelectTrigger className="h-9 w-[180px] rounded-xl border-border/70 bg-background/85">
-                                    <SelectValue>
-                                        {themeOptions[theme as keyof typeof themeOptions]}
-                                    </SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="light">{t('light')}</SelectItem>
-                                    <SelectItem value="dark">{t('dark')}</SelectItem>
-                                    <SelectItem value="system">{t('system')}</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </SettingsItem>
-                    </SettingsSection>
-
                     {/* Search Engine Section */}
                     <SettingsSection
                         icon={Search}

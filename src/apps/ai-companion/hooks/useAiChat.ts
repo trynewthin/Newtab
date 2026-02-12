@@ -92,20 +92,29 @@ export function useAiChat() {
                 if (stopSignalRef.current) break;
                 const msg = data.choices?.[0]?.message;
                 if (!msg) break;
+                const toolCalls = Array.isArray(msg.tool_calls)
+                    ? msg.tool_calls.filter(Boolean)
+                    : [];
+                const hasToolCalls = toolCalls.length > 0;
 
                 await addMessage({
                     role: 'assistant',
                     content: msg.content || '',
-                    tool_calls: msg.tool_calls,
-                    isIntermediate: !!msg.tool_calls
+                    tool_calls: hasToolCalls ? toolCalls : undefined,
+                    isIntermediate: hasToolCalls
                 });
 
-                if (!msg.tool_calls) break;
+                if (!hasToolCalls) break;
 
-                for (const tool of msg.tool_calls) {
+                for (const tool of toolCalls) {
                     if (stopSignalRef.current) break;
                     const toolName = tool.function.name;
-                    const toolArgs = JSON.parse(tool.function.arguments);
+                    let toolArgs: any = {};
+                    try {
+                        toolArgs = tool.function.arguments ? JSON.parse(tool.function.arguments) : {};
+                    } catch {
+                        toolArgs = {};
+                    }
 
                     const toolMsgId = await addMessage({
                         role: 'tool',

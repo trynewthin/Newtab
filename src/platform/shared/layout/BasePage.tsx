@@ -75,8 +75,8 @@ export function BasePage({ children, className, tools, ...props }: BasePageProps
                 >
                     <div
                         className={cn(
-                            "transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                            toolbarVisible ? "translate-y-0 opacity-100" : "-translate-y-[120%] opacity-0"
+                            "will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                            toolbarVisible ? "translate-y-0" : "-translate-y-[120%]"
                         )}
                         onMouseEnter={() => setIsToolbarHovered(true)}
                         onMouseLeave={() => setIsToolbarHovered(false)}

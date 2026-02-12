@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useId } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useId } from 'react';
 
 export interface GlassSurfaceProps {
   children?: React.ReactNode;
@@ -58,6 +58,31 @@ const useDarkMode = () => {
   return isDark;
 };
 
+let cachedSvgFilterSupport: boolean | null = null;
+
+function detectSvgFilterSupport(filterId: string): boolean {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return false;
+  }
+
+  if (cachedSvgFilterSupport !== null) {
+    return cachedSvgFilterSupport;
+  }
+
+  const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+  const isFirefox = /Firefox/.test(navigator.userAgent);
+
+  if (isWebkit || isFirefox) {
+    cachedSvgFilterSupport = false;
+    return cachedSvgFilterSupport;
+  }
+
+  const div = document.createElement('div');
+  div.style.backdropFilter = `url(#${filterId})`;
+  cachedSvgFilterSupport = div.style.backdropFilter !== '';
+  return cachedSvgFilterSupport;
+}
+
 const GlassSurface: React.FC<GlassSurfaceProps> = ({
   children,
   width = 200,
@@ -85,7 +110,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   const redGradId = `red-grad-${uniqueId}`;
   const blueGradId = `blue-grad-${uniqueId}`;
 
-  const [svgSupported, setSvgSupported] = useState<boolean>(false);
+  const [svgSupported] = useState<boolean>(() => detectSvgFilterSupport(filterId));
 
   const containerRef = useRef<HTMLDivElement>(null);
   const feImageRef = useRef<SVGFEImageElement>(null);
@@ -96,10 +121,14 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
 
   const isDarkMode = useDarkMode();
 
-  const generateDisplacementMap = () => {
+  const generateDisplacementMap = (forcedWidth?: number, forcedHeight?: number) => {
     const rect = containerRef.current?.getBoundingClientRect();
-    const actualWidth = rect?.width || 400;
-    const actualHeight = rect?.height || 200;
+    const fallbackWidth =
+      typeof width === 'number' && Number.isFinite(width) ? width : 400;
+    const fallbackHeight =
+      typeof height === 'number' && Number.isFinite(height) ? height : 200;
+    const actualWidth = forcedWidth ?? rect?.width ?? fallbackWidth;
+    const actualHeight = forcedHeight ?? rect?.height ?? fallbackHeight;
     const edgeSize = Math.min(actualWidth, actualHeight) * (borderWidth * 0.5);
 
     const svgContent = `
@@ -123,6 +152,23 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
 
     return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
   };
+
+  const initialDisplacementMap = useMemo(() => {
+    const initialWidth =
+      typeof width === 'number' && Number.isFinite(width) ? width : 400;
+    const initialHeight =
+      typeof height === 'number' && Number.isFinite(height) ? height : 200;
+    return generateDisplacementMap(initialWidth, initialHeight);
+  }, [
+    width,
+    height,
+    borderRadius,
+    borderWidth,
+    brightness,
+    opacity,
+    blur,
+    mixBlendMode
+  ]);
 
   const updateDisplacementMap = () => {
     feImageRef.current?.setAttribute('href', generateDisplacementMap());
@@ -162,24 +208,6 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   ]);
 
   useEffect(() => {
-    setSvgSupported(supportsSVGFilters());
-  }, []);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      setTimeout(updateDisplacementMap, 0);
-    });
-
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
     if (!containerRef.current) return;
 
     const resizeObserver = new ResizeObserver(() => {
@@ -196,24 +224,6 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   useEffect(() => {
     setTimeout(updateDisplacementMap, 0);
   }, [width, height]);
-
-  const supportsSVGFilters = () => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') {
-      return false;
-    }
-
-    const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-    const isFirefox = /Firefox/.test(navigator.userAgent);
-
-    if (isWebkit || isFirefox) {
-      return false;
-    }
-
-    const div = document.createElement('div');
-    div.style.backdropFilter = `url(#${filterId})`;
-
-    return div.style.backdropFilter !== '';
-  };
 
   const supportsBackdropFilter = () => {
     if (typeof window === 'undefined') return false;
@@ -321,7 +331,16 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
       >
         <defs>
           <filter id={filterId} colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
-            <feImage ref={feImageRef} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
+            <feImage
+              ref={feImageRef}
+              href={initialDisplacementMap}
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              preserveAspectRatio="none"
+              result="map"
+            />
 
             <feDisplacementMap ref={redChannelRef} in="SourceGraphic" in2="map" id="redchannel" result="dispRed" />
             <feColorMatrix

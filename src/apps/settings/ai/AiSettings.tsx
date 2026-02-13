@@ -37,7 +37,6 @@ export function AiSettings({ onOpenMobileMenu, onClose }: AiSettingsProps) {
                     ]}
                     activeId={activeTab}
                     onActiveChange={(id) => setActiveTab(id as 'config' | 'preferences')}
-                    variant="solid"
                 />
             </SidebarHeader>
 

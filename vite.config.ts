@@ -2,15 +2,16 @@ import path from "path"
 import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-
-import { crx } from "@crxjs/vite-plugin"
-import manifest from "./manifest.json"
+import webExtension from "vite-plugin-web-extension"
 
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    crx({ manifest }),
+    webExtension({
+      manifest: "manifest.json",
+      additionalInputs: ["popup.html"],
+    }),
   ],
   resolve: {
     alias: {

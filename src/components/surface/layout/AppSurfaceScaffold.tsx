@@ -93,7 +93,7 @@ export function AppSurfaceScaffold({
                 className={className}
                 background={background}
                 content={
-                    <div className="h-full w-full pt-14">
+                    <div className="h-full w-full">
                         {content}
                     </div>
                 }

@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/platform/shared/components";
+import { SidebarHeader } from "@/components/modal";
 import { SettingsSection, SettingsItem, SettingsActionButtons } from "../base/SettingComponents";
 import { Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
 import { useState } from "react";
-import { SEARCH_ENGINES, APP_METADATA } from "@/platform/core/constants";
+import { SEARCH_ENGINES, APP_METADATA } from "@/core/constants";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { persistenceManager } from "@/platform/state/persistence/manager";
+import { persistenceManager } from "@/state/persistence/manager";
 
 interface GeneralSettingsProps {
     onOpenMobileMenu?: () => void;

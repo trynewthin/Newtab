@@ -1,4 +1,4 @@
-import type { GridItem } from "@/platform/state/core/itemTypes";
+import type { GridItem } from "@/state/core/itemTypes";
 import { getAppLauncherLayoutConfig, isSystemAppId } from "@/apps/launcher/system/appManifest";
 import { getWidgetManifestItem } from "@/apps/launcher/widget";
 

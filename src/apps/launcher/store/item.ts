@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createPersistConfig } from '@/platform/state/core/storage';
-import { backgroundStorage } from '@/platform/state/core/backgroundStorage';
+import { createPersistConfig } from '@/state/core/storage';
+import { backgroundStorage } from '@/state/core/backgroundStorage';
 import type {
     GridItem,
     WebTagItem,
     SystemAppItem,
     FolderItem,
     LauncherWidgetItem,
-} from '@/platform/state/core/itemTypes';
+} from '@/state/core/itemTypes';
 import { SYSTEM_ITEMS } from '@/apps/launcher';
 import { getWidgetManifestItem, isSystemWidgetId, resolveLegacyWidgetId } from '@/apps/launcher/widget';
 import { GRID_ITEM_PRESETS } from '@/apps/launcher/grid/layoutPresets';

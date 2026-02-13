@@ -1,4 +1,4 @@
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 

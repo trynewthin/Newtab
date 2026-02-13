@@ -3,7 +3,7 @@ import type {
     WebTagItem,
     FolderItem as FolderItemType,
     LauncherWidgetItem,
-} from "@/platform/state/core/itemTypes";
+} from "@/state/core/itemTypes";
 import { isSystemAppId } from "@/apps/launcher/system/appManifest";
 import { preloadModalRuntime } from "@/apps/launcher/system/appRuntimeRegistry";
 import { LauncherWidgetItem as LauncherWidgetRenderer } from "@/apps/launcher/widget";

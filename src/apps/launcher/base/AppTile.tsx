@@ -1,6 +1,6 @@
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { Check } from "lucide-react";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ItemIcon } from "./ItemIcon";

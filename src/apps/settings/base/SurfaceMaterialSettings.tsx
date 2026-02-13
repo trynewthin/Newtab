@@ -11,7 +11,7 @@ import {
     type AppSurfaceTone,
     type DistortionGlassMaterialConfig,
     type FluidGlassMaterialConfig,
-} from "@/platform/core/surfaceMaterials";
+} from "@/core/surfaceMaterials";
 
 function NumberSlider({
     value,

@@ -1,5 +1,5 @@
 import { useItemStore } from "@/apps/launcher/store/item";
-import { type GridItem as GridItemType, type FolderItem, type WebTagItem, type SystemAppItem } from "@/platform/state/core/itemTypes";
+import { type GridItem as GridItemType, type FolderItem, type WebTagItem, type SystemAppItem } from "@/state/core/itemTypes";
 import { GridItem } from "../grid/GridItem";
 import {
     DndContext,
@@ -22,10 +22,10 @@ import {
 } from "@dnd-kit/sortable";
 import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { ShortcutDialog } from "../dialogs/ShortcutDialog";
-import AppSurface from "@/platform/shared/components/surface/AppSurface";
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
+import AppSurface from "@/shared/components/surface/AppSurface";
+import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)
 let lastClickPos = {

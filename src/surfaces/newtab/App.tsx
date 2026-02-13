@@ -1,4 +1,4 @@
-import { useStorageConnection } from "@/platform/state/persistence/sync";
+import { useStorageConnection } from "@/state/persistence/sync";
 import { AppRouter } from "./AppRouter";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { FloatLayer } from "./layers/FloatLayer";
@@ -6,8 +6,8 @@ import { ModalLayer } from "./layers/ModalLayer";
 import { Toaster } from "@/components/ui/sonner";
 import { HashRouter } from "react-router-dom";
 import { useUIStore } from "@/apps/launcher/store/ui";
-import { cn } from "@/platform/core/utils";
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
+import { cn } from "@/core/utils";
+import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 export function App() {
     // 监听 LocalStorage 变化并同步状态 (解决 Popup 修改后 Newtab 不刷新问题)

@@ -1,4 +1,4 @@
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 
 interface BaseGridTileProps {
     isEditing: boolean;

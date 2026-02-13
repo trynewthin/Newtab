@@ -1,10 +1,10 @@
 import * as React from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 
-import { cn } from "@/platform/core/utils"
+import { cn } from "@/core/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { UnfoldMoreIcon, Tick02Icon, ArrowUp01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons"
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex"
+import { LAYER_Z_INDEX } from "@/core/layerZIndex"
 
 const Select = SelectPrimitive.Root
 

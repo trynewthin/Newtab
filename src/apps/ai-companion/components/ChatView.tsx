@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { MessageRenderer } from "./MessageRenderer";
 import type { Message, ModelConfig } from "@/apps/ai-companion";
 import { Sparkles } from "lucide-react";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { useTranslation } from "react-i18next";
 
 interface ChatViewProps {

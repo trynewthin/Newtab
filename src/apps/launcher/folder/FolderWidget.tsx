@@ -2,15 +2,15 @@ import { useUIStore } from "@/apps/launcher/store/ui";
 import { useItemStore } from "@/apps/launcher/store/item";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ItemIcon } from "../base/ItemIcon";
 import { ItemActionMenu } from "../base/ItemActionMenu";
 import { ITEM_INTERACTION_ANIMATION_CLASS } from "../base/selectionStyles";
-import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
-import type { FolderItem as FolderItemType, GridItem } from "@/platform/state/core/itemTypes";
-import AppSurface from "@/platform/shared/components/surface/AppSurface";
+import { backgroundStorage } from "@/state/core/backgroundStorage";
+import type { FolderItem as FolderItemType, GridItem } from "@/state/core/itemTypes";
+import AppSurface from "@/shared/components/surface/AppSurface";
 import { Minimize2 } from "lucide-react";
 
 interface FolderWidgetProps {

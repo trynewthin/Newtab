@@ -4,14 +4,14 @@
  */
 
 import { motion } from "framer-motion";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { ExternalLink, Globe, Sparkles, AlertCircle, Brain, ChevronDown } from "lucide-react";
 import type { SearchResultCard, AiSearchStatus } from "../types";
 import { extractDomain, getFaviconUrl } from "../types";
 import ReactMarkdown from "react-markdown";
 import { useTranslation } from "react-i18next";
 import { AiArtifactRenderer, type ArtifactData } from "./AiArtifactRenderer";
-import AppSurface from "@/platform/shared/components/surface/AppSurface";
+import AppSurface from "@/shared/components/surface/AppSurface";
 
 interface AiSearchResultsProps {
     status: AiSearchStatus;

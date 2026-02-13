@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { AppPanel } from "@/platform/shared/components/modal/AppPanel";
-import { ModalButton } from "@/platform/shared/components";
-import type { WebTagItem } from "@/platform/state/core/itemTypes";
+import { AppPanel } from "@/components/modal/AppPanel";
+import { ModalButton } from "@/components/modal";
+import type { WebTagItem } from "@/state/core/itemTypes";
 import { useTranslation } from "react-i18next";
 import { useItemStore } from "@/apps/launcher/store/item";
 import { TagConfigForm, type TagConfigData } from "./TagConfigForm";

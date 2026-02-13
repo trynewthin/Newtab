@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import type { CSSProperties, PropsWithChildren } from 'react';
 import * as math from 'mathjs';
-import { LAYER_Z_INDEX } from '@/platform/core/layerZIndex';
+import { LAYER_Z_INDEX } from '@/core/layerZIndex';
 
 type GradualBlurProps = PropsWithChildren<{
   position?: 'top' | 'bottom' | 'left' | 'right';

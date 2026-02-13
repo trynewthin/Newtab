@@ -1,16 +1,16 @@
 import { useEffect, useRef } from "react";
 import { SearchBar } from "@/apps/search/components/SearchBar";
-import { BasePage } from "@/platform/shared/layout";
+import { BasePage } from "@/shared/layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { StopCircle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAiSearch } from "@/apps/ai-search/hooks/useAiSearch";
 import { AiSearchResults } from "@/apps/ai-search/components/AiSearchResults";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { useTranslation } from "react-i18next";
 import GradualBlur from "@/components/GradualBlur";
-import AppSurface from "@/platform/shared/components/surface/AppSurface";
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
+import AppSurface from "@/shared/components/surface/AppSurface";
+import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 export function AiSearchView() {
     const { t } = useTranslation();

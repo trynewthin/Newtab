@@ -1,5 +1,5 @@
 import { useSettingsStore } from "@/apps/settings/store";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { Check, Upload, Plus, Image as ImageIcon, Palette, Droplet, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import PrismaticBurst from "@/components/PrismaticBurst";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     isDynamicBackgroundId,
-} from "@/platform/core/dynamicBackgrounds";
+} from "@/core/dynamicBackgrounds";
 import { DynamicBackgroundConfigPanel } from "./DynamicBackgroundConfigPanel";
 
 export function BackgroundSelector() {

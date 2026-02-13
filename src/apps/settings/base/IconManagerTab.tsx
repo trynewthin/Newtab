@@ -1,5 +1,5 @@
 import { useItemStore } from "@/apps/launcher/store/item";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { SYSTEM_ITEMS, ItemIcon } from "@/apps/launcher";
 
 import { Plus, Check } from "lucide-react";

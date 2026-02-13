@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { useItemStore } from "@/apps/launcher/store/item";
 import { useUIStore } from "@/apps/launcher/store/ui";
-import type { GridItem as GridItemType } from "@/platform/state/core/itemTypes";
+import type { GridItem as GridItemType } from "@/state/core/itemTypes";
 import { LauncherGridItemSurface } from "./components/LauncherGridItemSurface";
 
 import { ShortcutDialog } from "../dialogs/ShortcutDialog";
@@ -11,7 +11,7 @@ import { resolveWidgetLaunchAppId } from "@/apps/launcher/widget";
 
 import { FolderPreview } from "../folder/FolderPreview";
 import GradualBlur from "@/components/GradualBlur";
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
+import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 import { useTranslation } from "react-i18next";
 import GridLayout, { noCompactor, useContainerWidth, type Layout, type LayoutItem } from "react-grid-layout";

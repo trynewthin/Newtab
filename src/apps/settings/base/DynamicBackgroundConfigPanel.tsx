@@ -10,7 +10,7 @@ import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     type DynamicBackgroundId,
     type DynamicBackgroundConfigMap,
-} from "@/platform/core/dynamicBackgrounds";
+} from "@/core/dynamicBackgrounds";
 
 interface DynamicBackgroundConfigPanelProps {
     backgroundId: DynamicBackgroundId;

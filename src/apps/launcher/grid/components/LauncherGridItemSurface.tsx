@@ -1,4 +1,4 @@
-import type { GridItem as GridItemType } from "@/platform/state/core/itemTypes";
+import type { GridItem as GridItemType } from "@/state/core/itemTypes";
 import { GridItem } from "@/apps/launcher/grid/GridItem";
 import { getItemLayoutCapability } from "../layoutPresets";
 import { IconGridTile } from "./IconGridTile";

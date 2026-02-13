@@ -4,10 +4,10 @@ import { useSettingsStore } from "@/apps/settings/store";
 import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/apps/launcher";
 
-import { type GridItem } from "@/platform/state/core/itemTypes";
+import { type GridItem } from "@/state/core/itemTypes";
 import { useTranslation } from "react-i18next";
-import { useStorageConnection } from "@/platform/state/persistence/sync";
-import "@/platform/core/i18n/i18n";
+import { useStorageConnection } from "@/state/persistence/sync";
+import "@/core/i18n/i18n";
 
 export default function Popup() {
     const { t } = useTranslation();

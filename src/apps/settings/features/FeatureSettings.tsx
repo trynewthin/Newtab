@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/platform/shared/components";
+import { SidebarHeader } from "@/components/modal";
 import { SettingsSection } from "@/apps/settings/base/SettingComponents";
 import { IconManagerTab } from "@/apps/settings/base/IconManagerTab";
 import { Box } from "lucide-react";

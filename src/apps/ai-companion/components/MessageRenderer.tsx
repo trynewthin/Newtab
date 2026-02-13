@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Check, Copy, CheckCheck, Brain } from "lucide-react";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { useAiStore, type Message, type ModelConfig } from "@/apps/ai-companion";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

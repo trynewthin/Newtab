@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppModal, Sidebar, SidebarItem, usePersistedSidebarCollapsed } from "@/platform/shared/components";
+import { AppModal, Sidebar, SidebarItem, usePersistedSidebarCollapsed } from "@/components/modal";
 import { Settings, Palette, Bot, Sparkles, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GeneralSettings } from "./general/GeneralSettings";

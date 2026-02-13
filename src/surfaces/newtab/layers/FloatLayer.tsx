@@ -1,7 +1,7 @@
 import { SearchBar } from "@/apps/search/components/SearchBar";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
+import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 export function FloatLayer() {
     const location = useLocation();

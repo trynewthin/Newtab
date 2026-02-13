@@ -1,21 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createPersistConfig } from '@/platform/state/core/storage';
-import type { BackgroundConfig } from '@/platform/state/core/types';
+import { createPersistConfig } from '@/state/core/storage';
+import type { BackgroundConfig } from '@/state/core/types';
 import {
     type AppSurfaceMaterial,
     type AppSurfaceTone,
     type AppSurfaceMaterialConfigMap,
     DEFAULT_APP_SURFACE_MATERIAL_CONFIG,
     mergeSurfaceMaterialConfig,
-} from '@/platform/core/surfaceMaterials';
+} from '@/core/surfaceMaterials';
 import {
     type DynamicBackgroundId,
     type DynamicBackgroundConfigMap,
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     mergeDynamicBackgroundConfig,
-} from '@/platform/core/dynamicBackgrounds';
-import type { TextSurfaceFontPreset } from '@/platform/core/textSurface';
+} from '@/core/dynamicBackgrounds';
+import type { TextSurfaceFontPreset } from '@/core/textSurface';
 
 interface SettingsState {
     // Theme & Appearance

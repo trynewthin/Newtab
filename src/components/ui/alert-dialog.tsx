@@ -3,9 +3,9 @@
 import * as React from "react"
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
 
-import { cn } from "@/platform/core/utils"
+import { cn } from "@/core/utils"
 import { Button } from "@/components/ui/button"
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex"
+import { LAYER_Z_INDEX } from "@/core/layerZIndex"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />

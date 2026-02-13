@@ -1,8 +1,8 @@
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 
-import { cn } from "@/platform/core/utils"
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex"
+import { cn } from "@/core/utils"
+import { LAYER_Z_INDEX } from "@/core/layerZIndex"
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />

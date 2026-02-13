@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp, Box, Globe, Search } from "lucide-react";
-import { cn } from "@/platform/core/utils";
-import { SidebarHeader } from "@/platform/shared/components";
+import { cn } from "@/core/utils";
+import { SidebarHeader } from "@/components/modal";
 import { useAiStore } from "@/apps/ai-companion";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";

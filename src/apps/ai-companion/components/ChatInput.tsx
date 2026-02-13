@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Check, Square, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/platform/core/utils";
+import { cn } from "@/core/utils";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import type { ModelConfig } from "@/apps/ai-companion";
 import { useTranslation } from "react-i18next";

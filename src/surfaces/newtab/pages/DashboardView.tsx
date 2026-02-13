@@ -1,10 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { BasePage } from "@/platform/shared/layout";
+import { BasePage } from "@/shared/layout";
 import { AppGrid } from "@/apps/launcher";
 import { motion } from "framer-motion";
 import { useSystemDialogRouter } from "@/apps/launcher/store/ui";
 import { warmupModalRuntimes } from "@/apps/launcher/system/appRuntimeRegistry";
-import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
+import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 const HomeTools = lazy(() =>
     import("@/apps/launcher/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))

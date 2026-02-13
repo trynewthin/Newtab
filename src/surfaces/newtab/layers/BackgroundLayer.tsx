@@ -10,13 +10,13 @@ import PrismaticBurst from "@/components/PrismaticBurst";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     isDynamicBackgroundId,
-} from "@/platform/core/dynamicBackgrounds";
+} from "@/core/dynamicBackgrounds";
 import {
     applyGlobalTextSurfaceFont,
     applyGlobalTextSurfaceTone,
     resolveTextSurfaceToneForImage,
     resolveTextSurfaceToneSync,
-} from "@/platform/core/textSurface";
+} from "@/core/textSurface";
 
 export function BackgroundLayer() {
     const {

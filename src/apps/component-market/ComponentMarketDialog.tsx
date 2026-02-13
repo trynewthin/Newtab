@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useItemStore } from "@/launcher/store/item";
-import { AppSurfaceModal } from "@/components/modal/AppSurfaceModal";
 import { renderSystemIcon } from "@/launcher/system/systemIcons";
 import {
     ENABLED_SYSTEM_APP_MANIFEST,
@@ -15,10 +14,11 @@ import {
 } from "@/launcher/widget";
 import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/grid/layoutPresets";
 import type { LauncherWidgetItem } from "@/state/core/itemTypes";
-import { Plus, Minus, Check, AppWindow, Puzzle } from "lucide-react";
+import { Plus, Minus, Check, AppWindow, Puzzle, X } from "lucide-react";
 import { cn } from "@/core/utils";
-import { ModalTabs } from "@/components/modal";
-import GradualBlur from "@/components/GradualBlur";
+import { Dialog } from "@base-ui/react/dialog";
+import { LAYER_Z_INDEX } from "@/core/layerZIndex";
+import AppSurface from "@/components/surface/AppSurface";
 
 type MarketTab = "icons" | "widgets";
 
@@ -82,24 +82,12 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
         (w) => !(w as SystemWidgetManifestItem).collection
     );
 
-    // ─── Tab switcher (placed in actions slot, left of close button) ───
-    const tabSwitcher = (
-        <ModalTabs
-            items={[
-                { id: "icons", icon: AppWindow, label: t("component_market_app_icons") },
-                { id: "widgets", icon: Puzzle, label: t("component_market_components") },
-            ]}
-            activeId={activeTab}
-            onActiveChange={(id) => setActiveTab(id as MarketTab)}
-        />
-    );
-
     // ─── Icons tab content ───────────────────────────────────────────
     const iconsContent = (
-        <div className="space-y-4">
+        <div className="space-y-5">
             {[...appsByCategory.entries()].map(([category, apps]) => (
                 <div key={category}>
-                    <h4 className="text-[11px] font-medium text-foreground/40 mb-2">
+                    <h4 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2.5 px-0.5">
                         {t(`category_${category}`)}
                     </h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -110,25 +98,25 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
                                     key={app.id}
                                     onClick={() => handleToggleAppIcon(app)}
                                     className={cn(
-                                        "group flex items-center gap-2.5 rounded-lg border p-2.5 text-left transition-colors",
+                                        "group flex items-center gap-2.5 rounded-xl p-2.5 text-left transition-all duration-200",
                                         isAdded
-                                            ? "border-foreground/15 bg-foreground/5 hover:border-red-500/30 hover:bg-red-500/5"
-                                            : "border-border/50 hover:bg-accent/50",
+                                            ? "bg-secondary hover:bg-red-500/10"
+                                            : "hover:bg-secondary",
                                     )}
                                 >
-                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-secondary text-muted-foreground">
                                         {renderSystemIcon(app.icon, "h-4 w-4")}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <div className="truncate text-sm font-medium">{t(app.title)}</div>
+                                        <div className="truncate text-[13px] font-medium text-foreground">{t(app.title)}</div>
                                     </div>
                                     {isAdded ? (
-                                        <div className="shrink-0 text-foreground/50">
-                                            <Check size={14} className="group-hover:hidden" />
-                                            <Minus size={14} className="hidden group-hover:block text-red-500" />
+                                        <div className="shrink-0 text-muted-foreground">
+                                            <Check size={14} strokeWidth={2.5} className="group-hover:hidden" />
+                                            <Minus size={14} strokeWidth={2.5} className="hidden group-hover:block text-red-400" />
                                         </div>
                                     ) : (
-                                        <Plus size={14} className="shrink-0 text-foreground/30" />
+                                        <Plus size={14} strokeWidth={2} className="shrink-0 text-muted-foreground/50" />
                                     )}
                                 </button>
                             );
@@ -204,7 +192,7 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
                 const widgets = getWidgetsByCollection(collection);
                 return (
                     <div key={collection}>
-                        <h4 className="text-[11px] font-medium text-foreground/40 mb-3">
+                        <h4 className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 mb-3 px-0.5">
                             {t(`collection_${collection}`)}
                         </h4>
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
@@ -216,7 +204,7 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
 
             {standaloneWidgets.length > 0 && (
                 <div>
-                    <h4 className="text-[11px] font-medium text-foreground/40 mb-3">
+                    <h4 className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 mb-3 px-0.5">
                         {t("component_market_standalone")}
                     </h4>
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
@@ -227,26 +215,114 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
         </div>
     );
 
-    const marketContent = (
-        <div className="relative h-full">
-            <GradualBlur position="top" height="3rem" strength={1.5} zIndex={10} />
-            <GradualBlur position="bottom" height="3rem" strength={1.5} zIndex={10} />
-            <div className="h-full overflow-y-auto custom-scrollbar px-4">
-                <div className="h-14 shrink-0" />
-                {activeTab === "icons" ? iconsContent : widgetsContent}
-                <div className="h-8 shrink-0" />
-            </div>
-        </div>
-    );
+    // ─── Tab pills ──────────────────────────────────────────────────
+    const tabs: { id: MarketTab; icon: typeof AppWindow; label: string }[] = [
+        { id: "icons", icon: AppWindow, label: t("component_market_app_icons") },
+        { id: "widgets", icon: Puzzle, label: t("component_market_components") },
+    ];
 
     return (
-        <AppSurfaceModal
-            open={open}
-            onOpenChange={onOpenChange}
-            title={t("component_market_title")}
-            preset="semi"
-            actions={tabSwitcher}
-            content={marketContent}
-        />
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
+            <Dialog.Portal>
+                {/* ── Backdrop: heavy blur + darker overlay ── */}
+                <Dialog.Backdrop
+                    style={{ zIndex: LAYER_Z_INDEX.overlayBackdrop }}
+                    className={cn(
+                        "fixed inset-0 bg-black/45 backdrop-blur-xl",
+                        "data-open:animate-in data-closed:animate-out",
+                        "data-open:fade-in-0 data-closed:fade-out-0",
+                        "duration-300",
+                    )}
+                />
+
+                {/* ── Popup: subtle scale + fade ── */}
+                <Dialog.Popup
+                    style={{ zIndex: LAYER_Z_INDEX.overlayContent }}
+                    className={cn(
+                        "fixed inset-0 outline-none",
+                        "sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2",
+                        "w-full h-full sm:w-[min(680px,80vw)] sm:h-[min(720px,80vh)]",
+                        "sm:max-w-[calc(100vw-2rem)] sm:max-h-[calc(100vh-2rem)]",
+                        "data-open:animate-in data-closed:animate-out",
+                        "data-open:fade-in-0 data-closed:fade-out-0",
+                        "data-open:zoom-in-[0.97] data-closed:zoom-out-[0.97]",
+                        "duration-300 ease-out",
+                    )}
+                >
+                    {/* ── Glass container ── */}
+                    <div
+                        className={cn(
+                            "relative h-full w-full overflow-hidden isolate",
+                            "sm:rounded-2xl",
+                            "shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_2px_8px_rgba(0,0,0,0.12),0_12px_40px_rgba(0,0,0,0.24),0_32px_80px_rgba(0,0,0,0.18)]",
+                        )}
+                        style={{
+                            // Reset text colors to dark-tone defaults so they stay readable
+                            // on the opaque light background, regardless of wallpaper tone.
+                            '--background': 'oklch(0.98 0.01 240)',
+                            '--foreground': 'oklch(0.15 0.02 240)',
+                            '--muted-foreground': 'oklch(0.45 0.02 240)',
+                            '--secondary': 'oklch(0.95 0.01 240)',
+                            '--accent-foreground': 'oklch(0.58 0.18 255)',
+                            '--secondary-foreground': 'oklch(0.2 0.02 240)',
+                            '--border': 'oklch(0.9 0.01 240)',
+                        } as React.CSSProperties}
+                    >
+                        {/* Background layer */}
+                        <div className="absolute inset-0 z-0 bg-background" />
+
+                        {/* ── Floating header bar ── */}
+                        <div className="absolute inset-x-0 top-0 z-30 pointer-events-none">
+                            <div className="mx-3 mt-3 relative overflow-hidden rounded-xl pointer-events-auto shadow-md">
+                                <div className="absolute inset-0 z-0">
+                                    <AppSurface variant="toolbar" width="100%" height="100%" />
+                                </div>
+                                <div className="relative z-10 flex items-center justify-between gap-3 p-1.5">
+                                {/* Tab switcher */}
+                                <div className="flex items-center gap-0.5">
+                                    {tabs.map((tab) => {
+                                        const isActive = activeTab === tab.id;
+                                        const Icon = tab.icon;
+                                        return (
+                                            <button
+                                                key={tab.id}
+                                                type="button"
+                                                onClick={() => setActiveTab(tab.id)}
+                                                className={cn(
+                                                    "px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all duration-200 flex items-center gap-1.5",
+                                                    isActive
+                                                        ? "bg-foreground text-background shadow-sm"
+                                                        : "text-muted-foreground hover:text-foreground hover:bg-secondary",
+                                                )}
+                                            >
+                                                <Icon size={13} strokeWidth={isActive ? 2.5 : 2} />
+                                                <span className="hidden sm:inline">{tab.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Close button */}
+                                <Dialog.Close
+                                    className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                                >
+                                    <X size={14} strokeWidth={2.5} />
+                                </Dialog.Close>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ── Scroll content ── */}
+                        <div className="relative z-10 h-full">
+                            <div className="h-full overflow-y-auto custom-scrollbar px-5">
+                                <div className="h-16 shrink-0" />
+                                {activeTab === "icons" ? iconsContent : widgetsContent}
+                                <div className="h-10 shrink-0" />
+                            </div>
+                        </div>
+                    </div>
+                </Dialog.Popup>
+            </Dialog.Portal>
+        </Dialog.Root>
     );
 }

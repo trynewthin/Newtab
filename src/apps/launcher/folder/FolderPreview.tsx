@@ -24,7 +24,7 @@ import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/platform/core/utils";
 import { ShortcutDialog } from "../tag/ShortcutDialog";
-import AppSurface from "@/components/AppSurface";
+import AppSurface from "@/platform/shared/components/surface/AppSurface";
 import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)

@@ -9,7 +9,7 @@ import { AiSearchResults } from "@/apps/ai-search/components/AiSearchResults";
 import { cn } from "@/platform/core/utils";
 import { useTranslation } from "react-i18next";
 import GradualBlur from "@/components/GradualBlur";
-import AppSurface from "@/components/AppSurface";
+import AppSurface from "@/platform/shared/components/surface/AppSurface";
 import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 export function AiSearchView() {

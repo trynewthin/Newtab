@@ -86,12 +86,12 @@ export const DEFAULT_APP_SURFACE_MATERIAL_CONFIG: AppSurfaceMaterialConfigMap = 
         mixBlendMode: "screen",
     },
     "mac-frosted": {
-        backgroundOpacity: 0.28,
-        saturation: 1.2,
-        blur: 16,
-        borderOpacity: 0.24,
-        highlightOpacity: 0.18,
-        shadowOpacity: 0.17,
+        backgroundOpacity: 0.36,
+        saturation: 1.8,
+        blur: 40,
+        borderOpacity: 0.3,
+        highlightOpacity: 0.06,
+        shadowOpacity: 0.12,
     },
     "fluid-glass": {
         tintOpacity: 0.2,

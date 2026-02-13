@@ -13,7 +13,7 @@ import {
 } from "../base/selectionStyles";
 import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/platform/state/core/itemTypes";
-import AppSurface from "@/components/AppSurface";
+import AppSurface from "@/platform/shared/components/surface/AppSurface";
 
 interface FolderItemProps {
     item: FolderItemType;

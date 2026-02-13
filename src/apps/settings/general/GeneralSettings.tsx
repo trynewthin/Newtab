@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { SettingsSection, SettingsItem, SettingsActionButtons } from "../components/SettingComponents";
-import { Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
+import { Globe, Database, Download, Upload, Search, Plus, Trash2, RotateCcw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
 import { useState } from "react";
@@ -8,6 +8,16 @@ import { SEARCH_ENGINES, APP_METADATA } from "@/core/constants";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { persistenceManager } from "@/state/persistence/manager";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function GeneralSettings() {
     const { t, i18n } = useTranslation();
@@ -241,7 +251,66 @@ export function GeneralSettings() {
                             />
                         </SettingsItem>
                     </SettingsSection>
+
+                    {/* Reset & Re-initialize */}
+                    <SettingsSection
+                        icon={RotateCcw}
+                        iconColor="text-red-500"
+                        title={t('reset_data')}
+                        description={t('reset_data_desc')}
+                    >
+                        <SettingsItem label={t('reset_data')}>
+                            <ResetButton />
+                        </SettingsItem>
+                    </SettingsSection>
                 </div>
+    );
+}
+
+function ResetButton() {
+    const { t } = useTranslation();
+    const [open, setOpen] = useState(false);
+
+    const handleReset = () => {
+        // Clear all localStorage
+        localStorage.clear();
+        // Clear hash so settings dialog doesn't reopen after reload
+        window.location.hash = '';
+        // Reload to trigger fresh onboarding
+        window.location.reload();
+    };
+
+    return (
+        <>
+            <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setOpen(true)}
+                className="rounded-xl"
+            >
+                <RotateCcw size={14} className="mr-1.5" />
+                {t('reset_data_btn')}
+            </Button>
+            <AlertDialog open={open} onOpenChange={setOpen}>
+                <AlertDialogContent className="rounded-3xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{t('reset_data_confirm_title')}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {t('reset_data_confirm_desc')}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2">
+                        <AlertDialogCancel className="rounded-xl">{t('cancel')}</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleReset}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
+                        >
+                            {t('reset_data_confirm_btn')}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     );
 }
 

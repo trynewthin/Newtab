@@ -4,9 +4,13 @@ import { AppGrid } from "@/launcher";
 import { useSystemDialogRouter } from "@/launcher/store/ui";
 import { warmupModalRuntimes } from "@/launcher/system/appRuntimeRegistry";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
+import { useSettingsStore } from "@/apps/settings/store";
 
 const HomeTools = lazy(() =>
     import("@/launcher/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
+);
+const OnboardingDialog = lazy(() =>
+    import("@/apps/onboarding/OnboardingDialog").then((m) => ({ default: m.OnboardingDialog }))
 );
 const DASHBOARD_GRID_TOP_INSET_PX = 168;
 
@@ -14,6 +18,12 @@ export function DashboardView() {
     // Enable hash routing for system dialogs
     useSystemDialogRouter();
     const [showTools, setShowTools] = useState(false);
+    const isFirstRun = useSettingsStore((s) => s.isFirstRun);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    useEffect(() => {
+        if (isFirstRun) setShowOnboarding(true);
+    }, [isFirstRun]);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -78,6 +88,12 @@ export function DashboardView() {
             >
                 <AppGrid topInsetPx={DASHBOARD_GRID_TOP_INSET_PX} />
             </div>
+
+            {showOnboarding && (
+                <Suspense fallback={null}>
+                    <OnboardingDialog open={showOnboarding} onOpenChange={setShowOnboarding} />
+                </Suspense>
+            )}
         </BasePage>
     );
 }

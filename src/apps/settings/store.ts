@@ -75,7 +75,7 @@ export const useSettingsStore = create<SettingsState>()(
             textSurfaceFontPreset: 'sans',
             setTextSurfaceFontPreset: (preset: TextSurfaceFontPreset) => set({ textSurfaceFontPreset: preset }),
 
-            surfaceMaterial: 'glass-distortion',
+            surfaceMaterial: 'mac-frosted',
             setSurfaceMaterial: (material: AppSurfaceMaterial) => set({ surfaceMaterial: material }),
             surfaceTone: 'auto',
             setSurfaceTone: (tone: AppSurfaceTone) => set({ surfaceTone: tone }),
@@ -95,8 +95,8 @@ export const useSettingsStore = create<SettingsState>()(
                 })),
 
             backgroundConfig: {
-                type: 'gradient',
-                value: 'linear-gradient(to bottom right, #1e3a8a, #06b6d4)', // Ocean as default
+                type: 'theme',
+                value: 'color-bends',
             },
             setBackgroundConfig: (config: Partial<BackgroundConfig>) => set((state: SettingsState) => ({
                 backgroundConfig: { ...state.backgroundConfig, ...config }

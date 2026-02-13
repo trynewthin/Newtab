@@ -47,6 +47,8 @@ export interface AppModalV1Props {
     children: React.ReactNode
     /** Additional className on the popup container */
     className?: string
+    /** Hide top/bottom blur gradients on scroll area */
+    hideBlur?: boolean
 }
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -63,6 +65,7 @@ export function AppModalV1({
     footer,
     children,
     className,
+    hideBlur,
 }: AppModalV1Props) {
     const hasSidebar = sidebarItems && sidebarItems.length > 0
     const [sidebarOpen, setSidebarOpen] = React.useState(false)
@@ -167,8 +170,8 @@ export function AppModalV1({
                         {/* ── Scroll content ── */}
                         <div className="relative z-10 h-full flex flex-col sm:rounded-2xl overflow-hidden">
                             <div className="relative flex-1 min-h-0">
-                                <GradualBlur preset="header" zIndex={20} height="3rem" strength={2} />
-                                <GradualBlur preset="footer" zIndex={20} height="2.5rem" strength={1.5} />
+                                {!hideBlur && <GradualBlur preset="header" zIndex={20} height="3rem" strength={2} />}
+                                {!hideBlur && <GradualBlur preset="footer" zIndex={20} height="2.5rem" strength={1.5} />}
                                 <div className="h-full overflow-y-auto custom-scrollbar px-5">
                                     {header && <div className="h-16 shrink-0" />}
                                     {children}

@@ -6,6 +6,7 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { cn } from "@/core/utils"
 import { Button } from "@/components/ui/button"
 import { LAYER_Z_INDEX } from "@/core/layerZIndex"
+import AppSurface from "@/components/surface/AppSurface"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -56,13 +57,21 @@ function AlertDialogContent({
         style={{ transformOrigin: 'center', zIndex: LAYER_Z_INDEX.alertContent }}
         className={cn(
           "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 duration-300",
-          "modal-minimal-scope fixed top-1/2 left-1/2 grid w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border/70 bg-background/95 p-5 shadow-2xl outline-none",
+          "modal-minimal-scope fixed top-1/2 left-1/2 w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-2xl overflow-hidden shadow-2xl outline-none",
           "data-[size=default]:max-w-md data-[size=sm]:max-w-64",
           "group/alert-dialog-content",
           className
         )}
         {...props}
-      />
+      >
+        {/* Glass background layer */}
+        <div className="absolute inset-0 z-0 rounded-2xl overflow-hidden">
+          <AppSurface variant="base" width="100%" height="100%" borderRadius={16} />
+        </div>
+        <div className="relative z-10 grid p-5">
+          {props.children}
+        </div>
+      </AlertDialogPrimitive.Popup>
     </AlertDialogPortal>
   )
 }

@@ -8,7 +8,7 @@ import { backgroundStorage } from "@/state/core/backgroundStorage";
 import { storageRegistry } from "./registry";
 
 const DATA_ARCHIVE_FORMAT = "newtab-data-archive";
-const DATA_ARCHIVE_SCHEMA_VERSION = 2;
+const DATA_ARCHIVE_SCHEMA_VERSION = 3;
 const DATA_ARCHIVE_EXTENSION = ".ntb";
 const INDEXED_DB_IDB_KEYVAL_VERSION = 1;
 const INDEXED_DB_BACKGROUND_STORAGE_VERSION = 2;
@@ -297,6 +297,9 @@ function migrateBundleToCurrentSchema(bundle: DataArchiveBundle): DataArchiveBun
     if (migrated.manifest.schemaVersion < 2) {
         migrated = migrateBundleToSchemaV2(migrated);
     }
+    if (migrated.manifest.schemaVersion < 3) {
+        migrated = migrateBundleToSchemaV3(migrated);
+    }
 
     return {
         ...migrated,
@@ -327,6 +330,59 @@ function migrateBundleToSchemaV2(bundle: DataArchiveBundle): DataArchiveBundle {
         },
     };
 }
+
+// ── Schema V3: ensure isFirstRun=false for existing users ──────────────
+
+function migrateBundleToSchemaV3(bundle: DataArchiveBundle): DataArchiveBundle {
+    const localStorageData = { ...bundle.payload.localStorage };
+    const appSettingsRaw = localStorageData["app-settings"];
+
+    if (typeof appSettingsRaw === "string") {
+        localStorageData["app-settings"] = migrateAppSettingsPayloadToV3(appSettingsRaw);
+    }
+
+    return {
+        ...bundle,
+        payload: {
+            ...bundle.payload,
+            localStorage: localStorageData,
+        },
+        manifest: {
+            ...bundle.manifest,
+            schemaVersion: 3,
+        },
+    };
+}
+
+function migrateAppSettingsPayloadToV3(raw: string): string {
+    try {
+        const parsed = JSON.parse(raw) as {
+            state?: Record<string, unknown>;
+            version?: number;
+        };
+
+        if (!parsed || typeof parsed !== "object" || !parsed.state || typeof parsed.state !== "object") {
+            return raw;
+        }
+
+        const nextState: Record<string, unknown> = { ...parsed.state };
+
+        // Existing users who had data before onboarding was introduced
+        // should not see the onboarding wizard after restoring a backup.
+        if (nextState.isFirstRun === undefined || nextState.isFirstRun === true) {
+            nextState.isFirstRun = false;
+        }
+
+        return JSON.stringify({
+            ...parsed,
+            state: nextState,
+        });
+    } catch {
+        return raw;
+    }
+}
+
+// ── Schema V2: normalize surfaceMaterial ────────────────────────────────
 
 function migrateAppSettingsPayloadToV2(raw: string): string {
     try {

@@ -3,7 +3,7 @@ import { BaseModal } from "./core/Modal";
 import {
     AppSurfaceScaffold,
     type AppSurfaceScaffoldPreset,
-} from "@/shared/components/surface/AppSurfaceScaffold";
+} from "@/components/surface/layout/AppSurfaceScaffold";
 
 interface AppSurfaceModalProps {
     open: boolean;

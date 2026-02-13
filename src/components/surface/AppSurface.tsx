@@ -8,9 +8,9 @@ import {
     mergeSurfaceMaterialConfig,
 } from "@/core/surfaceMaterials";
 import { useResolvedTone } from "./useResolvedTone";
-import { MacFrostedSurface } from "./MacFrostedSurface";
-import { FluidGlassSurface } from "./FluidGlassSurface";
-import { DistortionGlassSurface } from "./DistortionGlassSurface";
+import { MacFrostedSurface } from "./materials/MacFrostedSurface";
+import { FluidGlassSurface } from "./materials/FluidGlassSurface";
+import { DistortionGlassSurface } from "./materials/DistortionGlassSurface";
 
 export interface AppSurfaceProps extends GlassSurfaceProps {
     material?: AppSurfaceMaterial;

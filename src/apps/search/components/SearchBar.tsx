@@ -6,7 +6,7 @@ import { cn } from "@/core/utils";
 import { useTranslation } from "react-i18next";
 import { SEARCH_ENGINES } from "@/core/constants";
 import { useNavigate } from "react-router-dom";
-import AppSurface from "@/shared/components/surface/AppSurface";
+import AppSurface from "@/components/surface/AppSurface";
 
 interface SearchBarProps {
     initialQuery?: string;

@@ -2,7 +2,7 @@ import type React from "react";
 import { cn } from "@/core/utils";
 import type { AppSurfaceVariant, DistortionGlassMaterialConfig } from "@/core/surfaceMaterials";
 import GlassSurface, { type GlassSurfaceProps } from "@/components/GlassSurface";
-import { DISTORTION_VARIANT_PRESETS } from "./surfacePresets";
+import { DISTORTION_VARIANT_PRESETS } from "./presets";
 
 interface DistortionGlassSurfaceProps {
     variant: AppSurfaceVariant;

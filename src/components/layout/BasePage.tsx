@@ -1,6 +1,5 @@
 import { cn } from "@/core/utils";
 import React from "react";
-import { Toolbar } from "@/shared/components/Toolbar";
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
@@ -87,7 +86,9 @@ export function BasePage({ children, className, tools, ...props }: BasePageProps
                             }
                         }}
                     >
-                        <Toolbar>{tools}</Toolbar>
+                        <div className="flex gap-2 pointer-events-auto">
+                            {tools}
+                        </div>
                     </div>
                 </div>
             )}

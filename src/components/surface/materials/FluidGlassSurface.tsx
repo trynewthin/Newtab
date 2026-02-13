@@ -2,7 +2,7 @@ import type React from "react";
 import { Suspense, lazy } from "react";
 import { cn } from "@/core/utils";
 import type { AppSurfaceVariant, FluidGlassMaterialConfig } from "@/core/surfaceMaterials";
-import { FLUID_VARIANT_PRESETS } from "./surfacePresets";
+import { FLUID_VARIANT_PRESETS } from "./presets";
 
 const FluidGlass = lazy(() => import("@/components/FluidGlass"));
 

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { BasePage } from "@/shared/layout";
+import { BasePage } from "@/components/layout";
 import { AppGrid } from "@/apps/launcher";
 import { motion } from "framer-motion";
 import { useSystemDialogRouter } from "@/apps/launcher/store/ui";

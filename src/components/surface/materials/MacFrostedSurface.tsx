@@ -1,7 +1,7 @@
 import type React from "react";
 import { cn } from "@/core/utils";
 import type { AppSurfaceVariant, MacFrostedMaterialConfig } from "@/core/surfaceMaterials";
-import { FROSTED_VARIANT_PRESETS } from "./surfacePresets";
+import { FROSTED_VARIANT_PRESETS } from "./presets";
 
 interface MacFrostedSurfaceProps {
     variant: AppSurfaceVariant;

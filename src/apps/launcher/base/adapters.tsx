@@ -4,7 +4,7 @@ import { useItemStore } from "@/apps/launcher/store/item";
 import { backgroundStorage } from "@/state/core/backgroundStorage";
 import { ItemIcon } from "./ItemIcon";
 import { Maximize2 } from "lucide-react";
-import AppSurface from "@/shared/components/surface/AppSurface";
+import AppSurface from "@/components/surface/AppSurface";
 import type {
     GridItem,
     WebTagItem,

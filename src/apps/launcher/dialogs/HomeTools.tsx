@@ -4,7 +4,7 @@ import { Edit2, FolderPlus, Trash2, Settings, Plus, LayoutGrid } from "lucide-re
 import { cn } from "@/core/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import AppSurface from "@/shared/components/surface/AppSurface";
+import AppSurface from "@/components/surface/AppSurface";
 import {
     AlertDialog,
     AlertDialogAction,

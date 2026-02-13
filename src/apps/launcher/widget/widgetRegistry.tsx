@@ -2,7 +2,7 @@ import { cn } from "@/core/utils";
 import type { LauncherWidgetItem } from "@/state/core/itemTypes";
 import { ItemActionMenu } from "@/apps/launcher/base/ItemActionMenu";
 import { useTranslation } from "react-i18next";
-import AppSurface from "@/shared/components/surface/AppSurface";
+import AppSurface from "@/components/surface/AppSurface";
 import {
     type LauncherTilePreset,
     type LauncherTileVariant,

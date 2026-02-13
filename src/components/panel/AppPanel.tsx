@@ -5,7 +5,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { cn } from "@/core/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
-import { ModalButton } from "./core/ModalButton"
+import { ModalButton } from "@/components/modal/core/ModalButton"
 import { useTranslation } from "react-i18next"
 import { LAYER_Z_INDEX } from "@/core/layerZIndex"
 

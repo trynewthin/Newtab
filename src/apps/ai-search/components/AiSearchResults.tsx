@@ -11,7 +11,7 @@ import { extractDomain, getFaviconUrl } from "../types";
 import ReactMarkdown from "react-markdown";
 import { useTranslation } from "react-i18next";
 import { AiArtifactRenderer, type ArtifactData } from "./AiArtifactRenderer";
-import AppSurface from "@/shared/components/surface/AppSurface";
+import AppSurface from "@/components/surface/AppSurface";
 
 interface AiSearchResultsProps {
     status: AiSearchStatus;

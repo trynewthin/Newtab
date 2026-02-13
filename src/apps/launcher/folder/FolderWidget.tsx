@@ -10,7 +10,7 @@ import { ItemActionMenu } from "../base/ItemActionMenu";
 import { ITEM_INTERACTION_ANIMATION_CLASS } from "../base/selectionStyles";
 import { backgroundStorage } from "@/state/core/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/state/core/itemTypes";
-import AppSurface from "@/shared/components/surface/AppSurface";
+import AppSurface from "@/components/surface/AppSurface";
 import { Minimize2 } from "lucide-react";
 
 interface FolderWidgetProps {

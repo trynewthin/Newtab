@@ -6,7 +6,6 @@ import { StopCircle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAiSearch } from "@/apps/ai-search/hooks/useAiSearch";
 import { AiSearchResults } from "@/apps/ai-search/components/AiSearchResults";
-import { cn } from "@/core/utils";
 import { useTranslation } from "react-i18next";
 import GradualBlur from "@/components/GradualBlur";
 import AppSurface from "@/components/surface/AppSurface";
@@ -39,22 +38,14 @@ export function AiSearchView() {
     }, [initialQuery, search]);
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="w-full h-full"
-        >
+        <div className="w-full h-full">
             <BasePage className="py-0 px-0 flex flex-col items-center relative h-screen overflow-hidden">
+                {/* Semi-transparent overlay + scoped foreground to override wallpaper text tone */}
+                <div className="absolute inset-0 bg-background/40 modal-minimal-scope" />
+
                 {/* 1. Results Area (Main Content - Top) */}
-                <motion.section
-                    key="ai-result-area"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full h-full max-w-4xl mx-auto relative overflow-hidden"
+                <section
+                    className="modal-minimal-scope w-full h-full max-w-4xl mx-auto relative overflow-hidden"
                     style={{ zIndex: LAYER_Z_INDEX.newtabContent }}
                 >
                     <div className="w-full h-full overflow-y-auto scrollbar-none pt-24 pb-60 px-4">
@@ -90,11 +81,11 @@ export function AiSearchView() {
                         opacity={1}
                         zIndex={LAYER_Z_INDEX.newtabFloating}
                     />
-                </motion.section>
+                </section>
 
                 {/* 2. Fixed Control Center (Centered at Middle-Bottom) */}
                 <div
-                    className="fixed bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center gap-6 pb-12"
+                    className="modal-minimal-scope fixed bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center gap-6 pb-12"
                     style={{ zIndex: LAYER_Z_INDEX.newtabToolbar }}
                 >
 
@@ -155,66 +146,8 @@ export function AiSearchView() {
                     </motion.div>
                 </div>
 
-                {/* 3. Professional Dynamic Aurora Clouds (No Sharp Edges) */}
-                <motion.div
-                    initial={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="fixed inset-x-0 bottom-0 h-[35vh] pointer-events-none overflow-visible"
-                    style={{ zIndex: LAYER_Z_INDEX.newtabFloating }}
-                >
-                    {/* Moving Light Orbs */}
-                    <div className={cn(
-                        "absolute inset-0 transition-all duration-1000 mix-blend-screen dark:mix-blend-lighten",
-                        isLoading ? "opacity-100 scale-110" : "opacity-30 scale-100"
-                    )}>
-                        {/* Orb 1 */}
-                        <motion.div
-                            animate={{
-                                x: isLoading ? [-200, 200, -200] : [-100, 100, -100],
-                                y: [0, 100, 0],
-                                scale: [1, 1.5, 1],
-                            }}
-                            transition={{
-                                duration: isLoading ? 8 : 20,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                            }}
-                            className="absolute bottom-[-10%] left-[10%] h-[500px] w-[500px] rounded-full bg-foreground/18 blur-[120px]"
-                        />
-
-                        {/* Orb 2 */}
-                        <motion.div
-                            animate={{
-                                x: isLoading ? [200, -200, 200] : [100, -100, 100],
-                                y: [50, -50, 50],
-                                scale: [1.2, 0.8, 1.2],
-                            }}
-                            transition={{
-                                duration: isLoading ? 10 : 25,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                            }}
-                            className="absolute bottom-[-15%] right-[15%] h-[600px] w-[600px] rounded-full bg-foreground/15 blur-[140px]"
-                        />
-
-                        {/* Orb 3 */}
-                        <motion.div
-                            animate={{
-                                y: isLoading ? [150, 0, 150] : [200, 150, 200],
-                                opacity: isLoading ? [0.2, 0.5, 0.2] : 0,
-                            }}
-                            transition={{
-                                duration: 6,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                            }}
-                            className="absolute bottom-0 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-foreground/10 blur-[100px]"
-                        />
-                    </div>
-                </motion.div>
             </BasePage>
-        </motion.div>
+        </div>
     );
 }
 

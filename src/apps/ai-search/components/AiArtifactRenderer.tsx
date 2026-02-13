@@ -31,24 +31,24 @@ export function AiArtifactRenderer({ artifact }: AiArtifactRendererProps) {
     const { t } = useTranslation();
 
     const renderHeader = (icon: React.ReactNode, title: string) => (
-        <div className="flex items-center justify-between border-b border-border/60 bg-background/85 px-3 py-1.5">
+        <div className="flex items-center justify-between border-b border-foreground/10 px-3 py-1.5">
             <div className="flex items-center gap-2">
                 {icon}
-                <span className="text-[10px] font-semibold text-muted-foreground/80 uppercase tracking-[0.16em]">{title}</span>
+                <span className="text-[10px] font-semibold text-foreground/70 uppercase tracking-[0.16em]">{title}</span>
             </div>
-            {artifact.title && <span className="text-[10px] font-medium text-muted-foreground/70">{artifact.title}</span>}
+            {artifact.title && <span className="text-[10px] font-medium text-foreground/60">{artifact.title}</span>}
         </div>
     );
 
     switch (artifact.type) {
         case 'table':
             return (
-                <div className="my-5 overflow-hidden rounded-2xl border border-border/60 bg-background/85 shadow-sm">
+                <div className="my-3 overflow-hidden border border-foreground/10">
                     {renderHeader(<TableIcon size={12} className="text-foreground/70" />, t('preview_component'))}
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-border/50 bg-foreground/4">
+                                <tr className="border-b border-foreground/10">
                                     {artifact.columns?.map((col, i) => (
                                         <th key={i} className="px-4 py-3 font-semibold text-foreground/80">{col}</th>
                                     ))}
@@ -56,9 +56,9 @@ export function AiArtifactRenderer({ artifact }: AiArtifactRendererProps) {
                             </thead>
                             <tbody>
                                 {artifact.rows?.map((row, i) => (
-                                    <tr key={i} className="border-b border-border/40 last:border-0 transition-colors hover:bg-foreground/4">
+                                    <tr key={i} className="border-b border-foreground/6 last:border-0">
                                         {row.map((cell, j) => (
-                                            <td key={j} className="px-4 py-3 text-muted-foreground/90">{cell}</td>
+                                            <td key={j} className="px-4 py-3 text-foreground/80">{cell}</td>
                                         ))}
                                     </tr>
                                 ))}
@@ -71,7 +71,7 @@ export function AiArtifactRenderer({ artifact }: AiArtifactRendererProps) {
         case 'chart':
             const maxValue = Math.max(...(artifact.values || [0]));
             return (
-                <div className="my-5 overflow-hidden rounded-2xl border border-border/60 bg-background/85 shadow-sm">
+                <div className="my-3 overflow-hidden border border-foreground/10">
                     {renderHeader(<BarChart3 size={12} className="text-foreground/70" />, t('preview_component'))}
                     <div className="p-6">
                         <div className="flex items-end gap-3 h-48">
@@ -83,12 +83,12 @@ export function AiArtifactRenderer({ artifact }: AiArtifactRendererProps) {
                                             animate={{ height: `${(val / maxValue) * 100}%` }}
                                             className="relative w-full max-w-[40px] rounded-t-lg bg-foreground/35 transition-colors group-hover:bg-foreground/50"
                                         >
-                                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 rounded border border-border/70 bg-background px-1 text-[10px] font-semibold opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 rounded border border-foreground/10 px-1 text-[10px] font-semibold opacity-0 transition-opacity group-hover:opacity-100">
                                                 {val}
                                             </div>
                                         </motion.div>
                                     </div>
-                                    <span className="w-full truncate text-center text-[10px] text-muted-foreground/80">{artifact.labels?.[i]}</span>
+                                    <span className="w-full truncate text-center text-[10px] text-foreground/70">{artifact.labels?.[i]}</span>
                                 </div>
                             ))}
                         </div>
@@ -98,15 +98,15 @@ export function AiArtifactRenderer({ artifact }: AiArtifactRendererProps) {
 
         case 'list':
             return (
-                <div className="my-5 overflow-hidden rounded-2xl border border-border/60 bg-background/85 shadow-sm">
+                <div className="my-3 overflow-hidden border border-foreground/10">
                     {renderHeader(<ListOrdered size={12} className="text-foreground/70" />, t('preview_component'))}
                     <div className="p-4 space-y-2">
                         {artifact.items?.map((item, i) => (
-                            <div key={i} className="flex items-start gap-3 rounded-xl p-2 transition-colors hover:bg-foreground/5">
+                            <div key={i} className="flex items-start gap-3 rounded-xl p-2">
                                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[10px] font-semibold text-foreground">
                                     {i + 1}
                                 </div>
-                                <p className="text-sm text-muted-foreground/90">{item}</p>
+                                <p className="text-sm text-foreground/80">{item}</p>
                             </div>
                         ))}
                     </div>
@@ -116,7 +116,7 @@ export function AiArtifactRenderer({ artifact }: AiArtifactRendererProps) {
         case 'html':
             // Scoped HTML rendering to avoid global pollution
             return (
-                <div className="my-5 overflow-hidden rounded-2xl border border-border/60 bg-background/85 shadow-sm">
+                <div className="my-3 overflow-hidden border border-foreground/10">
                     {renderHeader(<Code2 size={12} className="text-foreground/70" />, t('preview_component'))}
                     <div className="p-4 overflow-hidden relative">
                         {/* 

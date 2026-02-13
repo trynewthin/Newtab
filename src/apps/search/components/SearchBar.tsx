@@ -175,7 +175,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                             <button
                                 type="button"
                                 onClick={handleExitAiMode}
-                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-white hover:text-white/90 shrink-0 rounded-full bg-transparent hover:bg-white/10"
+                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-[var(--text-surface-foreground)] shrink-0 rounded-full bg-transparent hover:opacity-80"
                                 title={t("exit_ai_search")}
                             >
                                 <LogOut size={16} />
@@ -197,7 +197,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                     className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform btn-no-style"
                                 >
                                     {currentEngine.value === 'ai' ? (
-                                        <Sparkles className="w-5.5 h-5.5 text-white dark:text-black" strokeWidth={2.2} />
+                                        <Sparkles className="w-5.5 h-5.5 text-[var(--text-surface-foreground)]" strokeWidth={2.2} />
                                     ) : (
                                         <img
                                             src={currentEngine.icon}
@@ -274,7 +274,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                         <div className="flex items-center gap-1">
                             <button
                                 type="submit"
-                                className="h-8 w-8 flex items-center justify-center text-white/90 dark:text-black/90 hover:text-white dark:hover:text-black transition-all active:scale-90"
+                                className="h-8 w-8 flex items-center justify-center text-[var(--text-surface-foreground)] hover:opacity-80 transition-all active:scale-90"
                                 title={isAiMode ? t("search_again") : t("search")}
                             >
                                 <Search size={18} strokeWidth={2.5} />

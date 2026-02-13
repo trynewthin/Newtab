@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { BasePage } from "@/components/layout";
 import { AppGrid } from "@/launcher";
-import { motion } from "framer-motion";
 import { useSystemDialogRouter } from "@/launcher/store/ui";
 import { warmupModalRuntimes } from "@/launcher/system/appRuntimeRegistry";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
@@ -73,17 +72,12 @@ export function DashboardView() {
             ) : null}
         >
             {/* Content Layer */}
-            <motion.div
-                key="content-grid"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+            <div
                 className="relative w-full h-full min-h-0 overflow-visible"
                 style={{ zIndex: LAYER_Z_INDEX.newtabContentOverlay }}
             >
                 <AppGrid topInsetPx={DASHBOARD_GRID_TOP_INSET_PX} />
-            </motion.div>
+            </div>
         </BasePage>
     );
 }

@@ -7,6 +7,7 @@ import { PanelGridTile } from "./PanelGridTile";
 interface LauncherGridItemSurfaceProps {
     item: GridItemType;
     isEditing: boolean;
+    isHoverTarget?: boolean;
     onClick: (item: GridItemType, event?: React.MouseEvent) => void;
     onEdit: (item: GridItemType) => void;
     onDeletePrompt: (item: GridItemType) => void;
@@ -16,6 +17,7 @@ interface LauncherGridItemSurfaceProps {
 export function LauncherGridItemSurface({
     item,
     isEditing,
+    isHoverTarget,
     onClick,
     onEdit,
     onDeletePrompt,
@@ -25,6 +27,7 @@ export function LauncherGridItemSurface({
     const content = (
         <GridItem
             item={item}
+            isHoverTarget={isHoverTarget}
             onClick={onClick}
             onEdit={onEdit}
             onDeletePrompt={onDeletePrompt}
@@ -33,8 +36,8 @@ export function LauncherGridItemSurface({
     );
 
     if (capability.variant === "icon") {
-        return <IconGridTile isEditing={isEditing}>{content}</IconGridTile>;
+        return <IconGridTile isEditing={isEditing} isHoverTarget={isHoverTarget}>{content}</IconGridTile>;
     }
 
-    return <PanelGridTile isEditing={isEditing}>{content}</PanelGridTile>;
+    return <PanelGridTile isEditing={isEditing} isHoverTarget={isHoverTarget}>{content}</PanelGridTile>;
 }

@@ -97,7 +97,9 @@ function findNextFreePosition(
     return { x: 0, y: maxY };
 }
 
-function createLayout(items: GridItemType[], totalCols: number, reflowOnShrink: boolean): Layout {
+function createLayout(items: GridItemType[], totalCols: number): Layout {
+    // iOS-style compact layout: sort items by visual order, then place sequentially.
+    // Stored x/y are used ONLY for sorting order; actual positions are computed fresh.
     const indexMap = new Map(items.map((item, index) => [item.id, index]));
     const ordered = [...items].sort((a, b) => {
         const ay = typeof a.y === "number" ? a.y : Number.MAX_SAFE_INTEGER;
@@ -120,24 +122,12 @@ function createLayout(items: GridItemType[], totalCols: number, reflowOnShrink: 
         const w = snapDown(clamp(sanitized.w ?? DEFAULT_W, bounds.minW, bounds.maxW), GRID_STEP_X);
         const h = snapDown(clamp(sanitized.h ?? DEFAULT_H, bounds.minH, bounds.maxH), GRID_STEP_Y);
 
-        let x = item.x;
-        let y = item.y;
+        const pos = findNextFreePosition(placed, w, h, totalCols);
 
-        const hasXY = typeof x === "number" && typeof y === "number";
-        if (!hasXY) {
-            const next = findNextFreePosition(placed, w, h, totalCols);
-            x = next.x;
-            y = next.y;
-        } else {
-            const maxX = totalCols - w;
-            x = snapDown(clamp(x as number, 0, maxX), GRID_STEP_X);
-            y = snapDown(Math.max(0, y as number), GRID_STEP_Y);
-        }
-
-        const layoutItem: LayoutItem = {
+        placed.push({
             i: item.id,
-            x: x as number,
-            y: y as number,
+            x: pos.x,
+            y: pos.y,
             w,
             h,
             minW: bounds.minW,
@@ -146,27 +136,7 @@ function createLayout(items: GridItemType[], totalCols: number, reflowOnShrink: 
             maxH: bounds.maxH,
             isDraggable: capability.draggable,
             isResizable: capability.resizable,
-        };
-
-        const sourceX = typeof item.x === "number" ? item.x : layoutItem.x;
-        const overflowedFromRight = sourceX + w > totalCols;
-
-        if (placed.some((p) => collides(layoutItem, p)) || (reflowOnShrink && overflowedFromRight)) {
-            // 缩窄重排时不回填起始行左侧空位，优先保证“右侧元素先换行”。
-            const next = findNextFreePosition(
-                placed,
-                w,
-                h,
-                totalCols,
-                layoutItem.y,
-                layoutItem.x,
-                reflowOnShrink
-            );
-            layoutItem.x = next.x;
-            layoutItem.y = next.y;
-        }
-
-        placed.push(layoutItem);
+        });
     }
 
     return placed;
@@ -435,6 +405,17 @@ function applyNearestVacancyLayout(
     return next;
 }
 
+const FOLDER_HOVER_DELAY_MS = 500;
+
+function canMergeWithTarget(draggedItem: GridItemType, targetItem: GridItemType): boolean {
+    // Widgets cannot be merged into folders
+    if (draggedItem.kind === "widget" || targetItem.kind === "widget") return false;
+    // Dragging onto an existing folder → always allowed (add to folder)
+    if (targetItem.kind === "folder") return true;
+    // Both are 1x1 items (app/tag/1x1-folder) → create new folder
+    return true;
+}
+
 interface AppGridProps {
     topInsetPx?: number;
 }
@@ -442,7 +423,7 @@ interface AppGridProps {
 export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const { t } = useTranslation();
 
-    const { items, layoutRevision, setItems, removeItem, ungroupFolder } = useItemStore();
+    const { items, layoutRevision, setItems, removeItem, ungroupFolder, batchGroupItems } = useItemStore();
 
     const { isEditing, setFolderPreviewVisible } = useUIStore();
     const { launchApp } = useAppLauncher();
@@ -451,11 +432,14 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const [editingItem, setEditingItem] = useState<GridItemType | null>(null);
     const [openFolder, setOpenFolder] = useState<GridItemType | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<GridItemType | null>(null);
+    const [hoverTargetId, setHoverTargetId] = useState<string | null>(null);
     const { width, mounted, containerRef } = useContainerWidth({ initialWidth: 1440 });
     const isInteractingRef = useRef(false);
     const suppressClickUntilRef = useRef(0);
-    const previousColsRef = useRef<number | null>(null);
     const dragStartLayoutRef = useRef<Layout | null>(null);
+    const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const hoverTargetIdRef = useRef<string | null>(null);
+    const mergeReadyRef = useRef(false);
 
     const semanticCols = useMemo(() => {
         const [marginX] = GRID_GAP;
@@ -466,7 +450,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     }, [width]);
 
     const totalCols = useMemo(() => semanticCols * GRID_STEP_X, [semanticCols]);
-    const reflowOnShrink = previousColsRef.current !== null && totalCols < previousColsRef.current;
+
 
     // 使用“列宽=行高”的网格单位，确保 1x1 占位在视觉上始终为正方形。
     const rowHeight = useMemo(() => {
@@ -521,11 +505,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         }
     }, [items, setItems]);
 
-    const layout = useMemo(() => createLayout(items, totalCols, reflowOnShrink), [items, totalCols, reflowOnShrink]);
-
-    useEffect(() => {
-        previousColsRef.current = totalCols;
-    }, [totalCols]);
+    const layout = useMemo(() => createLayout(items, totalCols), [items, totalCols]);
 
     const handleItemClick = (item: GridItemType, event?: React.MouseEvent) => {
         if (isInteractingRef.current || Date.now() < suppressClickUntilRef.current) {
@@ -630,15 +610,26 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         }
     }, [setItems, totalCols]);
 
+    const clearHoverTarget = useCallback(() => {
+        if (hoverTimerRef.current) {
+            clearTimeout(hoverTimerRef.current);
+            hoverTimerRef.current = null;
+        }
+        hoverTargetIdRef.current = null;
+        mergeReadyRef.current = false;
+        setHoverTargetId(null);
+    }, []);
+
     const handleGridInteractionStart = useCallback(() => {
         isInteractingRef.current = true;
-        dragStartLayoutRef.current = createLayout(itemsRef.current, totalCols, false);
-    }, [totalCols]);
+        dragStartLayoutRef.current = createLayout(itemsRef.current, totalCols);
+        clearHoverTarget();
+    }, [totalCols, clearHoverTarget]);
 
     const handleDrag = useCallback((nextLayout: Layout, oldItem: LayoutItem | null, newItem: LayoutItem | null) => {
         if (!oldItem || !newItem) return;
 
-        const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols, false);
+        const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols);
         const baseDragged = baseLayout.find((entry) => entry.i === newItem.i);
         const sourceItem = itemsRef.current.find((item) => item.id === newItem.i);
         const bounds = sourceItem
@@ -691,11 +682,60 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             entry.x = shifted.x;
             entry.y = shifted.y;
         }
-    }, [totalCols]);
+
+        // Pin the active hover target to its original position so it doesn't shift during drag.
+        const pinTargetId = hoverTargetIdRef.current;
+        if (pinTargetId) {
+            const baseEntry = baseLayout.find((e) => e.i === pinTargetId);
+            const mutableEntry = mutableNextLayout.find((e) => e.i === pinTargetId);
+            if (baseEntry && mutableEntry) {
+                mutableEntry.x = baseEntry.x;
+                mutableEntry.y = baseEntry.y;
+            }
+        }
+
+        // ─── iOS-style folder merge detection ─────────────────────────
+        // Use dragged item's CENTER point to detect overlap — much tighter than full collision.
+        if (!sourceItem || sourceItem.kind === "widget") {
+            clearHoverTarget();
+            return;
+        }
+
+        const centerX = toX + snappedW / 2;
+        const centerY = toY + snappedH / 2;
+        let mergeCandidate: string | null = null;
+
+        for (const entry of baseLayout) {
+            if (entry.i === newItem.i) continue;
+            // Center-point hit test
+            if (centerX < entry.x || centerX >= entry.x + entry.w) continue;
+            if (centerY < entry.y || centerY >= entry.y + entry.h) continue;
+            const targetItem = itemsRef.current.find((it) => it.id === entry.i);
+            if (!targetItem) continue;
+            if (canMergeWithTarget(sourceItem, targetItem)) {
+                mergeCandidate = entry.i;
+                break;
+            }
+        }
+
+        if (mergeCandidate && mergeCandidate !== hoverTargetIdRef.current) {
+            clearHoverTarget();
+            hoverTargetIdRef.current = mergeCandidate;
+            hoverTimerRef.current = setTimeout(() => {
+                mergeReadyRef.current = true;
+                setHoverTargetId(mergeCandidate);
+            }, FOLDER_HOVER_DELAY_MS);
+        } else if (!mergeCandidate) {
+            clearHoverTarget();
+        }
+    }, [totalCols, clearHoverTarget]);
 
     const handleDragStop = useCallback((nextLayout: Layout, oldItem: LayoutItem | null, newItem: LayoutItem | null) => {
         isInteractingRef.current = false;
         suppressClickUntilRef.current = Date.now() + CLICK_SUPPRESS_AFTER_DRAG_MS;
+
+        const activeHoverTarget = mergeReadyRef.current ? hoverTargetIdRef.current : null;
+        clearHoverTarget();
 
         if (!oldItem || !newItem) {
             dragStartLayoutRef.current = null;
@@ -703,7 +743,18 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             return;
         }
 
-        const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols, false);
+        // ─── iOS-style folder merge on drop ───────────────────────────
+        if (activeHoverTarget && newItem.i !== activeHoverTarget) {
+            const draggedItem = itemsRef.current.find((it) => it.id === newItem.i);
+            const targetItem = itemsRef.current.find((it) => it.id === activeHoverTarget);
+            if (draggedItem && targetItem && canMergeWithTarget(draggedItem, targetItem)) {
+                dragStartLayoutRef.current = null;
+                batchGroupItems([activeHoverTarget, newItem.i], t('new_folder'));
+                return;
+            }
+        }
+
+        const baseLayout = dragStartLayoutRef.current ?? createLayout(itemsRef.current, totalCols);
         const baseDragged = baseLayout.find((entry) => entry.i === newItem.i);
         const sourceItem = itemsRef.current.find((item) => item.id === newItem.i);
         const bounds = sourceItem
@@ -748,7 +799,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
 
         dragStartLayoutRef.current = null;
         commitLayout(shiftedLayout ?? nextLayout);
-    }, [commitLayout, totalCols]);
+    }, [commitLayout, totalCols, clearHoverTarget, batchGroupItems]);
 
     const handleResizeStop = useCallback((nextLayout: Layout) => {
         isInteractingRef.current = false;
@@ -801,6 +852,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                                 <LauncherGridItemSurface
                                     item={item}
                                     isEditing={isEditing}
+                                    isHoverTarget={hoverTargetId === item.id}
                                     onClick={handleItemClick}
                                     onEdit={handleEditClick}
                                     onDeletePrompt={handleDeletePrompt}

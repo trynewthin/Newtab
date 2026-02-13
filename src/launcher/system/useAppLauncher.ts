@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useUIStore } from "@/apps/launcher/store/ui";
+import { useUIStore } from "@/launcher/store/ui";
 import type { SystemType } from "./systemRegistry";
 import { preloadModalRuntime } from "./appRuntimeRegistry";
 import {

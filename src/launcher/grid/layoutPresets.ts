@@ -1,6 +1,6 @@
 import type { GridItem } from "@/state/core/itemTypes";
-import { getAppLauncherLayoutConfig, isSystemAppId } from "@/apps/launcher/system/appManifest";
-import { getWidgetManifestItem } from "@/apps/launcher/widget";
+import { getAppLauncherLayoutConfig, isSystemAppId } from "@/launcher/system/appManifest";
+import { getWidgetManifestItem } from "@/launcher/widget";
 
 export const GRID_COLS = 24;
 export const GRID_ROW_HEIGHT = 34;

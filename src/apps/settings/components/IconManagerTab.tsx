@@ -1,6 +1,6 @@
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useItemStore } from "@/launcher/store/item";
 import { cn } from "@/core/utils";
-import { SYSTEM_ITEMS, ItemIcon } from "@/apps/launcher";
+import { SYSTEM_ITEMS, ItemIcon } from "@/launcher";
 
 import { Plus, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";

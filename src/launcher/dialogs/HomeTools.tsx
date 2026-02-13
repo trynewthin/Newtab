@@ -1,5 +1,5 @@
-import { useUIStore } from "@/apps/launcher/store/ui";
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useUIStore } from "@/launcher/store/ui";
+import { useItemStore } from "@/launcher/store/item";
 import { Edit2, FolderPlus, Trash2, Settings, Plus, LayoutGrid } from "lucide-react";
 import { cn } from "@/core/utils";
 import { useState } from "react";

@@ -1,6 +1,6 @@
 import { cn } from "@/core/utils";
 import type { LauncherWidgetItem } from "@/state/core/itemTypes";
-import { ItemActionMenu } from "@/apps/launcher/components/ItemActionMenu";
+import { ItemActionMenu } from "@/launcher/components/ItemActionMenu";
 import { useTranslation } from "react-i18next";
 import AppSurface from "@/components/surface/AppSurface";
 import {
@@ -8,8 +8,8 @@ import {
     type LauncherTileVariant,
     type SystemAppId,
     isSystemAppId,
-} from "@/apps/launcher/system/appManifest";
-import { renderSystemIcon } from "@/apps/launcher/system/systemIcons";
+} from "@/launcher/system/appManifest";
+import { renderSystemIcon } from "@/launcher/system/systemIcons";
 import {
     ClockRenderer,
     DateRenderer,

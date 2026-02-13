@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useItemStore } from "@/launcher/store/item";
 import { backgroundStorage } from "@/state/core/backgroundStorage";
 import { ItemIcon } from "./ItemIcon";
 import { Maximize2 } from "lucide-react";

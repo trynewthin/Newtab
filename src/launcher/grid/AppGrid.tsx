@@ -1,13 +1,13 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { useItemStore } from "@/apps/launcher/store/item";
-import { useUIStore } from "@/apps/launcher/store/ui";
+import { useItemStore } from "@/launcher/store/item";
+import { useUIStore } from "@/launcher/store/ui";
 import type { GridItem as GridItemType } from "@/state/core/itemTypes";
 import { LauncherGridItemSurface } from "./components/LauncherGridItemSurface";
 
 import { ShortcutDialog } from "../dialogs/ShortcutDialog";
 import { isSystemAppId } from "../system/appManifest";
 import { useAppLauncher } from "../system/useAppLauncher";
-import { resolveWidgetLaunchAppId } from "@/apps/launcher/widget";
+import { resolveWidgetLaunchAppId } from "@/launcher/widget";
 
 import { FolderPreview } from "../folder/FolderPreview";
 import GradualBlur from "@/components/GradualBlur";

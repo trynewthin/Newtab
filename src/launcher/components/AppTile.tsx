@@ -1,4 +1,4 @@
-import { useUIStore } from "@/apps/launcher/store/ui";
+import { useUIStore } from "@/launcher/store/ui";
 import { Check } from "lucide-react";
 import { cn } from "@/core/utils";
 import { useSortable } from "@dnd-kit/sortable";

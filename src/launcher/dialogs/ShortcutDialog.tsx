@@ -3,7 +3,7 @@ import { AppPanel } from "@/components/panel/AppPanel";
 import { ModalButton } from "@/components/modal";
 import type { WebTagItem } from "@/state/core/itemTypes";
 import { useTranslation } from "react-i18next";
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useItemStore } from "@/launcher/store/item";
 import { TagConfigForm, type TagConfigData } from "./TagConfigForm";
 
 interface ShortcutDialogProps {

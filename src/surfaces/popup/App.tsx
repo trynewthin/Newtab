@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useItemStore } from "@/launcher/store/item";
 import { useSettingsStore } from "@/apps/settings/store";
 import { Button } from "@/components/ui/button";
-import { TagConfigForm, type TagConfigData } from "@/apps/launcher";
+import { TagConfigForm, type TagConfigData } from "@/launcher";
 
 import { type GridItem } from "@/state/core/itemTypes";
 import { useTranslation } from "react-i18next";

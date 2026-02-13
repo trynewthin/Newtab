@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { SystemType } from '@/apps/launcher/system/systemRegistry';
-import { VALID_SYSTEM_TYPES } from '@/apps/launcher/system/appManifest';
+import type { SystemType } from '@/launcher/system/systemRegistry';
+import { VALID_SYSTEM_TYPES } from '@/launcher/system/appManifest';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 

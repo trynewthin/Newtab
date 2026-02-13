@@ -4,13 +4,13 @@ import type {
     FolderItem as FolderItemType,
     LauncherWidgetItem,
 } from "@/state/core/itemTypes";
-import { isSystemAppId } from "@/apps/launcher/system/appManifest";
-import { preloadModalRuntime } from "@/apps/launcher/system/appRuntimeRegistry";
-import { LauncherWidgetItem as LauncherWidgetRenderer } from "@/apps/launcher/widget";
-import { GRID_ITEM_PRESETS, resolveGridPreset } from "@/apps/launcher/grid/layoutPresets";
-import { AppTile } from "@/apps/launcher/components/AppTile";
-import { useSystemAppIconDescriptor, useTagIconDescriptor, useFolderIconDescriptor } from "@/apps/launcher/components/adapters";
-import { FolderWidget } from "@/apps/launcher/folder/FolderWidget";
+import { isSystemAppId } from "@/launcher/system/appManifest";
+import { preloadModalRuntime } from "@/launcher/system/appRuntimeRegistry";
+import { LauncherWidgetItem as LauncherWidgetRenderer } from "@/launcher/widget";
+import { GRID_ITEM_PRESETS, resolveGridPreset } from "@/launcher/grid/layoutPresets";
+import { AppTile } from "@/launcher/components/AppTile";
+import { useSystemAppIconDescriptor, useTagIconDescriptor, useFolderIconDescriptor } from "@/launcher/components/adapters";
+import { FolderWidget } from "@/launcher/folder/FolderWidget";
 import { useTranslation } from "react-i18next";
 
 interface GridItemProps {

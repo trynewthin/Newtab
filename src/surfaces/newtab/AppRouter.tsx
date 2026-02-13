@@ -2,8 +2,8 @@ import { Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { DashboardView } from "@/surfaces/newtab/pages/DashboardView";
 import { AnimatePresence } from "framer-motion";
-import { getSystemPageRoutes } from "@/apps/launcher/system/appManifest";
-import { getPageRenderer } from "@/apps/launcher/system/appRuntimeRegistry";
+import { getSystemPageRoutes } from "@/launcher/system/appManifest";
+import { getPageRenderer } from "@/launcher/system/appRuntimeRegistry";
 
 const AiSearchView = lazy(() =>
     import("@/surfaces/newtab/pages/AiSearchView").then((m) => ({ default: m.AiSearchView }))

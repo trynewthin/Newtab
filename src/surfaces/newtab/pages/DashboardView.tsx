@@ -1,13 +1,13 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { BasePage } from "@/components/layout";
-import { AppGrid } from "@/apps/launcher";
+import { AppGrid } from "@/launcher";
 import { motion } from "framer-motion";
-import { useSystemDialogRouter } from "@/apps/launcher/store/ui";
-import { warmupModalRuntimes } from "@/apps/launcher/system/appRuntimeRegistry";
+import { useSystemDialogRouter } from "@/launcher/store/ui";
+import { warmupModalRuntimes } from "@/launcher/system/appRuntimeRegistry";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 const HomeTools = lazy(() =>
-    import("@/apps/launcher/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
+    import("@/launcher/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
 );
 const DASHBOARD_GRID_TOP_INSET_PX = 168;
 

@@ -9,10 +9,10 @@ import type {
     FolderItem,
     LauncherWidgetItem,
 } from '@/state/core/itemTypes';
-import { SYSTEM_ITEMS } from '@/apps/launcher';
-import { getWidgetManifestItem, isSystemWidgetId, resolveLegacyWidgetId } from '@/apps/launcher/widget';
-import { GRID_ITEM_PRESETS } from '@/apps/launcher/grid/layoutPresets';
-import { isSystemAppBlocked, isSystemAppId } from '@/apps/launcher/system/appManifest';
+import { SYSTEM_ITEMS } from '@/launcher';
+import { getWidgetManifestItem, isSystemWidgetId, resolveLegacyWidgetId } from '@/launcher/widget';
+import { GRID_ITEM_PRESETS } from '@/launcher/grid/layoutPresets';
+import { isSystemAppBlocked, isSystemAppId } from '@/launcher/system/appManifest';
 
 type NewItemInput =
     | Omit<WebTagItem, 'id' | 'kind'>

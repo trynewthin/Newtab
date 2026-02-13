@@ -1,5 +1,5 @@
-import { useUIStore } from "@/apps/launcher/store/ui";
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useUIStore } from "@/launcher/store/ui";
+import { useItemStore } from "@/launcher/store/item";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/core/utils";

@@ -1,11 +1,11 @@
 export * from './core/types';
 export * from './core/storage';
-export * from '@/apps/launcher/store/ui';
+export * from '@/launcher/store/ui';
 export * from '@/apps/settings/store';
-export * from '@/apps/launcher/store/item';
+export * from '@/launcher/store/item';
 
 import { useSettingsStore } from '@/apps/settings/store';
-import { useItemStore } from '@/apps/launcher/store/item';
+import { useItemStore } from '@/launcher/store/item';
 import { storageRegistry } from './persistence/registry';
 
 // ============================================================================

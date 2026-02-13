@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useItemStore } from "@/launcher/store/item";
 import { AppSurfaceModal } from "@/components/modal/AppSurfaceModal";
-import { renderSystemIcon } from "@/apps/launcher/system/systemIcons";
+import { renderSystemIcon } from "@/launcher/system/systemIcons";
 import {
     ENABLED_SYSTEM_APP_MANIFEST,
     type SystemAppManifestItem,
-} from "@/apps/launcher/system/appManifest";
+} from "@/launcher/system/appManifest";
 import {
     SYSTEM_WIDGET_MANIFEST,
     getWidgetCollections,
     getWidgetsByCollection,
     type SystemWidgetManifestItem,
-} from "@/apps/launcher/widget";
-import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/apps/launcher/grid/layoutPresets";
+} from "@/launcher/widget";
+import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/grid/layoutPresets";
 import type { LauncherWidgetItem } from "@/state/core/itemTypes";
 import { Plus, Minus, Check, AppWindow, Puzzle } from "lucide-react";
 import { cn } from "@/core/utils";

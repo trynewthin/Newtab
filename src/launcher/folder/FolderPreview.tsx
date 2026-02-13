@@ -1,4 +1,4 @@
-import { useItemStore } from "@/apps/launcher/store/item";
+import { useItemStore } from "@/launcher/store/item";
 import { type GridItem as GridItemType, type FolderItem, type WebTagItem, type SystemAppItem } from "@/state/core/itemTypes";
 import { GridItem } from "../grid/GridItem";
 import {

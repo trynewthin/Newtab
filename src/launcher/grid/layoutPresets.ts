@@ -14,6 +14,7 @@ export const GRID_ITEM_PRESETS = {
     "1x2": { w: 1, h: 2 },
     "2x2": { w: 2, h: 2 },
     "2x4": { w: 2, h: 4 },
+    "4x2": { w: 4, h: 2 },
 } as const;
 
 export type GridPresetKey = keyof typeof GRID_ITEM_PRESETS;

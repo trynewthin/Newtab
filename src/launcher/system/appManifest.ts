@@ -1,5 +1,5 @@
 export type AppSurface = "modal" | "page";
-export type LauncherTilePreset = "1x1" | "2x1" | "1x2" | "2x2" | "2x4";
+export type LauncherTilePreset = "1x1" | "2x1" | "1x2" | "2x2" | "2x4" | "4x2";
 export type LauncherTileVariant = "icon" | "panel";
 export type AppSurfaceFramePreset = "free" | "semi" | "sidebar";
 

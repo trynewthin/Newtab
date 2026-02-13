@@ -42,17 +42,30 @@ export interface GlassSurfaceProps {
 }
 
 const useDarkMode = () => {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof document === 'undefined') return false;
+    return document.documentElement.classList.contains('dark');
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    setIsDark(mediaQuery.matches);
+    const root = document.documentElement;
+    // Observe .dark class changes on <html> (set by app theme sync)
+    const observer = new MutationObserver(() => {
+      setIsDark(root.classList.contains('dark'));
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
 
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    // Also listen to system preference as fallback
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => setIsDark(root.classList.contains('dark'));
     mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', handler);
+    };
   }, []);
 
   return isDark;

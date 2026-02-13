@@ -11,10 +11,7 @@ import {
 } from "@/launcher/system/appManifest";
 import { renderSystemIcon } from "@/launcher/system/systemIcons";
 import {
-    ClockRenderer,
-    DateRenderer,
-    SecondsRenderer,
-    WeekdayRenderer,
+    LargeClockRenderer,
     DayProgressRenderer,
     WeekProgressRenderer,
 } from "./timeWidgets";
@@ -114,7 +111,7 @@ function WidgetCardFrame({
         >
             <WidgetGlassPanel className="p-3">
                 <div className="flex h-full w-full flex-col justify-between">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg text-white/95">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-900/95 dark:text-white/95">
                         {renderSystemIcon(item.icon || "", "h-4 w-4")}
                     </div>
                     {children}
@@ -133,10 +130,10 @@ function AppShortcutWidgetRenderer({ item, className, onActivate }: WidgetRender
     return (
         <WidgetCardFrame item={item} className={className} onActivate={onActivate}>
             <div className="space-y-1">
-                <div className="line-clamp-1 text-sm font-semibold text-white/95">
+                <div className="line-clamp-1 text-sm font-semibold text-gray-900/95 dark:text-white/95">
                     {displayTitle}
                 </div>
-                <div className="text-xs text-white/72">
+                <div className="text-xs text-gray-900/72 dark:text-white/72">
                     {t("open_app")}
                 </div>
             </div>
@@ -148,52 +145,16 @@ function AppShortcutWidgetRenderer({ item, className, onActivate }: WidgetRender
 
 export const SYSTEM_WIDGET_MANIFEST = [
     {
-        id: "clock",
-        title: "widget_clock",
-        icon: "Timer",
-        collection: "time",
-        variant: "panel",
-        draggable: true,
-        resizable: false,
-        defaultPreset: "1x1",
-        supportedPresets: ["1x1"],
-        renderer: ClockRenderer,
-    },
-    {
-        id: "date",
-        title: "widget_date",
-        icon: "Calendar",
-        collection: "time",
-        variant: "panel",
-        draggable: true,
-        resizable: false,
-        defaultPreset: "1x1",
-        supportedPresets: ["1x1"],
-        renderer: DateRenderer,
-    },
-    {
-        id: "seconds",
-        title: "widget_seconds",
+        id: "large-clock",
+        title: "widget_large_clock",
         icon: "Clock",
         collection: "time",
         variant: "panel",
         draggable: true,
         resizable: false,
-        defaultPreset: "1x1",
-        supportedPresets: ["1x1"],
-        renderer: SecondsRenderer,
-    },
-    {
-        id: "weekday",
-        title: "widget_weekday",
-        icon: "CalendarDays",
-        collection: "time",
-        variant: "panel",
-        draggable: true,
-        resizable: false,
-        defaultPreset: "1x1",
-        supportedPresets: ["1x1"],
-        renderer: WeekdayRenderer,
+        defaultPreset: "4x2",
+        supportedPresets: ["4x2"],
+        renderer: LargeClockRenderer,
     },
     {
         id: "day-progress",

@@ -1,4 +1,5 @@
 import { useUIStore } from "@/apps/launcher/store/ui";
+import { useItemStore } from "@/apps/launcher/store/item";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/platform/core/utils";
@@ -14,6 +15,7 @@ import {
 import { backgroundStorage } from "@/platform/state/core/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/platform/state/core/itemTypes";
 import AppSurface from "@/platform/shared/components/surface/AppSurface";
+import { Maximize2, Minimize2 } from "lucide-react";
 
 interface FolderItemProps {
     item: FolderItemType;
@@ -39,10 +41,14 @@ export function FolderItem({
     const FOLDER_CARD_RADIUS_PX = 16;
     const { t } = useTranslation();
     const { isEditing, selectedTagIds } = useUIStore();
+    const { updateItem } = useItemStore();
     const isSelected = selectedTagIds.includes(item.id);
+    const displayMode = item.displayMode ?? "1x1";
+    const is2x2 = displayMode === "2x2";
 
     const [resolvedChildIcons, setResolvedChildIcons] = useState<Record<string, string>>({});
-    const previewChildren = useMemo(() => item.children?.slice(0, 4) ?? [], [item.children]);
+    const previewCount = is2x2 ? 9 : 4;
+    const previewChildren = useMemo(() => item.children?.slice(0, previewCount) ?? [], [item.children, previewCount]);
     const previewSignature = useMemo(
         () => previewChildren.map((child) => {
             if (child.kind === "app") {
@@ -72,7 +78,6 @@ export function FolderItem({
         zIndex: isOverlay ? 100 : undefined,
     };
 
-    // 解析 folder 预览中 tag 的 idb:// 图标缓存；首次 miss 时短重试一次，避免“成组后需刷新”。
     useEffect(() => {
         let cancelled = false;
 
@@ -131,13 +136,16 @@ export function FolderItem({
             event?.preventDefault();
             return;
         }
-
-        // Folder logic: In editing mode, folders are NOT selectable.
-        // Clicking them will still open the folder preview.
         event?.preventDefault();
         if (onClick) {
             onClick(item);
         }
+    };
+
+    const handleToggleDisplayMode = () => {
+        const nextMode = is2x2 ? "1x1" : "2x2";
+        const size = nextMode === "2x2" ? { w: 2, h: 2 } : { w: 1, h: 1 };
+        updateItem(item.id, { displayMode: nextMode, ...size } as Partial<GridItem>);
     };
 
     const renderGridIcon = (index: number) => {
@@ -174,6 +182,88 @@ export function FolderItem({
         );
     };
 
+    const extraMenuItems = [
+        {
+            label: is2x2 ? t("folder_switch_1x1") : t("folder_switch_2x2"),
+            icon: is2x2 ? <Minimize2 size={12} /> : <Maximize2 size={12} />,
+            onClick: handleToggleDisplayMode,
+        },
+    ];
+
+    // ─── 2x2 Panel Mode ─────────────────────────────────────────────
+    if (is2x2) {
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                className={cn(
+                    "group relative h-full w-full",
+                    isEditing && !isDragging && !isOverlay && "animate-[shake_0.5s_ease-in-out_infinite]",
+                    isOverlay && "scale-105 rotate-1 cursor-grabbing"
+                )}
+                {...(isOverlay ? {} : attributes)}
+                {...(isOverlay ? {} : listeners)}
+            >
+                <ItemActionMenu
+                    disabled={!!isOverlay}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    editLabel={t("edit")}
+                    deleteLabel={t("remove")}
+                    extraItems={extraMenuItems}
+                >
+                    <div
+                        onClick={handleClick}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                handleClick(event);
+                            }
+                        }}
+                        className={cn(
+                            "relative flex h-full w-full items-center justify-center overflow-hidden rounded-[24px]",
+                            "cursor-pointer shadow-lg transition-all duration-200 hover:shadow-xl",
+                            isOverlay && "cursor-grabbing shadow-2xl",
+                            ITEM_INTERACTION_ANIMATION_CLASS,
+                        )}
+                    >
+                        <div className="pointer-events-none absolute inset-0">
+                            <AppSurface
+                                variant="widget"
+                                borderRadius={24}
+                                className="h-full w-full"
+                            />
+                        </div>
+                        <div className="relative z-10 flex h-full w-full flex-col p-3">
+                            <div className="flex-1 grid grid-cols-3 gap-[8px] content-start">
+                                {previewChildren.map((_, index) => (
+                                    <div
+                                        key={index}
+                                        className="w-full aspect-square rounded-[12px] overflow-hidden"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const child = previewChildren[index];
+                                            if (child && 'url' in child && child.url) {
+                                                window.open(child.url, '_blank');
+                                            } else {
+                                                handleClick(e);
+                                            }
+                                        }}
+                                    >
+                                        {renderGridIcon(index)}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </ItemActionMenu>
+            </div>
+        );
+    }
+
+    // ─── 1x1 Icon Mode (default) ────────────────────────────────────
     return (
         <div
             ref={setNodeRef}
@@ -192,6 +282,7 @@ export function FolderItem({
                 onDelete={handleDelete}
                 editLabel={t("edit")}
                 deleteLabel={t("remove")}
+                extraItems={extraMenuItems}
             >
                 <div
                     onClick={handleClick}
@@ -241,4 +332,3 @@ export function FolderItem({
         </div>
     );
 }
-

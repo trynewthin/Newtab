@@ -134,6 +134,25 @@ export function getItemLayoutCapability(item: GridItem): GridItemLayoutCapabilit
         };
     }
 
+    if (item.kind === "folder") {
+        const mode = item.displayMode ?? "1x1";
+        if (mode === "2x2") {
+            return {
+                variant: "panel",
+                draggable: true,
+                resizable: false,
+                defaultPreset: "2x2",
+                allowedPresets: ["2x2"],
+                minW: 2,
+                maxW: 2,
+                minH: 2,
+                maxH: 2,
+                resizeAxis: "both",
+            };
+        }
+        return ICON_ONLY_CAPABILITY;
+    }
+
     if (item.kind !== "app") {
         return ICON_ONLY_CAPABILITY;
     }

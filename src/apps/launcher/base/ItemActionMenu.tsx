@@ -6,6 +6,12 @@ import {
 } from "@/components/ui/context-menu";
 import { Edit2, Trash2 } from "lucide-react";
 
+export interface ItemActionMenuItem {
+    label: string;
+    icon?: React.ReactNode;
+    onClick: () => void;
+}
+
 interface ItemActionMenuProps {
     children: React.ReactNode;
     disabled?: boolean;
@@ -13,6 +19,7 @@ interface ItemActionMenuProps {
     onDelete?: () => void;
     editLabel?: string;
     deleteLabel?: string;
+    extraItems?: ItemActionMenuItem[];
 }
 
 export function ItemActionMenu({
@@ -22,6 +29,7 @@ export function ItemActionMenu({
     onDelete,
     editLabel = "Edit",
     deleteLabel = "Delete",
+    extraItems,
 }: ItemActionMenuProps) {
     const handleEdit = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -51,6 +59,19 @@ export function ItemActionMenu({
                     sideOffset={8}
                     className="w-32 p-1"
                 >
+                    {extraItems?.map((extra, i) => (
+                        <ContextMenuItem
+                            key={i}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                extra.onClick();
+                            }}
+                        >
+                            {extra.icon}
+                            {extra.label}
+                        </ContextMenuItem>
+                    ))}
                     {onEdit && (
                         <ContextMenuItem onClick={handleEdit}>
                             <Edit2 size={12} />

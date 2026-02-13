@@ -47,6 +47,7 @@ export interface SystemAppManifestItem {
     id: SystemAppId;
     title: string;
     icon: string;
+    category?: string;
     surfaces: AppSurfaceConfig;
     frames: AppSurfaceFrameConfig;
     launcher: AppLauncherLayoutConfig;
@@ -84,6 +85,7 @@ export const SYSTEM_APP_MANIFEST = [
         id: "settings",
         title: "sys_settings",
         icon: "Settings",
+        category: "system",
         surfaces: { modal: true, page: false },
         frames: SETTINGS_FRAMES,
         launcher: ICON_ONLY_LAYOUT,
@@ -93,6 +95,7 @@ export const SYSTEM_APP_MANIFEST = [
         id: "ai",
         title: "sys_ai",
         icon: "Sparkles",
+        category: "productivity",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
         launcher: ICON_ONLY_LAYOUT,
@@ -102,6 +105,7 @@ export const SYSTEM_APP_MANIFEST = [
         id: "downloads",
         title: "sys_downloads",
         icon: "Downloads",
+        category: "browser",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
         launcher: ICON_ONLY_LAYOUT,
@@ -111,6 +115,7 @@ export const SYSTEM_APP_MANIFEST = [
         id: "bookmarks",
         title: "sys_bookmarks",
         icon: "Bookmarks",
+        category: "browser",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
         launcher: ICON_ONLY_LAYOUT,
@@ -120,6 +125,7 @@ export const SYSTEM_APP_MANIFEST = [
         id: "history",
         title: "sys_history",
         icon: "History",
+        category: "browser",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
         launcher: ICON_ONLY_LAYOUT,
@@ -129,6 +135,7 @@ export const SYSTEM_APP_MANIFEST = [
         id: "component-market",
         title: "sys_component_market",
         icon: "Grid3x3",
+        category: "system",
         surfaces: { modal: true, page: false },
         frames: DEFAULT_FRAMES,
         launcher: ICON_ONLY_LAYOUT,

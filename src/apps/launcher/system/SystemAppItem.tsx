@@ -133,7 +133,7 @@ export function SystemAppItem({
                         // Dark: Black BG, White Icon
                         // Use !important to override inline style backgroundColor="transparent" from ItemIcon default
                         className={cn(
-                            "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow transition-colors duration-300",
+                            "w-14 h-14 rounded-[18px] shadow-lg hover:shadow-xl transition-shadow transition-colors duration-300",
                             "!bg-white dark:!bg-black",
                             "text-black dark:text-white",
                             "cursor-pointer",

@@ -1,186 +1,161 @@
-import { useMemo } from "react";
-import { AppSurfaceModal } from "@/platform/shared/components";
-import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import { useItemStore } from "@/apps/launcher/store/item";
-import {
-    type AppSurfaceFramePreset,
-    ENABLED_SYSTEM_APP_MANIFEST,
-    getAppManifestItem,
-    type LauncherTilePreset,
-    type SystemAppManifestItem,
-} from "@/apps/launcher/system/appManifest";
-import { GRID_ITEM_PRESETS } from "@/apps/launcher/grid/layoutPresets";
+import { AppSurfaceModal } from "@/platform/shared/components/modal/AppSurfaceModal";
 import { renderSystemIcon } from "@/apps/launcher/system/systemIcons";
 import {
+    ENABLED_SYSTEM_APP_MANIFEST,
+    type SystemAppManifestItem,
+} from "@/apps/launcher/system/appManifest";
+import {
     SYSTEM_WIDGET_MANIFEST,
+    getWidgetCollections,
+    getWidgetsByCollection,
     type SystemWidgetManifestItem,
 } from "@/apps/launcher/widget";
-import { Plus, Square, RectangleHorizontal, RectangleVertical } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/apps/launcher/grid/layoutPresets";
+import { Plus } from "lucide-react";
 
 interface ComponentMarketDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    framePreset?: AppSurfaceFramePreset;
 }
 
-const PRESET_ORDER: readonly LauncherTilePreset[] = ["1x1", "2x1", "1x2", "2x2", "2x4"] as const;
-
-function getPresetSize(preset: LauncherTilePreset) {
-    return GRID_ITEM_PRESETS[preset];
-}
-
-function resolveLocalizedTitle(
-    t: (key: string, options?: Record<string, unknown>) => string,
-    title: string
-): string {
-    if (title.startsWith("sys_") || title.startsWith("widget_")) {
-        return t(title);
-    }
-    return title;
-}
-
-function getSurfaceLabel(
-    app: SystemAppManifestItem,
-    t: (key: string, options?: Record<string, unknown>) => string
-): string {
-    const labels: string[] = [];
-    if (app.surfaces.modal) labels.push(t("surface_modal"));
-    if (app.surfaces.page) labels.push(t("surface_page"));
-    return labels.join(" / ");
-}
-
-function renderPresetGlyph(preset: LauncherTilePreset) {
-    if (preset === "2x1") return <RectangleHorizontal className="h-3.5 w-3.5" />;
-    if (preset === "1x2") return <RectangleVertical className="h-3.5 w-3.5" />;
-    return <Square className="h-3.5 w-3.5" />;
-}
-
-export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi" }: ComponentMarketDialogProps) {
+export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDialogProps) {
     const { t } = useTranslation();
     const { addItem } = useItemStore();
 
-    const apps = useMemo<SystemAppManifestItem[]>(() => [...ENABLED_SYSTEM_APP_MANIFEST], []);
-    const widgets = useMemo<SystemWidgetManifestItem[]>(() => [...SYSTEM_WIDGET_MANIFEST], []);
-
-    const handleAddIcon = (app: SystemAppManifestItem) => {
-        const size = getPresetSize("1x1");
+    const handleAddAppIcon = (app: SystemAppManifestItem) => {
         addItem({
-            appId: app.id,
             title: app.title,
+            appId: app.id,
             icon: app.icon,
-            w: size.w,
-            h: size.h,
-        });
+        } as any);
+        onOpenChange(false);
     };
 
-    const handleAddWidget = (widget: SystemWidgetManifestItem, preset: LauncherTilePreset) => {
-        const size = getPresetSize(preset);
+    const handleAddWidget = (widget: SystemWidgetManifestItem, preset: GridPresetKey) => {
+        const size = GRID_ITEM_PRESETS[preset];
         addItem({
+            title: widget.title,
             widgetId: widget.id,
             ownerAppId: widget.ownerAppId,
-            title: widget.title,
             icon: widget.icon,
             w: size.w,
             h: size.h,
-        });
+        } as any);
+        onOpenChange(false);
     };
 
-    const content = (
-        <div className="mx-auto h-[min(76vh,calc(100dvh-7rem))] w-full max-w-5xl overflow-y-auto px-4 py-4 custom-scrollbar sm:px-5 sm:py-5">
-            <div className="space-y-5">
-                <section className="space-y-2.5">
-                    <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        {t("component_market_app_icons")}
-                    </div>
-                    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
-                        {apps.map((app) => (
-                            <div
-                                key={app.id}
-                                className="modal-minimal-card"
-                            >
-                                <div className="space-y-3">
-                                    <div className="flex min-w-0 items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground shadow-xs">
-                                            {renderSystemIcon(app.icon, "h-5 w-5")}
-                                        </div>
-                                        <div className="min-w-0">
-                                            <div className="truncate text-sm font-semibold tracking-tight text-foreground">
-                                                {resolveLocalizedTitle(t, app.title)}
-                                            </div>
-                                            <div className="text-[11px] text-muted-foreground">
-                                                {getSurfaceLabel(app, t)}
-                                            </div>
-                                        </div>
-                                    </div>
+    // Group apps by category
+    const appsByCategory = new Map<string, SystemAppManifestItem[]>();
+    for (const app of ENABLED_SYSTEM_APP_MANIFEST) {
+        const cat = (app as SystemAppManifestItem).category ?? "other";
+        if (!appsByCategory.has(cat)) appsByCategory.set(cat, []);
+        appsByCategory.get(cat)!.push(app);
+    }
 
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handleAddIcon(app)}
-                                        >
-                                            <Plus className="h-3.5 w-3.5" />
-                                            {t("component_market_icon_preset", { preset: "1x1" })}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+    // Widget collections
+    const collections = getWidgetCollections();
 
-                <section className="space-y-2.5">
-                    <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        {t("component_market_components")}
-                    </div>
-                    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
-                        {widgets.map((widget) => {
-                            const owner = widget.ownerAppId ? getAppManifestItem(widget.ownerAppId) : null;
-                            return (
-                                <div
-                                    key={widget.id}
-                                    className="modal-minimal-card"
+    // Standalone widgets (no collection)
+    const standaloneWidgets = (SYSTEM_WIDGET_MANIFEST as readonly SystemWidgetManifestItem[]).filter(
+        (w) => !(w as SystemWidgetManifestItem).collection
+    );
+
+    const marketContent = (
+        <div className="h-[60vh] overflow-y-auto custom-scrollbar space-y-6 p-4">
+            {/* App Icons by Category */}
+            <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
+                    {t("component_market_app_icons")}
+                </h3>
+                {[...appsByCategory.entries()].map(([category, apps]) => (
+                    <div key={category} className="mb-4">
+                        <h4 className="text-[11px] font-medium text-foreground/40 mb-2">
+                            {t(`category_${category}`)}
+                        </h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {apps.map((app) => (
+                                <button
+                                    key={app.id}
+                                    onClick={() => handleAddAppIcon(app)}
+                                    className="flex items-center gap-2.5 rounded-lg border border-border/50 p-2.5 text-left transition-colors hover:bg-accent/50"
                                 >
-                                    <div className="space-y-3">
-                                        <div className="flex min-w-0 items-center gap-3">
-                                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground shadow-xs">
-                                                {renderSystemIcon(widget.icon, "h-5 w-5")}
-                                            </div>
-                                            <div className="min-w-0">
-                                                <div className="truncate text-sm font-semibold tracking-tight text-foreground">
-                                                    {resolveLocalizedTitle(t, widget.title)}
-                                                </div>
-                                                <div className="text-[11px] text-muted-foreground">
-                                                    {owner
-                                                        ? t("component_market_owner", { owner: resolveLocalizedTitle(t, owner.title) })
-                                                        : t("component_market_standalone")}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            {PRESET_ORDER.filter((preset) =>
-                                                (widget.supportedPresets as readonly LauncherTilePreset[]).includes(preset)
-                                            ).map((preset) => (
-                                                <Button
-                                                    key={`${widget.id}-${preset}`}
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={() => handleAddWidget(widget, preset)}
-                                                >
-                                                    {renderPresetGlyph(preset)}
-                                                    {preset}
-                                                </Button>
-                                            ))}
-                                        </div>
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+                                        {renderSystemIcon(app.icon, "h-4 w-4")}
                                     </div>
-                                </div>
-                            );
-                        })}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="truncate text-sm font-medium">{t(app.title)}</div>
+                                    </div>
+                                    <Plus size={14} className="shrink-0 text-foreground/30" />
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </section>
-            </div>
+                ))}
+            </section>
+
+            {/* Widgets by Collection */}
+            <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
+                    {t("component_market_components")}
+                </h3>
+                {collections.map((collection) => {
+                    const widgets = getWidgetsByCollection(collection);
+                    return (
+                        <div key={collection} className="mb-4">
+                            <h4 className="text-[11px] font-medium text-foreground/40 mb-2">
+                                {t(`collection_${collection}`)}
+                            </h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {widgets.map((widget) => (
+                                    <button
+                                        key={widget.id}
+                                        onClick={() => handleAddWidget(widget, widget.defaultPreset as GridPresetKey)}
+                                        className="flex items-center gap-2.5 rounded-lg border border-border/50 p-2.5 text-left transition-colors hover:bg-accent/50"
+                                    >
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+                                            {renderSystemIcon(widget.icon, "h-4 w-4")}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="truncate text-sm font-medium">{t(widget.title)}</div>
+                                            <div className="text-[10px] text-foreground/40">{widget.defaultPreset}</div>
+                                        </div>
+                                        <Plus size={14} className="shrink-0 text-foreground/30" />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {/* Standalone widgets */}
+                {standaloneWidgets.length > 0 && (
+                    <div className="mb-4">
+                        <h4 className="text-[11px] font-medium text-foreground/40 mb-2">
+                            {t("component_market_standalone")}
+                        </h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {standaloneWidgets.map((widget) => (
+                                <button
+                                    key={widget.id}
+                                    onClick={() => handleAddWidget(widget, widget.defaultPreset as GridPresetKey)}
+                                    className="flex items-center gap-2.5 rounded-lg border border-border/50 p-2.5 text-left transition-colors hover:bg-accent/50"
+                                >
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground/70">
+                                        {renderSystemIcon(widget.icon, "h-4 w-4")}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="truncate text-sm font-medium">{t(widget.title)}</div>
+                                        <div className="text-[10px] text-foreground/40">{widget.defaultPreset}</div>
+                                    </div>
+                                    <Plus size={14} className="shrink-0 text-foreground/30" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </section>
         </div>
     );
 
@@ -188,10 +163,9 @@ export function ComponentMarketDialog({ open, onOpenChange, framePreset = "semi"
         <AppSurfaceModal
             open={open}
             onOpenChange={onOpenChange}
-            preset={framePreset}
             title={t("component_market_title")}
-            content={content}
-            background={<div className="absolute inset-0 bg-background" />}
+            preset="semi"
+            content={marketContent}
         />
     );
 }

@@ -150,7 +150,7 @@ export function TagItem({
                         scale={item.iconSize || 1.3}
                         backgroundColor={bgColor}
                         className={cn(
-                            "w-14 h-14 rounded-2xl shadow-lg hover:shadow-xl transition-shadow",
+                            "w-14 h-14 rounded-[18px] shadow-lg hover:shadow-xl transition-shadow",
                             isEditing ? "cursor-pointer" : "cursor-pointer",
                             isOverlay && "cursor-grabbing shadow-2xl",
                             ITEM_INTERACTION_ANIMATION_CLASS,

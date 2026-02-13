@@ -38,10 +38,13 @@ export interface LauncherWidgetItem extends BaseItem {
 }
 
 // 4. Folder (文件夹)
+export type FolderDisplayMode = '1x1' | '2x2';
+
 export interface FolderItem extends BaseItem {
     kind: 'folder';
     children: (WebTagItem | SystemAppItem)[]; // Folder 通常不嵌套 Folder
     icon?: string; // Folder icon preview (usually composed)
+    displayMode?: FolderDisplayMode; // 默认 '1x1'，可切换为 '2x2' 九宫格模式
 }
 
 // Union Type

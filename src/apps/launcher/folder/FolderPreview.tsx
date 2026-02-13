@@ -432,7 +432,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
                     <AppSurface variant="folder-preview" className="h-full w-full p-0">
                         <section className="relative z-10 h-full w-full p-6">
                             <div className="h-full w-full overflow-y-auto overflow-x-hidden">
-                                <div className="relative grid grid-cols-3 justify-items-center gap-x-2 gap-y-4 content-start">
+                                <div className="relative grid grid-cols-3 justify-items-center gap-x-6 gap-y-6 content-start">
                                     <SortableContext
                                         items={displayItems.map(item => item.id)}
                                         strategy={rectSortingStrategy}

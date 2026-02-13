@@ -28,8 +28,8 @@ export const DISTORTION_VARIANT_PRESETS: SurfacePresetMap = {
         dark: { width: "100%", height: "100%", borderRadius: 50, displace: 3.0 },
     },
     widget: {
-        light: { width: "100%", height: "100%", borderRadius: 16, borderWidth: 0 },
-        dark: { width: "100%", height: "100%", borderRadius: 16, borderWidth: 0 },
+        light: { width: "100%", height: "100%", borderRadius: 24, borderWidth: 0 },
+        dark: { width: "100%", height: "100%", borderRadius: 24, borderWidth: 0 },
     },
     "folder-preview": {
         light: { width: "100%", height: "100%", borderRadius: 32 },
@@ -51,8 +51,8 @@ export const FROSTED_VARIANT_PRESETS: FrostedPresetMap = {
         dark: { backgroundOpacity: 0.32, saturation: 1.6, blur: 40, borderOpacity: 0.12, highlightOpacity: 0.04, shadowOpacity: 0.25, borderRadius: 50 },
     },
     widget: {
-        light: { backgroundOpacity: 0.36, saturation: 1.8, blur: 40, borderOpacity: 0, highlightOpacity: 0.08, shadowOpacity: 0.08, borderRadius: 16 },
-        dark: { backgroundOpacity: 0.3, saturation: 1.6, blur: 40, borderOpacity: 0, highlightOpacity: 0.03, shadowOpacity: 0.25, borderRadius: 16 },
+        light: { backgroundOpacity: 0.36, saturation: 1.8, blur: 40, borderOpacity: 0, highlightOpacity: 0.08, shadowOpacity: 0.08, borderRadius: 24 },
+        dark: { backgroundOpacity: 0.3, saturation: 1.6, blur: 40, borderOpacity: 0, highlightOpacity: 0.03, shadowOpacity: 0.25, borderRadius: 24 },
     },
     "folder-preview": {
         light: { backgroundOpacity: 0.38, saturation: 1.8, blur: 40, borderOpacity: 0.35, highlightOpacity: 0.09, shadowOpacity: 0.1, borderRadius: 32 },
@@ -64,6 +64,6 @@ export const FLUID_VARIANT_PRESETS: Record<AppSurfaceVariant, { borderRadius: nu
     base: { borderRadius: 18 },
     toolbar: { borderRadius: 28 },
     "search-bar": { borderRadius: 50 },
-    widget: { borderRadius: 16 },
+    widget: { borderRadius: 24 },
     "folder-preview": { borderRadius: 32 },
 };

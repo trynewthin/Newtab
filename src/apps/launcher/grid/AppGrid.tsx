@@ -308,9 +308,8 @@ function applyNearestVacancyLayout(
         startA < endB && startB < endA;
     const isHorizontalMove = Math.abs(dx) >= Math.abs(dy);
 
-    // 关键修复：
-    // 横向拖拽时不仅处理“与 dragged 直接碰撞”的项，还要把 source->target 走廊内的中间项纳入补位链，
-    // 否则会出现“右侧项被挤到下一行而中间项不跟随”的断链问题。
+    // 走廊范围：覆盖 source→target 的完整移动路径。
+    // 使用 from/to 两端的最大包围盒，确保大尺寸 item 不会被遗漏。
     const corridorStartX = Math.min(normalizedFromX, normalizedToX);
     const corridorEndX = Math.max(normalizedFromX + dragged.w, normalizedToX + dragged.w);
     const corridorStartY = Math.min(normalizedFromY, normalizedToY);
@@ -320,14 +319,16 @@ function applyNearestVacancyLayout(
         if (entry.i === dragged.i) return false;
         if (collides(entry, dragged)) return true;
 
+        // 走廊检测：使用完整走廊范围（而非仅 dragged 的单行/单列），
+        // 确保大尺寸 item 即使只有部分在走廊内也能被正确纳入补位链。
         if (isHorizontalMove && dx !== 0) {
-            const overlapsY = overlapsRange(entry.y, entry.y + entry.h, dragged.y, dragged.y + dragged.h);
+            const overlapsY = overlapsRange(entry.y, entry.y + entry.h, corridorStartY, corridorEndY);
             const overlapsCorridorX = overlapsRange(entry.x, entry.x + entry.w, corridorStartX, corridorEndX);
             return overlapsY && overlapsCorridorX;
         }
 
         if (!isHorizontalMove && dy !== 0) {
-            const overlapsX = overlapsRange(entry.x, entry.x + entry.w, dragged.x, dragged.x + dragged.w);
+            const overlapsX = overlapsRange(entry.x, entry.x + entry.w, corridorStartX, corridorEndX);
             const overlapsCorridorY = overlapsRange(entry.y, entry.y + entry.h, corridorStartY, corridorEndY);
             return overlapsX && overlapsCorridorY;
         }
@@ -351,26 +352,55 @@ function applyNearestVacancyLayout(
         return (orderMap.get(a.i) ?? 0) - (orderMap.get(b.i) ?? 0);
     });
 
+    // 链式回填候选区域列表：初始为 dragged 腾出的源区域，
+    // 每当一个 displaced 被安置后，它腾出的原位置也加入候选列表，
+    // 形成"多米诺骨牌"式的链式补位。
+    const vacantRegions: Array<{ x: number; y: number; w: number; h: number }> = [
+        { x: normalizedFromX, y: normalizedFromY, w: move.w, h: move.h },
+    ];
+
     for (const displaced of pending) {
         const occupied = next.filter((entry) => entry.i !== displaced.i);
-        const sourceMaxX = Math.max(totalCols - displaced.w, 0);
-        const sourceBackfillCandidate: LayoutItem = {
-            i: "__source_backfill_candidate__",
-            x: snapDown(clamp(normalizedFromX, 0, sourceMaxX), GRID_STEP_X),
-            y: normalizedFromY,
-            w: displaced.w,
-            h: displaced.h,
-        };
-        const canBackfillSource =
-            isWithinGridBounds(sourceBackfillCandidate, totalCols) &&
-            !occupied.some((entry) => collides(sourceBackfillCandidate, entry));
+        const prevX = displaced.x;
+        const prevY = displaced.y;
 
-        if (canBackfillSource) {
-            displaced.x = sourceBackfillCandidate.x;
-            displaced.y = sourceBackfillCandidate.y;
+        // 链式回填：遍历所有已知空位区域，尝试将 displaced 放入。
+        let backfilled = false;
+        for (const region of vacantRegions) {
+            if (displaced.w > region.w || displaced.h > region.h) continue;
+
+            const regionMaxX = Math.max(totalCols - displaced.w, 0);
+            for (let sy = region.y; sy + displaced.h <= region.y + region.h; sy += GRID_STEP_Y) {
+                for (let sx = region.x; sx + displaced.w <= region.x + region.w; sx += GRID_STEP_X) {
+                    const candidate: LayoutItem = {
+                        i: "__chain_backfill__",
+                        x: snapDown(clamp(sx, 0, regionMaxX), GRID_STEP_X),
+                        y: sy,
+                        w: displaced.w,
+                        h: displaced.h,
+                    };
+                    if (
+                        isWithinGridBounds(candidate, totalCols) &&
+                        !occupied.some((o) => collides(candidate, o))
+                    ) {
+                        displaced.x = candidate.x;
+                        displaced.y = candidate.y;
+                        backfilled = true;
+                        break;
+                    }
+                }
+                if (backfilled) break;
+            }
+            if (backfilled) break;
+        }
+
+        if (backfilled) {
+            // displaced 移走后，它的原位置成为新的空位候选
+            vacantRegions.push({ x: prevX, y: prevY, w: displaced.w, h: displaced.h });
             continue;
         }
 
+        // 回填失败：在 displaced 原位附近找最近空位，偏好反向移动。
         let preferredX = displaced.x;
         let preferredY = displaced.y;
         if (isHorizontalMove && dx !== 0) {
@@ -384,6 +414,8 @@ function applyNearestVacancyLayout(
 
         displaced.x = nearest.x;
         displaced.y = nearest.y;
+        // 即使通过 fallback 安置，原位置也成为空位候选
+        vacantRegions.push({ x: prevX, y: prevY, w: displaced.w, h: displaced.h });
     }
 
     for (const entry of next) {

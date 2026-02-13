@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ItemIcon } from "../base/ItemIcon";
@@ -114,29 +114,34 @@ export function TagConfigForm({
     // Validating State
     const [isValidating, setIsValidating] = useState(false);
 
-    // Validate Icons
+    // Validate Icons — only re-run when candidates change, NOT when iconStr changes
+    const hasAutoSelected = useRef(false);
     useEffect(() => {
         let cancelled = false;
+        hasAutoSelected.current = false;
 
         const validate = async () => {
             setIsValidating(true);
-            const results: string[] = [];
+            const valid = new Set<string>();
             await Promise.all(
                 iconCandidates.map(src => new Promise<void>((resolve) => {
                     const img = new Image();
                     img.crossOrigin = "Anonymous";
                     img.src = src;
-                    img.onload = () => { if (!cancelled) results.push(src); resolve(); };
+                    img.onload = () => { if (!cancelled) valid.add(src); resolve(); };
                     img.onerror = () => resolve();
                 }))
             );
             if (cancelled) return;
-            setValidIcons(results);
+            // Preserve candidate order so icons don't jump
+            const ordered = iconCandidates.filter(src => valid.has(src));
+            setValidIcons(ordered);
             setIsValidating(false);
 
-            // Auto-select first valid icon if current selection is invalid or empty
-            if (results.length > 0 && !iconStr) {
-                setIconStr(results[0]);
+            // Auto-select first valid icon only once per candidate set
+            if (ordered.length > 0 && !hasAutoSelected.current) {
+                hasAutoSelected.current = true;
+                setIconStr(prev => prev || ordered[0]);
             }
         };
 
@@ -148,18 +153,17 @@ export function TagConfigForm({
         }
 
         return () => { cancelled = true; };
-    }, [iconCandidates, iconStr]);
+    }, [iconCandidates]);
 
     // Auto-extract color when icon changes
     useEffect(() => {
         let cancelled = false;
         if (!iconStr) return;
-        // 如果图标未改变（即与初始值相同），则不触发自动取色，保留原有颜色
-        if (defaultValues?.icon && iconStr === defaultValues.icon) return;
+
+        // Always update preview icon so switching back works
+        setPreviewIcon(iconStr);
 
         const extract = async () => {
-            setPreviewIcon(iconStr);
-
             try {
                 const img = new Image();
                 img.crossOrigin = "Anonymous";

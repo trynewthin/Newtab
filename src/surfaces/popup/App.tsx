@@ -138,35 +138,33 @@ export default function Popup() {
     }, [isReady, title, url, iconStr, existingItem]);
 
     return (
-        <div className="popup-minimal-scope w-full min-h-[400px] bg-background text-foreground overflow-x-hidden flex flex-col relative p-3">
+        <div className="popup-minimal-scope w-full min-h-[400px] bg-background text-foreground overflow-x-hidden flex flex-col relative px-4 py-5">
             {isSuccess && checkIcon}
 
-            <div className="flex-1 rounded-2xl border border-border/70 bg-card/85 p-4 shadow-sm">
-                {isReady ? (
-                    <TagConfigForm
-                        key={existingItem ? `edit-${existingItem.id}` : `add-${url}`}
-                        defaultValues={defaultValues}
-                        onSubmit={handleSubmit}
-                        showUrlField={false}
-                        autoFocus={false}
-                    >
-                        <div className="pt-3">
-                            <Button
-                                type="submit"
-                                className="w-full h-10 rounded-xl bg-foreground text-background hover:bg-foreground/90 shadow-none font-medium transition-all active:scale-[0.98]"
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? t('saving') : (existingItem ? t('update_bookmark') : t('add_bookmark'))}
-                            </Button>
-                        </div>
-                    </TagConfigForm>
-                ) : (
-                    <div className="flex flex-col items-center justify-center h-64 gap-3">
-                        <div className="w-7 h-7 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
-                        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.14em]">{t('loading')}</span>
+            {isReady ? (
+                <TagConfigForm
+                    key={existingItem ? `edit-${existingItem.id}` : `add-${url}`}
+                    defaultValues={defaultValues}
+                    onSubmit={handleSubmit}
+                    showUrlField={false}
+                    autoFocus={false}
+                >
+                    <div className="pt-3">
+                        <Button
+                            type="submit"
+                            className="w-full h-10 rounded-xl bg-foreground text-background hover:bg-foreground/90 shadow-none font-medium transition-all active:scale-[0.98]"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? t('saving') : (existingItem ? t('update_bookmark') : t('add_bookmark'))}
+                        </Button>
                     </div>
-                )}
-            </div>
+                </TagConfigForm>
+            ) : (
+                <div className="flex flex-col items-center justify-center h-64 gap-3">
+                    <div className="w-7 h-7 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
+                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.14em]">{t('loading')}</span>
+                </div>
+            )}
         </div>
     );
 }

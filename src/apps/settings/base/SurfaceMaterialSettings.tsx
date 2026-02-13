@@ -10,6 +10,7 @@ import {
     type AppSurfaceMaterial,
     type AppSurfaceTone,
     type DistortionGlassMaterialConfig,
+    type FluidGlassMaterialConfig,
 } from "@/platform/core/surfaceMaterials";
 
 function NumberSlider({
@@ -55,6 +56,7 @@ export function SurfaceMaterialSettings() {
     const normalizedConfig = mergeSurfaceMaterialConfig(surfaceMaterialConfig);
     const distortionConfig = normalizedConfig["glass-distortion"];
     const frostedConfig = normalizedConfig["mac-frosted"];
+    const fluidConfig = normalizedConfig["fluid-glass"];
 
     const updateDistortion = (patch: Partial<DistortionGlassMaterialConfig>) => {
         updateSurfaceMaterialConfig("glass-distortion", patch);
@@ -64,17 +66,26 @@ export function SurfaceMaterialSettings() {
         updateSurfaceMaterialConfig("mac-frosted", patch);
     };
 
+    const updateFluid = (patch: Partial<FluidGlassMaterialConfig>) => {
+        updateSurfaceMaterialConfig("fluid-glass", patch);
+    };
+
     const resetCurrentMaterial = () => {
         if (surfaceMaterial === "glass-distortion") {
             updateSurfaceMaterialConfig("glass-distortion", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["glass-distortion"]);
             return;
         }
-        updateSurfaceMaterialConfig("mac-frosted", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["mac-frosted"]);
+        if (surfaceMaterial === "mac-frosted") {
+            updateSurfaceMaterialConfig("mac-frosted", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["mac-frosted"]);
+            return;
+        }
+        updateSurfaceMaterialConfig("fluid-glass", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["fluid-glass"]);
     };
 
     const materialLabelMap: Record<AppSurfaceMaterial, string> = {
         "glass-distortion": t("surface_material_glass_distortion"),
         "mac-frosted": t("surface_material_mac_frosted"),
+        "fluid-glass": t("surface_material_fluid_glass"),
     };
 
     const toneLabelMap: Record<AppSurfaceTone, string> = {
@@ -98,6 +109,7 @@ export function SurfaceMaterialSettings() {
                     <SelectContent>
                         <SelectItem value="glass-distortion">{t("surface_material_glass_distortion")}</SelectItem>
                         <SelectItem value="mac-frosted">{t("surface_material_mac_frosted")}</SelectItem>
+                        <SelectItem value="fluid-glass">{t("surface_material_fluid_glass")}</SelectItem>
                     </SelectContent>
                 </Select>
             </SettingsItem>
@@ -184,7 +196,7 @@ export function SurfaceMaterialSettings() {
                         </Select>
                     </SettingsItem>
                 </div>
-            ) : (
+            ) : surfaceMaterial === "mac-frosted" ? (
                 <div className="space-y-2.5">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
                         {t("surface_material_customize_frosted")}
@@ -207,6 +219,40 @@ export function SurfaceMaterialSettings() {
                     </SettingsItem>
                     <SettingsItem label={t("surface_field_shadow_opacity")}>
                         <NumberSlider value={frostedConfig.shadowOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ shadowOpacity: v })} />
+                    </SettingsItem>
+                </div>
+            ) : (
+                <div className="space-y-2.5">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
+                        {t("surface_material_customize_fluid")}
+                    </div>
+
+                    <SettingsItem label={t("surface_field_tint_opacity")}>
+                        <NumberSlider value={fluidConfig.tintOpacity} min={0} max={0.75} step={0.01} onChange={(v) => updateFluid({ tintOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_saturation")}>
+                        <NumberSlider value={fluidConfig.saturation} min={0} max={2} step={0.01} onChange={(v) => updateFluid({ saturation: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_blur")}>
+                        <NumberSlider value={fluidConfig.blur} min={0} max={24} step={0.1} onChange={(v) => updateFluid({ blur: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_ior")}>
+                        <NumberSlider value={fluidConfig.ior} min={1} max={2} step={0.01} onChange={(v) => updateFluid({ ior: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_thickness")}>
+                        <NumberSlider value={fluidConfig.thickness} min={0.1} max={5} step={0.1} onChange={(v) => updateFluid({ thickness: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_anisotropy")}>
+                        <NumberSlider value={fluidConfig.anisotropy} min={0} max={1} step={0.01} onChange={(v) => updateFluid({ anisotropy: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_chromatic_aberration")}>
+                        <NumberSlider value={fluidConfig.chromaticAberration} min={0} max={1} step={0.01} onChange={(v) => updateFluid({ chromaticAberration: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_distortion")}>
+                        <NumberSlider value={fluidConfig.distortion} min={0} max={1} step={0.01} onChange={(v) => updateFluid({ distortion: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_temporal_distortion")}>
+                        <NumberSlider value={fluidConfig.temporalDistortion} min={0} max={1} step={0.01} onChange={(v) => updateFluid({ temporalDistortion: v })} />
                     </SettingsItem>
                 </div>
             )}

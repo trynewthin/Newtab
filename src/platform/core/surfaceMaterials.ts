@@ -1,4 +1,4 @@
-export type AppSurfaceMaterial = "glass-distortion" | "mac-frosted";
+export type AppSurfaceMaterial = "glass-distortion" | "mac-frosted" | "fluid-glass";
 export type AppSurfaceVariant = "base" | "toolbar" | "search-bar" | "widget" | "folder-preview";
 export type AppSurfaceTone = "auto" | "light" | "dark";
 
@@ -46,14 +46,28 @@ export interface MacFrostedMaterialConfig {
     shadowOpacity: number;
 }
 
+export interface FluidGlassMaterialConfig {
+    tintOpacity: number;
+    saturation: number;
+    blur: number;
+    ior: number;
+    thickness: number;
+    anisotropy: number;
+    chromaticAberration: number;
+    distortion: number;
+    temporalDistortion: number;
+}
+
 export interface AppSurfaceMaterialConfigMap {
     "glass-distortion": DistortionGlassMaterialConfig;
     "mac-frosted": MacFrostedMaterialConfig;
+    "fluid-glass": FluidGlassMaterialConfig;
 }
 
 export const SURFACE_MATERIAL_OPTIONS: readonly AppSurfaceMaterial[] = [
     "glass-distortion",
     "mac-frosted",
+    "fluid-glass",
 ] as const;
 
 export const DEFAULT_APP_SURFACE_MATERIAL_CONFIG: AppSurfaceMaterialConfigMap = {
@@ -79,12 +93,24 @@ export const DEFAULT_APP_SURFACE_MATERIAL_CONFIG: AppSurfaceMaterialConfigMap = 
         highlightOpacity: 0.18,
         shadowOpacity: 0.17,
     },
+    "fluid-glass": {
+        tintOpacity: 0.2,
+        saturation: 1.18,
+        blur: 8,
+        ior: 1.18,
+        thickness: 1.2,
+        anisotropy: 0.08,
+        chromaticAberration: 0.03,
+        distortion: 0.16,
+        temporalDistortion: 0.12,
+    },
 };
 
 export function mergeSurfaceMaterialConfig(
     partial?: Partial<{
         "glass-distortion": Partial<DistortionGlassMaterialConfig>;
         "mac-frosted": Partial<MacFrostedMaterialConfig>;
+        "fluid-glass": Partial<FluidGlassMaterialConfig>;
     }> | null
 ): AppSurfaceMaterialConfigMap {
     return {
@@ -95,6 +121,10 @@ export function mergeSurfaceMaterialConfig(
         "mac-frosted": {
             ...DEFAULT_APP_SURFACE_MATERIAL_CONFIG["mac-frosted"],
             ...(partial?.["mac-frosted"] ?? {}),
+        },
+        "fluid-glass": {
+            ...DEFAULT_APP_SURFACE_MATERIAL_CONFIG["fluid-glass"],
+            ...(partial?.["fluid-glass"] ?? {}),
         },
     };
 }

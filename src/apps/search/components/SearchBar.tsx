@@ -207,40 +207,41 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
                                     )}
                                 </button>
                                 {engineMenuOpen && (
-                                    <div className="absolute top-[calc(100%+16px)] left-[-6px] w-60 rounded-2xl overflow-hidden shadow-none z-50">
+                                    <div className="absolute top-[calc(100%+16px)] left-[-6px] z-50 w-60 rounded-2xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)] overflow-hidden">
                                         <div className="absolute inset-0 pointer-events-none">
                                             <AppSurface
-                                                variant="base"
+                                                variant="widget"
                                                 width="100%"
                                                 height="100%"
                                                 borderRadius={16}
-                                                className="h-full w-full"
+                                                style={{ outline: "none", border: "none", boxShadow: "none" }}
+                                                className="h-full w-full rounded-[16px]"
                                             />
                                         </div>
-                                        <div className="relative z-10 p-2 border border-white/10 rounded-2xl">
+                                        <div className="relative z-10 p-2">
                                             <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
-                                            {allEngines.map((engine) => (
-                                                <button
-                                                    key={engine.value}
-                                                    type="button"
-                                                    onClick={() => handleEngineSelect(engine.value)}
-                                                    className={cn(
-                                                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
-                                                        engine.value === searchEngine
-                                                            ? 'bg-white/28 text-foreground font-semibold'
-                                                            : 'text-foreground hover:bg-white/20'
-                                                    )}
-                                                >
-                                                    <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                                                        {engine.value === 'ai' ? (
-                                                            <Sparkles size={18} className="text-foreground" />
-                                                        ) : (
-                                                            <img src={engine.icon} alt="" className="w-4.5 h-4.5 rounded-sm object-contain" />
+                                                {allEngines.map((engine) => (
+                                                    <button
+                                                        key={engine.value}
+                                                        type="button"
+                                                        onClick={() => handleEngineSelect(engine.value)}
+                                                        className={cn(
+                                                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
+                                                            engine.value === searchEngine
+                                                                ? 'bg-foreground/16 text-foreground font-semibold'
+                                                                : 'text-foreground hover:bg-foreground/12'
                                                         )}
-                                                    </div>
-                                                    <span className="text-sm font-medium">{engine.name}</span>
-                                                </button>
-                                            ))}
+                                                    >
+                                                        <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                                                            {engine.value === 'ai' ? (
+                                                                <Sparkles size={18} className="text-foreground" />
+                                                            ) : (
+                                                                <img src={engine.icon} alt="" className="w-4.5 h-4.5 rounded-sm object-contain" />
+                                                            )}
+                                                        </div>
+                                                        <span className="text-sm font-medium">{engine.name}</span>
+                                                    </button>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
@@ -294,34 +295,35 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
 
             {/* Suggestions - Minimalist */}
             {!isAiMode && !engineMenuOpen && showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-[calc(100%+8px)] z-40 left-0 right-0 rounded-3xl overflow-hidden shadow-none">
+                <div className="absolute top-[calc(100%+8px)] z-40 left-0 right-0 rounded-3xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)] overflow-hidden">
                     <div className="absolute inset-0 pointer-events-none">
                         <AppSurface
-                            variant="base"
+                            variant="widget"
                             width="100%"
                             height="100%"
                             borderRadius={24}
-                            className="h-full w-full"
+                            style={{ outline: "none", border: "none", boxShadow: "none" }}
+                            className="h-full w-full rounded-[24px]"
                         />
                     </div>
-                    <div className="relative z-10 p-2 border border-white/10 rounded-3xl">
+                    <div className="relative z-10 p-2">
                         <ul className="space-y-1">
-                        {suggestions.map((suggestion, index) => (
-                            <li
-                                key={index}
-                                onClick={() => performSearch(suggestion)}
-                                onMouseEnter={() => setActiveIndex(index)}
-                                className={cn(
-                                    "px-4 py-3.5 rounded-2xl cursor-pointer flex items-center gap-3 transition-colors",
-                                    index === activeIndex
-                                        ? "bg-white/28 text-foreground"
-                                        : "text-foreground hover:bg-white/20"
-                                )}
-                            >
-                                <Search size={16} className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")} />
-                                <span className="text-base font-medium">{suggestion}</span>
-                            </li>
-                        ))}
+                            {suggestions.map((suggestion, index) => (
+                                <li
+                                    key={index}
+                                    onClick={() => performSearch(suggestion)}
+                                    onMouseEnter={() => setActiveIndex(index)}
+                                    className={cn(
+                                        "px-4 py-3.5 rounded-2xl cursor-pointer flex items-center gap-3 transition-colors",
+                                        index === activeIndex
+                                            ? "bg-foreground/16 text-foreground"
+                                            : "text-foreground hover:bg-foreground/12"
+                                    )}
+                                >
+                                    <Search size={16} className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")} />
+                                    <span className="text-base font-medium">{suggestion}</span>
+                                </li>
+                            ))}
                         </ul>
                     </div>
                 </div>

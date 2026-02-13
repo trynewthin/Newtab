@@ -83,9 +83,10 @@ export function useAiChat() {
             let step = 0;
             const enabledToolNames = config.enabledTools || [];
             const hasTools = enabledToolNames.length > 0;
-            const maxSteps = hasTools ? 10 : 1;
+            const TOOL_PROGRESS_HINT_INTERVAL = 25;
 
-            while (step < maxSteps && !stopSignalRef.current) {
+            while (!stopSignalRef.current) {
+                if (!hasTools && step >= 1) break;
                 step++;
                 const apiMessages = prepareApiMessages(useAiStore.getState().messages, systemPrompt);
                 const data = await callApi(apiMessages);
@@ -136,6 +137,14 @@ export function useAiChat() {
 
                     await updateMessage(toolMsgId, {
                         content: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
+                    });
+                }
+
+                if (hasTools && step % TOOL_PROGRESS_HINT_INTERVAL === 0) {
+                    await addMessage({
+                        role: 'system',
+                        content: '⏳ 工具链较长，正在继续执行。你也可以点击停止生成。',
+                        isIntermediate: true
                     });
                 }
             }

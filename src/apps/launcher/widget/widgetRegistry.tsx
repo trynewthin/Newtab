@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/platform/core/utils";
 import type { LauncherWidgetItem } from "@/platform/state/core/itemTypes";
 import { ItemActionMenu } from "@/apps/launcher/base/ItemActionMenu";
@@ -63,8 +63,10 @@ function WidgetGlassPanel({
     children: React.ReactNode;
 }) {
     return (
-        <AppSurface variant="widget" className={cn("h-full w-full", className)}>
-            {children}
+        <AppSurface variant="widget" className="h-full w-full">
+            <div className={cn("h-full w-full", className)}>
+                {children}
+            </div>
         </AppSurface>
     );
 }
@@ -176,150 +178,224 @@ function ProgressBar({
     );
 }
 
-type ClockToken =
-    | "timePair"
-    | "seconds"
+type ClockScale = "sm" | "md" | "lg";
+type ClockBlockKind =
+    | "time-hero"
+    | "time-single"
+    | "time-hour"
+    | "time-minute"
+    | "date"
+    | "date-detail"
     | "weekday"
-    | "dateShort"
-    | "dateLong"
-    | "dayProgress"
-    | "weekProgress";
+    | "seconds"
+    | "day-progress"
+    | "week-progress";
 
-type ClockTokenFamily = "time" | "seconds" | "weekday" | "date" | "day" | "week";
-type ClockLayoutMode = "narrow" | "balanced" | "wide" | "ultra" | "fallback";
-
-interface ClockTokenSpec {
-    token: ClockToken;
-    family: ClockTokenFamily;
-    densityCost: number;
-    utility: number;
-    minWidth?: number;
-    minHeight?: number;
-    requires?: readonly ClockToken[];
-    conflicts?: readonly ClockToken[];
+interface ClockBlockPlacement {
+    key: string;
+    kind: ClockBlockKind;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
 }
 
-interface ClockLayoutPlan {
-    mode: ClockLayoutMode;
-    tokens: Set<ClockToken>;
-    density: number;
-    targetDensity: number;
+interface ClockGridPlan {
+    scale: ClockScale;
+    blocks: ClockBlockPlacement[];
 }
 
-const CLOCK_TOKEN_SPECS: readonly ClockTokenSpec[] = [
-    { token: "timePair", family: "time", densityCost: 12, utility: 100 },
-    { token: "seconds", family: "seconds", densityCost: 3, utility: 24 },
-    { token: "weekday", family: "weekday", densityCost: 3, utility: 18 },
-    { token: "dateShort", family: "date", densityCost: 3, utility: 22 },
-    { token: "dateLong", family: "date", densityCost: 5, utility: 26, minWidth: 4, conflicts: ["dateShort"] },
-    { token: "dayProgress", family: "day", densityCost: 5, utility: 20, minWidth: 2 },
-    { token: "weekProgress", family: "week", densityCost: 5, utility: 16, minWidth: 3, requires: ["dayProgress"] },
-] as const;
+interface ClockBlockRule {
+    kind: ClockBlockKind;
+    w: number;
+    h: number;
+    weight: number;
+    minArea: number;
+    minCols?: number;
+    minRows?: number;
+    preferBottom?: boolean;
+}
 
-function resolveClockLayoutMode(width: number, height: number): ClockLayoutMode {
-    if (height === 2) {
-        if (width <= 1) return "narrow";
-        if (width === 2) return "balanced";
-        if (width === 3) return "wide";
-        return "ultra";
+function resolveClockScale(width: number, height: number): ClockScale {
+    const area = width * height;
+    if (area <= 2) return "sm";
+    if (area <= 8) return "md";
+    return "lg";
+}
+
+function buildClockGridPlan(width: number, height: number): ClockGridPlan {
+    const cols = Math.max(1, width);
+    const rows = Math.max(1, height);
+    const area = cols * rows;
+    const occupied = Array.from({ length: rows }, () => Array.from({ length: cols }, () => false));
+    const blocks: ClockBlockPlacement[] = [];
+
+    const canPlace = (x: number, y: number, w: number, h: number) => {
+        if (x + w > cols || y + h > rows) return false;
+        for (let row = y; row < y + h; row += 1) {
+            for (let col = x; col < x + w; col += 1) {
+                if (occupied[row]?.[col]) return false;
+            }
+        }
+        return true;
+    };
+
+    const placeAt = (kind: ClockBlockKind, x: number, y: number, w: number, h: number) => {
+        if (!canPlace(x, y, w, h)) return false;
+        for (let row = y; row < y + h; row += 1) {
+            for (let col = x; col < x + w; col += 1) {
+                occupied[row][col] = true;
+            }
+        }
+        blocks.push({
+            key: `${kind}-${blocks.length}`,
+            kind,
+            x,
+            y,
+            w,
+            h,
+        });
+        return true;
+    };
+
+    const placeFirstFit = (
+        kind: ClockBlockKind,
+        w: number,
+        h: number,
+        preferBottom = false
+    ) => {
+        const rowStart = preferBottom ? rows - h : 0;
+        const rowEnd = preferBottom ? -1 : rows - h + 1;
+        const rowStep = preferBottom ? -1 : 1;
+        for (let row = rowStart; row !== rowEnd; row += rowStep) {
+            for (let col = 0; col <= cols - w; col += 1) {
+                if (placeAt(kind, col, row, w, h)) return true;
+            }
+        }
+        return false;
+    };
+
+    const isRuleEligible = (rule: ClockBlockRule) => {
+        if (area < rule.minArea) return false;
+        if (rule.minCols !== undefined && cols < rule.minCols) return false;
+        if (rule.minRows !== undefined && rows < rule.minRows) return false;
+        return true;
+    };
+
+    const placeRule = (rule: ClockBlockRule) => {
+        if (!isRuleEligible(rule)) return false;
+        return placeFirstFit(rule.kind, rule.w, rule.h, rule.preferBottom);
+    };
+
+    if (cols === 1 && rows === 1) {
+        placeAt("time-single", 0, 0, 1, 1);
+        return {
+            scale: resolveClockScale(cols, rows),
+            blocks,
+        };
     }
-    return "fallback";
-}
 
-function resolveClockTargetDensity(width: number): number {
-    if (width <= 1) return 0.78;
-    if (width === 2) return 0.84;
-    if (width === 3) return 0.9;
-    return 0.93;
-}
+    // 面积门槛 + 权重机制：高权重块只有达标后才会参与布局。
+    const primaryHeroRule: ClockBlockRule = {
+        kind: "time-hero",
+        w: 2,
+        h: 2,
+        weight: 100,
+        minArea: 8,
+        minCols: 2,
+        minRows: 2,
+    };
 
-function resolveTokenUtility(spec: ClockTokenSpec, width: number): number {
-    if (spec.token === "dateLong") {
-        return width >= 4 ? spec.utility + 8 : spec.utility - 10;
-    }
-    if (spec.token === "weekProgress") {
-        return width >= 3 ? spec.utility + 2 : spec.utility - 8;
-    }
-    return spec.utility;
-}
-
-function buildClockLayoutPlan(width: number, height: number): ClockLayoutPlan {
-    const mode = resolveClockLayoutMode(width, height);
-    const targetDensity = resolveClockTargetDensity(width);
-    const capacity = Math.max(1, width * height * 12);
-    const selected = new Set<ClockToken>(["timePair"]);
-    const selectedFamilies = new Set<ClockTokenFamily>(["time"]);
-    const tokenMap = new Map(CLOCK_TOKEN_SPECS.map((spec) => [spec.token, spec]));
-    let usedCost = tokenMap.get("timePair")?.densityCost ?? 12;
-
-    const candidates = CLOCK_TOKEN_SPECS
-        .filter((spec) => spec.token !== "timePair")
-        .sort((a, b) => resolveTokenUtility(b, width) - resolveTokenUtility(a, width));
-
-    for (const spec of candidates) {
-        if (typeof spec.minWidth === "number" && width < spec.minWidth) continue;
-        if (typeof spec.minHeight === "number" && height < spec.minHeight) continue;
-        if (selectedFamilies.has(spec.family)) continue;
-        if (spec.requires && !spec.requires.every((token) => selected.has(token))) continue;
-        if (spec.conflicts && spec.conflicts.some((token) => selected.has(token))) continue;
-
-        const projectedDensity = (usedCost + spec.densityCost) / capacity;
-        if (projectedDensity > targetDensity + 0.06) continue;
-
-        selected.add(spec.token);
-        selectedFamilies.add(spec.family);
-        usedCost += spec.densityCost;
-    }
-
-    if (!selected.has("dateShort") && !selected.has("dateLong")) {
-        const preferredDate = width >= 4 ? "dateLong" : "dateShort";
-        const fallbackDate = preferredDate === "dateLong" ? "dateShort" : "dateLong";
-        const preferredSpec = tokenMap.get(preferredDate);
-        if (
-            preferredSpec &&
-            (!preferredSpec.minWidth || width >= preferredSpec.minWidth) &&
-            (!preferredSpec.minHeight || height >= preferredSpec.minHeight) &&
-            (usedCost + preferredSpec.densityCost) / capacity <= targetDensity + 0.08
-        ) {
-            selected.add(preferredDate);
-            selectedFamilies.add("date");
-            usedCost += preferredSpec.densityCost;
+    const placedHero = placeRule(primaryHeroRule);
+    if (!placedHero) {
+        if (cols >= 2) {
+            placeAt("time-hour", 0, 0, 1, 1);
+            placeAt("time-minute", 1, 0, 1, 1);
         } else {
-            const fallbackSpec = tokenMap.get(fallbackDate);
-            if (
-                fallbackSpec &&
-                (!fallbackSpec.minWidth || width >= fallbackSpec.minWidth) &&
-                (!fallbackSpec.minHeight || height >= fallbackSpec.minHeight) &&
-                (usedCost + fallbackSpec.densityCost) / capacity <= targetDensity + 0.1
-            ) {
-                selected.add(fallbackDate);
-                selectedFamilies.add("date");
-                usedCost += fallbackSpec.densityCost;
+            placeAt("time-hour", 0, 0, 1, 1);
+            if (rows >= 2) {
+                placeAt("time-minute", 0, 1, 1, 1);
             }
         }
     }
 
-    const density = Math.min(1, usedCost / capacity);
-    return { mode, tokens: selected, density, targetDensity };
+    const weightedRules: ClockBlockRule[] = [
+        {
+            kind: "seconds",
+            w: 1,
+            h: 1,
+            weight: 78,
+            minArea: 4,
+            minCols: 2,
+        },
+        {
+            kind: "date",
+            w: 1,
+            h: 1,
+            weight: 72,
+            minArea: 3,
+        },
+        {
+            kind: "weekday",
+            w: 1,
+            h: 1,
+            weight: 68,
+            minArea: 4,
+        },
+        {
+            kind: "date-detail",
+            w: 2,
+            h: 1,
+            weight: 64,
+            minArea: 8,
+            minCols: 3,
+            minRows: 2,
+            preferBottom: true,
+        },
+        {
+            kind: "day-progress",
+            w: 2,
+            h: 1,
+            weight: 60,
+            minArea: 6,
+            minCols: 2,
+            minRows: 2,
+            preferBottom: true,
+        },
+        {
+            kind: "week-progress",
+            w: 2,
+            h: 1,
+            weight: 56,
+            minArea: 8,
+            minCols: 2,
+            minRows: 2,
+            preferBottom: true,
+        },
+    ];
+
+    weightedRules
+        .sort((a, b) => b.weight - a.weight)
+        .forEach((rule) => {
+            placeRule(rule);
+        });
+
+    return {
+        scale: resolveClockScale(cols, rows),
+        blocks,
+    };
 }
 
-function TimeSegment({
-    label,
-    value,
-    compact = false,
+function ClockUnitTile({
+    className,
+    children,
 }: {
-    label: string;
-    value: string;
-    compact?: boolean;
+    className?: string;
+    children: React.ReactNode;
 }) {
     return (
-        <div className="space-y-1 px-1 py-0.5">
-            <div className={cn("text-white/72", compact ? "text-[9px]" : "text-[10px]")}>
-                {label}
-            </div>
-            <div className={cn("font-semibold leading-none text-white", compact ? "text-[1.45rem]" : "text-[1.8rem]")}>
-                {value}
-            </div>
+        <div className={cn("h-full w-full rounded-xl bg-white/10 px-2 py-1.5", className)}>
+            {children}
         </div>
     );
 }
@@ -359,6 +435,13 @@ function ClockWidgetShell({
 function ClockWidgetRenderer({ gridSize, className, onActivate }: WidgetRenderProps) {
     const { t } = useTranslation();
     const [now, setNow] = useState(() => new Date());
+    const viewportRef = useRef<HTMLDivElement | null>(null);
+    const [canvasLayout, setCanvasLayout] = useState({
+        width: 0,
+        height: 0,
+        columnGap: 0,
+        rowGap: 0,
+    });
 
     useEffect(() => {
         const timer = window.setInterval(() => {
@@ -370,125 +453,177 @@ function ClockWidgetRenderer({ gridSize, className, onActivate }: WidgetRenderPr
     const parts = getClockParts(now);
     const width = Math.max(1, Math.round(gridSize.w));
     const height = Math.max(1, Math.round(gridSize.h));
-    const plan = buildClockLayoutPlan(width, height);
-    const mode = plan.mode;
+    const plan = buildClockGridPlan(width, height);
+    const labelClass = plan.scale === "sm" ? "text-[9px]" : plan.scale === "lg" ? "text-[11px]" : "text-[10px]";
+    const valueClass = plan.scale === "sm" ? "text-[1.15rem]" : plan.scale === "lg" ? "text-[1.8rem]" : "text-[1.45rem]";
+    const heroValueClass = plan.scale === "sm" ? "text-[1.45rem]" : plan.scale === "lg" ? "text-[2.45rem]" : "text-[2.05rem]";
+    const compactValueClass = plan.scale === "sm" ? "text-[0.95rem]" : plan.scale === "lg" ? "text-[1.2rem]" : "text-[1.05rem]";
+    const baseGapPx = plan.scale === "sm" ? 6 : plan.scale === "lg" ? 10 : 8;
+    const edgeInsetPx = plan.scale === "sm" ? 3 : 4;
 
-    const show = (token: ClockToken) => plan.tokens.has(token);
-    const activeDateText = show("dateLong") ? parts.dateLong : parts.dateShort;
-    const splitTime = (
-        <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-1.5">
-            <TimeSegment label={t("clock_h_short")} value={parts.hours} compact={width <= 2} />
-            <div className="pb-1 text-center text-xl font-semibold text-white/88">:</div>
-            <TimeSegment label={t("clock_m_short")} value={parts.minutes} compact={width <= 2} />
-        </div>
-    );
+    useEffect(() => {
+        const el = viewportRef.current;
+        if (!el) return;
+
+        const compute = () => {
+            if (!viewportRef.current) return;
+            const availableWidth = viewportRef.current.clientWidth;
+            const availableHeight = viewportRef.current.clientHeight;
+            if (availableWidth <= 0 || availableHeight <= 0) return;
+
+            const innerWidth = Math.max(1, availableWidth - edgeInsetPx * 2);
+            const innerHeight = Math.max(1, availableHeight - edgeInsetPx * 2);
+            const minGapWidth = width > 1 ? baseGapPx * (width - 1) : 0;
+            const minGapHeight = height > 1 ? baseGapPx * (height - 1) : 0;
+            const unit = Math.max(
+                1,
+                Math.min(
+                    (innerWidth - minGapWidth) / width,
+                    (innerHeight - minGapHeight) / height
+                )
+            );
+
+            const usedWidth = unit * width + minGapWidth;
+            const usedHeight = unit * height + minGapHeight;
+            const remainingWidth = Math.max(0, innerWidth - usedWidth);
+            const remainingHeight = Math.max(0, innerHeight - usedHeight);
+
+            const dynamicColumnGap = width > 1
+                ? baseGapPx + remainingWidth / (width - 1)
+                : 0;
+            const dynamicRowGap = height > 1
+                ? baseGapPx + remainingHeight / (height - 1)
+                : 0;
+
+            const nextWidth = unit * width + dynamicColumnGap * Math.max(0, width - 1);
+            const nextHeight = unit * height + dynamicRowGap * Math.max(0, height - 1);
+
+            const precision = 1000;
+            const roundedWidth = Math.round(nextWidth * precision) / precision;
+            const roundedHeight = Math.round(nextHeight * precision) / precision;
+            const roundedColGap = Math.round(dynamicColumnGap * precision) / precision;
+            const roundedRowGap = Math.round(dynamicRowGap * precision) / precision;
+
+            setCanvasLayout((prev) => (
+                prev.width === roundedWidth &&
+                prev.height === roundedHeight &&
+                prev.columnGap === roundedColGap &&
+                prev.rowGap === roundedRowGap
+                    ? prev
+                    : {
+                        width: roundedWidth,
+                        height: roundedHeight,
+                        columnGap: roundedColGap,
+                        rowGap: roundedRowGap,
+                    }
+            ));
+        };
+
+        compute();
+        if (typeof ResizeObserver === "undefined") return;
+        const ro = new ResizeObserver(compute);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [baseGapPx, edgeInsetPx, width, height]);
 
     return (
         <ClockWidgetShell className={className} onActivate={onActivate}>
-            <div className="flex h-full min-h-0 flex-col overflow-hidden">
-                {mode === "narrow" ? (
-                    <div className="flex min-h-0 flex-1 flex-col justify-between gap-2">
-                        <div className="space-y-2">
-                            {splitTime}
-                            {show("weekday") ? (
-                                <div className="text-xs text-white/72">{parts.weekdayLong}</div>
+            <div ref={viewportRef} className="flex h-full w-full items-center justify-center">
+                <div
+                    className="grid"
+                    style={{
+                        width: canvasLayout.width > 0 ? canvasLayout.width : "100%",
+                        height: canvasLayout.height > 0 ? canvasLayout.height : "100%",
+                        columnGap: `${canvasLayout.columnGap}px`,
+                        rowGap: `${canvasLayout.rowGap}px`,
+                        gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))`,
+                        gridTemplateRows: `repeat(${height}, minmax(0, 1fr))`,
+                    }}
+                >
+                    {plan.blocks.map((block) => (
+                        <div
+                            key={`${block.key}-slot`}
+                            style={{
+                                gridColumn: `${block.x + 1} / span ${block.w}`,
+                                gridRow: `${block.y + 1} / span ${block.h}`,
+                            }}
+                        >
+                            {block.kind === "time-hero" ? (
+                                <ClockUnitTile className="flex items-center justify-center">
+                                    <div className={cn("font-semibold leading-none text-white tabular-nums", heroValueClass)}>
+                                        {parts.timeHM}
+                                    </div>
+                                </ClockUnitTile>
+                            ) : null}
+                            {block.kind === "time-single" ? (
+                                <ClockUnitTile className="flex items-center justify-center">
+                                    <div className={cn("font-semibold leading-none text-white tabular-nums", valueClass)}>
+                                        {parts.timeHM}
+                                    </div>
+                                </ClockUnitTile>
+                            ) : null}
+                            {(block.kind === "time-hour" || block.kind === "time-minute") ? (
+                                <ClockUnitTile>
+                                    <div className="flex h-full min-h-0 flex-col justify-between">
+                                        <div className={cn("text-white/72", labelClass)}>
+                                            {block.kind === "time-hour" ? t("clock_h_short") : t("clock_m_short")}
+                                        </div>
+                                        <div className={cn("font-semibold leading-none text-white tabular-nums", valueClass)}>
+                                            {block.kind === "time-hour" ? parts.hours : parts.minutes}
+                                        </div>
+                                    </div>
+                                </ClockUnitTile>
+                            ) : null}
+                            {block.kind === "date" ? (
+                                <ClockUnitTile>
+                                    <div className="flex h-full min-h-0 items-center">
+                                        <div className={cn("line-clamp-2 font-medium leading-snug text-white/84", compactValueClass)}>
+                                            {parts.dateShort}
+                                        </div>
+                                    </div>
+                                </ClockUnitTile>
+                            ) : null}
+                            {block.kind === "date-detail" ? (
+                                <ClockUnitTile>
+                                    <div className="flex h-full min-h-0 items-center">
+                                        <div className={cn("line-clamp-2 font-medium leading-snug text-white/82", labelClass)}>
+                                            {parts.dateLong}
+                                        </div>
+                                    </div>
+                                </ClockUnitTile>
+                            ) : null}
+                            {block.kind === "weekday" ? (
+                                <ClockUnitTile>
+                                    <div className="flex h-full min-h-0 items-center justify-center">
+                                        <div className={cn("line-clamp-2 text-center font-medium leading-snug text-white/82", compactValueClass)}>
+                                            {parts.weekdayLong}
+                                        </div>
+                                    </div>
+                                </ClockUnitTile>
+                            ) : null}
+                            {block.kind === "seconds" ? (
+                                <ClockUnitTile>
+                                    <div className="flex h-full min-h-0 flex-col justify-between">
+                                        <div className={cn("text-white/72", labelClass)}>SEC</div>
+                                        <div className={cn("font-semibold leading-none text-white/92 tabular-nums", valueClass)}>
+                                            {parts.seconds}
+                                        </div>
+                                    </div>
+                                </ClockUnitTile>
+                            ) : null}
+                            {block.kind === "day-progress" ? (
+                                <ClockUnitTile className="flex items-center">
+                                    <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact />
+                                </ClockUnitTile>
+                            ) : null}
+                            {block.kind === "week-progress" ? (
+                                <ClockUnitTile className="flex items-center">
+                                    <ProgressBar label={t("clock_week")} value={parts.weekProgress} compact />
+                                </ClockUnitTile>
                             ) : null}
                         </div>
-                        <div className="space-y-1">
-                            {show("seconds") ? (
-                                <div className="text-[11px] text-white/72">{t("clock_seconds", { seconds: parts.seconds })}</div>
-                            ) : null}
-                            {(show("dateShort") || show("dateLong")) ? (
-                                <div className="text-xs font-medium text-white/88">{parts.dateShort}</div>
-                            ) : null}
-                        </div>
-                    </div>
-                ) : null}
-
-                {mode === "balanced" ? (
-                    <div className="grid min-h-0 flex-1 grid-rows-[auto_auto_1fr] gap-2">
-                        {splitTime}
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                            {show("weekday") ? <div className="text-white/72">{parts.weekdayLong}</div> : <span />}
-                            {(show("dateShort") || show("dateLong")) ? <div className="text-right text-white/72">{parts.dateShort}</div> : <span />}
-                        </div>
-                        <div className="flex min-h-0 flex-col justify-end gap-1.5">
-                            {show("seconds") ? (
-                                <div className="text-[11px] text-white/72">{t("clock_seconds", { seconds: parts.seconds })}</div>
-                            ) : null}
-                            {show("dayProgress") ? (
-                                <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact />
-                            ) : null}
-                        </div>
-                    </div>
-                ) : null}
-
-                {mode === "wide" ? (
-                    <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-2.5">
-                        <div className="flex min-h-0 flex-col justify-between">
-                            <div className="space-y-2">
-                                {splitTime}
-                                <div className="space-y-1 text-xs text-white/72">
-                                    {show("weekday") ? <div>{parts.weekdayLong}</div> : null}
-                                </div>
-                            </div>
-                            {(show("dateShort") || show("dateLong")) ? (
-                                <div className="text-xs text-white/72">{activeDateText}</div>
-                            ) : null}
-                        </div>
-                        <div className="flex min-h-0 flex-col justify-between gap-2">
-                            <div className="space-y-1.5">
-                                {show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
-                                {show("weekProgress") ? <ProgressBar label={t("clock_week")} value={parts.weekProgress} compact /> : null}
-                            </div>
-                            {show("seconds") ? (
-                                <div className="px-2 py-1.5 text-[11px] text-white/72">
-                                    {t("clock_seconds", { seconds: parts.seconds })}
-                                </div>
-                            ) : null}
-                        </div>
-                    </div>
-                ) : null}
-
-                {mode === "ultra" ? (
-                    <div className="grid min-h-0 flex-1 grid-cols-[1.1fr_1fr_1fr] gap-2.5">
-                        <div className="flex min-h-0 flex-col justify-between gap-2">
-                            {splitTime}
-                            <div className="space-y-1 text-xs text-white/72">
-                                {show("weekday") ? <div>{parts.weekdayLong}</div> : null}
-                            </div>
-                        </div>
-                        <div className="flex min-h-0 flex-col justify-between gap-2">
-                            <div className="space-y-1 px-2.5 py-2">
-                                {(show("dateShort") || show("dateLong")) ? (
-                                    <div className="text-xs text-white/72">{activeDateText}</div>
-                                ) : null}
-                                {show("seconds") ? (
-                                    <div className="text-sm font-medium text-white/88">{t("clock_seconds", { seconds: parts.seconds })}</div>
-                                ) : null}
-                            </div>
-                            {show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
-                        </div>
-                        <div className="flex min-h-0 flex-col justify-between gap-2">
-                            {show("weekProgress") ? <ProgressBar label={t("clock_week")} value={parts.weekProgress} compact /> : null}
-                            {!show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
-                        </div>
-                    </div>
-                ) : null}
-
-                {mode === "fallback" ? (
-                    <div className="flex min-h-0 flex-1 flex-col justify-between">
-                        <div className="space-y-2">
-                            {splitTime}
-                            {(show("dateShort") || show("dateLong")) ? <div className="text-xs text-white/72">{activeDateText}</div> : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            {show("seconds") ? <div className="text-[11px] text-white/72">{t("clock_seconds", { seconds: parts.seconds })}</div> : null}
-                            {show("dayProgress") ? <ProgressBar label={t("clock_day")} value={parts.dayProgress} compact /> : null}
-                            {show("weekProgress") ? <ProgressBar label={t("clock_week")} value={parts.weekProgress} compact /> : null}
-                        </div>
-                    </div>
-                ) : null}
+                    ))}
+                </div>
             </div>
         </ClockWidgetShell>
     );
@@ -520,14 +655,14 @@ export const SYSTEM_WIDGET_MANIFEST = [
         variant: "panel",
         draggable: true,
         resizable: true,
-        defaultPreset: "2x2",
-        supportedPresets: ["1x2", "2x2"],
+        defaultPreset: "2x1",
+        supportedPresets: ["1x1", "2x1", "1x2", "2x2", "2x4"],
         resizeRange: {
             minW: 1,
             maxW: 4,
-            minH: 2,
-            maxH: 2,
-            axis: "horizontal",
+            minH: 1,
+            maxH: 4,
+            axis: "both",
         },
         renderer: ClockWidgetRenderer,
     },

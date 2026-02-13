@@ -10,11 +10,12 @@ import {
   Preload,
   ScrollControls,
   MeshTransmissionMaterial,
-  Text
+  Text,
+  RoundedBox
 } from '@react-three/drei';
 import { easing } from 'maath';
 
-type Mode = 'lens' | 'bar' | 'cube';
+type Mode = 'lens' | 'bar' | 'cube' | 'surface';
 
 interface NavItem {
   label: string;
@@ -28,9 +29,20 @@ interface FluidGlassProps {
   lensProps?: ModeProps;
   barProps?: ModeProps;
   cubeProps?: ModeProps;
+  surfaceProps?: ModeProps;
 }
 
-export default function FluidGlass({ mode = 'lens', lensProps = {}, barProps = {}, cubeProps = {} }: FluidGlassProps) {
+export default function FluidGlass({
+  mode = 'lens',
+  lensProps = {},
+  barProps = {},
+  cubeProps = {},
+  surfaceProps = {},
+}: FluidGlassProps) {
+  if (mode === 'surface') {
+    return <SurfaceGlass modeProps={surfaceProps} />;
+  }
+
   const Wrapper = mode === 'bar' ? Bar : mode === 'cube' ? Cube : Lens;
   const rawOverrides = mode === 'bar' ? barProps : mode === 'cube' ? cubeProps : lensProps;
 
@@ -56,6 +68,54 @@ export default function FluidGlass({ mode = 'lens', lensProps = {}, barProps = {
           <Preload />
         </Wrapper>
       </ScrollControls>
+    </Canvas>
+  );
+}
+
+function SurfaceGlass({ modeProps = {} }: { modeProps?: ModeProps }) {
+  const {
+    ior = 1.18,
+    thickness = 1.2,
+    anisotropy = 0.08,
+    chromaticAberration = 0.03,
+    roughness = 0.08,
+    distortion = 0.16,
+    temporalDistortion = 0.12,
+    transmission = 1,
+    color = '#ffffff',
+  } = modeProps as {
+    ior?: number;
+    thickness?: number;
+    anisotropy?: number;
+    chromaticAberration?: number;
+    roughness?: number;
+    distortion?: number;
+    temporalDistortion?: number;
+    transmission?: number;
+    color?: string;
+  };
+
+  return (
+    <Canvas camera={{ position: [0, 0, 4], fov: 28 }} gl={{ alpha: true }} dpr={[1, 1.75]}>
+      <ambientLight intensity={0.65} />
+      <directionalLight position={[2.2, 2.8, 2.5]} intensity={0.65} />
+      <directionalLight position={[-2.4, -1.6, 1.8]} intensity={0.35} />
+      <group position={[0, 0, 0]}>
+        <RoundedBox args={[2.85, 1.85, 0.16]} radius={0.22} smoothness={8}>
+          <MeshTransmissionMaterial
+            transmission={transmission}
+            roughness={roughness}
+            thickness={thickness}
+            ior={ior}
+            anisotropy={anisotropy}
+            chromaticAberration={chromaticAberration}
+            distortion={distortion}
+            temporalDistortion={temporalDistortion}
+            color={color}
+            backside
+          />
+        </RoundedBox>
+      </group>
     </Canvas>
   );
 }

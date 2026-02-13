@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { useSettingsStore } from "@/apps/settings/store";
 import { cn } from "@/platform/core/utils";
 import {
@@ -8,6 +8,8 @@ import {
     mergeSurfaceMaterialConfig,
 } from "@/platform/core/surfaceMaterials";
 import GlassSurface, { type GlassSurfaceProps } from "@/components/GlassSurface";
+
+const FluidGlass = lazy(() => import("@/components/FluidGlass"));
 
 type SurfacePresetMap = Record<AppSurfaceVariant, { light: Partial<GlassSurfaceProps>; dark: Partial<GlassSurfaceProps> }>;
 type FrostedPreset = {
@@ -35,8 +37,8 @@ const DISTORTION_VARIANT_PRESETS: SurfacePresetMap = {
         dark: { width: "100%", height: "100%", borderRadius: 50, displace: 3.0 },
     },
     widget: {
-        light: { width: "100%", height: "100%", borderRadius: 16 },
-        dark: { width: "100%", height: "100%", borderRadius: 16 },
+        light: { width: "100%", height: "100%", borderRadius: 16, borderWidth: 0 },
+        dark: { width: "100%", height: "100%", borderRadius: 16, borderWidth: 0 },
     },
     "folder-preview": {
         light: { width: "100%", height: "100%", borderRadius: 32 },
@@ -58,13 +60,21 @@ const FROSTED_VARIANT_PRESETS: FrostedPresetMap = {
         dark: { backgroundOpacity: 0.26, saturation: 1.22, blur: 16, borderOpacity: 0.24, highlightOpacity: 0.17, shadowOpacity: 0.2, borderRadius: 50 },
     },
     widget: {
-        light: { backgroundOpacity: 0.5, saturation: 1.16, blur: 17, borderOpacity: 0.32, highlightOpacity: 0.2, shadowOpacity: 0.15, borderRadius: 16 },
-        dark: { backgroundOpacity: 0.25, saturation: 1.24, blur: 15, borderOpacity: 0.24, highlightOpacity: 0.16, shadowOpacity: 0.2, borderRadius: 16 },
+        light: { backgroundOpacity: 0.5, saturation: 1.16, blur: 17, borderOpacity: 0, highlightOpacity: 0.2, shadowOpacity: 0.15, borderRadius: 16 },
+        dark: { backgroundOpacity: 0.25, saturation: 1.24, blur: 15, borderOpacity: 0, highlightOpacity: 0.16, shadowOpacity: 0.2, borderRadius: 16 },
     },
     "folder-preview": {
         light: { backgroundOpacity: 0.5, saturation: 1.15, blur: 18, borderOpacity: 0.32, highlightOpacity: 0.21, shadowOpacity: 0.16, borderRadius: 32 },
         dark: { backgroundOpacity: 0.26, saturation: 1.22, blur: 16, borderOpacity: 0.24, highlightOpacity: 0.17, shadowOpacity: 0.2, borderRadius: 32 },
     },
+};
+
+const FLUID_VARIANT_PRESETS: Record<AppSurfaceVariant, { borderRadius: number }> = {
+    base: { borderRadius: 18 },
+    toolbar: { borderRadius: 28 },
+    "search-bar": { borderRadius: 50 },
+    widget: { borderRadius: 16 },
+    "folder-preview": { borderRadius: 32 },
 };
 
 function useResolvedTone(explicitTone: AppSurfaceTone | undefined): "light" | "dark" {
@@ -114,6 +124,63 @@ export function AppSurface({
     const resolvedMaterial = overrideMaterial ?? activeMaterial;
     const resolvedTone = useResolvedTone(tone);
     const stabilizeCorners = variant === "widget" || variant === "folder-preview";
+    const hideSurfaceBorder = variant === "widget";
+    const stableCornerBorderWidth = 1;
+    const createStableCornerBorderStyle = (color: string): React.CSSProperties => ({
+        border: `${stableCornerBorderWidth}px solid ${color}`,
+        boxSizing: "border-box",
+    });
+
+    if (resolvedMaterial === "fluid-glass") {
+        const config = materialConfig["fluid-glass"];
+        const preset = FLUID_VARIANT_PRESETS[variant];
+        const resolvedBorderRadius = borderRadius ?? preset.borderRadius;
+        const resolvedWidth = width ?? "100%";
+        const resolvedHeight = height ?? "100%";
+        const tintColor = resolvedTone === "dark"
+            ? `rgb(0 0 0 / ${config.tintOpacity})`
+            : `rgb(255 255 255 / ${config.tintOpacity})`;
+
+        return (
+            <div
+                className={cn("relative overflow-hidden", className)}
+                style={{
+                    width: resolvedWidth,
+                    height: resolvedHeight,
+                    borderRadius: resolvedBorderRadius,
+                    boxSizing: "border-box",
+                    ...style,
+                }}
+            >
+                <div className="pointer-events-none absolute inset-0">
+                    <Suspense fallback={null}>
+                        <FluidGlass
+                            mode="surface"
+                            surfaceProps={{
+                                ior: config.ior,
+                                thickness: config.thickness,
+                                anisotropy: config.anisotropy,
+                                chromaticAberration: config.chromaticAberration,
+                                distortion: config.distortion,
+                                temporalDistortion: config.temporalDistortion,
+                            }}
+                        />
+                    </Suspense>
+                </div>
+                <div
+                    className="pointer-events-none absolute inset-0 rounded-[inherit]"
+                    style={{
+                        background: tintColor,
+                        backdropFilter: `blur(${config.blur}px) saturate(${config.saturation})`,
+                        WebkitBackdropFilter: `blur(${config.blur}px) saturate(${config.saturation})`,
+                    }}
+                />
+                <div className="relative z-10 h-full w-full">
+                    {children}
+                </div>
+            </div>
+        );
+    }
 
     if (resolvedMaterial === "mac-frosted") {
         const preset = FROSTED_VARIANT_PRESETS[variant][resolvedTone];
@@ -150,23 +217,19 @@ export function AppSurface({
                     width: resolvedWidth,
                     height: resolvedHeight,
                     borderRadius: resolvedBorderRadius,
-                    ...(stabilizeCorners ? { clipPath: `inset(0 round ${resolvedBorderRadius}px)` } : {}),
+                    boxSizing: "border-box",
                     backdropFilter: `blur(${merged.blur}px) saturate(${merged.saturation})`,
                     WebkitBackdropFilter: `blur(${merged.blur}px) saturate(${merged.saturation})`,
                     backgroundColor,
-                    ...(stabilizeCorners ? {} : { border: `1px solid ${borderColor}` }),
+                    ...(hideSurfaceBorder
+                        ? {}
+                        : (stabilizeCorners
+                            ? createStableCornerBorderStyle(borderColor)
+                            : { border: `1px solid ${borderColor}` })),
                     boxShadow: `0 12px 30px ${shadowColor}, inset 0 1px 0 ${topHighlight}`,
                     ...style,
                 }}
             >
-                {stabilizeCorners ? (
-                    <div
-                        className="absolute inset-0 pointer-events-none rounded-[inherit]"
-                        style={{
-                            border: `1px solid ${borderColor}`,
-                        }}
-                    />
-                ) : null}
                 <div
                     className="absolute inset-0 pointer-events-none rounded-[inherit]"
                     style={{
@@ -219,7 +282,7 @@ export function AppSurface({
                 width: resolvedWidth,
                 height: resolvedHeight,
                 borderRadius: resolvedBorderRadius,
-                clipPath: `inset(0 round ${resolvedBorderRadius}px)`,
+                boxSizing: "border-box",
                 ...style,
             }}
         >
@@ -234,12 +297,16 @@ export function AppSurface({
             >
                 {children}
             </GlassSurface>
-            <div
-                className="absolute inset-0 pointer-events-none rounded-[inherit]"
-                style={{
-                    border: `1px solid ${distortionRingColor}`,
-                }}
-            />
+            {!hideSurfaceBorder ? (
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute rounded-[inherit]"
+                    style={{
+                        ...createStableCornerBorderStyle(distortionRingColor),
+                        inset: `${stableCornerBorderWidth}px`,
+                    }}
+                />
+            ) : null}
         </div>
     );
 }

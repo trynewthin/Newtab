@@ -30,7 +30,7 @@ export const VISION_TOOLS: ToolDefinition[] = [
         type: "function",
         function: {
             name: "search_web",
-            description: "Search the web using the configured search engine.",
+            description: "Search the web using the configured search engine. Opens results in a new tab and continues from there.",
             parameters: {
                 type: "object",
                 properties: {
@@ -300,8 +300,12 @@ export async function executeVisionTool(toolName: string, toolArgs: any, config?
                 const { query } = toolArgs;
                 const engineTemplate = config?.searchEngine || "https://www.google.com/search?q=%s";
                 const url = engineTemplate.replace("%s", encodeURIComponent(query));
-                await chrome.tabs.update(tabId, { url });
-                return `SUCCESS: Searching for "${query}" using ${url}. Please wait for the page to load and then call get_accessibility_tree.`;
+                const createdTab = await chrome.tabs.create({
+                    url,
+                    active: true,
+                    windowId: tab.windowId,
+                });
+                return `SUCCESS: Opened search for "${query}" in a new tab (${createdTab.id ?? "unknown"}): ${url}. Please wait for the page to load and then call get_accessibility_tree.`;
             }
 
             case "get_accessibility_tree": {

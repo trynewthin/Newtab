@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { ShortcutDialog } from "../tag/ShortcutDialog";
+import { ShortcutDialog } from "../dialogs/ShortcutDialog";
 import type { SystemType } from "./systemRegistry";
 import { ENABLED_SYSTEM_APP_IDS, getAppSurfaceFramePreset, type SystemAppId } from "./appManifest";
 import { getModalRenderer, resolveModalRuntimeAppId } from "./appRuntimeRegistry";

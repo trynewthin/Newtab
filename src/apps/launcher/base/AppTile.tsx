@@ -1,53 +1,76 @@
-import { cn } from "@/platform/core/utils";
-import { ItemIcon } from "../base/ItemIcon";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useTranslation } from "react-i18next";
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { Check } from "lucide-react";
-import { useRef } from "react";
-import { ItemActionMenu } from "../base/ItemActionMenu";
+import { cn } from "@/platform/core/utils";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { ItemIcon } from "./ItemIcon";
+import { ItemActionMenu, type ItemActionMenuItem } from "./ItemActionMenu";
 import {
     ITEM_HOVER_SCALE_CLASS,
     ITEM_INTERACTION_ANIMATION_CLASS,
     ITEM_SELECTED_SCALE_CLASS,
-} from "../base/selectionStyles";
+} from "./selectionStyles";
+import { useTranslation } from "react-i18next";
 
-export interface SystemAppItemProps {
-    id: string; // 用于 DND
+// ─── Icon descriptor ────────────────────────────────────────────────
+// Each app-tile kind provides its own icon descriptor so AppTile
+// doesn't need to know about tag/system/folder internals.
+
+export interface AppTileIconDescriptor {
+    /** ItemIcon props */
     title: string;
-    icon: string; // 图标资源路径或 ID
-    onClick: (event?: React.MouseEvent) => void;
+    icon?: string;
+    iconDataUrl?: string;
+    isSystem?: boolean;
+    scale?: number;
+    backgroundColor?: string;
+    /** Extra className applied to ItemIcon (e.g. system app bg override) */
+    iconClassName?: string;
+    /** Completely custom icon content (e.g. folder 4-grid preview) */
+    customContent?: React.ReactNode;
+}
 
-    // DND & Interaction states
+// ─── Props ──────────────────────────────────────────────────────────
+
+export interface AppTileProps {
+    id: string;
+    displayTitle: string;
+    iconDescriptor: AppTileIconDescriptor;
+
+    onClick: (event?: React.MouseEvent | React.KeyboardEvent) => void;
+    onEdit: () => void;
+    onDelete: () => void;
+
+    /** Extra context-menu items (e.g. folder "switch display mode") */
+    extraMenuItems?: ItemActionMenuItem[];
+
+    /** Prefetch callback (e.g. system app modal preload) */
+    onPrefetch?: () => void;
+
+    // DND & interaction states (passed through from grid)
     isOverlay?: boolean;
     isNearTarget?: boolean;
     isHoverTarget?: boolean;
-    className?: string;
-    onPrefetch?: () => void;
     sortableEnabled?: boolean;
-    onEdit?: () => void;
-    onDelete?: () => void;
 }
 
-export function SystemAppItem({
+export function AppTile({
     id,
-    title,
-    icon,
+    displayTitle,
+    iconDescriptor,
     onClick,
+    onEdit,
+    onDelete,
+    extraMenuItems,
+    onPrefetch,
     isOverlay,
     isNearTarget,
     isHoverTarget,
-    className,
-    onPrefetch,
     sortableEnabled = true,
-    onEdit,
-    onDelete,
-}: SystemAppItemProps) {
+}: AppTileProps) {
     const { t } = useTranslation();
     const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
     const isSelected = selectedTagIds.includes(id);
-    const hasPrefetchedRef = useRef(false);
 
     const {
         attributes,
@@ -57,7 +80,7 @@ export function SystemAppItem({
         transition,
         isDragging,
     } = useSortable({
-        id: id,
+        id,
         disabled: !!isOverlay || !sortableEnabled,
     });
 
@@ -68,6 +91,7 @@ export function SystemAppItem({
         zIndex: isOverlay ? 100 : undefined,
     };
 
+    // ─── Click handling ─────────────────────────────────────────────
     const handleClick = (e: React.MouseEvent) => {
         if (isOverlay) {
             e.preventDefault();
@@ -82,26 +106,34 @@ export function SystemAppItem({
         }
 
         e.preventDefault();
-        e.stopPropagation();
         onClick(e);
     };
 
-    const triggerPrefetch = () => {
-        if (hasPrefetchedRef.current || !onPrefetch) return;
-        hasPrefetchedRef.current = true;
-        onPrefetch();
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (!isOverlay && !isEditing) {
+                onClick(e);
+            } else if (isEditing) {
+                toggleTagSelection(id);
+            }
+        }
     };
 
-    const handleEdit = () => {
-        onEdit?.();
-    };
+    // ─── Prefetch ───────────────────────────────────────────────────
+    const triggerPrefetch = onPrefetch
+        ? (() => {
+            let done = false;
+            return () => {
+                if (done) return;
+                done = true;
+                onPrefetch();
+            };
+        })()
+        : undefined;
 
-    const handleDelete = () => {
-        onDelete?.();
-    };
-
-    // 如果标题是系统 Key，则进行动态翻译，以支持语言即时切换
-    const displayTitle = title?.startsWith('sys_') ? t(title) : title;
+    // ─── Icon props ─────────────────────────────────────────────────
+    const desc = iconDescriptor;
 
     return (
         <div
@@ -110,8 +142,7 @@ export function SystemAppItem({
             className={cn(
                 "group relative flex flex-col items-center gap-1.5 w-14",
                 isEditing && !isDragging && !isOverlay && "animate-[shake_0.5s_ease-in-out_infinite]",
-                isOverlay && "scale-110 rotate-3 cursor-grabbing",
-                className
+                isOverlay && "scale-110 rotate-3 cursor-grabbing"
             )}
             {...(isOverlay ? {} : attributes)}
             {...(isOverlay ? {} : listeners)}
@@ -119,35 +150,40 @@ export function SystemAppItem({
             <div className="relative">
                 <ItemActionMenu
                     disabled={!!isOverlay}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
                     editLabel={t("edit")}
                     deleteLabel={t("remove")}
+                    extraItems={extraMenuItems}
                 >
                     <ItemIcon
-                        title={displayTitle}
-                        icon={icon}
-                        isSystem={true} // 告诉 ItemIcon 这是一个系统应用，它会处理系统图标的渲染逻辑
-                        scale={0.85} // Reduced scale for minimalist look
-                        // Light: White BG, Black Icon
-                        // Dark: Black BG, White Icon
-                        // Use !important to override inline style backgroundColor="transparent" from ItemIcon default
+                        title={desc.title}
+                        icon={desc.icon}
+                        iconDataUrl={desc.iconDataUrl}
+                        isSystem={desc.isSystem}
+                        scale={desc.scale}
+                        backgroundColor={desc.backgroundColor}
                         className={cn(
-                            "w-14 h-14 rounded-[18px] shadow-lg hover:shadow-xl transition-shadow transition-colors duration-300",
-                            "!bg-white dark:!bg-black",
-                            "text-black dark:text-white",
+                            "w-14 h-14 rounded-[18px] shadow-lg hover:shadow-xl transition-shadow",
                             "cursor-pointer",
                             isOverlay && "cursor-grabbing shadow-2xl",
                             ITEM_INTERACTION_ANIMATION_CLASS,
                             ITEM_HOVER_SCALE_CLASS,
-                            isSelected && ITEM_SELECTED_SCALE_CLASS
+                            isSelected && ITEM_SELECTED_SCALE_CLASS,
+                            desc.iconClassName
                         )}
                         role="button"
+                        tabIndex={0}
                         onClick={handleClick}
+                        onKeyDown={handleKeyDown}
                         onMouseEnter={triggerPrefetch}
                         onFocus={triggerPrefetch}
                         onTouchStart={triggerPrefetch}
                     >
+                        {/* Custom icon content (e.g. folder grid preview) */}
+                        {desc.customContent}
+
+                        {/* Editing selection overlay */}
                         {isEditing && (
                             <div className={cn(
                                 "absolute inset-0 z-30 flex items-center justify-center transition-all pointer-events-none",
@@ -181,4 +217,3 @@ export function SystemAppItem({
         </div>
     );
 }
-

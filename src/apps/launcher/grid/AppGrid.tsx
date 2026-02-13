@@ -4,7 +4,7 @@ import { useUIStore } from "@/apps/launcher/store/ui";
 import type { GridItem as GridItemType } from "@/platform/state/core/itemTypes";
 import { LauncherGridItemSurface } from "./components/LauncherGridItemSurface";
 
-import { ShortcutDialog } from "../tag/ShortcutDialog";
+import { ShortcutDialog } from "../dialogs/ShortcutDialog";
 import { isSystemAppId } from "../system/appManifest";
 import { useAppLauncher } from "../system/useAppLauncher";
 import { resolveWidgetLaunchAppId } from "@/apps/launcher/widget";

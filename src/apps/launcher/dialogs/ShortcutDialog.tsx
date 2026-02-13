@@ -64,4 +64,3 @@ export function ShortcutDialog({ open, onOpenChange, editTag }: ShortcutDialogPr
         </AppPanel>
     );
 }
-

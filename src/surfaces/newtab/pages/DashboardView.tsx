@@ -7,7 +7,7 @@ import { warmupModalRuntimes } from "@/apps/launcher/system/appRuntimeRegistry";
 import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex";
 
 const HomeTools = lazy(() =>
-    import("@/apps/launcher/components/HomeTools").then((m) => ({ default: m.HomeTools }))
+    import("@/apps/launcher/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
 );
 const DASHBOARD_GRID_TOP_INSET_PX = 168;
 

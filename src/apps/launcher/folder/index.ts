@@ -1,2 +1,2 @@
-export * from './FolderItem';
+export * from './FolderWidget';
 export * from './FolderPreview';

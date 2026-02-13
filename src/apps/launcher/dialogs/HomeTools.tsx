@@ -116,7 +116,7 @@ export function HomeTools() {
                     <Settings size={18} className="text-current" />
                 </button>
 
-                {/* 鎵归噺鍒犻櫎纭瀵硅瘽妗?*/}
+                {/* 鎵归噺鍒犻櫎纭瀵硅瘽妗?*/}
                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                     <AlertDialogContent className="glass-card border-none rounded-3xl">
                         <AlertDialogHeader>
@@ -140,4 +140,3 @@ export function HomeTools() {
         </AppSurface>
     );
 }
-

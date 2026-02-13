@@ -5,9 +5,19 @@
 
 ## 当前状态
 
-- 应用内部版本：`v0.2`（`src/platform/core/constants.ts`）
+- 应用内部版本：`v0.3`（`src/core/constants.ts`）
 - 扩展清单版本：`1.0.0`（`manifest.json`）
 - 包管理与脚本：`bun`
+
+## v0.3 重点更新
+
+- 新增首次运行引导向导（5 步），支持备份恢复、语言/材质/主题偏好设置。
+- 默认背景切换为动态色带流形（color-bends），默认材质切换为磨砂玻璃（mac-frosted）。
+- AlertDialog 与 ContextMenu 接入 AppSurface 玻璃材质体系，修复浅色模式下颜色可读性问题。
+- 设置页新增「重置并重新初始化」功能，含二次确认对话框。
+- 备份 schema 升级至 V3，支持自动迁移（`isFirstRun` 兼容）。
+- AppModalV1 新增 `hideBlur` 配置，可选隐藏上下模糊渐变。
+- 构建流程优化：启用 terser 混淆压缩，chunk 文件名 hash 化。
 
 ## v0.2 重点更新
 
@@ -36,25 +46,28 @@ bun run build
 bun run preview
 ```
 
+生产构建使用 terser 混淆压缩，chunk 文件名自动 hash 化。
+
 ## 作为 Chrome 扩展使用
 
 1. 执行 `bun run build`
 2. 打开 `chrome://extensions`
 3. 开启开发者模式
-4. 选择“加载已解压的扩展程序”
+4. 选择"加载已解压的扩展程序"
 5. 选择项目下的 `dist` 目录
 
 ## 目录概览
 
 - `src/surfaces/newtab`：新标签页主界面（背景层/内容层/浮动层/路由）
-- `src/apps/launcher`：启动台核心（网格、拖拽、文件夹、系统应用、组件）
-- `src/apps/settings`：设置中心（外观、功能、数据、关于）
-- `src/platform/shared`：通用 UI 基建（modal/sidebar/surface/layout）
-- `src/platform/state`：状态与持久化（含备份导入导出）
-- `src/components`：视觉与效果组件（GlassSurface、GradualBlur 等）
+- `src/launcher`：启动台核心（网格、拖拽、文件夹、系统应用、组件）
+- `src/apps`：应用模块（settings、search、onboarding 等）
+- `src/components`：通用 UI 基建（modal、surface、动态背景、GradualBlur 等）
+- `src/state`：状态与持久化（含备份导入导出、schema 迁移）
+- `src/core`：核心工具（i18n、常量、层级管理、动态背景注册）
 
 ## 开发说明
 
-- 系统 App 可在 `src/apps/launcher/system/appManifest.ts` 里按需启用/屏蔽。
-- 更新日志与版本展示由 `APP_METADATA` 驱动（`src/platform/core/constants.ts`）。
+- 系统 App 可在 `src/launcher/system/appManifest.ts` 里按需启用/屏蔽。
+- 更新日志与版本展示由 `APP_METADATA` 驱动（`src/core/constants.ts`）。
 - 当前项目已全面切换为 Bun 工作流，默认使用 `bun` 执行脚本。
+- 国际化支持中文和英文（`src/core/i18n`）。

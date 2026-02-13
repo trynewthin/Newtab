@@ -16,11 +16,9 @@ interface SettingsDialogProps {
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState("general");
-    // Default to not collapsed for settings as it has many text labels
     const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("settings-modal", false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-    // On mobile, the sidebar should always be "expanded" within the drawer
     const effectiveCollapsed = isSidebarCollapsed && !showMobileMenu;
 
     const renderContent = () => {

@@ -1,11 +1,11 @@
 import { useEffect, useState, type ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 import { SidebarHeader } from "@/components/modal";
-import { BackgroundSelector } from "@/apps/settings/base/BackgroundSelector";
-import { SurfaceMaterialSettings } from "@/apps/settings/base/SurfaceMaterialSettings";
+import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
+import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
 import { ArrowLeft, ChevronRight, Image, Settings as SettingsIcon, Sparkles } from "lucide-react";
 import { cn } from "@/core/utils";
-import { SettingsItem, SettingsSection } from "@/apps/settings/base/SettingComponents";
+import { SettingsItem, SettingsSection } from "@/apps/settings/components/SettingComponents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
 

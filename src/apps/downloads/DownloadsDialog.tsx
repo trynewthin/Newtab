@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/components/modal";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { AppModal, type AppModalSidebarItem } from "@/components/modal";
 import { cn } from "@/core/utils";
 import {
     X,
-    Search,
     Folder,
     Trash2,
     Pause,
@@ -32,14 +31,24 @@ interface DownloadsDialogProps {
 
 type DownloadFilter = 'all' | 'in_progress' | 'complete' | 'interrupted';
 
+const SIDEBAR_ITEMS: AppModalSidebarItem[] = [
+    { id: 'all', icon: Inbox, label: 'all_downloads' },
+    { id: 'in_progress', icon: Clock, label: 'in_progress' },
+    { id: 'complete', icon: CheckCircle2, label: 'completed' },
+    { id: 'interrupted', icon: AlertTriangle, label: 'interrupted' },
+];
+
 export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
     const { t } = useTranslation();
     const [downloads, setDownloads] = useState<chrome.downloads.DownloadItem[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [confirmingId, setConfirmingId] = useState<number | null>(null);
     const [filter, setFilter] = useState<DownloadFilter>('all');
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("downloads-modal", true);
-    const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+    const sidebarItems = useMemo(() =>
+        SIDEBAR_ITEMS.map(item => ({ ...item, label: t(item.label) })),
+        [t]
+    );
 
     const fetchDownloads = useCallback(() => {
         if (typeof chrome === "undefined" || !chrome.downloads) return;
@@ -69,10 +78,6 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
             }
         }
     }, [open, fetchDownloads]);
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-    };
 
     const filteredDownloads = useMemo(() => {
         let result = downloads;
@@ -150,70 +155,26 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
         return <FileIcon size={24} className="text-foreground/65" />;
     };
 
+    const description = searchQuery ? t('searching') : (
+        filter === 'all' ? t('all_downloads') :
+            filter === 'in_progress' ? t('in_progress') :
+                filter === 'complete' ? t('completed') : t('interrupted')
+    );
+
     return (
         <AppModal
             open={open}
             onOpenChange={onOpenChange}
-            isCollapsed={isSidebarCollapsed}
-            showMobileMenu={showMobileMenu}
-            onCloseMobileMenu={() => setShowMobileMenu(false)}
-            sidebar={
-                <Sidebar
-                    title={t('downloads')}
-                    isCollapsed={isSidebarCollapsed}
-                    onCollapseChange={setIsSidebarCollapsed}
-                    showMobileMenu={showMobileMenu}
-                    onCloseMobileMenu={() => setShowMobileMenu(false)}
-                >
-                    <SidebarItem
-                        icon={Inbox}
-                        label={t('all_downloads')}
-                        isActive={filter === 'all'}
-                        onClick={() => { setFilter('all'); setShowMobileMenu(false); }}
-                    />
-                    <SidebarItem
-                        icon={Clock}
-                        label={t('in_progress')}
-                        isActive={filter === 'in_progress'}
-                        onClick={() => { setFilter('in_progress'); setShowMobileMenu(false); }}
-                    />
-                    <SidebarItem
-                        icon={CheckCircle2}
-                        label={t('completed')}
-                        isActive={filter === 'complete'}
-                        onClick={() => { setFilter('complete'); setShowMobileMenu(false); }}
-                    />
-                    <SidebarItem
-                        icon={AlertTriangle}
-                        label={t('interrupted')}
-                        isActive={filter === 'interrupted'}
-                        onClick={() => { setFilter('interrupted'); setShowMobileMenu(false); }}
-                    />
-                </Sidebar>
-            }
-            header={
-                <SidebarHeader
-                    title={t('downloads')}
-                    icon={DownloadCloud}
-                    description={searchQuery ? t('searching') : (
-                        filter === 'all' ? t('all_downloads') :
-                            filter === 'in_progress' ? t('in_progress') :
-                                filter === 'complete' ? t('completed') : t('interrupted')
-                    )}
-                    onMenuClick={() => setShowMobileMenu(true)}
-                    onClose={() => onOpenChange(false)}
-                >
-                    <div className="relative group hidden sm:block w-48 lg:w-64 transition-all focus-within:w-64 lg:focus-within:w-80">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-foreground transition-colors" size={14} />
-                        <input
-                            value={searchQuery}
-                            onChange={handleSearch}
-                            placeholder={t('search_downloads')}
-                            className="w-full modal-minimal-input pl-9 pr-3"
-                        />
-                    </div>
-                </SidebarHeader>
-            }
+            storageKey="downloads-modal"
+            title={t('downloads')}
+            icon={DownloadCloud}
+            description={description}
+            sidebarItems={sidebarItems}
+            activeId={filter}
+            onActiveChange={(id) => setFilter(id as DownloadFilter)}
+            searchPlaceholder={t('search_downloads')}
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
         >
             <div className="h-full overflow-y-auto custom-scrollbar p-4 sm:p-5">
                 <div className="flex flex-col gap-3">

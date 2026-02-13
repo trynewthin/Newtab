@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/components/modal";
+import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed, ModalSearchInput, ModalEmptyState } from "@/components/modal";
 import { cn } from "@/core/utils";
 import {
-    Search,
     Folder,
     Trash2,
     ChevronRight,
@@ -72,10 +71,6 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
             }
         }
     }, [open, fetchBookmarks]);
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-    };
 
     const handleNodeClick = (node: chrome.bookmarks.BookmarkTreeNode) => {
         if (node.url) {
@@ -160,15 +155,11 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                         onClose={() => onOpenChange(false)}
                         className="border-b-0"
                     >
-                        <div className="relative group hidden sm:block w-48 lg:w-64 transition-all focus-within:w-64 lg:focus-within:w-80">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-foreground transition-colors" size={14} />
-                            <input
-                                value={searchQuery}
-                                onChange={handleSearch}
-                                placeholder={t('search_bookmarks')}
-                                className="w-full modal-minimal-input pl-9 pr-3"
-                            />
-                        </div>
+                        <ModalSearchInput
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            placeholder={t('search_bookmarks')}
+                        />
                     </SidebarHeader>
 
                     <div className="flex items-center justify-between gap-4 border-b border-border/60 bg-background/90 px-5 py-2.5">
@@ -199,10 +190,6 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                             ))}
                         </div>
 
-                        {/* Mobile Search - icon only or small bar if needed */}
-                        <div className="sm:hidden relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-foreground/8 text-muted-foreground transition-all">
-                            <Search size={16} />
-                        </div>
                     </div>
                 </div>
             }
@@ -210,12 +197,11 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
             <div className="h-full overflow-y-auto custom-scrollbar p-4 sm:p-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {bookmarks.length === 0 ? (
-                        <div className="col-span-full flex flex-col items-center justify-center px-4 py-24 text-center text-muted-foreground/60 space-y-3">
-                            <Inbox size={44} strokeWidth={1.5} className="opacity-40" />
-                            <span className="block text-sm">
-                                {searchQuery ? t('no_bookmarks_found') : t('folder_empty')}
-                            </span>
-                        </div>
+                        <ModalEmptyState
+                            icon={Inbox}
+                            message={searchQuery ? t('no_bookmarks_found') : t('folder_empty')}
+                            className="col-span-full"
+                        />
                     ) : (
                         bookmarks.map((node) => (
                             <div

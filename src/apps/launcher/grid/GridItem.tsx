@@ -8,8 +8,8 @@ import { isSystemAppId } from "@/apps/launcher/system/appManifest";
 import { preloadModalRuntime } from "@/apps/launcher/system/appRuntimeRegistry";
 import { LauncherWidgetItem as LauncherWidgetRenderer } from "@/apps/launcher/widget";
 import { GRID_ITEM_PRESETS, resolveGridPreset } from "@/apps/launcher/grid/layoutPresets";
-import { AppTile } from "@/apps/launcher/base/AppTile";
-import { useSystemAppIconDescriptor, useTagIconDescriptor, useFolderIconDescriptor } from "@/apps/launcher/base/adapters";
+import { AppTile } from "@/apps/launcher/components/AppTile";
+import { useSystemAppIconDescriptor, useTagIconDescriptor, useFolderIconDescriptor } from "@/apps/launcher/components/adapters";
 import { FolderWidget } from "@/apps/launcher/folder/FolderWidget";
 import { useTranslation } from "react-i18next";
 

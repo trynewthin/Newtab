@@ -15,7 +15,7 @@ import {
 } from "@/apps/launcher/widget";
 import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/apps/launcher/grid/layoutPresets";
 import { Plus } from "lucide-react";
-import { cn } from "@/core/utils";
+import { ModalTabs } from "@/components/modal";
 
 type MarketTab = "icons" | "widgets";
 
@@ -69,23 +69,15 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
 
     // ─── Tab switcher (placed in actions slot, left of close button) ───
     const tabSwitcher = (
-        <div className="flex items-center rounded-xl border border-border/70 bg-background/90 shadow-sm overflow-hidden">
-            {(["icons", "widgets"] as const).map((tab) => (
-                <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setActiveTab(tab)}
-                    className={cn(
-                        "px-3 py-1.5 text-xs font-semibold tracking-tight transition-colors",
-                        activeTab === tab
-                            ? "bg-foreground/10 text-foreground"
-                            : "text-foreground/50 hover:text-foreground/70"
-                    )}
-                >
-                    {tab === "icons" ? t("component_market_app_icons") : t("component_market_components")}
-                </button>
-            ))}
-        </div>
+        <ModalTabs
+            items={[
+                { id: "icons", label: t("component_market_app_icons") },
+                { id: "widgets", label: t("component_market_components") },
+            ]}
+            activeId={activeTab}
+            onActiveChange={(id) => setActiveTab(id as MarketTab)}
+            variant="subtle"
+        />
     );
 
     // ─── Icons tab content ───────────────────────────────────────────

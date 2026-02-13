@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { SidebarHeader } from "@/components/modal";
-import { SettingsSection, SettingsItem } from "@/apps/settings/base/SettingComponents";
+import { SettingsSection, SettingsItem } from "@/apps/settings/components/SettingComponents";
 import { Info, Github, RotateCcw, User, Heart } from "lucide-react";
 import { APP_METADATA } from "@/core/constants";
 

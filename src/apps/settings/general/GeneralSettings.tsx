@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { SidebarHeader } from "@/components/modal";
-import { SettingsSection, SettingsItem, SettingsActionButtons } from "../base/SettingComponents";
+import { SettingsSection, SettingsItem, SettingsActionButtons } from "../components/SettingComponents";
 import { Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";

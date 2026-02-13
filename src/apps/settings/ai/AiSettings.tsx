@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp, Box, Globe, Search } from "lucide-react";
 import { cn } from "@/core/utils";
-import { SidebarHeader } from "@/components/modal";
+import { SidebarHeader, ModalTabs } from "@/components/modal";
 import { useAiStore } from "@/apps/ai-companion";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SettingsSection, SettingsItem } from "@/apps/settings/base/SettingComponents";
+import { SettingsSection, SettingsItem } from "@/apps/settings/components/SettingComponents";
 import { SUPPORTED_SEARCH_PROVIDERS } from "@/apps/ai-search/services/searchService";
 
 interface AiSettingsProps {
@@ -30,27 +30,15 @@ export function AiSettings({ onOpenMobileMenu, onClose }: AiSettingsProps) {
                 onMenuClick={onOpenMobileMenu}
                 onClose={onClose}
             >
-                <div className="flex items-center gap-1 rounded-2xl border border-border/70 bg-background/85 p-1.5 shadow-inner">
-                    {[
+                <ModalTabs
+                    items={[
                         { id: 'config', icon: Cpu, label: t('models') },
-                        { id: 'preferences', icon: Sliders, label: t('preferences') }
-                    ].map((tab) => (
-                        <button
-                            key={tab.id}
-                            //@ts-ignore
-                            onClick={() => setActiveTab(tab.id)}
-                            className={cn(
-                                "px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-[1rem] transition-all flex items-center gap-2 relative",
-                                activeTab === tab.id
-                                    ? "bg-foreground text-background shadow-md"
-                                    : "text-muted-foreground/80 hover:text-foreground hover:bg-foreground/8"
-                            )}
-                        >
-                            <tab.icon size={13} strokeWidth={activeTab === tab.id ? 3 : 2} />
-                            <span className="hidden sm:inline">{tab.label}</span>
-                        </button>
-                    ))}
-                </div>
+                        { id: 'preferences', icon: Sliders, label: t('preferences') },
+                    ]}
+                    activeId={activeTab}
+                    onActiveChange={(id) => setActiveTab(id as 'config' | 'preferences')}
+                    variant="solid"
+                />
             </SidebarHeader>
 
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden relative">

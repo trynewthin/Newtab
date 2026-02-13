@@ -1,13 +1,13 @@
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { useItemStore } from "@/apps/launcher/store/item";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/core/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ItemIcon } from "../base/ItemIcon";
-import { ItemActionMenu } from "../base/ItemActionMenu";
-import { ITEM_INTERACTION_ANIMATION_CLASS } from "../base/selectionStyles";
+import { ItemIcon } from "../components/ItemIcon";
+import { ItemActionMenu } from "../components/ItemActionMenu";
+import { ITEM_INTERACTION_ANIMATION_CLASS } from "../components/selectionStyles";
 import { backgroundStorage } from "@/state/core/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/state/core/itemTypes";
 import AppSurface from "@/components/surface/AppSurface";
@@ -34,6 +34,7 @@ export function FolderWidget({
     const { isEditing } = useUIStore();
     const { updateItem } = useItemStore();
 
+    const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
     const [resolvedChildIcons, setResolvedChildIcons] = useState<Record<string, string>>({});
     const previewChildren = useMemo(() => item.children?.slice(0, 9) ?? [], [item.children]);
     const previewSignature = useMemo(
@@ -218,8 +219,16 @@ export function FolderWidget({
                                 <div
                                     key={index}
                                     className="w-full aspect-square rounded-[12px] overflow-hidden"
+                                    onPointerDown={(e) => {
+                                        pointerDownPos.current = { x: e.clientX, y: e.clientY };
+                                    }}
                                     onClick={(e) => {
                                         e.stopPropagation();
+                                        if (pointerDownPos.current) {
+                                            const dx = e.clientX - pointerDownPos.current.x;
+                                            const dy = e.clientY - pointerDownPos.current.y;
+                                            if (dx * dx + dy * dy > 25) return;
+                                        }
                                         const child = previewChildren[index];
                                         if (child && "url" in child && child.url) {
                                             window.open(child.url, "_blank");

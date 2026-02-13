@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SettingsItem } from "@/apps/settings/base/SettingComponents";
+import { SettingsItem } from "@/apps/settings/components/SettingComponents";
 import { useSettingsStore } from "@/apps/settings/store";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,

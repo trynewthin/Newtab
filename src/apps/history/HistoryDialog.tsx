@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/components/modal";
+import { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
+import { AppModal, SidebarItem, type AppModalSidebarItem } from "@/components/modal";
 import {
     History,
-    Search,
     Trash2,
     Clock,
     Calendar,
@@ -33,16 +32,27 @@ interface HistoryDialogProps {
 
 type HistoryFilter = 'all' | 'today' | 'yesterday' | 'week' | 'older';
 
+const SIDEBAR_ITEMS: AppModalSidebarItem[] = [
+    { id: 'today', icon: Clock, label: 'today' },
+    { id: 'yesterday', icon: Calendar, label: 'yesterday' },
+    { id: 'week', icon: Filter, label: 'last_7_days' },
+    { id: 'older', icon: ChevronRight, label: 'older' },
+    { id: 'all', icon: History, label: 'all_history' },
+];
+
 export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
     const { t } = useTranslation();
     const [historyItems, setHistoryItems] = useState<chrome.history.HistoryItem[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [filter, setFilter] = useState<HistoryFilter>('all');
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("history-modal", true);
-    const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 
     const [displayLimit, setDisplayLimit] = useState(50);
+
+    const sidebarItems = useMemo(() =>
+        SIDEBAR_ITEMS.map(item => ({ ...item, label: t(item.label) })),
+        [t]
+    );
     const deferredSearchQuery = useDeferredValue(searchQuery);
 
     const fetchHistory = useCallback(() => {
@@ -63,10 +73,6 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
             fetchHistory();
         }
     }, [open, fetchHistory]);
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-    };
 
     const handleDelete = (url: string) => {
         chrome?.history?.deleteUrl({ url }, () => {
@@ -160,76 +166,24 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
             <AppModal
                 open={open}
                 onOpenChange={onOpenChange}
-                isCollapsed={isSidebarCollapsed}
-                showMobileMenu={showMobileMenu}
-                onCloseMobileMenu={() => setShowMobileMenu(false)}
-                sidebar={
-                    <Sidebar
-                        title={t('history')}
-                        isCollapsed={isSidebarCollapsed}
-                        onCollapseChange={setIsSidebarCollapsed}
-                        showMobileMenu={showMobileMenu}
-                        onCloseMobileMenu={() => setShowMobileMenu(false)}
-                        footer={
-                            <SidebarItem
-                                icon={Trash2}
-                                label={t('clear_history')}
-                                onClick={() => setIsClearConfirmOpen(true)}
-                                className="text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 transition-colors"
-                            />
-                        }
-                    >
-                        <SidebarItem
-                            icon={Clock}
-                            label={t('today')}
-                            isActive={filter === 'today'}
-                            onClick={() => { setFilter('today'); setShowMobileMenu(false); }}
-                        />
-                        <SidebarItem
-                            icon={Calendar}
-                            label={t('yesterday')}
-                            isActive={filter === 'yesterday'}
-                            onClick={() => { setFilter('yesterday'); setShowMobileMenu(false); }}
-                        />
-                        <SidebarItem
-                            icon={Filter}
-                            label={t('last_7_days')}
-                            isActive={filter === 'week'}
-                            onClick={() => { setFilter('week'); setShowMobileMenu(false); }}
-                        />
-                        <SidebarItem
-                            icon={ChevronRight}
-                            label={t('older')}
-                            isActive={filter === 'older'}
-                            onClick={() => { setFilter('older'); setShowMobileMenu(false); }}
-                        />
-                        <SidebarItem
-                            icon={History}
-                            label={t('all_history')}
-                            isActive={filter === 'all'}
-                            onClick={() => { setFilter('all'); setShowMobileMenu(false); }}
-                        />
-                    </Sidebar>
+                storageKey="history-modal"
+                title={t('history')}
+                icon={History}
+                description={searchQuery ? t('searching') : t('history_desc')}
+                sidebarItems={sidebarItems}
+                activeId={filter}
+                onActiveChange={(id) => setFilter(id as HistoryFilter)}
+                sidebarFooter={
+                    <SidebarItem
+                        icon={Trash2}
+                        label={t('clear_history')}
+                        onClick={() => setIsClearConfirmOpen(true)}
+                        className="text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 transition-colors"
+                    />
                 }
-                header={
-                <SidebarHeader
-                        title={t('history')}
-                        icon={History}
-                        description={searchQuery ? t('searching') : t('history_desc')}
-                        onMenuClick={() => setShowMobileMenu(true)}
-                        onClose={() => onOpenChange(false)}
-                    >
-                        <div className="relative group hidden sm:block w-48 lg:w-64 transition-all focus-within:w-64 lg:focus-within:w-80">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-foreground transition-colors" size={14} />
-                            <input
-                                value={searchQuery}
-                                onChange={handleSearch}
-                                placeholder={t('search_history')}
-                                className="w-full modal-minimal-input pl-9 pr-3"
-                            />
-                        </div>
-                    </SidebarHeader>
-                }
+                searchPlaceholder={t('search_history')}
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
             >
                 <div className="h-full overflow-y-auto custom-scrollbar bg-background p-4 sm:p-5">
                     {groupedHistory.length === 0 ? (

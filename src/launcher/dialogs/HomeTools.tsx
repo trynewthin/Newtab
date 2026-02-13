@@ -1,8 +1,9 @@
 import { useUIStore } from "@/launcher/store/ui";
 import { useItemStore } from "@/launcher/store/item";
-import { Edit2, FolderPlus, Trash2, Settings, Plus, LayoutGrid } from "lucide-react";
+import { Edit2, FolderPlus, Trash2, LayoutGrid, Sun, Moon, Store } from "lucide-react";
 import { cn } from "@/core/utils";
 import { useState } from "react";
+import { useSettingsStore } from "@/apps/settings/store";
 import { useTranslation } from "react-i18next";
 import AppSurface from "@/components/surface/AppSurface";
 import {
@@ -20,6 +21,13 @@ export function HomeTools() {
     const { t } = useTranslation();
     const { isEditing, toggleEditing, selectedTagIds, clearSelection, setActiveSystemDialog } = useUIStore();
     const { batchGroupItems, batchRemoveItems, organizeItems } = useItemStore();
+    const theme = useSettingsStore((s) => s.theme);
+    const setTheme = useSettingsStore((s) => s.setTheme);
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    const handleToggleTheme = () => {
+        setTheme(isDark ? 'light' : 'dark');
+    };
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const handleBatchGroup = () => {
@@ -93,14 +101,6 @@ export function HomeTools() {
                 </button>
 
                 <button
-                    onClick={() => setActiveSystemDialog('add')}
-                    className={neutralToolButtonClass}
-                    title={t('add_shortcut')}
-                >
-                    <Plus size={18} className="text-current" />
-                </button>
-
-                <button
                     onClick={handleOrganize}
                     className={neutralToolButtonClass}
                     title={t('organize_icons')}
@@ -109,11 +109,19 @@ export function HomeTools() {
                 </button>
 
                 <button
-                    onClick={() => setActiveSystemDialog('settings')}
+                    onClick={handleToggleTheme}
                     className={neutralToolButtonClass}
-                    title={t('settings')}
+                    title={isDark ? t('switch_to_light') : t('switch_to_dark')}
                 >
-                    <Settings size={18} className="text-current" />
+                    {isDark ? <Sun size={18} className="text-current" /> : <Moon size={18} className="text-current" />}
+                </button>
+
+                <button
+                    onClick={() => setActiveSystemDialog('component-market')}
+                    className={neutralToolButtonClass}
+                    title={t('app_market')}
+                >
+                    <Store size={18} className="text-current" />
                 </button>
 
                 {/* 鎵归噺鍒犻櫎纭瀵硅瘽妗?*/}

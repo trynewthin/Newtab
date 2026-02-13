@@ -138,7 +138,7 @@ export default function Popup() {
     }, [isReady, title, url, iconStr, existingItem]);
 
     return (
-        <div className="popup-minimal-scope w-full min-h-[400px] bg-background text-foreground overflow-x-hidden flex flex-col relative px-4 py-5">
+        <div className="popup-minimal-scope w-full bg-background text-foreground overflow-x-hidden flex flex-col relative px-3 py-3">
             {isSuccess && checkIcon}
 
             {isReady ? (

@@ -231,19 +231,19 @@ export function TagConfigForm({
     const effectivePreviewIcon = previewIcon || iconStr || faviconUrl;
 
     return (
-        <form id="tag-config-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form id="tag-config-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Top Row: Preview + selection */}
-            <div className="flex gap-5 items-stretch h-24">
+            <div className="flex gap-3 items-stretch h-20">
                 <ItemIcon
                     icon={iconStr}
                     iconDataUrl={effectivePreviewIcon}
                     scale={iconSize}
                     backgroundColor={composedColor}
-                    className="shrink-0 w-24 h-24 rounded-3xl border-2 border-transparent shadow-md ring-4 ring-background/50"
+                    className="shrink-0 w-20 h-20 rounded-2xl border-2 border-transparent shadow-md ring-4 ring-background/50"
                 />
 
                 {/* Right: Icon Selection List */}
-                <div className="flex-1 h-24 rounded-xl border border-border/40 p-2 overflow-y-auto custom-scrollbar">
+                <div className="flex-1 h-20 rounded-xl border border-border/40 p-1.5 overflow-y-auto custom-scrollbar">
                     {validIcons.length > 0 ? (
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] gap-2">
                             {validIcons.map((src) => {
@@ -278,8 +278,8 @@ export function TagConfigForm({
             </div>
 
             {/* 2. Appearance Config */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 border border-border/50 rounded-xl p-3 overflow-hidden">
+            <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5 border border-border/50 rounded-xl p-2.5 overflow-hidden">
                     <div className="flex justify-between items-center">
                         <Label className="text-[10px] uppercase font-bold text-muted-foreground/70">{t('scale')}</Label>
                         <span className="text-[10px] font-mono opacity-50">{Math.round(iconSize * 100)}%</span>
@@ -294,7 +294,7 @@ export function TagConfigForm({
                         className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
                     />
                 </div>
-                <div className="space-y-2 border border-border/50 rounded-xl p-3 overflow-hidden">
+                <div className="space-y-1.5 border border-border/50 rounded-xl p-2.5 overflow-hidden">
                     <div className="flex justify-between items-center">
                         <Label className="text-[10px] uppercase font-bold text-muted-foreground/70">{t('background')}</Label>
                         <span className="text-[10px] font-mono opacity-50">{colorAlpha}%</span>
@@ -324,8 +324,8 @@ export function TagConfigForm({
             </div>
 
             {/* 3. Basic Fields */}
-            <div className="grid gap-4">
-                <div className="grid gap-1.5">
+            <div className="grid gap-3">
+                <div className="grid gap-1">
                     <Label htmlFor="title" className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold ml-1">{t('name')}</Label>
                     <Input
                         id="title"
@@ -339,7 +339,7 @@ export function TagConfigForm({
                 </div>
 
                 {showUrlField && (
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-1">
                         <Label htmlFor="url" className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold ml-1">{t('url')}</Label>
                         <Input
                             id="url"

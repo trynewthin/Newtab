@@ -1,8 +1,8 @@
 import { useSettingsStore } from "@/apps/settings/store";
 import { cn } from "@/platform/core/utils";
 import { Check, Upload, Plus, Image as ImageIcon, Palette, Droplet, Sparkles } from "lucide-react";
-import { Input } from "@/platform/shared/ui/input";
-import { Button } from "@/platform/shared/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { BACKGROUND_PRESETS } from "@/apps/settings/appearance/themeConfig";

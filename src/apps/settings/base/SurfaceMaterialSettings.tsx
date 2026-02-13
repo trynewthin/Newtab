@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import { useSettingsStore } from "@/apps/settings/store";
 import { SettingsItem, SettingsSection } from "@/apps/settings/base/SettingComponents";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/platform/shared/ui/select";
-import { Slider } from "@/platform/shared/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import {
     DEFAULT_APP_SURFACE_MATERIAL_CONFIG,
     mergeSurfaceMaterialConfig,

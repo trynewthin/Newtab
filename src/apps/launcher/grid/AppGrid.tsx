@@ -26,7 +26,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogMedia,
-} from "@/platform/shared/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { Trash2, UnfoldVertical, AlertCircle } from "lucide-react";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";

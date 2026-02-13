@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { RotateCcw } from "lucide-react";
-import { Input } from "@/platform/shared/ui/input";
-import { Slider } from "@/platform/shared/ui/slider";
-import { Switch } from "@/platform/shared/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/platform/shared/ui/select";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SettingsItem } from "@/apps/settings/base/SettingComponents";
 import { useSettingsStore } from "@/apps/settings/store";
 import {

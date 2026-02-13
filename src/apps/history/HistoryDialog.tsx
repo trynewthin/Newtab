@@ -24,7 +24,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogMedia,
-} from "@/platform/shared/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 
 interface HistoryDialogProps {
     open: boolean;

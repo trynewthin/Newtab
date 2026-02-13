@@ -4,7 +4,7 @@ import * as React from "react"
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
 
 import { cn } from "@/platform/core/utils"
-import { Button } from "@/platform/shared/ui/button"
+import { Button } from "@/components/ui/button"
 import { LAYER_Z_INDEX } from "@/platform/core/layerZIndex"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {

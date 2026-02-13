@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useItemStore } from "@/apps/launcher/store/item";
 import { useSettingsStore } from "@/apps/settings/store";
-import { Button } from "@/platform/shared/ui/button";
+import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/apps/launcher";
 
 import { type GridItem } from "@/platform/state/core/itemTypes";

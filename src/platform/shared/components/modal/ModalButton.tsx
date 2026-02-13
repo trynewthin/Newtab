@@ -1,4 +1,4 @@
-import { Button } from "@/platform/shared/ui/button"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/platform/core/utils"
 import * as React from "react"
 import { forwardRef } from "react"

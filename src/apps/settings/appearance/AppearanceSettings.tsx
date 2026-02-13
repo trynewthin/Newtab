@@ -6,7 +6,7 @@ import { SurfaceMaterialSettings } from "@/apps/settings/base/SurfaceMaterialSet
 import { ArrowLeft, ChevronRight, Image, Settings as SettingsIcon, Sparkles } from "lucide-react";
 import { cn } from "@/platform/core/utils";
 import { SettingsItem, SettingsSection } from "@/apps/settings/base/SettingComponents";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/platform/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
 
 interface AppearanceSettingsProps {

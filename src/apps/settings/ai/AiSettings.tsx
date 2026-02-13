@@ -4,12 +4,12 @@ import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2
 import { cn } from "@/platform/core/utils";
 import { SidebarHeader } from "@/platform/shared/components";
 import { useAiStore } from "@/apps/ai-companion";
-import { Textarea } from "@/platform/shared/ui/textarea";
-import { Slider } from "@/platform/shared/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/platform/shared/ui/select";
-import { Switch } from "@/platform/shared/ui/switch";
-import { Input } from "@/platform/shared/ui/input";
-import { Button } from "@/platform/shared/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { SettingsSection, SettingsItem } from "@/apps/settings/base/SettingComponents";
 import { SUPPORTED_SEARCH_PROVIDERS } from "@/apps/ai-search/services/searchService";
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, type ReactNode } from "react";
-import { Input } from "@/platform/shared/ui/input";
-import { Label } from "@/platform/shared/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ItemIcon } from "../base/ItemIcon";
 import { extractDominantColor, loadImageAsDataUrl } from "@/platform/core/colorExtractor";
 import { backgroundStorage, getIconKey, isDataURL } from "@/platform/state/core/backgroundStorage";

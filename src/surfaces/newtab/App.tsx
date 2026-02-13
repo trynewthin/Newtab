@@ -3,7 +3,7 @@ import { AppRouter } from "./AppRouter";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { FloatLayer } from "./layers/FloatLayer";
 import { ModalLayer } from "./layers/ModalLayer";
-import { Toaster } from "@/platform/shared/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { HashRouter } from "react-router-dom";
 import { useUIStore } from "@/apps/launcher/store/ui";
 import { cn } from "@/platform/core/utils";

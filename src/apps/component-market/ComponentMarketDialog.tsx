@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { AppSurfaceModal } from "@/platform/shared/components";
-import { Button } from "@/platform/shared/ui/button";
+import { Button } from "@/components/ui/button";
 import { useItemStore } from "@/apps/launcher/store/item";
 import {
     type AppSurfaceFramePreset,

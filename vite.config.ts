@@ -20,6 +20,15 @@ export default defineConfig({
       "@surfaces": path.resolve(__dirname, "./src/surfaces"),
     },
   },
+  build: {
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        chunkFileNames: 'c/[hash].js',
+        assetFileNames: 'a/[hash][extname]',
+      },
+    },
+  },
   server: {
     port: 5173,
     strictPort: true,

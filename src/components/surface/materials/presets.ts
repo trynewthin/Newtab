@@ -60,10 +60,4 @@ export const FROSTED_VARIANT_PRESETS: FrostedPresetMap = {
     },
 };
 
-export const FLUID_VARIANT_PRESETS: Record<AppSurfaceVariant, { borderRadius: number }> = {
-    base: { borderRadius: 18 },
-    toolbar: { borderRadius: 28 },
-    "search-bar": { borderRadius: 50 },
-    widget: { borderRadius: 24 },
-    "folder-preview": { borderRadius: 32 },
-};
+

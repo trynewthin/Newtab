@@ -9,7 +9,6 @@ import {
 } from "@/core/surfaceMaterials";
 import { useResolvedTone } from "./useResolvedTone";
 import { MacFrostedSurface } from "./materials/MacFrostedSurface";
-import { FluidGlassSurface } from "./materials/FluidGlassSurface";
 import { DistortionGlassSurface } from "./materials/DistortionGlassSurface";
 
 export interface AppSurfaceProps extends GlassSurfaceProps {
@@ -43,23 +42,6 @@ export function AppSurface({
         border: `${stableCornerBorderWidth}px solid ${color}`,
         boxSizing: "border-box",
     });
-
-    if (resolvedMaterial === "fluid-glass") {
-        return (
-            <FluidGlassSurface
-                variant={variant}
-                resolvedTone={resolvedTone}
-                config={materialConfig["fluid-glass"]}
-                className={className}
-                style={style}
-                width={width}
-                height={height}
-                borderRadius={borderRadius}
-            >
-                {children}
-            </FluidGlassSurface>
-        );
-    }
 
     if (resolvedMaterial === "mac-frosted") {
         return (

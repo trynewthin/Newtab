@@ -162,8 +162,7 @@ export const useSettingsStore = create<SettingsState>()(
                 const persistedSurfaceMaterial = persisted.surfaceMaterial as string | undefined;
                 const normalizedSurfaceMaterial: AppSurfaceMaterial =
                     persistedSurfaceMaterial === "mac-frosted" ||
-                        persistedSurfaceMaterial === "glass-distortion" ||
-                        persistedSurfaceMaterial === "fluid-glass"
+                        persistedSurfaceMaterial === "glass-distortion"
                             ? persistedSurfaceMaterial
                             : "glass-distortion";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AppPanel } from "@/components/panel/AppPanel";
-import { ModalButton } from "@/components/modal";
+import { Button } from "@/components/ui/button";
 import type { WebTagItem } from "@/state/core/itemTypes";
 import { useTranslation } from "react-i18next";
 import { useItemStore } from "@/launcher/store/item";
@@ -43,15 +43,16 @@ export function ShortcutDialog({ open, onOpenChange, editTag }: ShortcutDialogPr
             title={editTag ? t('edit_shortcut') : t('add_shortcut')}
             background={<div className="absolute inset-0 bg-background" />}
             headerActions={
-                <ModalButton
-                    isIcon={false}
+                <Button
+                    variant="secondary"
+                    size="sm"
                     type="submit"
                     form="tag-config-form"
                     disabled={isSubmitting}
-                    className="px-6 h-9 text-[11px] font-black uppercase tracking-widest rounded-xl"
+                    className="px-6 h-9 text-[11px] font-black uppercase tracking-widest rounded-xl shadow-sm bg-background/80 backdrop-blur-md border border-border/50 hover:bg-background"
                 >
                     {isSubmitting ? t('saving') : (editTag ? t('save') : t('add'))}
-                </ModalButton>
+                </Button>
             }
         >
             <TagConfigForm

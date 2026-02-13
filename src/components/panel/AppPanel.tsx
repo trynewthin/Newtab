@@ -5,7 +5,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { cn } from "@/core/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
-import { ModalButton } from "@/components/modal/core/ModalButton"
+import { Button } from "@/components/ui/button"
 import { useTranslation } from "react-i18next"
 import { LAYER_Z_INDEX } from "@/core/layerZIndex"
 
@@ -146,10 +146,10 @@ export function AppPanel({
                                             {showCloseButton && (
                                                 <DialogPrimitive.Close
                                                     render={
-                                                        <ModalButton>
+                                                        <Button variant="secondary" size="icon-sm" className="rounded-full w-9 h-9 shadow-sm bg-background/80 backdrop-blur-md border border-border/50 hover:bg-background">
                                                             <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2.5} className="w-4 h-4" />
                                                             <span className="sr-only">{t("close")}</span>
-                                                        </ModalButton>
+                                                        </Button>
                                                     }
                                                 />
                                             )}

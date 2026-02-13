@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
-import { AppModal, SidebarItem, type AppModalSidebarItem } from "@/components/modal";
+import { AppModalV1, AppModalV1EmptyState, AppModalV1ListCard } from "@/components/modal/AppModalV1";
 import {
     History,
     Trash2,
@@ -10,7 +10,9 @@ import {
     ChevronRight,
     SearchX,
     ChevronDown,
-    AlertTriangle
+    AlertTriangle,
+    Search,
+    type LucideIcon
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -32,12 +34,12 @@ interface HistoryDialogProps {
 
 type HistoryFilter = 'all' | 'today' | 'yesterday' | 'week' | 'older';
 
-const SIDEBAR_ITEMS: AppModalSidebarItem[] = [
-    { id: 'today', icon: Clock, label: 'today' },
-    { id: 'yesterday', icon: Calendar, label: 'yesterday' },
-    { id: 'week', icon: Filter, label: 'last_7_days' },
-    { id: 'older', icon: ChevronRight, label: 'older' },
-    { id: 'all', icon: History, label: 'all_history' },
+const SIDEBAR_ITEMS: { id: HistoryFilter; icon: LucideIcon; labelKey: string }[] = [
+    { id: 'today', icon: Clock, labelKey: 'today' },
+    { id: 'yesterday', icon: Calendar, labelKey: 'yesterday' },
+    { id: 'week', icon: Filter, labelKey: 'last_7_days' },
+    { id: 'older', icon: ChevronRight, labelKey: 'older' },
+    { id: 'all', icon: History, labelKey: 'all_history' },
 ];
 
 export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
@@ -50,7 +52,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
     const [displayLimit, setDisplayLimit] = useState(50);
 
     const sidebarItems = useMemo(() =>
-        SIDEBAR_ITEMS.map(item => ({ ...item, label: t(item.label) })),
+        SIDEBAR_ITEMS.map(item => ({ ...item, label: t(item.labelKey) })),
         [t]
     );
     const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -64,7 +66,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
             startTime: 0
         }, (items) => {
             setHistoryItems(items);
-            setDisplayLimit(50); // Reset limit on new search
+            setDisplayLimit(50);
         });
     }, [deferredSearchQuery]);
 
@@ -161,119 +163,129 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
         }
     };
 
+    // ─── Header: centered search ─────────────────────────────────────
+    const headerContent = (
+        <div className="flex items-center justify-center flex-1 min-w-0">
+            <div className="relative w-full max-w-64">
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t('search_history')}
+                    className="w-full h-7 rounded-lg bg-foreground/8 pl-7 pr-3 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none border-0 transition-colors focus:bg-foreground/12"
+                />
+            </div>
+        </div>
+    );
+
+    const totalFiltered = groupedHistory.reduce((sum, g) => sum + g.items.length, 0);
+
     return (
         <>
-            <AppModal
+            <AppModalV1
                 open={open}
                 onOpenChange={onOpenChange}
-                storageKey="history-modal"
-                title={t('history')}
-                icon={History}
-                description={searchQuery ? t('searching') : t('history_desc')}
-                sidebarItems={sidebarItems}
-                activeId={filter}
-                onActiveChange={(id) => setFilter(id as HistoryFilter)}
-                sidebarFooter={
-                    <SidebarItem
-                        icon={Trash2}
-                        label={t('clear_history')}
+                header={headerContent}
+                headerActions={
+                    <button
+                        type="button"
                         onClick={() => setIsClearConfirmOpen(true)}
-                        className="text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 transition-colors"
-                    />
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                        title={t('clear_history')}
+                    >
+                        <Trash2 size={13} strokeWidth={2.5} />
+                    </button>
                 }
-                searchPlaceholder={t('search_history')}
-                searchValue={searchQuery}
-                onSearchChange={setSearchQuery}
+                sidebarItems={sidebarItems}
+                sidebarActiveId={filter}
+                onSidebarChange={(id) => setFilter(id as HistoryFilter)}
             >
-                <div className="h-full overflow-y-auto custom-scrollbar bg-background p-4 sm:p-5">
-                    {groupedHistory.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground/60 space-y-3 text-center">
-                            <SearchX size={44} strokeWidth={1.5} className="opacity-40" />
-                            <span className="text-sm">
-                                {searchQuery ? t('no_history_found') : t('no_history')}
-                            </span>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-6 pb-10">
-                            {groupedHistory.map((group) => (
-                                <div key={group.date} className="flex flex-col gap-3">
-                                    <div className="flex items-center gap-3 px-2">
-                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
-                                            {group.date}
-                                        </h3>
-                                        <div className="h-px flex-1 bg-linear-to-r from-border/50 to-transparent" />
-                                        <span className="text-[10px] font-bold text-muted-foreground/30 tabular-nums">
-                                            {group.items.length} {t('items')}
-                                        </span>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {group.items.map((item) => (
-                                            <div
-                                                key={item.id + (item.lastVisitTime || 0)}
-                                                className="group flex cursor-pointer items-center gap-3 rounded-xl border border-transparent p-2.5 transition-all hover:border-border/50 hover:bg-foreground/5"
-                                                onClick={() => window.open(item.url, '_blank')}
-                                            >
-                                                <div className="h-9 w-9 rounded-lg bg-background flex items-center justify-center shrink-0 border border-border/60 transition-transform shadow-sm overflow-hidden">
+                {totalFiltered === 0 && (
+                    <AppModalV1EmptyState
+                        icon={SearchX}
+                        message={searchQuery ? t('no_history_found') : t('no_history')}
+                    />
+                )}
+
+                {totalFiltered > 0 && (
+                    <div className="flex flex-col gap-6">
+                        {groupedHistory.map((group) => (
+                            <div key={group.date} className="flex flex-col gap-2">
+                                <div className="flex items-center gap-3 px-1">
+                                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                                        {group.date}
+                                    </h3>
+                                    <div className="h-px flex-1 bg-linear-to-r from-border/50 to-transparent" />
+                                    <span className="text-[10px] font-bold text-muted-foreground/30 tabular-nums">
+                                        {group.items.length}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {group.items.map((item) => (
+                                        <AppModalV1ListCard
+                                            key={item.id + (item.lastVisitTime || 0)}
+                                            onClick={() => window.open(item.url, '_blank')}
+                                            icon={
+                                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/6 overflow-hidden">
                                                     <img
                                                         src={getFavicon(item.url || '')}
                                                         alt=""
-                                                        className="w-4.5 h-4.5 opacity-80 group-hover:opacity-100 transition-opacity"
+                                                        className="w-4 h-4 opacity-80 group-hover:opacity-100 transition-opacity"
                                                         onError={(e) => {
                                                             (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="%23eee"/></svg>';
                                                         }}
                                                     />
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="truncate text-sm font-semibold tracking-tight text-foreground transition-colors">
-                                                            {item.title || item.url}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                        <span className="text-[10px] text-muted-foreground/60 font-medium truncate italic max-w-md">
-                                                            {item.url}
-                                                        </span>
-                                                        <span className="text-[10px] text-muted-foreground/30 ml-auto tabular-nums">
-                                                            {new Date(item.lastVisitTime || 0).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity px-2">
+                                            }
+                                            actions={
+                                                <div className="flex items-center gap-1">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleDelete(item.url!);
                                                         }}
-                                                        className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all"
+                                                        className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all"
                                                         title={t("remove_from_history")}
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={14} />
                                                     </button>
-                                                    <div className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground">
-                                                        <ExternalLink size={14} />
+                                                    <div className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground/50">
+                                                        <ExternalLink size={12} />
                                                     </div>
                                                 </div>
+                                            }
+                                        >
+                                            <div className="truncate text-[13px] font-bold tracking-tight text-foreground">
+                                                {item.title || item.url}
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="text-[10px] text-muted-foreground/50 font-medium truncate max-w-xs">
+                                                    {item.url}
+                                                </span>
+                                                <span className="text-[10px] text-muted-foreground/30 ml-auto tabular-nums shrink-0">
+                                                    {new Date(item.lastVisitTime || 0).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                        </AppModalV1ListCard>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
+                        ))}
 
-                            {historyItems.length > displayLimit && (
-                                <div className="flex justify-center p-4">
-                                    <button
-                                        onClick={loadMore}
-                                        className="group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-background/90 px-8 py-3 text-muted-foreground transition-all hover:bg-foreground/6 hover:text-foreground active:scale-95"
-                                    >
-                                        <span className="text-[10px] font-black uppercase tracking-widest">{t('more')}</span>
-                                        <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </AppModal>
+                        {historyItems.length > displayLimit && (
+                            <div className="flex justify-center py-2">
+                                <button
+                                    onClick={loadMore}
+                                    className="group flex items-center gap-2 rounded-xl px-6 py-2 text-muted-foreground transition-all hover:bg-foreground/6 hover:text-foreground active:scale-95"
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-widest">{t('more')}</span>
+                                    <ChevronDown size={13} className="group-hover:translate-y-0.5 transition-transform" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </AppModalV1>
 
             <AlertDialog open={isClearConfirmOpen} onOpenChange={setIsClearConfirmOpen}>
                 <AlertDialogContent>
@@ -304,4 +316,3 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
         </>
     );
 }
-

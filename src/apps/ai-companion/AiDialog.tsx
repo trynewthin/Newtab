@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
-import { AppModal, Sidebar, SidebarItem, SidebarHeader, usePersistedSidebarCollapsed } from "@/components/modal";
+import { useEffect, useMemo } from "react";
+import { AppModalV1, AppModalV1EmptyState } from "@/components/modal/AppModalV1";
 import { useTranslation } from "react-i18next";
-import { MessageSquare, Plus, Trash2, Bot } from "lucide-react";
+import { MessageSquare, Plus, Trash2, Sparkles } from "lucide-react";
 import { useAiStore, useAiChat } from "@/apps/ai-companion";
 import { ChatView } from "./components/ChatView";
 import { ChatInput } from "./components/ChatInput";
-import { cn } from "@/core/utils";
 
 interface AiDialogProps {
     open: boolean;
@@ -31,10 +30,6 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
 
     const { sendMessage, stopGeneration } = useAiChat();
 
-    // Default to collapsed as requested
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistedSidebarCollapsed("ai-modal", true);
-    const [showMobileMenu, setShowMobileMenu] = useState(false);
-
     useEffect(() => {
         if (open) {
             hydrateSession();
@@ -43,77 +38,57 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
 
     const activeModel = getActiveModelConfig();
 
+    // ─── Sidebar: session list with delete actions ───────────────────
+    const sidebarItems = useMemo(() =>
+        sessions.map(session => ({
+            id: session.id,
+            icon: MessageSquare,
+            label: session.title || t('new_conversation'),
+            actions: sessions.length > 1 ? (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSession(session.id);
+                    }}
+                    className="rounded-md p-1 text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
+                >
+                    <Trash2 size={11} />
+                </button>
+            ) : undefined,
+        })),
+        [sessions, t, deleteSession]
+    );
+
+    // ─── Header: model name centered ─────────────────────────────────
+    const headerContent = (
+        <div className="flex items-center justify-center gap-1.5 flex-1 min-w-0">
+            <Sparkles size={12} className="text-foreground/60 shrink-0" />
+            <span className="text-[11px] font-semibold text-foreground/70 truncate">
+                {activeModel?.name || t('ai_ready')}
+            </span>
+        </div>
+    );
 
     return (
-        <AppModal
+        <AppModalV1
             open={open}
             onOpenChange={onOpenChange}
-            isCollapsed={isSidebarCollapsed}
-            showMobileMenu={showMobileMenu}
-            onCloseMobileMenu={() => setShowMobileMenu(false)}
-            sidebar={
-                <Sidebar
-                    title={t('sessions')}
-                    isCollapsed={isSidebarCollapsed}
-                    onCollapseChange={setIsSidebarCollapsed}
-                    showMobileMenu={showMobileMenu}
-                    onCloseMobileMenu={() => setShowMobileMenu(false)}
-                    footer={
-                        <div className="flex flex-col gap-2">
-                            <button
-                                onClick={createSession}
-                                className={cn(
-                                    "flex items-center justify-center gap-2 rounded-xl transition-all active:scale-95 shadow-sm border",
-                                    "bg-foreground text-background border-foreground/20 hover:opacity-90",
-                                    isSidebarCollapsed && !showMobileMenu ? "w-10 h-10 mx-auto" : "w-full h-11 px-4 text-xs font-bold uppercase tracking-wider"
-                                )}
-                                title={t('new_chat')}
-                            >
-                                <Plus size={isSidebarCollapsed && !showMobileMenu ? 20 : 16} strokeWidth={3} />
-                                {!(isSidebarCollapsed && !showMobileMenu) && <span>{t('new_chat')}</span>}
-                            </button>
-                        </div>
-                    }
+            header={headerContent}
+            headerActions={
+                <button
+                    type="button"
+                    onClick={() => createSession()}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                    title={t('new_chat')}
                 >
-                    {sessions.map(session => (
-                        <SidebarItem
-                            key={session.id}
-                            icon={MessageSquare}
-                            label={session.title || t('new_conversation')}
-                            isActive={currentSessionId === session.id}
-                            onClick={() => {
-                                switchSession(session.id);
-                                setShowMobileMenu(false);
-                            }}
-                            actions={
-                                sessions.length > 1 && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            deleteSession(session.id);
-                                        }}
-                                        className="rounded-md p-1 px-1.5 text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
-                                    >
-                                        <Trash2 size={12} />
-                                    </button>
-                                )
-                            }
-                        />
-                    ))}
-                </Sidebar>
+                    <Plus size={14} strokeWidth={2.5} />
+                </button>
             }
-            header={
-                <SidebarHeader
-                    title={t('sys_ai')}
-                    icon={Bot}
-                    description={activeModel?.name || t('ai_ready')}
-                    onMenuClick={() => setShowMobileMenu(true)}
-                    onClose={() => onOpenChange(false)}
-                    className="border-b-0"
-                />
-            }
+            sidebarItems={sidebarItems}
+            sidebarActiveId={currentSessionId || undefined}
+            onSidebarChange={(id) => switchSession(id)}
             footer={
-                <div className="p-4 sm:p-5">
+                <div className="px-4 pb-4 pt-2">
                     <div className="max-w-4xl mx-auto w-full">
                         <ChatInput
                             models={models}
@@ -128,13 +103,18 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
                 </div>
             }
         >
+            {messages.length === 0 && !isLoading && (
+                <AppModalV1EmptyState
+                    icon={Sparkles}
+                    message={activeModel?.name || t('ai_ready')}
+                />
+            )}
             <ChatView
                 messages={messages}
                 activeModel={activeModel}
                 isLoading={isLoading}
-                className="pt-4 pb-4"
             />
-        </AppModal>
+        </AppModalV1>
     );
 }
 

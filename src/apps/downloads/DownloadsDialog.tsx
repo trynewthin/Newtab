@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { AppModal, type AppModalSidebarItem } from "@/components/modal";
+import { AppModalV1, AppModalV1EmptyState, AppModalV1ListCard } from "@/components/modal/AppModalV1";
 import { cn } from "@/core/utils";
 import {
     X,
@@ -15,12 +15,13 @@ import {
     FileAudio,
     FileCode,
     FileArchive,
-    DownloadCloud,
     AlertCircle,
     Inbox,
     CheckCircle2,
     Clock,
-    AlertTriangle
+    AlertTriangle,
+    Search,
+    type LucideIcon
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -31,11 +32,11 @@ interface DownloadsDialogProps {
 
 type DownloadFilter = 'all' | 'in_progress' | 'complete' | 'interrupted';
 
-const SIDEBAR_ITEMS: AppModalSidebarItem[] = [
-    { id: 'all', icon: Inbox, label: 'all_downloads' },
-    { id: 'in_progress', icon: Clock, label: 'in_progress' },
-    { id: 'complete', icon: CheckCircle2, label: 'completed' },
-    { id: 'interrupted', icon: AlertTriangle, label: 'interrupted' },
+const SIDEBAR_ITEMS: { id: DownloadFilter; icon: LucideIcon; labelKey: string }[] = [
+    { id: 'all', icon: Inbox, labelKey: 'all_downloads' },
+    { id: 'in_progress', icon: Clock, labelKey: 'in_progress' },
+    { id: 'complete', icon: CheckCircle2, labelKey: 'completed' },
+    { id: 'interrupted', icon: AlertTriangle, labelKey: 'interrupted' },
 ];
 
 export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
@@ -44,11 +45,6 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [confirmingId, setConfirmingId] = useState<number | null>(null);
     const [filter, setFilter] = useState<DownloadFilter>('all');
-
-    const sidebarItems = useMemo(() =>
-        SIDEBAR_ITEMS.map(item => ({ ...item, label: t(item.label) })),
-        [t]
-    );
 
     const fetchDownloads = useCallback(() => {
         if (typeof chrome === "undefined" || !chrome.downloads) return;
@@ -155,112 +151,82 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
         return <FileIcon size={24} className="text-foreground/65" />;
     };
 
-    const description = searchQuery ? t('searching') : (
-        filter === 'all' ? t('all_downloads') :
-            filter === 'in_progress' ? t('in_progress') :
-                filter === 'complete' ? t('completed') : t('interrupted')
+    // ─── Header content ─────────────────────────────────────────────
+    const headerContent = (
+        <div className="flex items-center justify-center flex-1 min-w-0">
+            <div className="relative w-full max-w-64">
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t('search_downloads')}
+                    className="w-full h-7 rounded-lg bg-foreground/8 pl-7 pr-3 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none border-0 transition-colors focus:bg-foreground/12"
+                />
+            </div>
+        </div>
+    );
+
+    const sidebarItems = useMemo(() =>
+        SIDEBAR_ITEMS.map(item => ({ ...item, label: t(item.labelKey) })),
+        [t]
     );
 
     return (
-        <AppModal
+        <AppModalV1
             open={open}
             onOpenChange={onOpenChange}
-            storageKey="downloads-modal"
-            title={t('downloads')}
-            icon={DownloadCloud}
-            description={description}
+            header={headerContent}
             sidebarItems={sidebarItems}
-            activeId={filter}
-            onActiveChange={(id) => setFilter(id as DownloadFilter)}
-            searchPlaceholder={t('search_downloads')}
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
+            sidebarActiveId={filter}
+            onSidebarChange={(id) => setFilter(id as DownloadFilter)}
         >
-            <div className="h-full overflow-y-auto custom-scrollbar p-4 sm:p-5">
-                <div className="flex flex-col gap-3">
-                    {filteredDownloads.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground/60 space-y-3 text-center">
-                            <Inbox size={44} strokeWidth={1.5} className="opacity-40" />
-                            <span className="text-sm">
-                                {searchQuery ? t('no_downloads_found') : t('no_downloads')}
-                            </span>
-                        </div>
-                    ) : (
-                        filteredDownloads.map((item) => (
-                            <div
-                                key={item.id}
-                                className={cn(
-                                    "group relative flex items-center gap-4 rounded-2xl border border-border/60 bg-background/88 p-3.5 transition-all duration-200 shadow-xs",
-                                    "hover:border-foreground/20 hover:bg-background",
-                                    item.state === 'interrupted' && "opacity-80"
-                                )}
-                            >
-                                {/* Icon Column */}
-                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-background shadow-inner transition-transform">
+            {filteredDownloads.length === 0 && (
+                <AppModalV1EmptyState
+                    icon={Inbox}
+                    message={searchQuery ? t('no_downloads_found') : t('no_downloads')}
+                />
+            )}
+            <div className="flex flex-col gap-3">
+                {filteredDownloads.length > 0 && (
+                    filteredDownloads.map((item) => (
+                        <AppModalV1ListCard
+                            key={item.id}
+                            className={item.state === 'interrupted' ? "opacity-80" : undefined}
+                            icon={
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-foreground/6">
                                     {getFileIcon(item.filename)}
                                 </div>
-
-                                {/* Info Column */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[14px] font-bold text-foreground truncate flex-1 tracking-tight">
-                                            {item.filename.split(/[\\/]/).pop() || item.url}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-1.5 overflow-hidden">
-                                        <span className={cn("text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider flex items-center gap-1 shrink-0", getStatusColor(item))}>
-                                            {item.state === 'in_progress' && <span className="w-1.5 h-1.5 bg-foreground rounded-full animate-pulse" />}
-                                            {item.state}
-                                        </span>
-                                        <span className="text-[10px] text-muted-foreground font-bold uppercase shrink-0">{formatSize(item.fileSize)}</span>
-                                        <span className="text-border text-[10px] shrink-0">•</span>
-                                        <span className="text-[10px] text-muted-foreground/60 font-medium truncate italic max-w-sm">{item.url}</span>
-                                    </div>
-
-                                    {/* Progress Bar */}
-                                    {item.state === 'in_progress' && (
-                                        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full border border-border/60 bg-foreground/10">
-                                            <div
-                                                className="h-full bg-foreground transition-all duration-300"
-                                                style={{ width: `${(item.bytesReceived / (item.totalBytes || 1)) * 100}%` }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Action Column */}
-                                <div className="flex items-center gap-2 px-2">
+                            }
+                            actions={
+                                <>
                                     {item.state === 'in_progress' ? (
                                         <>
                                             {item.paused ? (
-                                                <button onClick={() => handleResume(item.id)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground/10 text-foreground hover:bg-foreground/15 transition-all" title={t("resume")}>
-                                                    <Play size={18} fill="currentColor" />
+                                                <button onClick={() => handleResume(item.id)} className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/10 text-foreground hover:bg-foreground/15 transition-all" title={t("resume")}>
+                                                    <Play size={15} fill="currentColor" />
                                                 </button>
                                             ) : (
-                                                <button onClick={() => handlePause(item.id)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground/8 text-foreground hover:bg-foreground/12 transition-all" title={t("pause")}>
-                                                    <Pause size={18} fill="currentColor" />
+                                                <button onClick={() => handlePause(item.id)} className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/8 text-foreground hover:bg-foreground/12 transition-all" title={t("pause")}>
+                                                    <Pause size={15} fill="currentColor" />
                                                 </button>
                                             )}
-                                            <button onClick={() => handleCancel(item.id)} className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground/8 text-foreground hover:bg-foreground/15 transition-all" title={t("cancel")}>
-                                                <X size={18} strokeWidth={3} />
+                                            <button onClick={() => handleCancel(item.id)} className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/8 text-foreground hover:bg-foreground/15 transition-all" title={t("cancel")}>
+                                                <X size={15} strokeWidth={3} />
                                             </button>
                                         </>
                                     ) : item.state === 'complete' ? (
-                                        <>
-                                            <button onClick={() => handleShow(item.id)} className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all" title={t("show_in_folder")}>
-                                                <Folder size={20} />
-                                            </button>
-                                        </>
+                                        <button onClick={() => handleShow(item.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all" title={t("show_in_folder")}>
+                                            <Folder size={16} />
+                                        </button>
                                     ) : (
-                                        <button onClick={() => fetchDownloads()} className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-foreground/8 transition-all" title={t("retry")}>
-                                            <RotateCcw size={20} />
+                                        <button onClick={() => fetchDownloads()} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/8 transition-all" title={t("retry")}>
+                                            <RotateCcw size={16} />
                                         </button>
                                     )}
-
                                     <button
                                         onClick={() => handleEraseClick(item.id)}
                                         className={cn(
-                                            "h-10 px-3 flex items-center justify-center rounded-xl transition-all gap-2 min-w-[40px] font-bold text-[11px] uppercase tracking-wider",
+                                            "flex h-8 items-center justify-center rounded-lg transition-all gap-1.5 min-w-[32px] px-2 font-bold text-[10px] uppercase tracking-wider",
                                             confirmingId === item.id
                                                 ? "bg-foreground text-background shadow-lg animate-pulse"
                                                 : "text-muted-foreground/50 hover:text-foreground hover:bg-foreground/8"
@@ -268,20 +234,40 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                                     >
                                         {confirmingId === item.id ? (
                                             <>
-                                                <AlertCircle size={16} strokeWidth={3} />
+                                                <AlertCircle size={13} strokeWidth={3} />
                                                 <span>{t("delete_short")}</span>
                                             </>
                                         ) : (
-                                            <Trash2 size={20} />
+                                            <Trash2 size={16} />
                                         )}
                                     </button>
-                                </div>
+                                </>
+                            }
+                        >
+                            <div className="flex items-center gap-2">
+                                <span className="text-[13px] font-bold text-foreground truncate flex-1 tracking-tight">
+                                    {item.filename.split(/[\\/]/).pop() || item.url}
+                                </span>
                             </div>
-                        ))
-                    )}
-                </div>
+                            <div className="flex items-center gap-2 mt-1 overflow-hidden">
+                                <span className={cn("text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md tracking-wider flex items-center gap-1 shrink-0", getStatusColor(item))}>
+                                    {item.state === 'in_progress' && <span className="w-1.5 h-1.5 bg-foreground rounded-full animate-pulse" />}
+                                    {item.state}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground font-bold uppercase shrink-0">{formatSize(item.fileSize)}</span>
+                            </div>
+                            {item.state === 'in_progress' && (
+                                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-foreground/10">
+                                    <div
+                                        className="h-full bg-foreground transition-all duration-300"
+                                        style={{ width: `${(item.bytesReceived / (item.totalBytes || 1)) * 100}%` }}
+                                    />
+                                </div>
+                            )}
+                        </AppModalV1ListCard>
+                    ))
+                )}
             </div>
-        </AppModal>
+        </AppModalV1>
     );
 }
-

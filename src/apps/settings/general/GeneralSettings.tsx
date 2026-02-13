@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/modal";
 import { SettingsSection, SettingsItem, SettingsActionButtons } from "../components/SettingComponents";
 import { Globe, Database, Download, Upload, Search, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,12 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { persistenceManager } from "@/state/persistence/manager";
 
-interface GeneralSettingsProps {
-    onOpenMobileMenu?: () => void;
-    onClose?: () => void;
-}
-
-export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsProps) {
+export function GeneralSettings() {
     const { t, i18n } = useTranslation();
     const {
         searchEngine,
@@ -108,16 +102,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
     };
 
     return (
-        <div className="h-full flex flex-col">
-            <SidebarHeader
-                title={t('general_settings')}
-                description={t('general_settings_desc')}
-                onMenuClick={onOpenMobileMenu}
-                onClose={onClose}
-            />
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="mx-auto max-w-3xl space-y-6 p-5 pb-16">
+                <div className="mx-auto max-w-3xl space-y-6">
                     {/* Search Engine Section */}
                     <SettingsSection
                         icon={Search}
@@ -128,7 +113,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                         <div className="space-y-4">
                             <SettingsItem label={t('search_engine')}>
                                 <Select value={searchEngine} onValueChange={(val) => val && setSearchEngine(val)}>
-                                    <SelectTrigger className="h-9 w-[180px] rounded-xl border-border/70 bg-background/85">
+                                    <SelectTrigger className="h-9 w-[180px] rounded-xl border-foreground/10 bg-foreground/4">
                                         <SelectValue>
                                             <div className="flex items-center gap-2">
                                                 <img src={currentEngine.icon} alt="" className="w-3.5 h-3.5" />
@@ -154,7 +139,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                 <h4 className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">{t('custom_engines')}</h4>
                                 <div className="grid gap-2">
                                     {customSearchEngines.map((engine) => (
-                                        <div key={engine.value} className="group/engine flex items-center justify-between rounded-xl border border-border/60 bg-background/80 p-3">
+                                        <div key={engine.value} className="group/engine flex items-center justify-between rounded-xl p-3 shadow-[0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_6px_rgba(255,255,255,0.05)]">
                                             <div className="flex items-center gap-3 min-w-0">
                                                 <img src={engine.icon} alt="" className="w-4 h-4 rounded shadow-sm" />
                                                 <div className="flex flex-col min-w-0">
@@ -174,20 +159,20 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                     {!isAdding ? (
                                         <button
                                             onClick={() => setIsAdding(true)}
-                                            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 text-sm font-semibold text-muted-foreground transition-all hover:bg-foreground/6 hover:text-foreground"
+                                            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-foreground/10 hover:border-foreground/20 text-sm font-semibold text-muted-foreground transition-all bg-foreground/4 hover:bg-foreground/6 hover:text-foreground"
                                         >
                                             <Plus size={16} />
                                             {t('add_custom_engine')}
                                         </button>
                                     ) : (
-                                        <div className="space-y-3 rounded-2xl border border-border/70 bg-background/88 p-4 animate-in fade-in slide-in-from-top-2">
+                                        <div className="space-y-3 rounded-2xl p-4 animate-in fade-in slide-in-from-top-2 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">{t('engine_name')}</label>
                                                 <Input
                                                     value={newEngine.name}
                                                     onChange={(e) => setNewEngine(prev => ({ ...prev, name: e.target.value }))}
                                                     placeholder={t('engine_name_placeholder')}
-                                                    className="h-9 border-border/70 bg-background/90"
+                                                    className="h-9 border-foreground/10 bg-foreground/4"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -196,7 +181,7 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                                                     value={newEngine.url}
                                                     onChange={(e) => setNewEngine(prev => ({ ...prev, url: e.target.value }))}
                                                     placeholder={t('engine_url_placeholder')}
-                                                    className="h-9 border-border/70 bg-background/90 font-mono text-xs"
+                                                    className="h-9 border-foreground/10 bg-foreground/4 font-mono text-xs"
                                                 />
                                             </div>
                                             <div className="flex justify-end gap-2 pt-2">
@@ -257,8 +242,6 @@ export function GeneralSettings({ onOpenMobileMenu, onClose }: GeneralSettingsPr
                         </SettingsItem>
                     </SettingsSection>
                 </div>
-            </div>
-        </div>
     );
 }
 

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sliders, Cpu, Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp, Box, Globe, Search } from "lucide-react";
+import { Sparkles, Thermometer, Wrench, Plus, Trash2, Check, Edit2, ChevronUp, Box, Globe, Search } from "lucide-react";
 import { cn } from "@/core/utils";
-import { SidebarHeader, ModalTabs } from "@/components/modal";
 import { useAiStore } from "@/apps/ai-companion";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
@@ -14,45 +13,17 @@ import { SettingsSection, SettingsItem } from "@/apps/settings/components/Settin
 import { SUPPORTED_SEARCH_PROVIDERS } from "@/apps/ai-search/services/searchService";
 
 interface AiSettingsProps {
-    onOpenMobileMenu?: () => void;
-    onClose?: () => void;
+    activeSubTab?: string;
 }
 
-export function AiSettings({ onOpenMobileMenu, onClose }: AiSettingsProps) {
-    const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'config' | 'preferences'>('config');
-
+export function AiSettings({ activeSubTab = 'config' }: AiSettingsProps) {
     return (
-        <div className="h-full flex flex-col">
-            <SidebarHeader
-                title={t('ai_assistant')}
-                description={t('ai_settings_desc')}
-                onMenuClick={onOpenMobileMenu}
-                onClose={onClose}
-            >
-                <ModalTabs
-                    items={[
-                        { id: 'config', icon: Cpu, label: t('models') },
-                        { id: 'preferences', icon: Sliders, label: t('preferences') },
-                    ]}
-                    activeId={activeTab}
-                    onActiveChange={(id) => setActiveTab(id as 'config' | 'preferences')}
-                />
-            </SidebarHeader>
-
-            <div className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
-                {activeTab === 'config' ? (
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <AiConfigContent />
-                    </div>
-                ) : (
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="max-w-3xl mx-auto">
-                            <AiPreferencesContent />
-                        </div>
-                    </div>
-                )}
-            </div>
+        <div className="mx-auto max-w-3xl space-y-6">
+            {activeSubTab === 'config' ? (
+                <AiConfigContent />
+            ) : (
+                <AiPreferencesContent />
+            )}
         </div>
     );
 }

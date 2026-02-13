@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles, Check, Square, ChevronUp } from "lucide-react";
+import { Send, Sparkles, Check, Square } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/core/utils";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import type { ModelConfig } from "@/apps/ai-companion";
 import { useTranslation } from "react-i18next";
+import AppSurface from "@/components/surface/AppSurface";
 
 interface ChatInputProps {
     models: ModelConfig[];
@@ -52,79 +52,101 @@ export function ChatInput({
 
     return (
         <div className={cn(
-            "relative flex items-end gap-2 p-1.5 rounded-[22px] transition-all duration-300",
-            "border border-border/70 bg-background/90 shadow-sm ring-1 ring-black/5 dark:ring-white/5",
-            "focus-within:bg-background focus-within:border-foreground/20 focus-within:ring-foreground/15"
+            "relative rounded-xl",
+            "shadow-[0_4px_16px_rgba(0,0,0,0.15),0_2px_6px_rgba(0,0,0,0.1)]",
+            "dark:shadow-[0_4px_16px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
         )}>
-            <div className="pb-0.5">
-                <Popover open={isModelOpen} onOpenChange={setIsModelOpen}>
-                    <PopoverTrigger className={cn(
-                        "flex items-center gap-1.5 pl-3 pr-2 py-2 rounded-xl transition-all duration-300 outline-none",
-                        "hover:bg-foreground/8 text-muted-foreground hover:text-foreground",
-                        isModelOpen && "bg-background text-foreground",
-                        isLoading && "text-foreground animate-pulse"
-                    )}>
-                        <Sparkles size={16} className={cn(isLoading && "animate-spin-slow")} />
-                        <ChevronUp size={12} className={cn("transition-transform duration-300 opacity-50", isModelOpen ? "rotate-180" : "")} />
-                    </PopoverTrigger>
-                    <PopoverContent align="start" side="top" className="mb-2 w-[220px] rounded-xl border border-border/70 bg-background/95 p-1.5 shadow-xl">
-                        <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">{t("select_model")}</div>
-                        {models.map(m => (
-                            <button
-                                key={m.id}
-                                onClick={() => {
-                                    setActiveModel(m.id);
-                                    setIsModelOpen(false);
-                                }}
-                                className={cn(
-                                    "w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-all group",
-                                    activeModelId === m.id
-                                        ? "bg-foreground text-background"
-                                        : "text-muted-foreground hover:bg-foreground/8 hover:text-foreground"
-                                )}
-                            >
-                                <span className="truncate">{m.name}</span>
-                                {activeModelId === m.id && <Check size={14} strokeWidth={2.5} />}
-                            </button>
-                        ))}
-                    </PopoverContent>
-                </Popover>
+            <div className="absolute inset-0 z-0 rounded-xl overflow-hidden">
+                <AppSurface variant="toolbar" width="100%" height="100%" />
             </div>
-
-            <Input
-                ref={inputRef}
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={isLoading ? t("agent_working") : (activeModel ? t("message_model_placeholder", { model: activeModel.name }) : t("type_message_placeholder"))}
-                disabled={isLoading}
-                className="min-h-[40px] flex-1 border-none bg-transparent px-3 py-2.5 text-sm font-medium shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
-                autoComplete="off"
-            />
-
-            <div className="pb-0.5 pr-0.5">
-                {isLoading ? (
+            <div className="relative z-10 flex items-center gap-1 p-1.5">
+                <div className="relative shrink-0">
                     <button
-                        onClick={onStop}
-                        className="group flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background shadow-sm transition-all hover:scale-105 active:scale-95"
-                        title={t("stop_generation")}
-                    >
-                        <Square size={14} fill="currentColor" className="group-hover:opacity-80 transition-opacity" />
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleSend}
-                        disabled={!inputValue.trim()}
+                        type="button"
+                        onClick={() => setIsModelOpen(v => !v)}
                         className={cn(
-                            "w-9 h-9 rounded-xl transition-all duration-300 flex items-center justify-center",
-                            inputValue.trim()
-                                ? "bg-foreground text-background shadow-sm hover:scale-105 active:scale-95"
-                                : "bg-muted text-muted-foreground/40 cursor-not-allowed"
+                            "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 outline-none",
+                            "hover:bg-foreground/8 text-muted-foreground hover:text-foreground",
+                            isModelOpen && "bg-foreground text-background",
+                            isLoading && "text-foreground animate-pulse"
                         )}
                     >
-                        <Send size={16} className={cn(inputValue.trim() ? "ml-0.5" : "")} />
+                        <Sparkles size={14} className={cn(isLoading && "animate-spin-slow")} />
                     </button>
-                )}
+
+                    {isModelOpen && (
+                        <>
+                            <div className="fixed inset-0 z-30" onClick={() => setIsModelOpen(false)} />
+                            <div className={cn(
+                                "absolute bottom-full left-0 mb-2 z-40 w-[220px]",
+                                "overflow-hidden rounded-2xl",
+                                "shadow-[0_4px_16px_rgba(0,0,0,0.15),0_2px_6px_rgba(0,0,0,0.1)]",
+                                "dark:shadow-[0_4px_16px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
+                            )}>
+                                <div className="absolute inset-0 z-0 rounded-2xl overflow-hidden">
+                                    <AppSurface variant="toolbar" width="100%" height="100%" borderRadius={16} />
+                                </div>
+                                <div className="relative z-10 p-2 space-y-0.5">
+                                    <div className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">{t("select_model")}</div>
+                                    {models.map(m => (
+                                        <button
+                                            key={m.id}
+                                            onClick={() => {
+                                                setActiveModel(m.id);
+                                                setIsModelOpen(false);
+                                            }}
+                                            className={cn(
+                                                "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200",
+                                                activeModelId === m.id
+                                                    ? "bg-foreground/16 text-foreground font-semibold"
+                                                    : "text-foreground hover:bg-foreground/12"
+                                            )}
+                                        >
+                                            <span className="truncate flex-1 text-left">{m.name}</span>
+                                            {activeModelId === m.id && <Check size={13} strokeWidth={2.5} className="shrink-0" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                <Input
+                    ref={inputRef}
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={isLoading ? t("agent_working") : (activeModel ? t("message_model_placeholder", { model: activeModel.name }) : t("type_message_placeholder"))}
+                    disabled={isLoading}
+                    className="min-h-[36px] flex-1 border-none bg-transparent px-2 py-2 text-sm font-medium shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
+                    autoComplete="off"
+                />
+
+                <div className="shrink-0">
+                    {isLoading ? (
+                        <button
+                            onClick={onStop}
+                            className="group flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background shadow-sm transition-all hover:scale-105 active:scale-95"
+                            title={t("stop_generation")}
+                        >
+                            <Square size={12} fill="currentColor" className="group-hover:opacity-80 transition-opacity" />
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleSend}
+                            disabled={!inputValue.trim()}
+                            className={cn(
+                                "w-8 h-8 rounded-lg transition-all duration-200 flex items-center justify-center",
+                                inputValue.trim()
+                                    ? "bg-foreground text-background shadow-sm hover:scale-105 active:scale-95"
+                                    : "text-muted-foreground/30 cursor-not-allowed"
+                            )}
+                        >
+                            <Send size={14} className={cn(inputValue.trim() ? "ml-0.5" : "")} />
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

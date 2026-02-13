@@ -1,28 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/modal";
 import { SettingsSection, SettingsItem } from "@/apps/settings/components/SettingComponents";
 import { Info, Github, RotateCcw, User, Heart } from "lucide-react";
 import { APP_METADATA } from "@/core/constants";
 
-interface AboutSettingsProps {
-    onOpenMobileMenu?: () => void;
-    onClose?: () => void;
-}
-
-export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps) {
+export function AboutSettings() {
     const { t } = useTranslation();
 
     return (
-        <div className="h-full flex flex-col">
-            <SidebarHeader
-                title={t('about')}
-                description={t('about_desc')}
-                onMenuClick={onOpenMobileMenu}
-                onClose={onClose}
-            />
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="mx-auto max-w-3xl space-y-6 p-5 pb-12">
+                <div className="mx-auto max-w-3xl space-y-6">
                     {/* Version Info Section */}
                     <SettingsSection
                         icon={Info}
@@ -30,7 +15,7 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                         title={t('version_info')}
                     >
                         <SettingsItem label={t('current_version')}>
-                            <span className="rounded-full border border-border/70 bg-background px-2 py-0.5 font-mono text-sm font-semibold text-foreground">
+                            <span className="rounded-full border border-foreground/10 bg-foreground/4 px-2 py-0.5 font-mono text-sm font-semibold text-foreground">
                                 v{APP_METADATA.version}
                             </span>
                         </SettingsItem>
@@ -53,7 +38,7 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                                         />
                                     )}
                                     <span className="text-sm font-semibold">{APP_METADATA.author.name}</span>
-                                    <div className="rounded-full border border-border/60 bg-background p-1">
+                                    <div className="rounded-full border border-foreground/10 bg-foreground/4 p-1">
                                         <Heart size={12} className="text-foreground/70 fill-foreground/70" />
                                     </div>
                                 </div>
@@ -80,11 +65,11 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                     >
                         <div className="space-y-4">
                             {APP_METADATA.changelog.map((log, index) => (
-                                <div key={index} className="relative space-y-1.5 border-l-2 border-border/70 pl-4">
+                                <div key={index} className="relative space-y-1.5 border-l-2 border-foreground/15 pl-4">
                                     <div className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-foreground/55" />
                                     <div className="flex items-center gap-2">
                                         <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">{log.date}</span>
-                                        <span className="rounded-full border border-border/70 bg-background px-2 py-0.5 text-[10px] font-semibold leading-none text-foreground/80">
+                                        <span className="rounded-full border border-foreground/10 bg-foreground/4 px-2 py-0.5 text-[10px] font-semibold leading-none text-foreground/80">
                                             {log.tag}
                                         </span>
                                     </div>
@@ -94,8 +79,6 @@ export function AboutSettings({ onOpenMobileMenu, onClose }: AboutSettingsProps)
                         </div>
                     </SettingsSection>
                 </div>
-            </div>
-        </div>
     );
 }
 

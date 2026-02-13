@@ -1,6 +1,5 @@
 import { useEffect, useState, type ComponentType } from "react";
 import { useTranslation } from "react-i18next";
-import { SidebarHeader } from "@/components/modal";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
 import { ArrowLeft, ChevronRight, Image, Settings as SettingsIcon, Sparkles } from "lucide-react";
@@ -9,14 +8,9 @@ import { SettingsItem, SettingsSection } from "@/apps/settings/components/Settin
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
 
-interface AppearanceSettingsProps {
-    onOpenMobileMenu?: () => void;
-    onClose?: () => void;
-}
-
 type ThemeSettingsSubPage = "home" | "background" | "material";
 
-export function AppearanceSettings({ onOpenMobileMenu, onClose }: AppearanceSettingsProps) {
+export function AppearanceSettings() {
     const { t } = useTranslation();
     const [subPage, setSubPage] = useState<ThemeSettingsSubPage>("home");
     const { theme, setTheme } = useSettingsStore();
@@ -39,16 +33,6 @@ export function AppearanceSettings({ onOpenMobileMenu, onClose }: AppearanceSett
     };
 
     const isHome = subPage === "home";
-    const headerTitle = isHome
-        ? t("theme_settings")
-        : subPage === "background"
-            ? t("background")
-            : t("surface_materials");
-    const headerDescription = isHome
-        ? t("appearance_desc")
-        : subPage === "background"
-            ? t("theme_settings_background_page_desc")
-            : t("theme_settings_material_page_desc");
 
     const NavEntry = ({
         icon: Icon,
@@ -63,12 +47,14 @@ export function AppearanceSettings({ onOpenMobileMenu, onClose }: AppearanceSett
             type="button"
             onClick={onClick}
             className={cn(
-                "group flex w-full items-center justify-between rounded-2xl border border-border/70 bg-background/86 px-4 py-3.5 text-left",
-                "transition-all hover:border-foreground/20 hover:bg-foreground/6"
+                "group flex w-full items-center justify-between rounded-2xl px-4 py-3.5 text-left",
+                "shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]",
+                "dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
+                "transition-all hover:scale-[1.01]",
             )}
         >
             <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground/80">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-foreground/6 text-foreground/80">
                     <Icon size={18} />
                 </div>
                 <div className="min-w-0">
@@ -80,27 +66,17 @@ export function AppearanceSettings({ onOpenMobileMenu, onClose }: AppearanceSett
     );
 
     return (
-        <div className="h-full flex flex-col">
-            <SidebarHeader
-                title={headerTitle}
-                description={headerDescription}
-                onMenuClick={onOpenMobileMenu}
-                onClose={onClose}
-            >
-                {!isHome ? (
-                    <button
-                        type="button"
-                        onClick={() => setSubPage("home")}
-                        className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
-                    >
-                        <ArrowLeft size={14} />
-                        <span className="hidden sm:inline">{t("back_to_theme_settings")}</span>
-                    </button>
-                ) : null}
-            </SidebarHeader>
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="mx-auto max-w-3xl space-y-6 p-5">
+                <div className="mx-auto max-w-3xl space-y-6">
+                    {!isHome && (
+                        <button
+                            type="button"
+                            onClick={() => setSubPage("home")}
+                            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
+                        >
+                            <ArrowLeft size={14} />
+                            <span>{t("back_to_theme_settings")}</span>
+                        </button>
+                    )}
                     {isHome ? (
                         <>
                             <SettingsSection
@@ -111,7 +87,7 @@ export function AppearanceSettings({ onOpenMobileMenu, onClose }: AppearanceSett
                             >
                                 <SettingsItem label={t("theme_mode")}>
                                     <Select value={theme} onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}>
-                                        <SelectTrigger className="h-9 w-[180px] rounded-xl border-border/70 bg-background/85">
+                                        <SelectTrigger className="h-9 w-[180px] rounded-xl border-foreground/10 bg-foreground/4">
                                             <SelectValue>
                                                 {themeOptions[theme as keyof typeof themeOptions]}
                                             </SelectValue>
@@ -143,8 +119,6 @@ export function AppearanceSettings({ onOpenMobileMenu, onClose }: AppearanceSett
                     {subPage === "background" ? <BackgroundSelector /> : null}
                     {subPage === "material" ? <SurfaceMaterialSettings /> : null}
                 </div>
-            </div>
-        </div>
     );
 }
 

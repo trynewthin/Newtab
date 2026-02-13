@@ -93,7 +93,7 @@ export function SurfaceMaterialSettings() {
         >
             <SettingsItem label={t("surface_material_type")}>
                 <Select value={surfaceMaterial} onValueChange={(value) => setSurfaceMaterial(value as AppSurfaceMaterial)}>
-                    <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
+                    <SelectTrigger className="h-9 w-[220px] rounded-xl border-foreground/10 bg-foreground/4">
                         <SelectValue>{materialLabelMap[surfaceMaterial]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -105,7 +105,7 @@ export function SurfaceMaterialSettings() {
 
             <SettingsItem label={t("surface_material_tone")}>
                 <Select value={surfaceTone} onValueChange={(value) => setSurfaceTone(value as AppSurfaceTone)}>
-                    <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
+                    <SelectTrigger className="h-9 w-[220px] rounded-xl border-foreground/10 bg-foreground/4">
                         <SelectValue>{toneLabelMap[surfaceTone]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -120,13 +120,13 @@ export function SurfaceMaterialSettings() {
                 <button
                     type="button"
                     onClick={resetCurrentMaterial}
-                    className="h-9 rounded-xl border border-border/70 px-3 text-xs font-semibold text-foreground/85 transition-colors hover:bg-foreground/8"
+                    className="h-9 rounded-xl px-3 text-xs font-semibold text-foreground/85 transition-colors hover:bg-foreground/8 shadow-[0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_6px_rgba(255,255,255,0.05)]"
                 >
                     {t("surface_material_reset_button")}
                 </button>
             </SettingsItem>
 
-            <div className="modal-minimal-divider" />
+            <div className="h-px w-full bg-foreground/8" />
 
             {surfaceMaterial === "glass-distortion" ? (
                 <div className="space-y-2.5">
@@ -172,7 +172,7 @@ export function SurfaceMaterialSettings() {
                             value={distortionConfig.mixBlendMode}
                             onValueChange={(value) => updateDistortion({ mixBlendMode: value as DistortionGlassMaterialConfig["mixBlendMode"] })}
                         >
-                            <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
+                            <SelectTrigger className="h-9 w-[220px] rounded-xl border-foreground/10 bg-foreground/4">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>

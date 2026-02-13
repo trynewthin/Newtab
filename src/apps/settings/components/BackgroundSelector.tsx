@@ -279,11 +279,11 @@ export function BackgroundSelector() {
                 {activeThemeId ? (
                     <div className="grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
                         <div className="lg:sticky lg:top-2 lg:self-start">
-                            <div className="rounded-2xl border border-border/65 bg-background/82 p-2.5">
+                            <div className="rounded-2xl p-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
                                 <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">
                                     {t("live_preview")}
                                 </div>
-                                <div className="relative h-52 overflow-hidden rounded-xl border border-border/60">
+                                <div className="relative h-52 overflow-hidden rounded-xl">
                                     <div className="absolute inset-0 pointer-events-none">
                                         <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
                                         {renderDynamicThemePreview(activeThemeId)}
@@ -335,14 +335,14 @@ export function BackgroundSelector() {
                                     }
                                 }}
                             />
-                            <div className="flex flex-col items-center justify-center gap-2 py-4 px-4 bg-secondary/20 hover:bg-secondary/40 rounded-2xl border-2 border-dashed border-border/30 hover:border-primary/50 transition-all group-active:scale-[0.98]">
+                            <div className="flex flex-col items-center justify-center gap-2 py-4 px-4 rounded-2xl border-2 border-dashed border-foreground/10 hover:border-foreground/20 bg-foreground/4 hover:bg-foreground/6 transition-all group-active:scale-[0.98]">
                                 <Upload size={18} className="text-primary/60 group-hover:text-primary transition-colors" />
                                 <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground">{t('upload_image')}</span>
                             </div>
                         </label>
 
                         <div className="flex-2 flex flex-col justify-center gap-2">
-                            <div className="flex gap-2 items-center bg-secondary/20 h-full p-2 rounded-2xl border border-border/30 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                            <div className="flex gap-2 items-center h-full p-2 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)] focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                                 <Input
                                     type="url"
                                     placeholder={t('paste_url')}
@@ -393,7 +393,7 @@ export function BackgroundSelector() {
                                 { key: 'blur', label: t('blur_intensity'), max: 20, unit: 'px' },
                                 { key: 'overlay', label: t('overlay_opacity'), max: 80, unit: '%' }
                             ].map((ef) => (
-                                <div key={ef.key} className="space-y-2 bg-background/30 p-3 rounded-2xl border border-border/10">
+                                <div key={ef.key} className="space-y-2 p-3 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
                                     <div className="flex items-center justify-between px-1">
                                         <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
                                             {ef.label}

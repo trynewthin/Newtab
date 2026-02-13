@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SearchBar } from "@/apps/search/components/SearchBar";
 import { BasePage } from "@/components/layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { StopCircle } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAiSearch } from "@/apps/ai-search/hooks/useAiSearch";
 import { AiSearchResults } from "@/apps/ai-search/components/AiSearchResults";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,14 @@ export function AiSearchView() {
     const initialQuery = searchParams.get("q") || "";
 
     const { status, progressMessage, response, error, search, cancel, isLoading } = useAiSearch();
+    const navigate = useNavigate();
+    const [isExiting, setIsExiting] = useState(false);
+
+    const handleExit = useCallback(() => {
+        setIsExiting(true);
+        cancel();
+        setTimeout(() => navigate('/'), 150);
+    }, [cancel, navigate]);
 
     // Track if we've already triggered a search for this query
     const triggeredQueryRef = useRef<string | null>(null);
@@ -41,11 +49,11 @@ export function AiSearchView() {
         <div className="w-full h-full">
             <BasePage className="py-0 px-0 flex flex-col items-center relative h-screen overflow-hidden">
                 {/* Semi-transparent overlay + scoped foreground to override wallpaper text tone */}
-                <div className="absolute inset-0 bg-background/40 modal-minimal-scope" />
+                <div className={`absolute inset-0 bg-background/40 modal-minimal-scope transition-opacity duration-150 ${isExiting ? 'opacity-0' : 'opacity-100'}`} />
 
                 {/* 1. Results Area (Main Content - Top) */}
                 <section
-                    className="modal-minimal-scope w-full h-full max-w-4xl mx-auto relative overflow-hidden"
+                    className={`modal-minimal-scope w-full h-full max-w-4xl mx-auto relative overflow-hidden transition-all duration-150 ${isExiting ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100'}`}
                     style={{ zIndex: LAYER_Z_INDEX.newtabContent }}
                 >
                     <div className="w-full h-full overflow-y-auto scrollbar-none pt-24 pb-60 px-4">
@@ -58,6 +66,10 @@ export function AiSearchView() {
                         />
                     </div>
 
+                </section>
+
+                {/* Blur gradients - full width */}
+                <div className={`absolute inset-x-0 top-0 transition-opacity duration-150 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: LAYER_Z_INDEX.newtabFloating }}>
                     <GradualBlur
                         target="page"
                         position="top"
@@ -67,9 +79,9 @@ export function AiSearchView() {
                         curve="bezier"
                         exponential
                         opacity={1}
-                        zIndex={LAYER_Z_INDEX.newtabFloating}
                     />
-
+                </div>
+                <div className={`absolute inset-x-0 bottom-0 transition-opacity duration-150 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: LAYER_Z_INDEX.newtabFloating }}>
                     <GradualBlur
                         target="page"
                         position="bottom"
@@ -79,13 +91,12 @@ export function AiSearchView() {
                         curve="bezier"
                         exponential
                         opacity={1}
-                        zIndex={LAYER_Z_INDEX.newtabFloating}
                     />
-                </section>
+                </div>
 
                 {/* 2. Fixed Control Center (Centered at Middle-Bottom) */}
                 <div
-                    className="modal-minimal-scope fixed bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center gap-6 pb-12"
+                    className={`modal-minimal-scope fixed bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center gap-6 pb-12 transition-all duration-150 ${isExiting ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}
                     style={{ zIndex: LAYER_Z_INDEX.newtabToolbar }}
                 >
 
@@ -141,7 +152,7 @@ export function AiSearchView() {
                         className="w-full max-w-2xl px-4 pointer-events-auto"
                     >
                         <div className="relative">
-                            <SearchBar initialQuery={initialQuery} isAiMode={true} />
+                            <SearchBar initialQuery={initialQuery} isAiMode={true} onExitAiMode={handleExit} />
                         </div>
                     </motion.div>
                 </div>

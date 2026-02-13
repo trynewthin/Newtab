@@ -11,9 +11,10 @@ import AppSurface from "@/components/surface/AppSurface";
 interface SearchBarProps {
     initialQuery?: string;
     isAiMode?: boolean;
+    onExitAiMode?: () => void;
 }
 
-export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProps) {
+export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }: SearchBarProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
@@ -155,7 +156,11 @@ export function SearchBar({ initialQuery = "", isAiMode = false }: SearchBarProp
     };
 
     const handleExitAiMode = () => {
-        navigate('/');
+        if (onExitAiMode) {
+            onExitAiMode();
+        } else {
+            navigate('/');
+        }
     };
 
     return (

@@ -9,6 +9,7 @@ import { ExternalLink, Globe, Sparkles, AlertCircle, Brain, ChevronDown } from "
 import type { SearchResultCard, AiSearchStatus } from "../types";
 import { extractDomain, getFaviconUrl } from "../types";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useTranslation } from "react-i18next";
 import { AiArtifactRenderer, type ArtifactData } from "./AiArtifactRenderer";
 import AppSurface from "@/components/surface/AppSurface";
@@ -180,36 +181,55 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
 
                             let artifactData: ArtifactData | null = null;
 
-                            // Try multiple artifact formats:
-                            // 1. ```artifact {json} ```
-                            // 2. ```json {json with "type" field} ```
-                            // 3. Raw JSON block with artifact "type" field
-                            const artifactPatterns = [
+                            // Extract artifact: try fenced code blocks first, then raw JSON with brace-matching
+                            const fencedPatterns = [
                                 /```artifact\s*([\s\S]*?)```/,
                                 /```json\s*([\s\S]*?)```/,
-                                /```\s*(\{[\s\S]*?"type"\s*:\s*"(?:table|chart|list|html|info)"[\s\S]*?\})\s*```/,
-                                /(\{[\s\S]*?"type"\s*:\s*"(?:table|chart|list|html|info)"[\s\S]*?"(?:columns|values|items|content)"\s*:[\s\S]*?\}(?:\s*\n|$))/,
                             ];
-
-                            for (const pattern of artifactPatterns) {
+                            for (const pattern of fencedPatterns) {
                                 const match = cleanSummary.match(pattern);
-                                if (match) {
+                                if (match?.[1]) {
                                     try {
-                                        const jsonStr = match[1] ?? match[0];
-                                        const parsed = JSON.parse(jsonStr);
+                                        const parsed = JSON.parse(match[1]);
                                         if (parsed.type && ['table', 'chart', 'list', 'html', 'info'].includes(parsed.type)) {
                                             artifactData = parsed;
                                             cleanSummary = cleanSummary.replace(match[0], '').trim();
                                             break;
                                         }
-                                    } catch (e) {
-                                        // Not valid JSON, try next pattern
+                                    } catch { /* not valid */ }
+                                }
+                            }
+
+                            // Fallback: find raw JSON object with artifact type via brace-matching
+                            if (!artifactData) {
+                                const typeRe = /"type"\s*:\s*"(?:table|chart|list|html|info)"/g;
+                                let typeMatch: RegExpExecArray | null;
+                                while ((typeMatch = typeRe.exec(cleanSummary)) !== null) {
+                                    // Walk backwards to find opening '{'
+                                    let start = cleanSummary.lastIndexOf('{', typeMatch.index);
+                                    if (start === -1) continue;
+                                    // Walk forward with brace counting to find matching '}'
+                                    let depth = 0;
+                                    let end = -1;
+                                    for (let i = start; i < cleanSummary.length; i++) {
+                                        if (cleanSummary[i] === '{') depth++;
+                                        else if (cleanSummary[i] === '}') depth--;
+                                        if (depth === 0) { end = i + 1; break; }
                                     }
+                                    if (end === -1) continue;
+                                    try {
+                                        const parsed = JSON.parse(cleanSummary.slice(start, end));
+                                        if (parsed.type && ['table', 'chart', 'list', 'html', 'info'].includes(parsed.type)) {
+                                            artifactData = parsed;
+                                            cleanSummary = (cleanSummary.slice(0, start) + cleanSummary.slice(end)).trim();
+                                            break;
+                                        }
+                                    } catch { /* not valid JSON */ }
                                 }
                             }
 
                             return (
-                                <div className="space-y-4 border-t border-foreground/8 pt-2">
+                                <div className="space-y-4 border-t border-foreground/8 mt-3 pt-4">
                                     {thoughtContent && (
                                         <details className="group">
                                             <summary className="list-none flex cursor-pointer select-none items-center gap-2 text-xs font-semibold text-foreground/70 transition-colors hover:text-foreground">
@@ -224,13 +244,25 @@ export function AiSearchResults({ status, cards, summary, error, className }: Ai
                                                 animate={{ opacity: 1, height: "auto" }}
                                                 className="mt-2 overflow-hidden rounded-xl bg-foreground/4 p-3 font-mono text-xs leading-relaxed text-foreground/70"
                                             >
-                                                <ReactMarkdown>{thoughtContent}</ReactMarkdown>
+                                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{thoughtContent}</ReactMarkdown>
                                             </motion.div>
                                         </details>
                                     )}
 
                                     <div className="prose dark:prose-invert max-w-none text-base leading-relaxed text-foreground marker:text-foreground/50">
-                                        <ReactMarkdown>{cleanSummary}</ReactMarkdown>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                table: ({ children }) => (
+                                                    <div className="my-4 overflow-x-auto">
+                                                        <table className="w-full border-collapse border border-foreground/15 text-sm">{children}</table>
+                                                    </div>
+                                                ),
+                                                thead: ({ children }) => <thead className="bg-foreground/5">{children}</thead>,
+                                                th: ({ children }) => <th className="border border-foreground/15 px-3 py-2 text-left font-semibold text-foreground/90">{children}</th>,
+                                                td: ({ children }) => <td className="border border-foreground/15 px-3 py-2 text-foreground/80">{children}</td>,
+                                            }}
+                                        >{cleanSummary}</ReactMarkdown>
                                     </div>
 
                                     {artifactData && (

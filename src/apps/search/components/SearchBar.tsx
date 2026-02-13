@@ -164,7 +164,7 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
     };
 
     return (
-        <div className="w-full relative group" ref={containerRef}>
+        <div className="w-full relative group modal-minimal-scope" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-30">
                 {/* Main Pill Container */}
                 <div className="relative h-12 md:h-14">

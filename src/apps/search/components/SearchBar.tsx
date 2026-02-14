@@ -216,11 +216,8 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
                                         <div className="absolute inset-0 pointer-events-none">
                                             <AppSurface
                                                 variant="widget"
-                                                width="100%"
-                                                height="100%"
-                                                borderRadius={16}
                                                 style={{ outline: "none", border: "none", boxShadow: "none" }}
-                                                className="h-full w-full rounded-[16px]"
+                                                className="h-full w-full"
                                             />
                                         </div>
                                         <div className="relative z-10 p-2">

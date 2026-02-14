@@ -26,16 +26,16 @@ export function AppModalV1Sidebar({ open, onClose, children }: AppModalV1Sidebar
                     ? ""
                     : "hidden",
             )}>
-                <div className={cn(
-                    "relative h-full overflow-hidden rounded-2xl",
-                    "shadow-[0_4px_16px_rgba(0,0,0,0.15),0_2px_6px_rgba(0,0,0,0.1)]",
-                    "dark:shadow-[0_4px_16px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
-                )}>
-                    <div className="absolute inset-0 z-0 rounded-2xl overflow-hidden">
-                        <AppSurface variant="toolbar" width="100%" height="100%" borderRadius={16} />
+                <div className="relative h-full">
+                    {/* Material layer (self-contained: owns borderRadius + shadow) */}
+                    <div className="absolute inset-0 z-0">
+                        <AppSurface variant="toolbar" />
                     </div>
-                    <div className="relative z-10 h-full overflow-y-auto custom-scrollbar p-2">
-                        {children}
+                    {/* Content layer (clips content to match material corners) */}
+                    <div className="relative z-10 h-full overflow-hidden rounded-[28px]">
+                        <div className="h-full overflow-y-auto custom-scrollbar p-2">
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>

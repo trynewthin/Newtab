@@ -11,6 +11,18 @@ import {
     type AppSurfaceTone,
     type DistortionGlassMaterialConfig,
 } from "@/core/surfaceMaterials";
+import {
+    DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
+    isDynamicBackgroundId,
+} from "@/core/dynamicBackgrounds";
+import AppSurface from "@/components/surface/AppSurface";
+import ColorBends from "@/components/ColorBends";
+import LightPillar from "@/components/LightPillar";
+import Silk from "@/components/Silk";
+import FloatingLines from "@/components/FloatingLines";
+import Aurora from "@/components/Aurora";
+import Particles from "@/components/Particles";
+import PrismaticBurst from "@/components/PrismaticBurst";
 
 function NumberSlider({
     value,
@@ -37,6 +49,89 @@ function NumberSlider({
             <span className="w-12 text-right text-[11px] text-muted-foreground">
                 {value.toFixed(step >= 1 ? 0 : 2)}
             </span>
+        </div>
+    );
+}
+
+function MaterialPreview() {
+    const { t } = useTranslation();
+    const { backgroundConfig, dynamicBackgroundConfig } = useSettingsStore();
+
+    const activeThemeId =
+        backgroundConfig.type === "theme" && isDynamicBackgroundId(backgroundConfig.value)
+            ? backgroundConfig.value
+            : null;
+
+    const renderBackground = () => {
+        if (!activeThemeId) return null;
+        const configs = dynamicBackgroundConfig;
+        switch (activeThemeId) {
+            case "color-bends": {
+                const c = configs["color-bends"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["color-bends"];
+                return <ColorBends className="absolute inset-0 pointer-events-none" colors={c.colors} rotation={0} speed={c.speed} scale={c.scale} frequency={c.frequency} warpStrength={c.warpStrength} mouseInfluence={0} parallax={0} noise={c.noise} transparent autoRotate={0} color="" />;
+            }
+            case "light-pillar": {
+                const c = configs["light-pillar"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["light-pillar"];
+                return <LightPillar className="absolute inset-0 pointer-events-none" topColor={c.topColor} bottomColor={c.bottomColor} intensity={c.intensity} rotationSpeed={c.rotationSpeed} interactive={false} glowAmount={c.glowAmount} pillarWidth={c.pillarWidth} pillarHeight={c.pillarHeight} noiseIntensity={c.noiseIntensity} mixBlendMode="screen" quality={c.quality} />;
+            }
+            case "silk": {
+                const c = configs.silk ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.silk;
+                return <div className="absolute inset-0 pointer-events-none"><Silk speed={c.speed} scale={c.scale} color={c.color} noiseIntensity={c.noiseIntensity} rotation={c.rotation} /></div>;
+            }
+            case "floating-lines": {
+                const c = configs["floating-lines"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["floating-lines"];
+                return <div className="absolute inset-0 pointer-events-none"><FloatingLines linesGradient={c.linesGradient} enabledWaves={["top", "middle", "bottom"]} lineCount={c.lineCount} lineDistance={c.lineDistance} animationSpeed={c.animationSpeed} interactive={false} parallax={c.parallax} mixBlendMode="screen" /></div>;
+            }
+            case "aurora": {
+                const c = configs.aurora ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.aurora;
+                return <div className="absolute inset-0 pointer-events-none"><Aurora colorStops={c.colorStops} amplitude={c.amplitude} blend={c.blend} speed={c.speed} /></div>;
+            }
+            case "particles": {
+                const c = configs.particles ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles;
+                return <div className="absolute inset-0 pointer-events-none"><Particles particleCount={c.particleCount} particleSpread={c.particleSpread} speed={c.speed} particleColors={c.particleColors} moveParticlesOnHover={false} alphaParticles particleBaseSize={c.particleBaseSize} sizeRandomness={c.sizeRandomness} cameraDistance={c.cameraDistance} disableRotation={false} pixelRatio={1} /></div>;
+            }
+            case "prismatic-burst": {
+                const c = configs["prismatic-burst"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"];
+                return <div className="absolute inset-0 pointer-events-none"><PrismaticBurst intensity={c.intensity} speed={c.speed} animationType={c.animationType} colors={c.colors} distort={c.distort} hoverDampness={c.hoverDampness} rayCount={c.rayCount} mixBlendMode="screen" /></div>;
+            }
+            default:
+                return null;
+        }
+    };
+
+    const getStaticBackground = (): React.CSSProperties => {
+        if (backgroundConfig.type === "solid") return { backgroundColor: backgroundConfig.value };
+        if (backgroundConfig.type === "gradient") return { backgroundImage: backgroundConfig.value };
+        if (backgroundConfig.type === "image") return { backgroundImage: `url(${backgroundConfig.value})`, backgroundSize: "cover", backgroundPosition: "center" };
+        return { backgroundImage: "radial-gradient(120% 120% at 50% 0%, #0b1220 0%, #050b1a 55%, #030712 100%)" };
+    };
+
+    return (
+        <div className="rounded-2xl p-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
+            <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">
+                {t("live_preview")}
+            </div>
+            <div className="relative h-40 overflow-hidden rounded-xl">
+                {/* Background */}
+                <div className="absolute inset-0 pointer-events-none" style={getStaticBackground()}>
+                    {renderBackground()}
+                </div>
+                {/* Sample surface panel */}
+                <div className="absolute inset-0 flex items-center justify-center p-4">
+                    <div className="relative w-full max-w-[280px] h-24 overflow-hidden rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.15),0_2px_6px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_16px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
+                        <div className="absolute inset-0 z-0">
+                            <AppSurface variant="base" width="100%" height="100%" />
+                        </div>
+                        <div className="relative z-10 flex h-full items-center gap-3 px-4">
+                            <div className="h-8 w-8 shrink-0 rounded-lg bg-foreground/10" />
+                            <div className="flex flex-col gap-1.5">
+                                <div className="h-2.5 w-28 rounded-full bg-foreground/15" />
+                                <div className="h-2 w-20 rounded-full bg-foreground/10" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
@@ -70,6 +165,7 @@ export function SurfaceMaterialSettings() {
         }
         if (surfaceMaterial === "mac-frosted") {
             updateSurfaceMaterialConfig("mac-frosted", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["mac-frosted"]);
+            return;
         }
     };
 
@@ -127,6 +223,8 @@ export function SurfaceMaterialSettings() {
             </SettingsItem>
 
             <div className="h-px w-full bg-foreground/8" />
+
+            <MaterialPreview />
 
             {surfaceMaterial === "glass-distortion" ? (
                 <div className="space-y-2.5">

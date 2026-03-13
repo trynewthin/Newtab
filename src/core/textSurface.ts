@@ -1,6 +1,6 @@
 ﻿import { isDynamicBackgroundId } from "@/core/dynamicBackgrounds";
 import type { DynamicBackgroundConfigMap, DynamicBackgroundId } from "@/core/dynamicBackgrounds";
-import type { BackgroundConfig } from "@/state/core/types";
+import type { BackgroundConfig } from "@/shared/types/background";
 
 export type TextSurfaceTone = "light" | "dark";
 export type TextSurfaceFontPreset = "sans" | "jakarta" | "mono" | "system";

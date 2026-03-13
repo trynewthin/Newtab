@@ -1,7 +1,7 @@
 ﻿import { useRef, useEffect } from "react";
 import { MessageRenderer } from "./MessageRenderer";
 import type { Message, ModelConfig } from "@/apps/ai-companion";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 
 interface ChatViewProps {
     messages: Message[];

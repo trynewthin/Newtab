@@ -1,12 +1,12 @@
 ﻿import { useTranslation } from "react-i18next";
-import { useItemStore } from "@/shell/launcher/store/item";
+import { useItemStore } from "@/launcher/store/item";
 import {
     ENABLED_SYSTEM_APP_MANIFEST,
     type SystemAppManifestItem,
-} from "@/shell/launcher/registry/appManifest";
+} from "@/launcher/registry/appManifest";
 import { Check } from "lucide-react";
-import { cn } from "@/core/utils";
-import { ItemIcon } from "@/shell/launcher/ui/components/ItemIcon";
+import { cn } from "@/shared/utils";
+import { ItemIcon } from "@/launcher/ui/components/ItemIcon";
 
 export function AppIconGrid() {
     const { t } = useTranslation();
@@ -14,14 +14,14 @@ export function AppIconGrid() {
 
     const addedAppIds = new Set(
         items
-            .filter((item): item is import("@/state/core/itemTypes").SystemAppItem => item.kind === "app")
+            .filter((item): item is import("@/launcher/model/itemTypes").SystemAppItem => item.kind === "app")
             .map((item) => item.appId)
     );
 
     const handleToggleAppIcon = (app: SystemAppManifestItem) => {
         if (addedAppIds.has(app.id)) {
             const existing = items.find(
-                (item) => item.kind === "app" && (item as import("@/state/core/itemTypes").SystemAppItem).appId === app.id
+                (item) => item.kind === "app" && (item as import("@/launcher/model/itemTypes").SystemAppItem).appId === app.id
             );
             if (existing) removeItem(existing.id);
         } else {

@@ -2,11 +2,11 @@
 import { Search, Sparkles, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useSettingsStore } from "@/apps/settings/store";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 import { useTranslation } from "react-i18next";
-import { SEARCH_ENGINES } from "@/core/constants";
+import { SEARCH_ENGINES } from "@/shared/constants";
 import { useNavigate } from "react-router-dom";
-import AppSurface from "@/components/surface/AppSurface";
+import AppSurface from "@/platform/ui/surface/AppSurface";
 
 interface SearchBarProps {
     initialQuery?: string;

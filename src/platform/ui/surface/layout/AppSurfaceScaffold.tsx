@@ -1,6 +1,6 @@
 ﻿import type { ReactNode } from "react";
 import { X } from "lucide-react";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 import { AppLayerShell } from "./AppLayerShell";
 
 import { useTranslation } from "react-i18next";

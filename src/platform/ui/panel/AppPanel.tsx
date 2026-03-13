@@ -2,12 +2,12 @@
 
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { cn } from "@/core/utils"
+import { cn } from "@/shared/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "react-i18next"
-import { LAYER_Z_INDEX } from "@/core/layerZIndex"
+import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
 
 // ─── Click origin tracking (shared with Modal) ───
 let lastClickPos = {

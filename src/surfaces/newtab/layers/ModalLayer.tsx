@@ -1,6 +1,6 @@
-﻿import { SystemDialogHost } from "@/shell/launcher/runtime/SystemDialogHost";
-import { useUIStore } from "@/shell/launcher/store/ui";
-import { LAYER_Z_INDEX } from "@/core/layerZIndex";
+﻿import { SystemDialogHost } from "@/launcher/runtime/SystemDialogHost";
+import { useUIStore } from "@/launcher/store/ui.store";
+import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 
 export function ModalLayer() {
     const activeSystemDialog = useUIStore((state) => state.activeSystemDialog);

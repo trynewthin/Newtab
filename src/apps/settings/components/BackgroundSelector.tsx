@@ -1,5 +1,5 @@
 ﻿import { useSettingsStore } from "@/apps/settings/store";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 import { Check, Upload, Plus, Image as ImageIcon, Palette, Droplet, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,13 @@ import { BACKGROUND_PRESETS } from "@/apps/settings/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
 import { SettingsSection } from "./SettingComponents";
 import { useRef } from "react";
-import ColorBends from "@/components/ColorBends";
-import LightPillar from "@/components/LightPillar";
-import Silk from "@/components/Silk";
-import FloatingLines from "@/components/FloatingLines";
-import Aurora from "@/components/Aurora";
-import Particles from "@/components/Particles";
-import PrismaticBurst from "@/components/PrismaticBurst";
+import ColorBends from "@/platform/ui/effects/ColorBends";
+import LightPillar from "@/platform/ui/effects/LightPillar";
+import Silk from "@/platform/ui/effects/Silk";
+import FloatingLines from "@/platform/ui/effects/FloatingLines";
+import Aurora from "@/platform/ui/effects/Aurora";
+import Particles from "@/platform/ui/effects/Particles";
+import PrismaticBurst from "@/platform/ui/effects/PrismaticBurst";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     isDynamicBackgroundId,

@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client"
 
 import "@/index.css"
 import App from "./App"
-import "@/core/i18n/i18n"
+import "@/platform/i18n/i18n"
 
 // 在 React 渲染前同步主题类到 documentElement，避免闪烁
 try {

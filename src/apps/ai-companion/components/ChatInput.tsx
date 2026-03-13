@@ -1,10 +1,10 @@
 ﻿import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Check, Square } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 import type { ModelConfig } from "@/apps/ai-companion";
 import { useTranslation } from "react-i18next";
-import AppSurface from "@/components/surface/AppSurface";
+import AppSurface from "@/platform/ui/surface/AppSurface";
 
 interface ChatInputProps {
     models: ModelConfig[];

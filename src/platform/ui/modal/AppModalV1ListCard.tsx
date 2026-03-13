@@ -1,5 +1,5 @@
 ﻿import * as React from "react"
-import { cn } from "@/core/utils"
+import { cn } from "@/shared/utils"
 
 export interface AppModalV1ListCardProps {
     /** Left icon slot */

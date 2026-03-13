@@ -1,5 +1,5 @@
 import type { ComponentType, MouseEvent } from "react";
-import type { LauncherWidgetItem } from "@/state/core/itemTypes";
+import type { LauncherWidgetItem } from "@/launcher/model/itemTypes";
 
 export type AppSurface = "modal" | "page";
 export type LauncherTilePreset = "1x1" | "2x1" | "1x2" | "2x2" | "2x4" | "4x2";

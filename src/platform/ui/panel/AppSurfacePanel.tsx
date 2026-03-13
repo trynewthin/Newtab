@@ -1,7 +1,7 @@
 ﻿import type { ReactNode } from "react"
 import { AppPanel, type AppPanelSize } from "./AppPanel"
 
-import AppSurface from "@/components/surface/AppSurface"
+import AppSurface from "@/platform/ui/surface/AppSurface"
 import type { AppSurfaceTone } from "@/core/surfaceMaterials"
 
 export interface AppSurfacePanelProps {

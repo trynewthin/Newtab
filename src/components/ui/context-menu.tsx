@@ -1,11 +1,11 @@
 ﻿import * as React from "react"
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu"
 
-import { cn } from "@/core/utils"
+import { cn } from "@/shared/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowRight01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
-import { LAYER_Z_INDEX } from "@/core/layerZIndex"
-import AppSurface from "@/components/surface/AppSurface"
+import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import AppSurface from "@/platform/ui/surface/AppSurface"
 
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
   return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />

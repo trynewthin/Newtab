@@ -1,6 +1,6 @@
 ﻿import * as React from "react"
-import { cn } from "@/core/utils"
-import AppSurface from "@/components/surface/AppSurface"
+import { cn } from "@/shared/utils"
+import AppSurface from "@/platform/ui/surface/AppSurface"
 
 export interface AppModalV1SidebarProps {
     open: boolean

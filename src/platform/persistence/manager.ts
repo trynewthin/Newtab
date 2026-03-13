@@ -4,7 +4,7 @@ import {
     entries,
     setMany,
 } from "idb-keyval";
-import { backgroundStorage } from "@/state/core/backgroundStorage";
+import { backgroundStorage } from "@/platform/storage/backgroundStorage";
 import { storageRegistry } from "./registry";
 
 const DATA_ARCHIVE_FORMAT = "newtab-data-archive";

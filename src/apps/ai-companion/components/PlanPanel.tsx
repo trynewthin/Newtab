@@ -1,9 +1,9 @@
 ﻿import { useState } from "react";
 import { CheckCircle2, Circle, Loader2, ListChecks } from "lucide-react";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 import { usePlanStore } from "@/apps/ai-companion/tools/plan";
 import type { PlanStep } from "@/apps/ai-companion/tools/plan";
-import AppSurface from "@/components/surface/AppSurface";
+import AppSurface from "@/platform/ui/surface/AppSurface";
 
 export function PlanPanel() {
     const [open, setOpen] = useState(false);

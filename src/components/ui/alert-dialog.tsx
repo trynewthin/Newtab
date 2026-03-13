@@ -3,10 +3,10 @@
 import * as React from "react"
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
 
-import { cn } from "@/core/utils"
+import { cn } from "@/shared/utils"
 import { Button } from "@/components/ui/button"
-import { LAYER_Z_INDEX } from "@/core/layerZIndex"
-import AppSurface from "@/components/surface/AppSurface"
+import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import AppSurface from "@/platform/ui/surface/AppSurface"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />

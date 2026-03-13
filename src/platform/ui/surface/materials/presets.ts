@@ -1,4 +1,4 @@
-﻿import type { GlassSurfaceProps } from "@/components/GlassSurface";
+﻿import type { GlassSurfaceProps } from "@/platform/ui/effects/GlassSurface";
 import type { AppSurfaceVariant } from "@/core/surfaceMaterials";
 
 export type SurfacePresetMap = Record<AppSurfaceVariant, { light: Partial<GlassSurfaceProps>; dark: Partial<GlassSurfaceProps> }>;

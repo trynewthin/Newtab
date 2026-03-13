@@ -1,9 +1,9 @@
 ﻿import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AppModalV1 } from "@/components/modal/AppModalV1";
+import { AppModalV1 } from "@/platform/ui/modal/AppModalV1";
 import { useSettingsStore } from "@/apps/settings/store";
-import { persistenceManager } from "@/state/persistence/manager";
-import { cn } from "@/core/utils";
+import { persistenceManager } from "@/platform/persistence/manager";
+import { cn } from "@/shared/utils";
 import {
     Sparkles, Upload, Globe, Layers, MessageSquare,
     Search, Rocket, ArrowRight, ArrowLeft, Check,

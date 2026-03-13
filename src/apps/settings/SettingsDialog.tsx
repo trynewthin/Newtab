@@ -1,7 +1,7 @@
 ﻿import { useState, useMemo } from "react";
-import { AppModalV1 } from "@/components/modal/AppModalV1";
+import { AppModalV1 } from "@/platform/ui/modal/AppModalV1";
 import { Settings, Palette, Bot, Info, Cpu, Sliders, type LucideIcon } from "lucide-react";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 import { useTranslation } from "react-i18next";
 import { GeneralSettings } from "./general/GeneralSettings";
 import { AppearanceSettings } from "./appearance/AppearanceSettings";

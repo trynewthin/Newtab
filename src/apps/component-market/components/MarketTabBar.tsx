@@ -1,6 +1,6 @@
 ﻿import { useTranslation } from "react-i18next";
 import { AppWindow, Puzzle } from "lucide-react";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 
 export type MarketTab = "icons" | "widgets";
 

@@ -1,8 +1,8 @@
 ﻿import * as React from "react"
 import { Dialog } from "@base-ui/react/dialog"
 import { X, PanelLeftOpen, PanelLeftClose } from "lucide-react"
-import { cn } from "@/core/utils"
-import AppSurface from "@/components/surface/AppSurface"
+import { cn } from "@/shared/utils"
+import AppSurface from "@/platform/ui/surface/AppSurface"
 
 export interface AppModalV1HeaderProps {
     children: React.ReactNode

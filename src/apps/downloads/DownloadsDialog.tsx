@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState, useCallback, useMemo } from "react";
-import { AppModalV1, AppModalV1EmptyState, AppModalV1ListCard } from "@/components/modal/AppModalV1";
-import { cn } from "@/core/utils";
+import { AppModalV1, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal/AppModalV1";
+import { cn } from "@/shared/utils";
 import {
     X,
     Folder,

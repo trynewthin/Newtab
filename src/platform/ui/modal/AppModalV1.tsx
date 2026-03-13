@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import { Dialog } from "@base-ui/react/dialog"
-import { cn } from "@/core/utils"
-import { LAYER_Z_INDEX } from "@/core/layerZIndex"
-import GradualBlur from "@/components/GradualBlur"
+import { cn } from "@/shared/utils"
+import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import GradualBlur from "@/platform/ui/effects/GradualBlur"
 import { AppModalV1Header } from "./AppModalV1Header"
 import { AppModalV1Sidebar } from "./AppModalV1Sidebar"
 

@@ -4,7 +4,7 @@
  */
 
 import { motion } from "framer-motion";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 import { ExternalLink, Globe, Sparkles, AlertCircle, Brain, ChevronDown } from "lucide-react";
 import type { SearchResultCard, AiSearchStatus } from "../types";
 import { extractDomain, getFaviconUrl } from "../types";
@@ -12,7 +12,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useTranslation } from "react-i18next";
 import { AiArtifactRenderer, type ArtifactData } from "./AiArtifactRenderer";
-import AppSurface from "@/components/surface/AppSurface";
+import AppSurface from "@/platform/ui/surface/AppSurface";
 
 const CARD_SHADOW = cn(
     "rounded-2xl",

@@ -1,5 +1,5 @@
 ﻿import { useEffect, useLayoutEffect } from "react";
-import { useStorageConnection } from "@/state/persistence/sync";
+import { useStorageConnection } from "@/platform/persistence/sync";
 import { useSettingsStore } from "@/apps/settings/store";
 import { AppRouter } from "./AppRouter";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
@@ -7,9 +7,9 @@ import { FloatLayer } from "./layers/FloatLayer";
 import { ModalLayer } from "./layers/ModalLayer";
 import { Toaster } from "@/components/ui/sonner";
 import { HashRouter } from "react-router-dom";
-import { useUIStore } from "@/shell/launcher/store/ui";
-import { cn } from "@/core/utils";
-import { LAYER_Z_INDEX } from "@/core/layerZIndex";
+import { useUIStore } from "@/launcher/store/ui.store";
+import { cn } from "@/shared/utils";
+import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 
 function syncThemeToDOM() {
     const root = window.document.documentElement;

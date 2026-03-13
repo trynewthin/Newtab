@@ -1,5 +1,5 @@
 ﻿import type { ReactNode } from "react";
-import { cn } from "@/core/utils";
+import { cn } from "@/shared/utils";
 
 interface AppLayerShellProps {
     background?: ReactNode;

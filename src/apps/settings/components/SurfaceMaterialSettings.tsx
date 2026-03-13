@@ -15,14 +15,14 @@ import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     isDynamicBackgroundId,
 } from "@/core/dynamicBackgrounds";
-import AppSurface from "@/components/surface/AppSurface";
-import ColorBends from "@/components/ColorBends";
-import LightPillar from "@/components/LightPillar";
-import Silk from "@/components/Silk";
-import FloatingLines from "@/components/FloatingLines";
-import Aurora from "@/components/Aurora";
-import Particles from "@/components/Particles";
-import PrismaticBurst from "@/components/PrismaticBurst";
+import AppSurface from "@/platform/ui/surface/AppSurface";
+import ColorBends from "@/platform/ui/effects/ColorBends";
+import LightPillar from "@/platform/ui/effects/LightPillar";
+import Silk from "@/platform/ui/effects/Silk";
+import FloatingLines from "@/platform/ui/effects/FloatingLines";
+import Aurora from "@/platform/ui/effects/Aurora";
+import Particles from "@/platform/ui/effects/Particles";
+import PrismaticBurst from "@/platform/ui/effects/PrismaticBurst";
 
 function NumberSlider({
     value,

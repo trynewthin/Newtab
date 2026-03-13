@@ -4,10 +4,10 @@ import { Globe, Database, Download, Upload, Search, Plus, Trash2, RotateCcw } fr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
 import { useState } from "react";
-import { SEARCH_ENGINES, APP_METADATA } from "@/core/constants";
+import { SEARCH_ENGINES, APP_METADATA } from "@/shared/constants";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { persistenceManager } from "@/state/persistence/manager";
+import { persistenceManager } from "@/platform/persistence/manager";
 import {
     AlertDialog,
     AlertDialogAction,

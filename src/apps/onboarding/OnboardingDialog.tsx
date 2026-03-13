@@ -250,7 +250,7 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
     ];
 
     const footerNav = step < TOTAL_STEPS - 1 ? (
-        <div className="flex items-center justify-between px-6 py-4 border-t border-foreground/6">
+        <div className="absolute bottom-0 inset-x-0 pointer-events-auto flex items-center justify-between px-6 py-4 border-t border-foreground/6 bg-background/80 backdrop-blur-sm">
             {step > 0 ? (
                 <button
                     onClick={back}
@@ -285,12 +285,10 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
             onOpenChange={() => {/* prevent close by backdrop */}}
             className="sm:w-[min(520px,80vw)] sm:h-[min(600px,80vh)]"
             hideBlur
+            floatLayer={footerNav}
         >
-            <div className="min-h-full flex flex-col -mb-10">
-                <div className="flex-1 flex items-center justify-center">
-                    {stepContent[step]}
-                </div>
-                {footerNav}
+            <div className="min-h-full flex items-center justify-center">
+                {stepContent[step]}
             </div>
         </AppModalV1>
     );

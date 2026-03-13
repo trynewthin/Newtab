@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import type { Message, ModelConfig } from './types';
 import { getTextContent } from './types';
+import { usePlanStore } from './tools/plan';
 
 interface SessionMetadata {
     id: string;
@@ -53,21 +54,24 @@ interface AiState {
 }
 
 const BASE_AGENT_PROMPT = `你是一个强大的 Web 助手。请根据用户的需求，选择合适的工具来完成任务。
-## 开始前判断（必须遵循，内部完成）
+
+## 任务计划规范（必须遵循）
+1. 接收到多步骤任务时，**必须先调用 \`create_plan\`** 创建计划再开始执行。
+2. 每完成一个步骤，**必须调用 \`complete_step\`** 标记完成。
+3. 执行过程中发现需要额外步骤，调用 \`add_step\` 追加。
+4. 所有步骤完成后，输出简短总结。
+5. 对于简单的单步任务（如回答问题），无需创建计划。
+
+## 开始前判断（内部完成）
 1. 明确用户目标与所需操作。
 2. 判断当前页面是否匹配任务。
 3. 判断能否在当前页面完成；若不能，再进行澄清或导航建议。
 
-## 任务流程（必须遵循，输出需自然简洁）
-1. 目标含糊时先澄清。
-2. 简短计划后执行。
-3. 关键动作后校验页面状态。
-4. 完成后简要总结。
-
 ## 工具调用原则
 - 默认先读取页面结构（get_accessibility_tree），除非用户明确要求直接导航。
 - 只有在页面内无法完成目标时，才使用 search_web。
-- 执行关键操作前先确认目标元素存在（如消息输入框/发送按钮）。
+- 执行关键操作前先确认目标元素存在。
+- 表达风格保持自然简洁，不要机械列点。
 `;
 
 const WEB_AGENT_TOOL_PROMPT = `
@@ -100,7 +104,7 @@ const DEFAULT_MODEL: ModelConfig = {
     temperature: 0.1,
     visionEnabled: true,
     searchEngine: 'https://www.google.com/search?q=%s',
-    enabledTools: ['navigate_to', 'search_web', 'get_accessibility_tree', 'click_by_id', 'type_text', 'scroll', 'capture_screenshot']
+    enabledTools: ['navigate_to', 'search_web', 'get_accessibility_tree', 'click_by_id', 'type_text', 'scroll', 'capture_screenshot', 'create_plan', 'complete_step', 'get_plan', 'add_step']
 };
 
 export const useAiStore = create<AiState>()(
@@ -195,6 +199,7 @@ export const useAiStore = create<AiState>()(
                 const newId = uuidv4();
                 const newSession: SessionMetadata = { id: newId, title: 'New Chat', updatedAt: Date.now(), preview: 'Start a new conversation...' };
                 set(state => ({ sessions: [newSession, ...state.sessions], currentSessionId: newId, messages: [] }));
+                usePlanStore.getState().reset();
                 await idbSet(newId, []);
             },
 
@@ -213,6 +218,7 @@ export const useAiStore = create<AiState>()(
             switchSession: async (id) => {
                 const state = get();
                 if (state.currentSessionId === id && state.messages.length > 0) return;
+                usePlanStore.getState().reset();
                 set({ isRestoring: true, currentSessionId: id, messages: [] });
                 try {
                     const messages = await idbGet<Message[]>(id) || [];

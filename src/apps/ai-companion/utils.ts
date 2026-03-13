@@ -68,7 +68,12 @@ export function prepareApiMessages(
             if (msg.tool_calls?.length) apiMsg.tool_calls = msg.tool_calls;
         }
         else if (msg.role === 'user') {
-            apiMsg.content = msg.content;
+            // Inject timestamp only for the last user message sent to API
+            const isLastUser = history.slice(i + 1).every(m => m.role !== 'user');
+            const text = typeof msg.content === 'string' ? msg.content : getTextContent(msg.content);
+            apiMsg.content = isLastUser
+                ? `[${new Date().toLocaleString()}] ${text}`
+                : text;
         }
         else {
             apiMsg.content = typeof msg.content === 'string' ? msg.content : getTextContent(msg.content);

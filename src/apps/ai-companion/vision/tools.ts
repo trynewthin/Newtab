@@ -279,6 +279,38 @@ const GET_ACCESSIBILITY_TREE_SCRIPT = `
 `;
 
 // ============================================
+// Anti-bot helpers
+// ============================================
+
+const randomDelay = (min: number, max: number) =>
+    new Promise<void>(r => setTimeout(r, Math.floor(Math.random() * (max - min + 1)) + min));
+
+/** 注入到每个新页面，覆盖 navigator.webdriver 等检测点 */
+const ANTI_DETECT_SCRIPT = `
+    Object.defineProperty(navigator, 'webdriver', { get: () => false });
+    if (window.chrome) {
+        window.chrome.csi = function() { return {}; };
+        window.chrome.loadTimes = function() { return {}; };
+    }
+    Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh', 'en-US', 'en'] });
+    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+`;
+
+async function injectAntiDetect(tabId: number) {
+    try {
+        await core.attachDebugger(tabId);
+        await core.sendCDPCommand(tabId, 'Page.addScriptToEvaluateOnNewDocument', {
+            source: ANTI_DETECT_SCRIPT
+        });
+        // Also inject into current page immediately
+        await core.sendCDPCommand(tabId, 'Runtime.evaluate', {
+            expression: ANTI_DETECT_SCRIPT,
+            returnByValue: true
+        });
+    } catch { /* ignore if page not ready */ }
+}
+
+// ============================================
 // 工具执行器 (Tool Executor)
 // ============================================
 
@@ -292,8 +324,15 @@ export async function executeVisionTool(toolName: string, toolArgs: any, config?
         switch (toolName) {
             case "navigate_to": {
                 const { url } = toolArgs;
-                await chrome.tabs.update(tabId, { url });
-                return `SUCCESS: Navigating to ${url}. Please wait for the page to load and then call get_accessibility_tree.`;
+                const newTab = await chrome.tabs.create({
+                    url,
+                    active: true,
+                    windowId: tab.windowId,
+                });
+                // Wait for page to start loading then inject anti-detect
+                await randomDelay(500, 1500);
+                if (newTab.id) await injectAntiDetect(newTab.id);
+                return `SUCCESS: Opened ${url} in a new tab. Please wait for the page to load and then call get_accessibility_tree.`;
             }
 
             case "search_web": {
@@ -305,6 +344,8 @@ export async function executeVisionTool(toolName: string, toolArgs: any, config?
                     active: true,
                     windowId: tab.windowId,
                 });
+                await randomDelay(500, 1500);
+                if (createdTab.id) await injectAntiDetect(createdTab.id);
                 return `SUCCESS: Opened search for "${query}" in a new tab (${createdTab.id ?? "unknown"}): ${url}. Please wait for the page to load and then call get_accessibility_tree.`;
             }
 
@@ -357,8 +398,15 @@ export async function executeVisionTool(toolName: string, toolArgs: any, config?
                 const target = res.result?.value;
                 if (!target) return `Error: Element [${id}] disappeared.`;
                 const { x, y } = target;
+                // Simulate human-like mouse movement with jitter
+                const jitterX = x + Math.floor(Math.random() * 6 - 3);
+                const jitterY = y + Math.floor(Math.random() * 6 - 3);
+                await core.sendCDPCommand(tabId, "Input.dispatchMouseEvent", { type: "mouseMoved", x: jitterX, y: jitterY });
+                await randomDelay(30, 80);
                 await core.sendCDPCommand(tabId, "Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
+                await randomDelay(50, 200);
                 await core.sendCDPCommand(tabId, "Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", clickCount: 1 });
+                await randomDelay(30, 120);
                 await core.sendCDPCommand(tabId, "Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", clickCount: 1 });
                 await core.sendCDPCommand(tabId, "Runtime.evaluate", { expression: `document.querySelector(\`${elementInfo.selector.replace(/`/g, '\\`')}\`)?.click()` });
                 return `SUCCESS: Clicked [${id}] at (${x}, ${y}). Refresh tree to see changes.`;
@@ -377,7 +425,9 @@ export async function executeVisionTool(toolName: string, toolArgs: any, config?
                 }
                 for (const char of text) {
                     await core.sendCDPCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", text: char });
+                    await randomDelay(10, 30);
                     await core.sendCDPCommand(tabId, "Input.dispatchKeyEvent", { type: "keyUp", text: char });
+                    await randomDelay(30, 100);
                 }
                 if (press_enter) {
                     await core.sendCDPCommand(tabId, "Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });

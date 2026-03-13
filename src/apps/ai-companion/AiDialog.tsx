@@ -5,6 +5,7 @@ import { MessageSquare, Plus, Trash2, Sparkles } from "lucide-react";
 import { useAiStore, useAiChat } from "@/apps/ai-companion";
 import { ChatView } from "./components/ChatView";
 import { ChatInput } from "./components/ChatInput";
+import { PlanPanel } from "./components/PlanPanel";
 
 interface AiDialogProps {
     open: boolean;
@@ -87,9 +88,10 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
             sidebarItems={sidebarItems}
             sidebarActiveId={currentSessionId || undefined}
             onSidebarChange={(id) => switchSession(id)}
-            footer={
-                <div className="px-4 pb-4 pt-2">
+            floatLayer={
+                <div className="absolute bottom-0 inset-x-0 pointer-events-auto px-4 pb-4 pt-2">
                     <div className="max-w-4xl mx-auto w-full">
+                        <PlanPanel />
                         <ChatInput
                             models={models}
                             activeModelId={activeModelId}
@@ -114,6 +116,8 @@ export function AiDialog({ open, onOpenChange }: AiDialogProps) {
                 activeModel={activeModel}
                 isLoading={isLoading}
             />
+            {/* Spacer for floating ChatInput */}
+            <div className="h-16 shrink-0" />
         </AppModalV1>
     );
 }

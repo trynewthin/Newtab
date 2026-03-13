@@ -1,9 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "__MSG_appName__",
-    "default_locale": "en",
+    "name": "PTab",
     "version": "1.0.0",
-    "description": "__MSG_appDesc__",
+    "description": "A beautiful, premium New Tab page with integrated AI Agent capabilities.",
     "chrome_url_overrides": {
         "newtab": "index.html"
     },

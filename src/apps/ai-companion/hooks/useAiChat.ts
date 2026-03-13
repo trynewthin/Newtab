@@ -6,6 +6,8 @@ import { useCallback, useRef } from 'react';
 import { useAiStore } from '../store';
 import { VISION_TOOLS, executeVisionTool } from '../vision';
 import { SYSTEM_TOOLS, executeSystemTool } from '../tools/system';
+import { PLAN_TOOLS, PLAN_TOOL_NAMES, executePlanTool } from '../tools/plan';
+import { usePlanStore } from '../tools/plan';
 import { prepareApiMessages } from '../utils';
 
 export function useAiChat() {
@@ -22,7 +24,7 @@ export function useAiChat() {
     const stopSignalRef = useRef(false);
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    const ALL_TOOLS = [...VISION_TOOLS, ...SYSTEM_TOOLS];
+    const ALL_TOOLS = [...VISION_TOOLS, ...SYSTEM_TOOLS, ...PLAN_TOOLS];
 
     const stopGeneration = useCallback(() => {
         stopSignalRef.current = true;
@@ -72,6 +74,13 @@ export function useAiChat() {
     };
 
     const runAgentLoop = async (initialUserText?: string) => {
+        // Record original tab so we can switch back after plan completes
+        let originTabId: number | undefined;
+        try {
+            const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            originTabId = activeTab?.id;
+        } catch { /* ignore in non-extension env */ }
+
         try {
             if (initialUserText) await addMessage({ role: 'user', content: initialUserText });
 
@@ -105,7 +114,13 @@ export function useAiChat() {
                     isIntermediate: hasToolCalls
                 });
 
-                if (!hasToolCalls) break;
+                // Detect plan complete → switch back to original tab
+                if (!hasToolCalls) {
+                    if (usePlanStore.getState().isComplete && originTabId) {
+                        try { await chrome.tabs.update(originTabId, { active: true }); } catch { /* tab may be closed */ }
+                    }
+                    break;
+                }
 
                 for (const tool of toolCalls) {
                     if (stopSignalRef.current) break;
@@ -126,7 +141,9 @@ export function useAiChat() {
 
                     let result;
                     // 判断工具类型
-                    if (VISION_TOOLS.some(t => t.function.name === toolName)) {
+                    if (PLAN_TOOL_NAMES.includes(toolName)) {
+                        result = executePlanTool(toolName, toolArgs);
+                    } else if (VISION_TOOLS.some(t => t.function.name === toolName)) {
                         const visionConfig = getActiveVisionModelConfig();
                         result = await executeVisionTool(toolName, toolArgs, visionConfig);
                     } else if (SYSTEM_TOOLS.some(t => t.function.name === toolName)) {

@@ -41,8 +41,8 @@ export interface AppModalV1Props {
     headerActions?: React.ReactNode
     /** Footer content rendered below sidebar items */
     sidebarFooter?: React.ReactNode
-    /** Footer rendered at the bottom of the modal (outside scroll area) */
-    footer?: React.ReactNode
+    /** Float layer content rendered above all other layers. Container is pointer-events-none. */
+    floatLayer?: React.ReactNode
     /** Main scrollable content */
     children: React.ReactNode
     /** Additional className on the popup container */
@@ -62,7 +62,7 @@ export function AppModalV1({
     sidebarActiveId,
     onSidebarChange,
     sidebarFooter,
-    footer,
+    floatLayer,
     children,
     className,
     hideBlur,
@@ -125,7 +125,14 @@ export function AppModalV1({
                             </AppModalV1Header>
                         )}
 
-                        {/* ── Sidebar panel ── */}
+                        {/* ── Float layer (same level as header) ── */}
+                        {floatLayer && (
+                            <div className="absolute inset-0 z-30 pointer-events-none">
+                                {floatLayer}
+                            </div>
+                        )}
+
+                        {/* ── Sidebar panel (rendered after float layer so it appears on top) ── */}
                         {hasSidebar && (
                             <AppModalV1Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)}>
                                 <div className="flex flex-col h-full">
@@ -168,21 +175,14 @@ export function AppModalV1({
                         )}
 
                         {/* ── Scroll content ── */}
-                        <div className="relative z-10 h-full flex flex-col sm:rounded-2xl overflow-hidden">
-                            <div className="relative flex-1 min-h-0">
-                                {!hideBlur && <GradualBlur preset="header" zIndex={20} height="3rem" strength={2} />}
-                                {!hideBlur && <GradualBlur preset="footer" zIndex={20} height="2.5rem" strength={1.5} />}
-                                <div className="h-full overflow-y-auto custom-scrollbar px-5">
-                                    {header && <div className="h-16 shrink-0" />}
-                                    {children}
-                                    <div className="h-10 shrink-0" />
-                                </div>
+                        <div className="relative z-10 h-full sm:rounded-2xl overflow-hidden">
+                            {!hideBlur && <GradualBlur preset="header" zIndex={20} height="3rem" strength={2} />}
+                            {!hideBlur && <GradualBlur preset="footer" zIndex={20} height="2.5rem" strength={1.5} />}
+                            <div className="h-full overflow-y-auto custom-scrollbar px-5">
+                                {header && <div className="h-16 shrink-0" />}
+                                {children}
+                                <div className="h-10 shrink-0" />
                             </div>
-                            {footer && (
-                                <div className="relative z-20 shrink-0">
-                                    {footer}
-                                </div>
-                            )}
                         </div>
                     </div>
                 </Dialog.Popup>

@@ -14,14 +14,14 @@ export function AppModalV1Sidebar({ open, onClose, children }: AppModalV1Sidebar
             {/* Backdrop to close sidebar on outside click */}
             {open && (
                 <div
-                    className="absolute inset-0 z-20"
+                    className="absolute inset-0 z-30"
                     onClick={onClose}
                 />
             )}
 
             {/* Sidebar panel */}
             <div className={cn(
-                "absolute top-16 bottom-3 left-3 z-20 w-48",
+                "absolute top-16 bottom-3 left-3 z-30 w-48",
                 open
                     ? ""
                     : "hidden",

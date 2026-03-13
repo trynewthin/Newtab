@@ -24,6 +24,35 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return
+
+          if (
+            (id.includes("/i18next") || id.includes("\\i18next")) &&
+            !id.includes("react-i18next")
+          ) {
+            return "i18n-vendor"
+          }
+
+          if (id.includes("zustand")) {
+            return "zustand-vendor"
+          }
+
+          if (id.includes("/ogl/") || id.includes("\\ogl\\")) {
+            return "ogl-vendor"
+          }
+
+          if (
+            id.includes("/react/") ||
+            id.includes("\\react\\") ||
+            id.includes("/react-dom/") ||
+            id.includes("\\react-dom\\") ||
+            id.includes("/scheduler/") ||
+            id.includes("\\scheduler\\")
+          ) {
+            return "react-vendor"
+          }
+        },
         chunkFileNames: 'c/[hash].js',
         assetFileNames: 'a/[hash][extname]',
       },
@@ -38,4 +67,3 @@ export default defineConfig({
     }
   },
 })
-

@@ -1,120 +1,65 @@
-﻿import React, { forwardRef, useMemo, useRef, useLayoutEffect } from 'react';
-import { Canvas, useFrame, useThree, type RootState } from '@react-three/fiber';
-import { Color, Mesh, ShaderMaterial, type IUniform } from 'three';
+import { useEffect, useRef } from "react";
+import { Color, Mesh, Program, Renderer, Triangle } from "ogl";
 
-type NormalizedRGB = [number, number, number];
-
-const hexToNormalizedRGB = (hex: string): NormalizedRGB => {
-  const clean = hex.replace('#', '');
-  const r = parseInt(clean.slice(0, 2), 16) / 255;
-  const g = parseInt(clean.slice(2, 4), 16) / 255;
-  const b = parseInt(clean.slice(4, 6), 16) / 255;
-  return [r, g, b];
-};
-
-interface UniformValue<T = number | Color> {
-  value: T;
-}
-
-interface SilkUniforms {
-  uSpeed: UniformValue<number>;
-  uScale: UniformValue<number>;
-  uNoiseIntensity: UniformValue<number>;
-  uColor: UniformValue<Color>;
-  uRotation: UniformValue<number>;
-  uTime: UniformValue<number>;
-  [uniform: string]: IUniform;
-}
-
-const vertexShader = `
-varying vec2 vUv;
-varying vec3 vPosition;
-
+const VERT = `#version 300 es
+in vec2 position;
 void main() {
-  vPosition = position;
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  gl_Position = vec4(position, 0.0, 1.0);
 }
 `;
 
-const fragmentShader = `
-varying vec2 vUv;
-varying vec3 vPosition;
+const FRAG = `#version 300 es
+precision highp float;
 
+uniform vec2 uResolution;
 uniform float uTime;
-uniform vec3  uColor;
+uniform vec3 uColor;
 uniform float uSpeed;
 uniform float uScale;
 uniform float uRotation;
 uniform float uNoiseIntensity;
 
-const float e = 2.71828182845904523536;
+out vec4 fragColor;
+
+const float E = 2.71828182845904523536;
 
 float noise(vec2 texCoord) {
-  float G = e;
-  vec2  r = (G * sin(G * texCoord));
+  vec2 r = E * sin(E * texCoord);
   return fract(r.x * r.y * (1.0 + texCoord.x));
 }
 
 vec2 rotateUvs(vec2 uv, float angle) {
   float c = cos(angle);
   float s = sin(angle);
-  mat2  rot = mat2(c, -s, s, c);
-  return rot * uv;
+  return mat2(c, -s, s, c) * uv;
 }
 
 void main() {
-  float rnd        = noise(gl_FragCoord.xy);
-  vec2  uv         = rotateUvs(vUv * uScale, uRotation);
-  vec2  tex        = uv * uScale;
-  float tOffset    = uSpeed * uTime;
+  vec2 uv = gl_FragCoord.xy / max(uResolution, vec2(1.0));
+  vec2 centeredUv = (uv - 0.5) * 2.0;
+  centeredUv.x *= uResolution.x / max(uResolution.y, 1.0);
+
+  float rnd = noise(gl_FragCoord.xy);
+  vec2 rotatedUv = rotateUvs(centeredUv * uScale, uRotation);
+  vec2 tex = rotatedUv * uScale;
+  float tOffset = uSpeed * uTime;
 
   tex.y += 0.03 * sin(8.0 * tex.x - tOffset);
 
   float pattern = 0.6 +
-                  0.4 * sin(5.0 * (tex.x + tex.y +
-                                   cos(3.0 * tex.x + 5.0 * tex.y) +
-                                   0.02 * tOffset) +
-                           sin(20.0 * (tex.x + tex.y - 0.1 * tOffset)));
+    0.4 * sin(
+      5.0 * (
+        tex.x + tex.y +
+        cos(3.0 * tex.x + 5.0 * tex.y) +
+        0.02 * tOffset
+      ) +
+      sin(20.0 * (tex.x + tex.y - 0.1 * tOffset))
+    );
 
-  vec4 col = vec4(uColor, 1.0) * vec4(pattern) - rnd / 15.0 * uNoiseIntensity;
-  col.a = 1.0;
-  gl_FragColor = col;
+  vec3 col = uColor * pattern - (rnd / 15.0) * uNoiseIntensity;
+  fragColor = vec4(col, 1.0);
 }
 `;
-
-interface SilkPlaneProps {
-  uniforms: SilkUniforms;
-}
-
-const SilkPlane = forwardRef<Mesh, SilkPlaneProps>(function SilkPlane({ uniforms }, ref) {
-  const { viewport } = useThree();
-
-  useLayoutEffect(() => {
-    const mesh = ref as React.MutableRefObject<Mesh | null>;
-    if (mesh.current) {
-      mesh.current.scale.set(viewport.width, viewport.height, 1);
-    }
-  }, [ref, viewport]);
-
-  useFrame((_state: RootState, delta: number) => {
-    const mesh = ref as React.MutableRefObject<Mesh | null>;
-    if (mesh.current) {
-      const material = mesh.current.material as ShaderMaterial & {
-        uniforms: SilkUniforms;
-      };
-      material.uniforms.uTime.value += 0.1 * delta;
-    }
-  });
-
-  return (
-    <mesh ref={ref}>
-      <planeGeometry args={[1, 1, 1, 1]} />
-      <shaderMaterial uniforms={uniforms} vertexShader={vertexShader} fragmentShader={fragmentShader} />
-    </mesh>
-  );
-});
-SilkPlane.displayName = 'SilkPlane';
 
 export interface SilkProps {
   speed?: number;
@@ -124,26 +69,96 @@ export interface SilkProps {
   rotation?: number;
 }
 
-const Silk: React.FC<SilkProps> = ({ speed = 5, scale = 1, color = '#7B7481', noiseIntensity = 1.5, rotation = 0 }) => {
-  const meshRef = useRef<Mesh>(null);
+export default function Silk({
+  speed = 5,
+  scale = 1,
+  color = "#7B7481",
+  noiseIntensity = 1.5,
+  rotation = 0,
+}: SilkProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const propsRef = useRef<SilkProps>({
+    speed,
+    scale,
+    color,
+    noiseIntensity,
+    rotation,
+  });
 
-  const uniforms = useMemo<SilkUniforms>(
-    () => ({
-      uSpeed: { value: speed },
-      uScale: { value: scale },
-      uNoiseIntensity: { value: noiseIntensity },
-      uColor: { value: new Color(...hexToNormalizedRGB(color)) },
-      uRotation: { value: rotation },
-      uTime: { value: 0 }
-    }),
-    [speed, scale, noiseIntensity, color, rotation]
-  );
+  propsRef.current = { speed, scale, color, noiseIntensity, rotation };
 
-  return (
-    <Canvas dpr={[1, 2]} frameloop="always">
-      <SilkPlane ref={meshRef} uniforms={uniforms} />
-    </Canvas>
-  );
-};
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-export default Silk;
+    const renderer = new Renderer({
+      alpha: true,
+      antialias: true,
+      premultipliedAlpha: true,
+    });
+    const gl = renderer.gl;
+    gl.clearColor(0, 0, 0, 0);
+    gl.canvas.style.backgroundColor = "transparent";
+
+    const geometry = new Triangle(gl);
+    if (geometry.attributes.uv) {
+      delete geometry.attributes.uv;
+    }
+
+    const parsedColor = new Color(color);
+    const program = new Program(gl, {
+      vertex: VERT,
+      fragment: FRAG,
+      uniforms: {
+        uResolution: { value: [container.offsetWidth || 1, container.offsetHeight || 1] },
+        uTime: { value: 0 },
+        uColor: { value: [parsedColor.r, parsedColor.g, parsedColor.b] },
+        uSpeed: { value: speed },
+        uScale: { value: scale },
+        uRotation: { value: rotation },
+        uNoiseIntensity: { value: noiseIntensity },
+      },
+    });
+
+    const mesh = new Mesh(gl, { geometry, program });
+    container.appendChild(gl.canvas);
+
+    const resize = () => {
+      const width = container.offsetWidth || 1;
+      const height = container.offsetHeight || 1;
+      renderer.setSize(width, height);
+      program.uniforms.uResolution.value = [width, height];
+    };
+
+    let frameId = 0;
+    const render = (time: number) => {
+      const current = propsRef.current;
+      const currentColor = new Color(current.color ?? "#7B7481");
+
+      program.uniforms.uTime.value = time * 0.001;
+      program.uniforms.uSpeed.value = current.speed ?? 5;
+      program.uniforms.uScale.value = current.scale ?? 1;
+      program.uniforms.uRotation.value = current.rotation ?? 0;
+      program.uniforms.uNoiseIntensity.value = current.noiseIntensity ?? 1.5;
+      program.uniforms.uColor.value = [currentColor.r, currentColor.g, currentColor.b];
+
+      renderer.render({ scene: mesh });
+      frameId = requestAnimationFrame(render);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+    frameId = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", resize);
+      if (gl.canvas.parentNode === container) {
+        container.removeChild(gl.canvas);
+      }
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    };
+  }, [color, noiseIntensity, rotation, scale, speed]);
+
+  return <div ref={containerRef} className="h-full w-full" />;
+}

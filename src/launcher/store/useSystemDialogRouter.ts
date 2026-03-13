@@ -12,27 +12,29 @@ export function useSystemDialogRouter() {
     const isUpdatingFromState = useRef(false);
 
     useEffect(() => {
+        const hash = location.hash.slice(1);
+        const validTypes = VALID_SYSTEM_TYPES as readonly SystemType[];
+        const currentActiveDialog = useUIStore.getState().activeSystemDialog;
+
         if (isUpdatingFromState.current) {
             isUpdatingFromState.current = false;
             return;
         }
 
-        const hash = location.hash.slice(1);
-        const validTypes = VALID_SYSTEM_TYPES as readonly SystemType[];
         isUpdatingFromUrl.current = true;
 
         if (hash && validTypes.includes(hash as SystemType)) {
-            if (activeSystemDialog !== hash) {
+            if (currentActiveDialog !== hash) {
                 setActiveSystemDialog(hash as SystemType);
             }
-        } else if (hash === "" && activeSystemDialog !== null) {
+        } else if (hash === "" && currentActiveDialog !== null) {
             setActiveSystemDialog(null);
         }
 
         setTimeout(() => {
             isUpdatingFromUrl.current = false;
         }, 0);
-    }, [activeSystemDialog, location.hash, setActiveSystemDialog]);
+    }, [location.hash, setActiveSystemDialog]);
 
     useEffect(() => {
         if (isUpdatingFromUrl.current) {

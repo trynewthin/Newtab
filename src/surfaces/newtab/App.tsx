@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from "react";
+﻿import { useEffect, useLayoutEffect } from "react";
 import { useStorageConnection } from "@/state/persistence/sync";
 import { useSettingsStore } from "@/apps/settings/store";
 import { AppRouter } from "./AppRouter";
@@ -7,7 +7,7 @@ import { FloatLayer } from "./layers/FloatLayer";
 import { ModalLayer } from "./layers/ModalLayer";
 import { Toaster } from "@/components/ui/sonner";
 import { HashRouter } from "react-router-dom";
-import { useUIStore } from "@/launcher/store/ui";
+import { useUIStore } from "@/shell/launcher/store/ui";
 import { cn } from "@/core/utils";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 

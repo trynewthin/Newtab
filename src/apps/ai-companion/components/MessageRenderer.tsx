@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { Check, Copy, CheckCheck, Brain } from "lucide-react";
 import { cn } from "@/core/utils";
 import { useAiStore, type Message, type ModelConfig } from "@/apps/ai-companion";

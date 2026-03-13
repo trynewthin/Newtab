@@ -2,14 +2,9 @@
  * Web Agent 模块统一导出
  */
 
-// 类型导出
-export * from './types';
-
-// Store 导出
-export { useAiStore } from './store';
-
-// Hook 导出
-export { useAiChat } from './hooks/useAiChat';
-
-// 视觉代理模块导出 (统一归口到 vision)
-export * from './vision';
+export * from "./dialog";
+export * from "./manifest";
+export * from "./types";
+export { useAiStore } from "./store";
+export { useAiChat } from "./hooks/useAiChat";
+export * from "./vision";

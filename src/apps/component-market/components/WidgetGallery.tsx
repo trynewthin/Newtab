@@ -1,11 +1,11 @@
-import { useTranslation } from "react-i18next";
+﻿import { useTranslation } from "react-i18next";
 import {
     SYSTEM_WIDGET_MANIFEST,
     getWidgetCollections,
     getWidgetsByCollection,
     type SystemWidgetManifestItem,
-} from "@/launcher/widget";
-import type { GridPresetKey } from "@/launcher/grid/layoutPresets";
+} from "@/shell/launcher/registry";
+import type { GridPresetKey } from "@/shell/launcher/layout/layoutPresets";
 import { WidgetPreviewCard } from "./WidgetPreviewCard";
 
 interface WidgetGalleryProps {

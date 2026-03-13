@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useSettingsStore } from "@/apps/settings/store";
 import ColorBends from "@/components/ColorBends";
 import LightPillar from "@/components/LightPillar";

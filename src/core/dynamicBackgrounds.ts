@@ -1,4 +1,4 @@
-export type DynamicBackgroundId =
+﻿export type DynamicBackgroundId =
     | "color-bends"
     | "light-pillar"
     | "silk"

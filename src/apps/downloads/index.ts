@@ -1,1 +1,2 @@
-export * from './DownloadsDialog';
+export * from "./dialog";
+export * from "./manifest";

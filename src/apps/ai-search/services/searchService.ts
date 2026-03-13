@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Web Search Service
  * Performs real web searches and returns structured results
  */

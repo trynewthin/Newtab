@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistConfig } from '@/state/core/storage';
 import type { BackgroundConfig } from '@/state/core/types';

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Check, Square } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/core/utils";

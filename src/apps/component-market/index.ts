@@ -1,2 +1,2 @@
-export * from "./ComponentMarketDialog";
-
+export * from "./dialog";
+export * from "./manifest";

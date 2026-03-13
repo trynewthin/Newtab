@@ -1,4 +1,4 @@
-import { SearchBar } from "@/apps/search/components/SearchBar";
+﻿import { SearchBar } from "@/apps/search/components/SearchBar";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";

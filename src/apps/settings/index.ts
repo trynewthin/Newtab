@@ -1,1 +1,2 @@
-export * from './SettingsDialog';
+export * from "./dialog";
+export * from "./manifest";

@@ -1,4 +1,4 @@
-import type { Message } from './types';
+﻿import type { Message } from './types';
 import { getTextContent } from './types';
 
 /**

@@ -1,4 +1,4 @@
-import { isDynamicBackgroundId } from "@/core/dynamicBackgrounds";
+﻿import { isDynamicBackgroundId } from "@/core/dynamicBackgrounds";
 import type { DynamicBackgroundConfigMap, DynamicBackgroundId } from "@/core/dynamicBackgrounds";
 import type { BackgroundConfig } from "@/state/core/types";
 

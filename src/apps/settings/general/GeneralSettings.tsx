@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+﻿import { useTranslation } from "react-i18next";
 import { SettingsSection, SettingsItem, SettingsActionButtons } from "../components/SettingComponents";
 import { Globe, Database, Download, Upload, Search, Plus, Trash2, RotateCcw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

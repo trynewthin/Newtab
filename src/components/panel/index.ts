@@ -1,2 +1,2 @@
-export * from "./AppPanel"
-export * from "./AppSurfacePanel"
+export * from "@/platform/ui/panel";
+

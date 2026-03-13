@@ -1,8 +1,8 @@
-import { useTranslation } from "react-i18next";
+﻿import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { cn } from "@/core/utils";
-import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/grid/layoutPresets";
-import type { SystemWidgetManifestItem } from "@/launcher/widget";
+import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/shell/launcher/layout/layoutPresets";
+import type { SystemWidgetManifestItem } from "@/shell/launcher/registry";
 import type { LauncherWidgetItem } from "@/state/core/itemTypes";
 
 interface WidgetPreviewCardProps {

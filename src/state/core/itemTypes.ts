@@ -1,4 +1,4 @@
-export type ItemKind = 'tag' | 'app' | 'folder' | 'widget';
+﻿export type ItemKind = 'tag' | 'app' | 'folder' | 'widget';
 
 export interface BaseItem {
     id: string;

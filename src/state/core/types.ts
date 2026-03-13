@@ -1,4 +1,4 @@
-// Core Data Models
+﻿// Core Data Models
 
 export interface BackgroundConfig {
     type: 'solid' | 'gradient' | 'image' | 'theme';

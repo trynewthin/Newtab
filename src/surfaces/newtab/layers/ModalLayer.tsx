@@ -1,5 +1,5 @@
-import { SystemDialogHost } from "@/launcher/system/SystemDialogHost";
-import { useUIStore } from "@/launcher/store/ui";
+﻿import { SystemDialogHost } from "@/shell/launcher/runtime/SystemDialogHost";
+import { useUIStore } from "@/shell/launcher/store/ui";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 export function ModalLayer() {

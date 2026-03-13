@@ -1,4 +1,4 @@
-/**
+﻿/**
  * IndexedDB wrapper for storing large files like background images
  */
 

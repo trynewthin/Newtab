@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from "react";
+﻿import { useEffect, useState, type ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AI Search Types
  * Data structures for AI-powered search results
  */

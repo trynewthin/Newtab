@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+﻿import React, { useEffect, useRef, useState, useMemo } from 'react';
 import type { CSSProperties, PropsWithChildren } from 'react';
 import * as math from 'mathjs';
 import { LAYER_Z_INDEX } from '@/core/layerZIndex';

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+﻿import { useEffect, useMemo } from "react";
 import { AppModalV1, AppModalV1EmptyState } from "@/components/modal/AppModalV1";
 import { useTranslation } from "react-i18next";
 import { MessageSquare, Plus, Trash2, Sparkles } from "lucide-react";

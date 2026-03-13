@@ -1,4 +1,4 @@
-/**
+﻿/**
  * useAiChat Hook - 多模态视觉 Web Agent (全功能控制版)
  */
 

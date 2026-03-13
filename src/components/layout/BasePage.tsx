@@ -1,6 +1,6 @@
-import { cn } from "@/core/utils";
+﻿import { cn } from "@/core/utils";
 import React from "react";
-import { useUIStore } from "@/launcher/store/ui";
+import { useUIStore } from "@/shell/launcher/store/ui";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 
 const TOOLBAR_TRIGGER_TOP_PX = 64;

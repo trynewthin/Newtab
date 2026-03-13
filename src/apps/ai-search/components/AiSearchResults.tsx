@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AI Search Results Grid
  * Displays search results as beautiful cards
  */

@@ -1,4 +1,4 @@
-export type AppSurfaceMaterial = "glass-distortion" | "mac-frosted";
+﻿export type AppSurfaceMaterial = "glass-distortion" | "mac-frosted";
 export type AppSurfaceVariant = "base" | "toolbar" | "search-bar" | "widget" | "folder-preview";
 export type AppSurfaceTone = "auto" | "light" | "dark";
 

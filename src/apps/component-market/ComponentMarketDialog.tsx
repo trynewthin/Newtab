@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useItemStore } from "@/launcher/store/item";
-import type { SystemWidgetManifestItem } from "@/launcher/widget";
-import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/grid/layoutPresets";
+﻿import { useState } from "react";
+import { useItemStore } from "@/shell/launcher/store/item";
+import type { SystemWidgetManifestItem } from "@/shell/launcher/registry";
+import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/shell/launcher/layout/layoutPresets";
 import { AppModalV1 } from "@/components/modal/AppModalV1";
 import { MarketTabBar, type MarketTab } from "./components/MarketTabBar";
 import { AppIconGrid } from "./components/AppIconGrid";

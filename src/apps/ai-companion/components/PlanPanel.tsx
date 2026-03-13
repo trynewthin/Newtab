@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { CheckCircle2, Circle, Loader2, ListChecks } from "lucide-react";
 import { cn } from "@/core/utils";
 import { usePlanStore } from "@/apps/ai-companion/tools/plan";

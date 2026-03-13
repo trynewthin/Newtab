@@ -1,13 +1,13 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+﻿import { lazy, Suspense, useEffect, useState } from "react";
 import { BasePage } from "@/components/layout";
-import { AppGrid } from "@/launcher";
-import { useSystemDialogRouter } from "@/launcher/store/ui";
-import { warmupModalRuntimes } from "@/launcher/system/appRuntimeRegistry";
+import { AppGrid } from "@/shell/launcher";
+import { useSystemDialogRouter } from "@/shell/launcher/store/ui";
+import { warmupModalRuntimes } from "@/shell/launcher/runtime/appRuntimeRegistry";
 import { LAYER_Z_INDEX } from "@/core/layerZIndex";
 import { useSettingsStore } from "@/apps/settings/store";
 
 const HomeTools = lazy(() =>
-    import("@/launcher/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
+    import("@/shell/launcher/ui/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
 );
 const OnboardingDialog = lazy(() =>
     import("@/apps/onboarding/OnboardingDialog").then((m) => ({ default: m.OnboardingDialog }))

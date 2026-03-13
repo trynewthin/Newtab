@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+﻿import { useTranslation } from "react-i18next";
 import { SettingsSection, SettingsItem } from "@/apps/settings/components/SettingComponents";
 import { Info, Github, RotateCcw, User, Heart } from "lucide-react";
 import { APP_METADATA } from "@/core/constants";

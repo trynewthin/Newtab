@@ -1,12 +1,12 @@
-import { useTranslation } from "react-i18next";
-import { useItemStore } from "@/launcher/store/item";
+﻿import { useTranslation } from "react-i18next";
+import { useItemStore } from "@/shell/launcher/store/item";
 import {
     ENABLED_SYSTEM_APP_MANIFEST,
     type SystemAppManifestItem,
-} from "@/launcher/system/appManifest";
+} from "@/shell/launcher/registry/appManifest";
 import { Check } from "lucide-react";
 import { cn } from "@/core/utils";
-import { ItemIcon } from "@/launcher/components/ItemIcon";
+import { ItemIcon } from "@/shell/launcher/ui/components/ItemIcon";
 
 export function AppIconGrid() {
     const { t } = useTranslation();

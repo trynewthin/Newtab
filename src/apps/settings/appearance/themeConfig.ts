@@ -1,4 +1,4 @@
-export const PRIMARY_COLORS = [
+﻿export const PRIMARY_COLORS = [
     { name: 'Blue', value: 'hsl(217 91% 60%)' },
     { name: 'Purple', value: 'hsl(270 95% 65%)' },
     { name: 'Green', value: 'hsl(150 90% 45%)' },

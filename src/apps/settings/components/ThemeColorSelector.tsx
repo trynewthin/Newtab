@@ -1,4 +1,4 @@
-import { useSettingsStore } from "@/apps/settings/store";
+﻿import { useSettingsStore } from "@/apps/settings/store";
 import { cn } from "@/core/utils";
 import { Check, Plus, Palette } from "lucide-react";
 import { PRIMARY_COLORS } from "@/apps/settings/appearance/themeConfig";

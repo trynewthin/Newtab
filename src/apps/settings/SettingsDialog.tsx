@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { AppModalV1 } from "@/components/modal/AppModalV1";
 import { Settings, Palette, Bot, Info, Cpu, Sliders, type LucideIcon } from "lucide-react";
 import { cn } from "@/core/utils";

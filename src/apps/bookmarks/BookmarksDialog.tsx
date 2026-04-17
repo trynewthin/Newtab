@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { AppModalV2Sidebar, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal";
+import { AppModalEmptyState, AppModalListCard, AppModalV2Sidebar } from "@/platform/ui/modal";
 import { cn } from "@/shared/utils";
 import {
     Folder,
@@ -183,14 +183,14 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                 {topBar}
                 <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
                     {bookmarks.length === 0 ? (
-                        <AppModalV1EmptyState
+                        <AppModalEmptyState
                             icon={Inbox}
                             message={searchQuery ? t("no_bookmarks_found") : t("folder_empty")}
                         />
                     ) : (
                         <div className="flex flex-col gap-2">
                             {bookmarks.map((node) => (
-                                <AppModalV1ListCard
+                                <AppModalListCard
                                     key={node.id}
                                     onClick={() => handleNodeClick(node)}
                                     icon={(
@@ -246,7 +246,7 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                                             {new URL(node.url).hostname}
                                         </div>
                                     ) : null}
-                                </AppModalV1ListCard>
+                                </AppModalListCard>
                             ))}
                         </div>
                     )}

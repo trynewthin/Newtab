@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { AppModalV2Sidebar, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal";
+import { AppModalEmptyState, AppModalListCard, AppModalV2Sidebar } from "@/platform/ui/modal";
 import { cn } from "@/shared/utils";
 import {
     X,
@@ -190,14 +190,14 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                 {topBar}
                 <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
                     {filteredDownloads.length === 0 ? (
-                        <AppModalV1EmptyState
+                        <AppModalEmptyState
                             icon={Inbox}
                             message={searchQuery ? t("no_downloads_found") : t("no_downloads")}
                         />
                     ) : (
                         <div className="flex flex-col gap-3">
                             {filteredDownloads.map((item) => (
-                                <AppModalV1ListCard
+                                <AppModalListCard
                                     key={item.id}
                                     className={item.state === "interrupted" ? "opacity-80" : undefined}
                                     icon={(
@@ -301,7 +301,7 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
                                             />
                                         </div>
                                     ) : null}
-                                </AppModalV1ListCard>
+                                </AppModalListCard>
                             ))}
                         </div>
                     )}

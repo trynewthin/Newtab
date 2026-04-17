@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
-import { AppModalV2Sidebar, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal";
+import { AppModalEmptyState, AppModalListCard, AppModalV2Sidebar } from "@/platform/ui/modal";
 import {
     History,
     Trash2,
@@ -211,7 +211,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                     {topBar}
                     <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
                         {totalFiltered === 0 ? (
-                            <AppModalV1EmptyState
+                            <AppModalEmptyState
                                 icon={SearchX}
                                 message={searchQuery ? t("no_history_found") : t("no_history")}
                             />
@@ -230,7 +230,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             {group.items.map((item) => (
-                                                <AppModalV1ListCard
+                                                <AppModalListCard
                                                     key={item.id + (item.lastVisitTime || 0)}
                                                     onClick={() => window.open(item.url, "_blank")}
                                                     icon={(
@@ -277,7 +277,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                                                             })}
                                                         </span>
                                                     </div>
-                                                </AppModalV1ListCard>
+                                                </AppModalListCard>
                                             ))}
                                         </div>
                                     </div>

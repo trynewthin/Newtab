@@ -1,11 +1,11 @@
-﻿import type { LucideIcon } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
-export interface AppModalV1EmptyStateProps {
+export interface AppModalEmptyStateProps {
     icon: LucideIcon
     message: string
 }
 
-export function AppModalV1EmptyState({ icon: Icon, message }: AppModalV1EmptyStateProps) {
+export function AppModalEmptyState({ icon: Icon, message }: AppModalEmptyStateProps) {
     return (
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
             <div className="flex flex-col items-center gap-3 text-muted-foreground/50">

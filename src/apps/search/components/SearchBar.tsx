@@ -1,23 +1,16 @@
-﻿import { useState, useEffect, useRef } from "react";
-import { Search, Sparkles, LogOut } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useSettingsStore } from "@/apps/settings";
 import { cn } from "@/shared/utils";
-import { useTranslation } from "react-i18next";
 import { SEARCH_ENGINES } from "@/shared/constants";
-import { useNavigate } from "react-router-dom";
 import AppSurface from "@/platform/ui/surface/AppSurface";
 
 interface SearchBarProps {
     initialQuery?: string;
-    isAiMode?: boolean;
-    onExitAiMode?: () => void;
 }
 
-export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }: SearchBarProps) {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-
+export function SearchBar({ initialQuery = "" }: SearchBarProps) {
     const [query, setQuery] = useState(initialQuery);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeIndex, setActiveIndex] = useState(-1);
@@ -30,13 +23,12 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
 
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Merge system and custom engines
     const allEngines = [...SEARCH_ENGINES, ...customSearchEngines];
-    const currentEngine = allEngines.find(se => se.value === searchEngine) || allEngines[0];
+    const currentEngine = allEngines.find((entry) => entry.value === searchEngine) || allEngines[0];
 
     useEffect(() => {
         const fetchSuggestions = async () => {
-            if (!query.trim() || isAiMode || engineMenuOpen) {
+            if (!query.trim() || engineMenuOpen) {
                 setSuggestions([]);
                 setShowSuggestions(false);
                 return;
@@ -50,13 +42,13 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
                     setShowSuggestions(true);
                 }
             } catch (error) {
-                console.error('Failed to fetch suggestions:', error);
+                console.error("Failed to fetch suggestions:", error);
             }
         };
 
         const timer = setTimeout(fetchSuggestions, 200);
         return () => clearTimeout(timer);
-    }, [query, isAiMode, engineMenuOpen]);
+    }, [engineMenuOpen, query]);
 
     useEffect(() => {
         const closeOverlays = () => {
@@ -103,161 +95,115 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
         const trimmedQuery = searchQuery.trim();
         if (!trimmedQuery) return;
 
-        // If we are already in AI mode and engine is AI, we might want to re-trigger search
-        // This navigation will update the URL, and AiSearchView has a useEffect to trigger search on initialQuery change
-        if (searchEngine === 'ai') {
-            navigate(`/search?q=${encodeURIComponent(trimmedQuery)}&t=${Date.now()}`); // Adding timestamp to force trigger
-            setShowSuggestions(false);
-            setActiveIndex(-1);
-            return;
-        }
-
-        // Standard Search Logic (Window Open)
         let searchUrl = currentEngine.url;
-        if (searchUrl.includes('%s')) {
-            searchUrl = searchUrl.replace('%s', encodeURIComponent(trimmedQuery));
+        if (searchUrl.includes("%s")) {
+            searchUrl = searchUrl.replace("%s", encodeURIComponent(trimmedQuery));
         } else {
             searchUrl = searchUrl + encodeURIComponent(trimmedQuery);
         }
 
-        window.open(searchUrl, '_blank', 'noopener,noreferrer');
+        window.open(searchUrl, "_blank", "noopener,noreferrer");
         setQuery("");
         setShowSuggestions(false);
         setActiveIndex(-1);
     };
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSearch = (event: React.FormEvent) => {
+        event.preventDefault();
         performSearch(query);
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    const handleKeyDown = (event: React.KeyboardEvent) => {
         if (!showSuggestions || suggestions.length === 0) return;
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setActiveIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            setActiveIndex(prev => (prev > -1 ? prev - 1 : prev));
-        } else if (e.key === 'Enter' && activeIndex > -1) {
-            e.preventDefault();
+
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setActiveIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setActiveIndex((prev) => (prev > -1 ? prev - 1 : prev));
+        } else if (event.key === "Enter" && activeIndex > -1) {
+            event.preventDefault();
             performSearch(suggestions[activeIndex]);
-        } else if (e.key === 'Escape') {
+        } else if (event.key === "Escape") {
             setShowSuggestions(false);
         }
     };
 
-    const handleEngineSelect = (value: string) => {
-        setSearchEngine(value);
-        if (isAiMode && value !== 'ai') {
-            navigate('/');
-        }
-        setEngineMenuOpen(false);
-    };
-
-    const handleExitAiMode = () => {
-        if (onExitAiMode) {
-            onExitAiMode();
-        } else {
-            navigate('/');
-        }
-    };
-
     return (
-        <div className="w-full relative group modal-minimal-scope" ref={containerRef}>
+        <div className="modal-minimal-scope relative w-full group" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-30">
-                {/* Main Pill Container */}
                 <div className="relative h-12 md:h-14">
                     <div className="absolute inset-0 pointer-events-none">
                         <AppSurface variant="search-bar" className="h-full w-full" />
                     </div>
 
-                    <div className={cn(
-                        "relative z-10 flex gap-2 items-center h-full rounded-full px-3 transition-all duration-300"
-                    )}>
-                        {/* LEFT SIDE: Logic based on isAiMode */}
-                        {isAiMode ? (
+                    <div className="relative z-10 flex h-full items-center gap-2 rounded-full px-3 transition-all duration-300">
+                        <div className="relative shrink-0">
                             <button
                                 type="button"
-                                onClick={handleExitAiMode}
-                                className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-all text-[var(--text-surface-foreground)] shrink-0 rounded-full bg-transparent hover:opacity-80"
-                                title={t("exit_ai_search")}
+                                onClick={() =>
+                                    setEngineMenuOpen((prev) => {
+                                        const next = !prev;
+                                        if (next) {
+                                            setShowSuggestions(false);
+                                        }
+                                        return next;
+                                    })
+                                }
+                                className="btn-no-style flex h-8 w-8 items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform"
                             >
-                                <LogOut size={16} />
+                                <img
+                                    src={currentEngine.icon}
+                                    alt=""
+                                    className="h-full w-full rounded-full object-contain"
+                                />
                             </button>
-                        ) : (
-                            /* Engine Selector */
-                            <div className="relative shrink-0">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setEngineMenuOpen((v) => {
-                                            const next = !v;
-                                            if (next) {
-                                                setShowSuggestions(false);
-                                            }
-                                            return next;
-                                        })
-                                    }
-                                    className="h-8 w-8 flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform btn-no-style"
-                                >
-                                    {currentEngine.value === 'ai' ? (
-                                        <Sparkles className="w-5.5 h-5.5 text-[var(--text-surface-foreground)]" strokeWidth={2.2} />
-                                    ) : (
-                                        <img
-                                            src={currentEngine.icon}
-                                            alt=""
-                                            className="w-full h-full rounded-full object-contain"
+                            {engineMenuOpen ? (
+                                <div className="absolute left-[-6px] top-[calc(100%+16px)] z-50 w-60 overflow-hidden rounded-2xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        <AppSurface
+                                            variant="widget"
+                                            style={{ outline: "none", border: "none", boxShadow: "none" }}
+                                            className="h-full w-full"
                                         />
-                                    )}
-                                </button>
-                                {engineMenuOpen && (
-                                    <div className="absolute top-[calc(100%+16px)] left-[-6px] z-50 w-60 rounded-2xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)] overflow-hidden">
-                                        <div className="absolute inset-0 pointer-events-none">
-                                            <AppSurface
-                                                variant="widget"
-                                                style={{ outline: "none", border: "none", boxShadow: "none" }}
-                                                className="h-full w-full"
-                                            />
-                                        </div>
-                                        <div className="relative z-10 p-2">
-                                            <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
-                                                {allEngines.map((engine) => (
-                                                    <button
-                                                        key={engine.value}
-                                                        type="button"
-                                                        onClick={() => handleEngineSelect(engine.value)}
-                                                        className={cn(
-                                                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
-                                                            engine.value === searchEngine
-                                                                ? 'bg-foreground/16 text-foreground font-semibold'
-                                                                : 'text-foreground hover:bg-foreground/12'
-                                                        )}
-                                                    >
-                                                        <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                                                            {engine.value === 'ai' ? (
-                                                                <Sparkles size={18} className="text-foreground" />
-                                                            ) : (
-                                                                <img src={engine.icon} alt="" className="w-4.5 h-4.5 rounded-sm object-contain" />
-                                                            )}
-                                                        </div>
-                                                        <span className="text-sm font-medium">{engine.name}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
+                                    </div>
+                                    <div className="relative z-10 p-2">
+                                        <div className="max-h-[400px] space-y-1 overflow-y-auto custom-scrollbar">
+                                            {allEngines.map((engine) => (
+                                                <button
+                                                    key={engine.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSearchEngine(engine.value);
+                                                        setEngineMenuOpen(false);
+                                                    }}
+                                                    className={cn(
+                                                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
+                                                        engine.value === searchEngine
+                                                            ? "bg-foreground/16 text-foreground font-semibold"
+                                                            : "text-foreground hover:bg-foreground/12"
+                                                    )}
+                                                >
+                                                    <div className="flex h-5 w-5 items-center justify-center shrink-0">
+                                                        <img src={engine.icon} alt="" className="h-4.5 w-4.5 rounded-sm object-contain" />
+                                                    </div>
+                                                    <span className="text-sm font-medium">{engine.name}</span>
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        )}
+                                </div>
+                            ) : null}
+                        </div>
 
-                        <div className="flex-1 h-full flex items-center">
+                        <div className="flex h-full flex-1 items-center">
                             <Input
                                 type="text"
                                 autoFocus
                                 value={query}
-                                onChange={(e) => {
-                                    setQuery(e.target.value);
+                                onChange={(event) => {
+                                    setQuery(event.target.value);
                                     setActiveIndex(-1);
                                 }}
                                 onKeyDown={handleKeyDown}
@@ -267,17 +213,16 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
                                         setShowSuggestions(true);
                                     }
                                 }}
-                                placeholder={isAiMode ? t("ask_or_search_anything") : t('search_placeholder')}
-                                className="text-surface-input h-full w-full border-0 shadow-none px-0 py-0 text-base md:text-lg ring-0 focus-visible:ring-0 rounded-none font-medium"
+                                placeholder="Search"
+                                className="text-surface-input h-full w-full rounded-none border-0 px-0 py-0 text-base font-medium shadow-none ring-0 focus-visible:ring-0 md:text-lg"
                             />
                         </div>
 
-                        {/* RIGHT SIDE: Action Buttons */}
                         <div className="flex items-center gap-1">
                             <button
                                 type="submit"
-                                className="h-8 w-8 flex items-center justify-center text-[var(--text-surface-foreground)] hover:opacity-80 transition-all active:scale-90"
-                                title={isAiMode ? t("search_again") : t("search")}
+                                className="flex h-8 w-8 items-center justify-center text-[var(--text-surface-foreground)] transition-all hover:opacity-80 active:scale-90"
+                                title="Search"
                             >
                                 <Search size={18} strokeWidth={2.5} />
                             </button>
@@ -295,9 +240,8 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
                 }
             `}</style>
 
-            {/* Suggestions - Minimalist */}
-            {!isAiMode && !engineMenuOpen && showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-[calc(100%+8px)] z-40 left-0 right-0 rounded-3xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)] overflow-hidden">
+            {!engineMenuOpen && showSuggestions && suggestions.length > 0 ? (
+                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 overflow-hidden rounded-3xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
                     <div className="absolute inset-0 pointer-events-none">
                         <AppSurface
                             variant="widget"
@@ -316,21 +260,23 @@ export function SearchBar({ initialQuery = "", isAiMode = false, onExitAiMode }:
                                     onClick={() => performSearch(suggestion)}
                                     onMouseEnter={() => setActiveIndex(index)}
                                     className={cn(
-                                        "px-4 py-3.5 rounded-2xl cursor-pointer flex items-center gap-3 transition-colors",
+                                        "flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 transition-colors",
                                         index === activeIndex
                                             ? "bg-foreground/16 text-foreground"
                                             : "text-foreground hover:bg-foreground/12"
                                     )}
                                 >
-                                    <Search size={16} className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")} />
+                                    <Search
+                                        size={16}
+                                        className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")}
+                                    />
                                     <span className="text-base font-medium">{suggestion}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }
-

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useItemStore, type NewItemInput } from "@/launcher/store";
 import type { SystemWidgetManifestItem } from "@/launcher/registry";
 import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout";
-import { AppModalV1 } from "@/platform/ui/modal/AppModalV1";
+import { AppModalV2Closable } from "@/platform/ui/modal";
 import { MarketTabBar, type MarketTab } from "./components/MarketTabBar";
 import { AppIconGrid } from "./components/AppIconGrid";
 import { WidgetGallery } from "./components/WidgetGallery";
@@ -31,15 +31,21 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
     };
 
     return (
-        <AppModalV1
+        <AppModalV2Closable
             open={open}
             onOpenChange={onOpenChange}
-            header={<MarketTabBar activeTab={activeTab} onTabChange={setActiveTab} />}
-        >
-            {activeTab === "icons"
-                ? <AppIconGrid />
-                : <WidgetGallery onAddWidget={handleAddWidget} />
-            }
-        </AppModalV1>
+            contentLayer={(
+                <div className="flex h-full min-h-0 flex-col">
+                    <div className="flex min-h-16 items-center justify-center border-b border-border/70 px-4 py-3 sm:px-6">
+                        <MarketTabBar activeTab={activeTab} onTabChange={setActiveTab} />
+                    </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-4 py-4 sm:px-6 sm:py-5">
+                        {activeTab === "icons"
+                            ? <AppIconGrid />
+                            : <WidgetGallery onAddWidget={handleAddWidget} />}
+                    </div>
+                </div>
+            )}
+        />
     );
 }

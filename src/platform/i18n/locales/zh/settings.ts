@@ -19,7 +19,7 @@
     engine_url_placeholder: "https://www.google.com/search?q=%s",
     custom_engines: "自定义搜索引擎",
     data_management: "全量数据管理",
-    data_management_desc: "以压缩包 (.ntb) 格式备份和恢复你的所有快捷方式、待办、设置以及 AI 历史。",
+    data_management_desc: "以压缩包 (.ntb) 格式备份和恢复你的所有快捷方式、待办与设置。",
     export: "导出备份",
     import: "还原备份",
     restore_strategy_direct: "直接恢复",

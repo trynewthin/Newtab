@@ -11,7 +11,7 @@ export interface AppModalLoadingFallbackProps {
 }
 
 export function AppModalLoadingFallback({
-    fullscreen = false,
+    fullscreen = true,
     className,
     containerClassName,
     backdropClassName,

@@ -1,5 +1,5 @@
-﻿import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { AppModalV1, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal/AppModalV1";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { AppModalV2Sidebar, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal";
 import { cn } from "@/shared/utils";
 import {
     Folder,
@@ -10,7 +10,7 @@ import {
     Inbox,
     AlertCircle,
     Search,
-    type LucideIcon
+    type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -51,37 +51,38 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
     }, [currentFolderId, searchQuery]);
 
     useEffect(() => {
-        if (open) {
-            fetchBookmarks();
+        if (!open) return;
 
-            if (typeof chrome !== "undefined" && chrome.bookmarks) {
-                const handleChange = () => fetchBookmarks();
-                chrome.bookmarks.onCreated.addListener(handleChange);
-                chrome.bookmarks.onRemoved.addListener(handleChange);
-                chrome.bookmarks.onChanged.addListener(handleChange);
-                chrome.bookmarks.onMoved.addListener(handleChange);
+        fetchBookmarks();
 
-                return () => {
-                    chrome.bookmarks.onCreated.removeListener(handleChange);
-                    chrome.bookmarks.onRemoved.removeListener(handleChange);
-                    chrome.bookmarks.onChanged.removeListener(handleChange);
-                    chrome.bookmarks.onMoved.removeListener(handleChange);
-                };
-            }
-        }
+        if (typeof chrome === "undefined" || !chrome.bookmarks) return;
+
+        const handleChange = () => fetchBookmarks();
+        chrome.bookmarks.onCreated.addListener(handleChange);
+        chrome.bookmarks.onRemoved.addListener(handleChange);
+        chrome.bookmarks.onChanged.addListener(handleChange);
+        chrome.bookmarks.onMoved.addListener(handleChange);
+
+        return () => {
+            chrome.bookmarks.onCreated.removeListener(handleChange);
+            chrome.bookmarks.onRemoved.removeListener(handleChange);
+            chrome.bookmarks.onChanged.removeListener(handleChange);
+            chrome.bookmarks.onMoved.removeListener(handleChange);
+        };
     }, [open, fetchBookmarks]);
 
     const handleNodeClick = (node: chrome.bookmarks.BookmarkTreeNode) => {
         if (node.url) {
             window.open(node.url, "_blank");
-        } else {
-            setCurrentFolderId(node.id);
-            setPath(prev => {
-                if (currentFolderId === "0") return [{ id: node.id, title: node.title }];
-                return [...prev, { id: node.id, title: node.title }];
-            });
-            setSearchQuery("");
+            return;
         }
+
+        setCurrentFolderId(node.id);
+        setPath((prev) => {
+            if (currentFolderId === "0") return [{ id: node.id, title: node.title }];
+            return [...prev, { id: node.id, title: node.title }];
+        });
+        setSearchQuery("");
     };
 
     const goHome = () => {
@@ -90,8 +91,8 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
         setSearchQuery("");
     };
 
-    const handleRemoveClick = (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
+    const handleRemoveClick = (event: React.MouseEvent, id: string) => {
+        event.stopPropagation();
         if (confirmingId === id) {
             chrome?.bookmarks?.remove(id, () => {
                 setConfirmingId(null);
@@ -99,66 +100,68 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
             });
         } else {
             setConfirmingId(id);
-            setTimeout(() => setConfirmingId(prev => prev === id ? null : prev), 3000);
+            setTimeout(() => setConfirmingId((prev) => (prev === id ? null : prev)), 3000);
         }
     };
 
-    // ─── Sidebar items: "All" + dynamic root folders ─────────────────
     const sidebarItems = useMemo(() => {
         const items: { id: string; icon: LucideIcon; label: string }[] = [
-            { id: '0', icon: LayoutGrid, label: t('all_bookmarks') },
+            { id: "0", icon: LayoutGrid, label: t("all_bookmarks") },
         ];
-        rootFolders.forEach(folder => {
+        rootFolders.forEach((folder) => {
             items.push({ id: folder.id, icon: Folder, label: folder.title });
         });
         return items;
     }, [rootFolders, t]);
 
     const handleSidebarChange = (id: string) => {
-        if (id === '0') {
+        if (id === "0") {
             goHome();
-        } else {
-            const folder = rootFolders.find(f => f.id === id);
-            if (folder) {
-                setCurrentFolderId(folder.id);
-                setPath([{ id: folder.id, title: folder.title }]);
-                setSearchQuery("");
-            }
+            return;
         }
+
+        const folder = rootFolders.find((entry) => entry.id === id);
+        if (!folder) return;
+
+        setCurrentFolderId(folder.id);
+        setPath([{ id: folder.id, title: folder.title }]);
+        setSearchQuery("");
     };
 
-    // ─── Header: search + breadcrumb ─────────────────────────────────
-    const headerContent = (
-        <div className="flex items-center justify-center flex-1 min-w-0">
+    const topBar = (
+        <div className="flex min-h-16 items-center justify-center bg-background/64 px-4 py-3 backdrop-blur-sm sm:px-6">
             {searchQuery || path.length === 0 ? (
-                <div className="relative w-full max-w-64">
-                    <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <div className="relative w-full max-w-72">
+                    <Search
+                        size={12}
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
                     <input
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={t('search_bookmarks')}
-                        className="w-full h-7 rounded-lg bg-foreground/8 pl-7 pr-3 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none border-0 transition-colors focus:bg-foreground/12"
+                        onChange={(event) => setSearchQuery(event.target.value)}
+                        placeholder={t("search_bookmarks")}
+                        className="h-9 w-full rounded-xl bg-foreground/8 pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:bg-foreground/12"
                     />
                 </div>
             ) : (
                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
                     <button
                         onClick={goHome}
-                        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-foreground/8 transition-colors shrink-0"
+                        className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground"
                     >
                         <Home size={13} />
                     </button>
-                    {path.map((p, i) => (
-                        <React.Fragment key={p.id}>
-                            <ChevronRight size={11} className="text-muted-foreground/40 shrink-0" />
+                    {path.map((entry, index) => (
+                        <React.Fragment key={entry.id}>
+                            <ChevronRight size={11} className="shrink-0 text-muted-foreground/40" />
                             <button
                                 onClick={() => {
-                                    setPath(path.slice(0, i + 1));
-                                    setCurrentFolderId(p.id);
+                                    setPath(path.slice(0, index + 1));
+                                    setCurrentFolderId(entry.id);
                                 }}
-                                className="whitespace-nowrap rounded-md px-1.5 py-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:bg-foreground/8 transition-colors"
+                                className="whitespace-nowrap rounded-md px-1.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground"
                             >
-                                {p.title}
+                                {entry.title}
                             </button>
                         </React.Fragment>
                     ))}
@@ -168,77 +171,87 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
     );
 
     return (
-        <AppModalV1
+        <AppModalV2Sidebar
             open={open}
             onOpenChange={onOpenChange}
-            header={headerContent}
             sidebarItems={sidebarItems}
             sidebarActiveId={searchQuery ? undefined : currentFolderId}
             onSidebarChange={handleSidebarChange}
+            contentClassName="min-h-0"
         >
-            {bookmarks.length === 0 && (
-                <AppModalV1EmptyState
-                    icon={Inbox}
-                    message={searchQuery ? t('no_bookmarks_found') : t('folder_empty')}
-                />
-            )}
-
-            {bookmarks.length > 0 && (
-                <div className="flex flex-col gap-2">
-                    {bookmarks.map((node) => (
-                        <AppModalV1ListCard
-                            key={node.id}
-                            onClick={() => handleNodeClick(node)}
-                            icon={
-                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/6 overflow-hidden">
-                                    {node.url ? (
-                                        <img
-                                            src={`https://www.google.com/s2/favicons?domain=${new URL(node.url).hostname}&sz=32`}
-                                            className="w-4 h-4"
-                                            alt=""
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=example.com`;
-                                            }}
-                                        />
-                                    ) : (
-                                        <Folder size={16} className="text-foreground/65" fill="currentColor" fillOpacity={0.12} />
+            <div className="flex h-full min-h-0 flex-col">
+                {topBar}
+                <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
+                    {bookmarks.length === 0 ? (
+                        <AppModalV1EmptyState
+                            icon={Inbox}
+                            message={searchQuery ? t("no_bookmarks_found") : t("folder_empty")}
+                        />
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                            {bookmarks.map((node) => (
+                                <AppModalV1ListCard
+                                    key={node.id}
+                                    onClick={() => handleNodeClick(node)}
+                                    icon={(
+                                        <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-foreground/6">
+                                            {node.url ? (
+                                                <img
+                                                    src={`https://www.google.com/s2/favicons?domain=${new URL(node.url).hostname}&sz=32`}
+                                                    className="h-4 w-4"
+                                                    alt=""
+                                                    onError={(event) => {
+                                                        (event.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?domain=example.com";
+                                                    }}
+                                                />
+                                            ) : (
+                                                <Folder
+                                                    size={16}
+                                                    className="text-foreground/65"
+                                                    fill="currentColor"
+                                                    fillOpacity={0.12}
+                                                />
+                                            )}
+                                        </div>
                                     )}
-                                </div>
-                            }
-                            actions={
-                                <button
-                                    onClick={(e) => handleRemoveClick(e, node.id)}
-                                    className={cn(
-                                        "flex h-7 items-center justify-center rounded-lg transition-all gap-1.5",
-                                        confirmingId === node.id
-                                            ? "bg-foreground text-background px-2 shadow-lg animate-pulse"
-                                            : "w-7 text-muted-foreground/50 hover:text-foreground hover:bg-foreground/8"
+                                    actions={(
+                                        <button
+                                            onClick={(event) => handleRemoveClick(event, node.id)}
+                                            className={cn(
+                                                "flex h-7 items-center justify-center gap-1.5 rounded-lg transition-all",
+                                                confirmingId === node.id
+                                                    ? "bg-foreground px-2 text-background shadow-lg animate-pulse"
+                                                    : "w-7 text-muted-foreground/50 hover:bg-foreground/8 hover:text-foreground"
+                                            )}
+                                            title={confirmingId === node.id ? t("confirm_delete") : t("delete_bookmark")}
+                                        >
+                                            {confirmingId === node.id ? (
+                                                <>
+                                                    <AlertCircle size={12} strokeWidth={3} />
+                                                    <span className="whitespace-nowrap text-[9px] font-bold uppercase">
+                                                        {t("confirm_short")}
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <Trash2 size={14} />
+                                            )}
+                                        </button>
                                     )}
-                                    title={confirmingId === node.id ? t("confirm_delete") : t("delete_bookmark")}
                                 >
-                                    {confirmingId === node.id ? (
-                                        <>
-                                            <AlertCircle size={12} strokeWidth={3} />
-                                            <span className="text-[9px] font-bold uppercase whitespace-nowrap">{t("confirm_short")}</span>
-                                        </>
-                                    ) : (
-                                        <Trash2 size={14} />
-                                    )}
-                                </button>
-                            }
-                        >
-                            <div className="truncate text-[13px] font-bold tracking-tight text-foreground">
-                                {node.title || (node.url ? new URL(node.url).hostname : t("untitled"))}
-                            </div>
-                            {node.url && (
-                                <div className="mt-0.5 truncate text-[10px] text-muted-foreground/50">
-                                    {new URL(node.url).hostname}
-                                </div>
-                            )}
-                        </AppModalV1ListCard>
-                    ))}
+                                    <div className="truncate text-[13px] font-bold tracking-tight text-foreground">
+                                        {node.title || (node.url ? new URL(node.url).hostname : t("untitled"))}
+                                    </div>
+                                    {node.url ? (
+                                        <div className="mt-0.5 truncate text-[10px] text-muted-foreground/50">
+                                            {new URL(node.url).hostname}
+                                        </div>
+                                    ) : null}
+                                </AppModalV1ListCard>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            )}
-        </AppModalV1>
+            </div>
+        </AppModalV2Sidebar>
     );
 }

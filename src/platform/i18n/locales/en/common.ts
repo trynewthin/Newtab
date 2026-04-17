@@ -66,7 +66,6 @@
     searching: "Searching...",
     // App Names (System)
     sys_settings: "System Settings",
-    sys_ai: "AI Assistant",
     sys_downloads: "Downloads",
     sys_bookmarks: "Bookmarks",
     sys_history: "History",
@@ -96,8 +95,6 @@
     onboarding_material_frosted: "Mac Frosted",
     onboarding_home_title: "Your Home Dashboard",
     onboarding_home_desc: "Add app shortcuts and widgets to your grid. Long-press or use the edit button in the toolbar to rearrange. Drag icons together to create folders.",
-    onboarding_ai_title: "AI Search & Chat",
-    onboarding_ai_desc: "Switch the search engine to AI for intelligent search, or open the AI Assistant app for conversations. Configure your API key and model in Settings → AI Assistant.",
     onboarding_done_title: "You're All Set!",
     onboarding_done_desc: "Everything is ready. Enjoy your new tab experience.",
     onboarding_done_btn: "Get Started",
@@ -109,6 +106,6 @@
     reset_data_desc: "Clear all data and restart the onboarding wizard. This cannot be undone.",
     reset_data_btn: "Reset Everything",
     reset_data_confirm_title: "Reset All Data?",
-    reset_data_confirm_desc: "This will permanently delete all shortcuts, settings, AI history, and reload the page. Please export a backup first if needed.",
+    reset_data_confirm_desc: "This will permanently delete all shortcuts, settings, and reload the page. Please export a backup first if needed.",
     reset_data_confirm_btn: "Delete & Reset",
 };

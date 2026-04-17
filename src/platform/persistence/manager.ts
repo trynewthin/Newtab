@@ -1,4 +1,4 @@
-﻿import JSZip from "jszip";
+import JSZip from "jszip";
 import {
     clear,
     entries,
@@ -19,10 +19,10 @@ const LEGACY_IDB_FILE = "idb-kv.json";
 
 const EXPLICIT_LOCAL_STORAGE_KEYS = [
     "i18nextLng",
-    "app-ai-meta-storage",
 ];
 const DEPRECATED_LOCAL_STORAGE_KEYS = new Set([
     "paper-storage",
+    "app-ai-meta-storage",
 ]);
 
 export interface DataArchiveManifest {
@@ -331,8 +331,6 @@ function migrateBundleToSchemaV2(bundle: DataArchiveBundle): DataArchiveBundle {
     };
 }
 
-// ── Schema V3: ensure isFirstRun=false for existing users ──────────────
-
 function migrateBundleToSchemaV3(bundle: DataArchiveBundle): DataArchiveBundle {
     const localStorageData = { ...bundle.payload.localStorage };
     const appSettingsRaw = localStorageData["app-settings"];
@@ -367,8 +365,6 @@ function migrateAppSettingsPayloadToV3(raw: string): string {
 
         const nextState: Record<string, unknown> = { ...parsed.state };
 
-        // Existing users who had data before onboarding was introduced
-        // should not see the onboarding wizard after restoring a backup.
         if (nextState.isFirstRun === undefined || nextState.isFirstRun === true) {
             nextState.isFirstRun = false;
         }
@@ -381,8 +377,6 @@ function migrateAppSettingsPayloadToV3(raw: string): string {
         return raw;
     }
 }
-
-// ── Schema V2: normalize surfaceMaterial ────────────────────────────────
 
 function migrateAppSettingsPayloadToV2(raw: string): string {
     try {

@@ -1,5 +1,5 @@
-﻿import { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
-import { AppModalV1, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal/AppModalV1";
+import { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
+import { AppModalV2Sidebar, AppModalV1EmptyState, AppModalV1ListCard } from "@/platform/ui/modal";
 import {
     History,
     Trash2,
@@ -12,7 +12,7 @@ import {
     ChevronDown,
     AlertTriangle,
     Search,
-    type LucideIcon
+    type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -32,27 +32,26 @@ interface HistoryDialogProps {
     onOpenChange: (open: boolean) => void;
 }
 
-type HistoryFilter = 'all' | 'today' | 'yesterday' | 'week' | 'older';
+type HistoryFilter = "all" | "today" | "yesterday" | "week" | "older";
 
 const SIDEBAR_ITEMS: { id: HistoryFilter; icon: LucideIcon; labelKey: string }[] = [
-    { id: 'today', icon: Clock, labelKey: 'today' },
-    { id: 'yesterday', icon: Calendar, labelKey: 'yesterday' },
-    { id: 'week', icon: Filter, labelKey: 'last_7_days' },
-    { id: 'older', icon: ChevronRight, labelKey: 'older' },
-    { id: 'all', icon: History, labelKey: 'all_history' },
+    { id: "today", icon: Clock, labelKey: "today" },
+    { id: "yesterday", icon: Calendar, labelKey: "yesterday" },
+    { id: "week", icon: Filter, labelKey: "last_7_days" },
+    { id: "older", icon: ChevronRight, labelKey: "older" },
+    { id: "all", icon: History, labelKey: "all_history" },
 ];
 
 export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
     const { t } = useTranslation();
     const [historyItems, setHistoryItems] = useState<chrome.history.HistoryItem[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filter, setFilter] = useState<HistoryFilter>('all');
+    const [filter, setFilter] = useState<HistoryFilter>("all");
     const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
-
     const [displayLimit, setDisplayLimit] = useState(50);
 
-    const sidebarItems = useMemo(() =>
-        SIDEBAR_ITEMS.map(item => ({ ...item, label: t(item.labelKey) })),
+    const sidebarItems = useMemo(
+        () => SIDEBAR_ITEMS.map((item) => ({ ...item, label: t(item.labelKey) })),
         [t]
     );
     const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -60,14 +59,17 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
     const fetchHistory = useCallback(() => {
         if (typeof chrome === "undefined" || !chrome.history) return;
 
-        chrome.history.search({
-            text: deferredSearchQuery,
-            maxResults: 2000,
-            startTime: 0
-        }, (items) => {
-            setHistoryItems(items);
-            setDisplayLimit(50);
-        });
+        chrome.history.search(
+            {
+                text: deferredSearchQuery,
+                maxResults: 2000,
+                startTime: 0,
+            },
+            (items) => {
+                setHistoryItems(items);
+                setDisplayLimit(50);
+            }
+        );
     }, [deferredSearchQuery]);
 
     useEffect(() => {
@@ -89,7 +91,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
         });
     };
 
-    const loadMore = () => setDisplayLimit(prev => prev + 100);
+    const loadMore = () => setDisplayLimit((prev) => prev + 100);
 
     const groupedHistory = useMemo(() => {
         const groups: { [key: string]: chrome.history.HistoryItem[] } = {};
@@ -100,23 +102,23 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
         yesterday.setDate(now.getDate() - 1);
         const yesterdayStr = yesterday.toLocaleDateString();
 
-        if (!deferredSearchQuery && (filter === 'all' || filter === 'today')) {
-            groups[t('today')] = [];
+        if (!deferredSearchQuery && (filter === "all" || filter === "today")) {
+            groups[t("today")] = [];
         }
 
-        const filtered = historyItems.filter(item => {
+        const filtered = historyItems.filter((item) => {
             if (!item.lastVisitTime) return false;
             const date = new Date(item.lastVisitTime);
             const dateStr = date.toLocaleDateString();
 
-            if (filter === 'today' && dateStr !== todayStr) return false;
-            if (filter === 'yesterday' && dateStr !== yesterdayStr) return false;
-            if (filter === 'week') {
+            if (filter === "today" && dateStr !== todayStr) return false;
+            if (filter === "yesterday" && dateStr !== yesterdayStr) return false;
+            if (filter === "week") {
                 const weekAgo = new Date();
                 weekAgo.setDate(now.getDate() - 7);
                 if (date < weekAgo) return false;
             }
-            if (filter === 'older') {
+            if (filter === "older") {
                 const weekAgo = new Date();
                 weekAgo.setDate(now.getDate() - 7);
                 if (date >= weekAgo) return false;
@@ -126,13 +128,13 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
 
         const pagedItems = filtered.slice(0, displayLimit);
 
-        pagedItems.forEach(item => {
+        pagedItems.forEach((item) => {
             const date = new Date(item.lastVisitTime!);
             const dateStr = date.toLocaleDateString();
 
             let displayDate = dateStr;
-            if (dateStr === todayStr) displayDate = t('today');
-            else if (dateStr === yesterdayStr) displayDate = t('yesterday');
+            if (dateStr === todayStr) displayDate = t("today");
+            else if (dateStr === yesterdayStr) displayDate = t("yesterday");
 
             if (!groups[displayDate]) {
                 groups[displayDate] = [];
@@ -140,152 +142,168 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
             groups[displayDate].push(item);
         });
 
-        return Object.keys(groups).map(date => ({
-            date,
-            items: groups[date]
-        })).sort((a, b) => {
-            if (a.date === t('today')) return -1;
-            if (b.date === t('today')) return 1;
-            if (a.date === t('yesterday')) return -1;
-            if (b.date === t('yesterday')) return 1;
+        return Object.keys(groups)
+            .map((date) => ({
+                date,
+                items: groups[date],
+            }))
+            .sort((a, b) => {
+                if (a.date === t("today")) return -1;
+                if (b.date === t("today")) return 1;
+                if (a.date === t("yesterday")) return -1;
+                if (b.date === t("yesterday")) return 1;
 
-            const timeA = a.items[0]?.lastVisitTime || 0;
-            const timeB = b.items[0]?.lastVisitTime || 0;
-            return timeB - timeA;
-        });
+                const timeA = a.items[0]?.lastVisitTime || 0;
+                const timeB = b.items[0]?.lastVisitTime || 0;
+                return timeB - timeA;
+            });
     }, [historyItems, filter, t, deferredSearchQuery, displayLimit]);
 
     const getFavicon = (url: string) => {
         try {
             return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`;
         } catch {
-            return '';
+            return "";
         }
     };
 
-    // ─── Header: centered search ─────────────────────────────────────
-    const headerContent = (
-        <div className="flex items-center justify-center flex-1 min-w-0">
-            <div className="relative w-full max-w-64">
-                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t('search_history')}
-                    className="w-full h-7 rounded-lg bg-foreground/8 pl-7 pr-3 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none border-0 transition-colors focus:bg-foreground/12"
-                />
+    const totalFiltered = groupedHistory.reduce((sum, group) => sum + group.items.length, 0);
+
+    const topBar = (
+        <div className="flex min-h-16 items-center gap-3 bg-background/64 px-4 py-3 backdrop-blur-sm sm:px-6">
+            <div className="h-8 w-8 shrink-0" />
+            <div className="flex flex-1 justify-center">
+                <div className="relative w-full max-w-72">
+                    <Search
+                        size={12}
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <input
+                        value={searchQuery}
+                        onChange={(event) => setSearchQuery(event.target.value)}
+                        placeholder={t("search_history")}
+                        className="h-9 w-full rounded-xl bg-foreground/8 pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:bg-foreground/12"
+                    />
+                </div>
             </div>
+            <button
+                type="button"
+                onClick={() => setIsClearConfirmOpen(true)}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-rose-500/10 hover:text-rose-500"
+                title={t("clear_history")}
+            >
+                <Trash2 size={13} strokeWidth={2.5} />
+            </button>
         </div>
     );
 
-    const totalFiltered = groupedHistory.reduce((sum, g) => sum + g.items.length, 0);
-
     return (
         <>
-            <AppModalV1
+            <AppModalV2Sidebar
                 open={open}
                 onOpenChange={onOpenChange}
-                header={headerContent}
-                headerActions={
-                    <button
-                        type="button"
-                        onClick={() => setIsClearConfirmOpen(true)}
-                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
-                        title={t('clear_history')}
-                    >
-                        <Trash2 size={13} strokeWidth={2.5} />
-                    </button>
-                }
                 sidebarItems={sidebarItems}
                 sidebarActiveId={filter}
                 onSidebarChange={(id) => setFilter(id as HistoryFilter)}
+                contentClassName="min-h-0"
             >
-                {totalFiltered === 0 && (
-                    <AppModalV1EmptyState
-                        icon={SearchX}
-                        message={searchQuery ? t('no_history_found') : t('no_history')}
-                    />
-                )}
-
-                {totalFiltered > 0 && (
-                    <div className="flex flex-col gap-6">
-                        {groupedHistory.map((group) => (
-                            <div key={group.date} className="flex flex-col gap-2">
-                                <div className="flex items-center gap-3 px-1">
-                                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
-                                        {group.date}
-                                    </h3>
-                                    <div className="h-px flex-1 bg-linear-to-r from-border/50 to-transparent" />
-                                    <span className="text-[10px] font-bold text-muted-foreground/30 tabular-nums">
-                                        {group.items.length}
-                                    </span>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    {group.items.map((item) => (
-                                        <AppModalV1ListCard
-                                            key={item.id + (item.lastVisitTime || 0)}
-                                            onClick={() => window.open(item.url, '_blank')}
-                                            icon={
-                                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/6 overflow-hidden">
-                                                    <img
-                                                        src={getFavicon(item.url || '')}
-                                                        alt=""
-                                                        className="w-4 h-4 opacity-80 group-hover:opacity-100 transition-opacity"
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="%23eee"/></svg>';
-                                                        }}
-                                                    />
-                                                </div>
-                                            }
-                                            actions={
-                                                <div className="flex items-center gap-1">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDelete(item.url!);
-                                                        }}
-                                                        className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/8 hover:text-foreground transition-all"
-                                                        title={t("remove_from_history")}
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                    <div className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground/50">
-                                                        <ExternalLink size={12} />
+                <div className="flex h-full min-h-0 flex-col">
+                    {topBar}
+                    <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
+                        {totalFiltered === 0 ? (
+                            <AppModalV1EmptyState
+                                icon={SearchX}
+                                message={searchQuery ? t("no_history_found") : t("no_history")}
+                            />
+                        ) : (
+                            <div className="flex flex-col gap-6">
+                                {groupedHistory.map((group) => (
+                                    <div key={group.date} className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-3 px-1">
+                                            <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                                                {group.date}
+                                            </h3>
+                                            <div className="h-px flex-1 bg-linear-to-r from-border/50 to-transparent" />
+                                            <span className="tabular-nums text-[10px] font-bold text-muted-foreground/30">
+                                                {group.items.length}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            {group.items.map((item) => (
+                                                <AppModalV1ListCard
+                                                    key={item.id + (item.lastVisitTime || 0)}
+                                                    onClick={() => window.open(item.url, "_blank")}
+                                                    icon={(
+                                                        <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-foreground/6">
+                                                            <img
+                                                                src={getFavicon(item.url || "")}
+                                                                alt=""
+                                                                className="h-4 w-4 opacity-80 transition-opacity group-hover:opacity-100"
+                                                                onError={(event) => {
+                                                                    (event.target as HTMLImageElement).src = "data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\"><rect width=\"20\" height=\"20\" fill=\"%23eee\"/></svg>";
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    actions={(
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
+                                                                    handleDelete(item.url!);
+                                                                }}
+                                                                className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
+                                                                title={t("remove_from_history")}
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/50">
+                                                                <ExternalLink size={12} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                >
+                                                    <div className="truncate text-[13px] font-bold tracking-tight text-foreground">
+                                                        {item.title || item.url}
                                                     </div>
-                                                </div>
-                                            }
-                                        >
-                                            <div className="truncate text-[13px] font-bold tracking-tight text-foreground">
-                                                {item.title || item.url}
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-[10px] text-muted-foreground/50 font-medium truncate max-w-xs">
-                                                    {item.url}
-                                                </span>
-                                                <span className="text-[10px] text-muted-foreground/30 ml-auto tabular-nums shrink-0">
-                                                    {new Date(item.lastVisitTime || 0).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </span>
-                                            </div>
-                                        </AppModalV1ListCard>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
+                                                    <div className="mt-0.5 flex items-center gap-2">
+                                                        <span className="max-w-xs truncate text-[10px] font-medium text-muted-foreground/50">
+                                                            {item.url}
+                                                        </span>
+                                                        <span className="ml-auto shrink-0 tabular-nums text-[10px] text-muted-foreground/30">
+                                                            {new Date(item.lastVisitTime || 0).toLocaleTimeString([], {
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                </AppModalV1ListCard>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
 
-                        {historyItems.length > displayLimit && (
-                            <div className="flex justify-center py-2">
-                                <button
-                                    onClick={loadMore}
-                                    className="group flex items-center gap-2 rounded-xl px-6 py-2 text-muted-foreground transition-all hover:bg-foreground/6 hover:text-foreground active:scale-95"
-                                >
-                                    <span className="text-[10px] font-black uppercase tracking-widest">{t('more')}</span>
-                                    <ChevronDown size={13} className="group-hover:translate-y-0.5 transition-transform" />
-                                </button>
+                                {historyItems.length > displayLimit ? (
+                                    <div className="flex justify-center py-2">
+                                        <button
+                                            onClick={loadMore}
+                                            className="group flex items-center gap-2 rounded-xl px-6 py-2 text-muted-foreground transition-all hover:bg-foreground/6 hover:text-foreground active:scale-95"
+                                        >
+                                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                                {t("more")}
+                                            </span>
+                                            <ChevronDown
+                                                size={13}
+                                                className="transition-transform group-hover:translate-y-0.5"
+                                            />
+                                        </button>
+                                    </div>
+                                ) : null}
                             </div>
                         )}
                     </div>
-                )}
-            </AppModalV1>
+                </div>
+            </AppModalV2Sidebar>
 
             <AlertDialog open={isClearConfirmOpen} onOpenChange={setIsClearConfirmOpen}>
                 <AlertDialogContent>
@@ -294,21 +312,21 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                             <AlertTriangle />
                         </AlertDialogMedia>
                         <AlertDialogTitle>
-                            {t('clear_history')}
+                            {t("clear_history")}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            {t('clear_history_confirm_desc')}
+                            {t("clear_history_confirm_desc")}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>
-                            {t('cancel')}
+                            {t("cancel")}
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleClearAll}
                             className="bg-foreground text-background hover:bg-foreground/90"
                         >
-                            {t('confirm_delete')}
+                            {t("confirm_delete")}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

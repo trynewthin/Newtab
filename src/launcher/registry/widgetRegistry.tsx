@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import type { WidgetManifest } from "@/shared/types";
 import {
     type SystemAppId,
@@ -8,7 +9,6 @@ import {
     DayProgressRenderer,
     WeekProgressRenderer,
 } from "@/launcher/ui/widgets/timeWidgets";
-import { AppShortcutWidgetRenderer } from "@/launcher/ui/widgets/widgetFrames";
 
 export type SystemWidgetManifestItem = Omit<
     WidgetManifest,
@@ -55,19 +55,6 @@ export const SYSTEM_WIDGET_MANIFEST: readonly SystemWidgetManifestItem[] = [
         supportedPresets: ["2x1", "1x2"],
         renderer: WeekProgressRenderer,
     },
-    {
-        id: "ai-assistant-panel",
-        title: "widget_ai_assistant_panel",
-        icon: "Sparkles",
-        ownerAppId: "ai",
-        launchAppId: "ai",
-        variant: "panel",
-        draggable: true,
-        resizable: false,
-        defaultPreset: "2x2",
-        supportedPresets: ["2x1", "1x2", "2x2", "2x4"],
-        renderer: AppShortcutWidgetRenderer,
-    },
 ] as const;
 
 type WidgetManifestItem = (typeof SYSTEM_WIDGET_MANIFEST)[number];
@@ -105,8 +92,6 @@ export function resolveLegacyWidgetId(appId: string): SystemWidgetId | null {
     }
 
     switch (appId) {
-        case "ai":
-            return "ai-assistant-panel";
         default:
             return null;
     }

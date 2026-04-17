@@ -73,13 +73,13 @@ export function AppModalV2Sidebar({
                             title={collapsed ? item.label : undefined}
                             onClick={() => handleSidebarItemSelect(item.id)}
                             className={cn(
-                                "group/item flex w-full items-center rounded-xl border border-transparent px-2.5 py-2 text-left transition-all duration-200",
+                                "group/item flex w-full items-center border border-transparent px-2.5 py-2 text-left transition-all duration-200",
                                 isActive
                                     ? "bg-foreground text-background shadow-sm"
                                     : "text-foreground/72 hover:bg-foreground/8 hover:text-foreground",
                                 collapsed
-                                    ? "justify-center"
-                                    : "gap-2.5"
+                                    ? "h-10 w-10 rounded-full justify-center px-0 py-0 mx-auto"
+                                    : "rounded-xl gap-2.5"
                             )}
                         >
                             {Icon ? (
@@ -108,7 +108,7 @@ export function AppModalV2Sidebar({
                 })}
             </div>
             {sidebarFooter ? (
-                <div className="mt-3 border-t border-border/70 pt-3">
+                <div className="mt-3 pt-3">
                     {sidebarFooter}
                 </div>
             ) : null}
@@ -118,16 +118,18 @@ export function AppModalV2Sidebar({
     const desktopSidebar = (
         <aside
             className={cn(
-                "hidden h-full shrink-0 border-r border-border/70 bg-background/76 backdrop-blur-xl sm:flex sm:flex-col",
+                "hidden h-full shrink-0 bg-foreground/[0.04] backdrop-blur-xl sm:flex sm:flex-col",
                 sidebarCollapsed ? "sm:w-[4.75rem]" : "sm:w-[16rem]",
                 sidebarClassName,
             )}
         >
             <div className={cn(
-                "flex items-center gap-2 border-b border-border/70 p-3",
+                "flex items-center gap-2 p-3",
                 sidebarCollapsed && "justify-center"
             )}>
-                <AppModalV2CloseButton label={closeButtonLabel} />
+                {!sidebarCollapsed ? (
+                    <AppModalV2CloseButton label={closeButtonLabel} />
+                ) : null}
                 <button
                     type="button"
                     aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -154,7 +156,7 @@ export function AppModalV2Sidebar({
     const contentLayer = (
         <div className="flex h-full min-h-0 w-full">
             {desktopSidebar}
-            <section className={cn("min-w-0 flex-1", contentClassName)}>
+            <section className={cn("min-w-0 flex-1 bg-background/92", contentClassName)}>
                 {children}
             </section>
         </div>
@@ -188,12 +190,12 @@ export function AppModalV2Sidebar({
 
                     <div
                         className={cn(
-                            "absolute inset-y-0 left-0 w-[min(18rem,88vw)] border-r border-border/70 bg-background/88 backdrop-blur-2xl",
+                            "absolute inset-y-0 left-0 w-[min(18rem,88vw)] bg-foreground/[0.06] backdrop-blur-2xl",
                             "shadow-[0_30px_80px_rgba(0,0,0,0.22)]"
                         )}
                     >
                         <div className="flex h-full min-h-0 flex-col">
-                            <div className="flex items-center gap-2 border-b border-border/70 p-3">
+                            <div className="flex items-center gap-2 p-3">
                                 <AppModalV2CloseButton label={closeButtonLabel} />
                                 <button
                                     type="button"

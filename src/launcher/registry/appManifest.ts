@@ -5,7 +5,6 @@ import type {
     AppLauncherLayoutConfig,
 } from "@/shared/types";
 import { settingsManifest } from "@/apps/settings/manifest";
-import { aiCompanionManifest } from "@/apps/ai-companion/manifest";
 import { downloadsManifest } from "@/apps/downloads/manifest";
 import { bookmarksManifest } from "@/apps/bookmarks/manifest";
 import { historyManifest } from "@/apps/history/manifest";
@@ -19,7 +18,6 @@ export type {
 
 export const SYSTEM_APP_MANIFEST: readonly AppManifest[] = [
     settingsManifest,
-    aiCompanionManifest,
     downloadsManifest,
     bookmarksManifest,
     historyManifest,

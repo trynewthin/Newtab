@@ -5,8 +5,8 @@ import { useSettingsStore } from "@/apps/settings";
 import { persistenceManager } from "@/platform/persistence/manager";
 import { cn } from "@/shared/utils";
 import {
-    Sparkles, Upload, Globe, Layers, MessageSquare,
-    Search, Rocket, ArrowRight, ArrowLeft, Check,
+    Sparkles, Upload, Globe, Layers,
+    Rocket, ArrowRight, ArrowLeft, Check,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -15,7 +15,7 @@ interface OnboardingDialogProps {
     onOpenChange: (open: boolean) => void;
 }
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 4;
 
 export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) {
     const { t, i18n } = useTranslation();
@@ -189,7 +189,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                     { icon: "📁", label: t("bookmarks") },
                     { icon: "⬇️", label: t("downloads") },
                     { icon: "⚙️", label: t("settings") },
-                    { icon: "🤖", label: "AI" },
                     { icon: "📦", label: t("sys_component_market") },
                 ].map((item) => (
                     <div key={item.label} className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-foreground/4">
@@ -197,29 +196,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                         <span className="text-[10px] font-medium text-muted-foreground truncate w-full">{item.label}</span>
                     </div>
                 ))}
-            </div>
-
-        </div>,
-
-        <div key="ai" className="flex flex-col items-center text-center gap-6 py-8 px-4">
-            <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center">
-                <MessageSquare size={32} className="text-purple-500" />
-            </div>
-            <div className="space-y-2 max-w-sm">
-                <h2 className="text-2xl font-bold tracking-tight">{t("onboarding_ai_title")}</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t("onboarding_ai_desc")}</p>
-            </div>
-            <div className="flex gap-4 pt-4 max-w-xs w-full">
-                <div className="flex-1 flex flex-col items-center gap-2 p-4 rounded-xl bg-foreground/4">
-                    <Search size={24} className="text-foreground/60" />
-                    <span className="text-xs font-semibold">AI Search</span>
-                    <span className="text-[10px] text-muted-foreground">{t("search_engine")}</span>
-                </div>
-                <div className="flex-1 flex flex-col items-center gap-2 p-4 rounded-xl bg-foreground/4">
-                    <MessageSquare size={24} className="text-foreground/60" />
-                    <span className="text-xs font-semibold">AI Chat</span>
-                    <span className="text-[10px] text-muted-foreground">{t("sys_ai")}</span>
-                </div>
             </div>
 
         </div>,
@@ -297,7 +273,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
         <AppModalV2
             open={open}
             onOpenChange={() => {/* prevent close by backdrop */}}
-            className="sm:top-0 sm:left-0 sm:h-screen sm:w-screen sm:max-h-none sm:max-w-none sm:translate-x-0 sm:translate-y-0"
             containerClassName="bg-background shadow-none sm:rounded-none"
             contentLayer={contentLayer}
             floatLayer={floatLayer}

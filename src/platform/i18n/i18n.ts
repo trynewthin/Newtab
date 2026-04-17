@@ -1,6 +1,6 @@
-﻿import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
 type SupportedLang = "en" | "zh";
 
@@ -11,14 +11,12 @@ const languageLoaders = {
         import("./locales/en/common"),
         import("./locales/en/settings"),
         import("./locales/en/appearance"),
-        import("./locales/en/ai"),
         import("./locales/en/tools"),
     ]),
     zh: () => Promise.all([
         import("./locales/zh/common"),
         import("./locales/zh/settings"),
         import("./locales/zh/appearance"),
-        import("./locales/zh/ai"),
         import("./locales/zh/tools"),
     ]),
 } as const;
@@ -31,13 +29,12 @@ const normalizeLanguage = (lang?: string | null): SupportedLang => {
 async function loadLanguageResources(lang: SupportedLang) {
     if (loadedLanguages.has(lang)) return;
 
-    const [common, settings, appearance, ai, tools] = await languageLoaders[lang]();
+    const [common, settings, appearance, tools] = await languageLoaders[lang]();
 
     const messages = {
         ...common.common,
         ...settings.settings,
         ...appearance.appearance,
-        ...ai.ai,
         ...tools.tools,
     };
 
@@ -56,7 +53,7 @@ i18n
     .init({
         resources: {},
         lng: initialLanguage,
-        fallbackLng: 'zh',
+        fallbackLng: "zh",
         debug: false,
         interpolation: {
             escapeValue: false,

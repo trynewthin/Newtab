@@ -19,7 +19,7 @@
     engine_url_placeholder: "https://www.google.com/search?q=%s",
     custom_engines: "Custom Search Engines",
     data_management: "Full Data Management",
-    data_management_desc: "Backup and restore all your tags, todos, settings, and AI history in a compressed (.ntb) format.",
+    data_management_desc: "Backup and restore all your tags, todos, and settings in a compressed (.ntb) format.",
     export: "Export Backup",
     import: "Import Backup",
     restore_strategy_direct: "Direct restore",

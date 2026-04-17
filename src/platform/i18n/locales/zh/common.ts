@@ -66,7 +66,6 @@
     searching: "搜索中...",
     // App Names (System)
     sys_settings: "全局设置",
-    sys_ai: "AI 助手",
     sys_downloads: "下载管理",
     sys_bookmarks: "书签管理",
     sys_history: "历史记录",
@@ -96,8 +95,6 @@
     onboarding_material_frosted: "Mac 磨砂",
     onboarding_home_title: "主页面板",
     onboarding_home_desc: "在网格中添加应用快捷方式和小组件。长按或使用工具栏的编辑按钮来重新排列，拖拽图标到一起可以创建文件夹。",
-    onboarding_ai_title: "AI 搜索与聊天",
-    onboarding_ai_desc: "将搜索引擎切换为 AI 即可进行智能搜索，或打开 AI 助手应用进行对话。在 设置 → AI 助手 中配置你的 API Key 和模型。",
     onboarding_done_title: "一切就绪！",
     onboarding_done_desc: "所有设置已完成，开始享受你的新标签页体验吧。",
     onboarding_done_btn: "开始使用",
@@ -109,6 +106,6 @@
     reset_data_desc: "清除所有数据并重新启动初始化向导。此操作不可撤销。",
     reset_data_btn: "重置所有数据",
     reset_data_confirm_title: "确认重置所有数据？",
-    reset_data_confirm_desc: "这将永久删除所有快捷方式、设置、AI 历史记录，并重新加载页面。如有需要，请先导出备份。",
+    reset_data_confirm_desc: "这将永久删除所有快捷方式、设置，并重新加载页面。如有需要，请先导出备份。",
     reset_data_confirm_btn: "删除并重置",
 };

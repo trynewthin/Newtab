@@ -10,7 +10,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import { useAiStore } from '@/apps/ai-companion/store';
+import { useAiStore } from '@/apps/ai-companion';
 import type { SearchResultCard, AiSearchStatus, AiSearchResponse, IntentAnalysis } from '../types';
 import { performWebSearch, resultsToCards } from '../services/searchService';
 import { useTranslation } from 'react-i18next';
@@ -68,7 +68,7 @@ export function useAiSearch() {
                 setStatus('searching');
                 const searchQueries = intent.queries.slice(0, 3); // Max 3 queries
 
-                let allMergedResults: any[] = [];
+                const allMergedResults: Awaited<ReturnType<typeof performWebSearch>> = [];
 
                 for (const q of searchQueries) {
                     if (controller.signal.aborted) break;
@@ -148,11 +148,11 @@ export function useAiSearch() {
             setStatus('complete');
             setProgressMessage('');
 
-        } catch (e: any) {
-            if (e.name === 'AbortError') return;
+        } catch (e: unknown) {
+            if (e instanceof Error && e.name === 'AbortError') return;
             console.error('[AI Search] Error:', e);
             setStatus('error');
-            setError(e.message || t('search_failed_general'));
+            setError(e instanceof Error ? e.message : t('search_failed_general'));
             setProgressMessage('');
         }
     }, [getActiveSearchModelConfig, enabledSearchProviders, t]);
@@ -306,7 +306,7 @@ async function generateResponse(
         minute: '2-digit'
     });
 
-    let systemPrompt = `You are a helpful AI assistant.
+    const systemPrompt = `You are a helpful AI assistant.
 CURRENT DATE/TIME: ${currentDate}
 
 # Guidelines

@@ -1,4 +1,4 @@
-import { useSettingsStore } from "@/apps/settings/store";
+import { useSettingsStore } from "@/apps/settings";
 import { useItemStore } from "@/launcher/store/item";
 import { storageRegistry } from "./registry";
 

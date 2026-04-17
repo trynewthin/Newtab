@@ -5,7 +5,7 @@ import { useUIStore } from "@/launcher/store/ui.store";
 import { useSystemDialogRouter } from "@/launcher/store/useSystemDialogRouter";
 import { warmupModalRuntimes } from "@/launcher/runtime/appRuntimeRegistry";
 import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
-import { useSettingsStore } from "@/apps/settings/store";
+import { useSettingsStore } from "@/apps/settings";
 
 const HomeTools = lazy(() =>
     import("@/launcher/ui/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
@@ -22,20 +22,14 @@ export function DashboardView() {
     useSystemDialogRouter();
 
     const [showTools, setShowTools] = useState(false);
-    const [showOnboarding, setShowOnboarding] = useState(false);
     const [supportsHoverReveal, setSupportsHoverReveal] = useState(false);
     const [isNearTop, setIsNearTop] = useState(false);
     const [isToolbarHovered, setIsToolbarHovered] = useState(false);
 
     const isFirstRun = useSettingsStore((state) => state.isFirstRun);
+    const showOnboarding = isFirstRun;
     const isModalVisible = useUIStore((state) => state.activeSystemDialog !== null);
     const isFolderPreviewVisible = useUIStore((state) => state.isFolderPreviewVisible);
-
-    useEffect(() => {
-        if (isFirstRun) {
-            setShowOnboarding(true);
-        }
-    }, [isFirstRun]);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -186,7 +180,7 @@ export function DashboardView() {
 
             {showOnboarding && (
                 <Suspense fallback={null}>
-                    <OnboardingDialog open={showOnboarding} onOpenChange={setShowOnboarding} />
+                    <OnboardingDialog open={showOnboarding} onOpenChange={() => {}} />
                 </Suspense>
             )}
         </div>

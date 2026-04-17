@@ -1,7 +1,7 @@
 ﻿import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppModalV1 } from "@/platform/ui/modal/AppModalV1";
-import { useSettingsStore } from "@/apps/settings/store";
+import { useSettingsStore } from "@/apps/settings";
 import { persistenceManager } from "@/platform/persistence/manager";
 import { cn } from "@/shared/utils";
 import {

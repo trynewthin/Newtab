@@ -1,6 +1,6 @@
 ﻿import { useEffect, useLayoutEffect } from "react";
 import { useStorageConnection } from "@/platform/persistence/sync";
-import { useSettingsStore } from "@/apps/settings/store";
+import { useSettingsStore } from "@/apps/settings";
 import { AppRouter } from "./AppRouter";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { FloatLayer } from "./layers/FloatLayer";

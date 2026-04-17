@@ -1,5 +1,5 @@
 ﻿import type React from "react";
-import { useSettingsStore } from "@/apps/settings/store";
+import { useSettingsStore } from "@/apps/settings";
 import type { GlassSurfaceProps } from "@/platform/ui/effects/GlassSurface";
 import {
     type AppSurfaceMaterial,

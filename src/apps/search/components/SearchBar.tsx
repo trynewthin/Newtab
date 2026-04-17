@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef } from "react";
 import { Search, Sparkles, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useSettingsStore } from "@/apps/settings/store";
+import { useSettingsStore } from "@/apps/settings";
 import { cn } from "@/shared/utils";
 import { useTranslation } from "react-i18next";
 import { SEARCH_ENGINES } from "@/shared/constants";

@@ -3,7 +3,7 @@ import { useItemStore } from "@/launcher/store/item";
 import { Edit2, FolderPlus, Trash2, LayoutGrid, Sun, Moon, Store } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { useState } from "react";
-import { useSettingsStore } from "@/apps/settings/store";
+import { useSettingsStore } from "@/apps/settings";
 import { useTranslation } from "react-i18next";
 import AppSurface from "@/platform/ui/surface/AppSurface";
 import {

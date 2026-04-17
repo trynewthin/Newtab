@@ -1,4 +1,4 @@
-﻿import { useItemStore } from "@/launcher/store/item";
+import { useItemStore } from "@/launcher/store";
 import { cn } from "@/shared/utils";
 import { SYSTEM_ITEMS, ItemIcon } from "@/launcher";
 
@@ -88,4 +88,3 @@ export function IconManagerTab() {
         </div>
     );
 }
-

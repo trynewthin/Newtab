@@ -7,7 +7,7 @@ import { FloatLayer } from "./layers/FloatLayer";
 import { ModalLayer } from "./layers/ModalLayer";
 import { Toaster } from "@/components/ui/sonner";
 import { HashRouter } from "react-router-dom";
-import { useUIStore } from "@/launcher/store/ui.store";
+import { useUIStore } from "@/launcher/store";
 import { cn } from "@/shared/utils";
 import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 

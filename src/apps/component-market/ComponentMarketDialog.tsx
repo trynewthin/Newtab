@@ -1,7 +1,7 @@
-﻿import { useState } from "react";
-import { useItemStore } from "@/launcher/store/item";
+import { useState } from "react";
+import { useItemStore, type NewItemInput } from "@/launcher/store";
 import type { SystemWidgetManifestItem } from "@/launcher/registry";
-import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout/layoutPresets";
+import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout";
 import { AppModalV1 } from "@/platform/ui/modal/AppModalV1";
 import { MarketTabBar, type MarketTab } from "./components/MarketTabBar";
 import { AppIconGrid } from "./components/AppIconGrid";
@@ -18,14 +18,15 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
 
     const handleAddWidget = (widget: SystemWidgetManifestItem, preset: GridPresetKey) => {
         const size = GRID_ITEM_PRESETS[preset];
-        addItem({
+        const newItem: NewItemInput = {
             title: widget.title,
             widgetId: widget.id,
             ownerAppId: widget.ownerAppId,
             icon: widget.icon,
             w: size.w,
             h: size.h,
-        } as any);
+        };
+        addItem(newItem);
         onOpenChange(false);
     };
 

@@ -1,42 +1,43 @@
-﻿import { useTranslation } from "react-i18next";
-import { useItemStore } from "@/launcher/store/item";
+import { useTranslation } from "react-i18next";
+import { useItemStore, type NewItemInput } from "@/launcher/store";
 import {
     ENABLED_SYSTEM_APP_MANIFEST,
     type SystemAppManifestItem,
-} from "@/launcher/registry/appManifest";
+} from "@/launcher/registry";
 import { Check } from "lucide-react";
 import { cn } from "@/shared/utils";
-import { ItemIcon } from "@/launcher/ui/components/ItemIcon";
+import { ItemIcon } from "@/launcher";
 
 export function AppIconGrid() {
     const { t } = useTranslation();
     const { items, addItem, removeItem } = useItemStore();
+    type AddedAppItem = Extract<(typeof items)[number], { kind: "app" }>;
 
     const addedAppIds = new Set(
         items
-            .filter((item): item is import("@/launcher/model/itemTypes").SystemAppItem => item.kind === "app")
+            .filter((item): item is AddedAppItem => item.kind === "app")
             .map((item) => item.appId)
     );
 
     const handleToggleAppIcon = (app: SystemAppManifestItem) => {
         if (addedAppIds.has(app.id)) {
             const existing = items.find(
-                (item) => item.kind === "app" && (item as import("@/launcher/model/itemTypes").SystemAppItem).appId === app.id
+                (item): item is AddedAppItem => item.kind === "app" && item.appId === app.id
             );
             if (existing) removeItem(existing.id);
         } else {
-            addItem({
+            const newItem: NewItemInput = {
                 title: app.title,
                 appId: app.id,
                 icon: app.icon,
-            } as any);
+            };
+            addItem(newItem);
         }
     };
 
-    // Group apps by category
     const appsByCategory = new Map<string, SystemAppManifestItem[]>();
     for (const app of ENABLED_SYSTEM_APP_MANIFEST) {
-        const cat = (app as SystemAppManifestItem).category ?? "other";
+        const cat = app.category ?? "other";
         if (!appsByCategory.has(cat)) appsByCategory.set(cat, []);
         appsByCategory.get(cat)!.push(app);
     }

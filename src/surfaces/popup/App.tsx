@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useMemo } from "react";
-import { useItemStore } from "@/launcher/store/item";
+import { useItemStore } from "@/launcher/store";
 import { useSettingsStore } from "@/apps/settings";
 import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/launcher";

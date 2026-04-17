@@ -1,7 +1,7 @@
 ﻿import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { cn } from "@/shared/utils";
-import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout/layoutPresets";
+import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout";
 import type { SystemWidgetManifestItem } from "@/launcher/registry";
 import type { LauncherWidgetItem } from "@/launcher/model/itemTypes";
 

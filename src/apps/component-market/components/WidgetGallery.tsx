@@ -5,7 +5,7 @@ import {
     getWidgetsByCollection,
     type SystemWidgetManifestItem,
 } from "@/launcher/registry";
-import type { GridPresetKey } from "@/launcher/layout/layoutPresets";
+import type { GridPresetKey } from "@/launcher/layout";
 import { WidgetPreviewCard } from "./WidgetPreviewCard";
 
 interface WidgetGalleryProps {

@@ -1,9 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { AppGrid } from "@/launcher";
 import { cn } from "@/shared/utils";
-import { useUIStore } from "@/launcher/store/ui.store";
-import { useSystemDialogRouter } from "@/launcher/store/useSystemDialogRouter";
-import { warmupModalRuntimes } from "@/launcher/runtime/appRuntimeRegistry";
+import { useUIStore, useSystemDialogRouter } from "@/launcher/store";
+import { warmupModalRuntimes } from "@/launcher/runtime";
 import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 import { useSettingsStore } from "@/apps/settings";
 

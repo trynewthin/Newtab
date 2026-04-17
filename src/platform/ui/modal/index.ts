@@ -1,1 +1,6 @@
-﻿export * from "./AppModalV1"
+export * from "./AppModalV1"
+export * from "./AppModalLoadingFallback"
+export * from "./AppModalV2"
+export * from "./AppModalV2CloseButton"
+export * from "./AppModalV2Closable"
+export * from "./AppModalV2Sidebar"

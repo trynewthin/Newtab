@@ -1,5 +1,13 @@
-﻿import { Suspense, useEffect, useMemo, useState } from "react";
+import {
+    createElement,
+    startTransition,
+    Suspense,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import { ShortcutDialog } from "@/launcher/ui/dialogs/ShortcutDialog";
+import { AppModalLoadingFallback } from "@/platform/ui/modal";
 import type { SystemType, SystemAppId } from "@/launcher/registry/appManifest";
 import { ENABLED_SYSTEM_APP_IDS, getAppSurfaceFramePreset } from "@/launcher/registry/appManifest";
 import { getModalRenderer, resolveModalRuntimeAppId } from "@/launcher/runtime/appRuntimeRegistry";
@@ -28,7 +36,7 @@ interface SystemModalRuntimeProps {
 
 function SystemModalRuntime({ appId, open, onOpenChange }: SystemModalRuntimeProps) {
     const { launchToSurface } = useAppLauncher();
-    const Dialog = getModalRenderer(appId);
+    const dialogRenderer = getModalRenderer(appId);
 
     const bridge = useMemo(() => createAppSurfaceBridge(
         appId,
@@ -37,24 +45,24 @@ function SystemModalRuntime({ appId, open, onOpenChange }: SystemModalRuntimePro
         () => onOpenChange(false)
     ), [appId, launchToSurface, onOpenChange]);
 
-    if (!Dialog) return null;
+    if (!dialogRenderer) return null;
 
     return (
         <AppSurfaceBridgeProvider value={bridge}>
-            <Dialog
-                open={open}
-                onOpenChange={onOpenChange}
-                appId={appId}
-                framePreset={getAppSurfaceFramePreset(appId, "modal")}
-            />
+            {createElement(dialogRenderer, {
+                open,
+                onOpenChange,
+                appId,
+                framePreset: getAppSurfaceFramePreset(appId, "modal"),
+            })}
         </AppSurfaceBridgeProvider>
     );
 }
 
 /**
  * SystemDialogHost - Manages the visibility of all system-level dialogs.
- * 
- * IMPORTANT: To allow exit animations to play correctly, we must avoid conditional 
+ *
+ * IMPORTANT: To allow exit animations to play correctly, we must avoid conditional
  * rendering that unmounts the component immediately (e.g., {active === 'type' && <Component />}).
  * Instead, we render all primary dialogs and pass the 'open' state to them.
  */
@@ -65,7 +73,11 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
     useEffect(() => {
         if (!activeKey) return;
         const key = activeKey;
-        setMounted((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+        queueMicrotask(() => {
+            startTransition(() => {
+                setMounted((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+            });
+        });
     }, [activeKey]);
 
     const handleOpenChange = (nextOpen: boolean) => {
@@ -73,7 +85,7 @@ export function SystemDialogHost({ active, onActiveChange }: SystemDialogHostPro
     };
 
     return (
-        <Suspense fallback={null}>
+        <Suspense fallback={activeKey ? <AppModalLoadingFallback /> : null}>
             {mounted.add && (
                 <ShortcutDialog
                     open={activeKey === "add"}

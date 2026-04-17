@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { AppGrid } from "@/launcher";
+import { AppModalLoadingFallback } from "@/platform/ui/modal";
 import { cn } from "@/shared/utils";
 import { useUIStore, useSystemDialogRouter } from "@/launcher/store";
 import { warmupModalRuntimes } from "@/launcher/runtime";
@@ -178,7 +179,7 @@ export function DashboardView() {
             </div>
 
             {showOnboarding && (
-                <Suspense fallback={null}>
+                <Suspense fallback={<AppModalLoadingFallback fullscreen />}>
                     <OnboardingDialog open={showOnboarding} onOpenChange={() => {}} />
                 </Suspense>
             )}

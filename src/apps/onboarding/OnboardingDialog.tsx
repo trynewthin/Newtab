@@ -1,6 +1,6 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AppModalV1 } from "@/platform/ui/modal/AppModalV1";
+import { AppModalV2 } from "@/platform/ui/modal";
 import { useSettingsStore } from "@/apps/settings";
 import { persistenceManager } from "@/platform/persistence/manager";
 import { cn } from "@/shared/utils";
@@ -51,7 +51,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                     return;
                 }
                 await persistenceManager.importData(file);
-                // Force isFirstRun=false so onboarding won't re-trigger after reload
                 try {
                     const raw = localStorage.getItem("app-settings");
                     if (raw) {
@@ -75,14 +74,12 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
     const back = () => setStep((s) => Math.max(s - 1, 0));
 
     const stepContent = [
-        // Step 0: Welcome + Restore
         <div key="welcome" className="flex flex-col items-center justify-center text-center gap-6 py-8 px-4">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Sparkles size={32} className="text-primary" />
             </div>
-            <div className="space-y-2 max-w-sm">
+            <div className="max-w-sm">
                 <h2 className="text-2xl font-bold tracking-tight">{t("onboarding_welcome_title")}</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t("onboarding_welcome_desc")}</p>
             </div>
             <div className="flex flex-col gap-3 w-full max-w-xs pt-4">
                 <button
@@ -102,7 +99,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
             </div>
         </div>,
 
-        // Step 1: Language & Material
         <div key="prefs" className="flex flex-col items-center text-center gap-6 py-8 px-4">
             <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center">
                 <Globe size={32} className="text-green-500" />
@@ -112,7 +108,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                 <p className="text-sm text-muted-foreground leading-relaxed">{t("onboarding_prefs_desc")}</p>
             </div>
             <div className="w-full max-w-xs space-y-4 pt-2">
-                {/* Language */}
                 <div className="space-y-1.5">
                     <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">{t("language")}</label>
                     <Select
@@ -135,7 +130,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                         </SelectContent>
                     </Select>
                 </div>
-                {/* Theme */}
                 <div className="space-y-1.5">
                     <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">{t("theme_mode")}</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -155,7 +149,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                         ))}
                     </div>
                 </div>
-                {/* Material */}
                 <div className="space-y-1.5">
                     <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">{t("surface_material_type")}</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -179,9 +172,9 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                     </div>
                 </div>
             </div>
+
         </div>,
 
-        // Step 2: Home Dashboard
         <div key="home" className="flex flex-col items-center text-center gap-6 py-8 px-4">
             <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center">
                 <Layers size={32} className="text-blue-500" />
@@ -205,9 +198,9 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                     </div>
                 ))}
             </div>
+
         </div>,
 
-        // Step 3: AI Search & Chat
         <div key="ai" className="flex flex-col items-center text-center gap-6 py-8 px-4">
             <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center">
                 <MessageSquare size={32} className="text-purple-500" />
@@ -228,9 +221,9 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                     <span className="text-[10px] text-muted-foreground">{t("sys_ai")}</span>
                 </div>
             </div>
+
         </div>,
 
-        // Step 4: Done
         <div key="done" className="flex flex-col items-center justify-center text-center gap-6 py-8 px-4">
             <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
                 <Rocket size={32} className="text-emerald-500" />
@@ -249,47 +242,65 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
         </div>,
     ];
 
-    const footerNav = step < TOTAL_STEPS - 1 ? (
-        <div className="absolute bottom-0 inset-x-0 pointer-events-auto flex items-center justify-between px-6 py-4 border-t border-foreground/6 bg-background/80 backdrop-blur-sm">
-            {step > 0 ? (
+    const navigationControls = step > 0 && step < TOTAL_STEPS - 1 ? (
+        <div className="absolute left-4 top-4 pointer-events-auto sm:left-6 sm:top-6">
+            <div className="flex items-center gap-2">
                 <button
                     onClick={back}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-foreground/10 bg-background/82 px-3 text-xs font-semibold text-foreground/80 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-all hover:bg-background hover:text-foreground active:scale-[0.98]"
                 >
                     <ArrowLeft size={14} />
                     {t("onboarding_back")}
                 </button>
-            ) : (
-                <div />
-            )}
-            <span className="text-[10px] font-medium text-muted-foreground/60">
-                {t("onboarding_step", { current: step + 1, total: TOTAL_STEPS })}
-            </span>
-            {step === 0 ? (
-                <div />
-            ) : (
                 <button
                     onClick={next}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-foreground text-background transition-all hover:opacity-90 active:scale-[0.98]"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full bg-foreground px-3 text-xs font-semibold text-background shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all hover:opacity-90 active:scale-[0.98]"
                 >
                     {t("onboarding_next")}
                     <ArrowRight size={14} />
                 </button>
-            )}
+            </div>
         </div>
-    ) : undefined;
+    ) : null;
+
+    const floatLayer = (
+        <>
+            {navigationControls}
+            <div className="absolute right-4 top-4 pointer-events-none sm:right-6 sm:top-6">
+                <div className="inline-flex h-9 items-center rounded-full border border-black/10 bg-foreground px-3 text-[10px] font-semibold tracking-[0.08em] text-background shadow-[0_10px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl dark:border-white/12">
+                    {t("onboarding_step", { current: step + 1, total: TOTAL_STEPS })}
+                </div>
+            </div>
+        </>
+    );
+
+    const contentTopPaddingClassName = step > 0 && step < TOTAL_STEPS - 1
+        ? "pt-24 sm:pt-28"
+        : "pt-14 sm:pt-16";
+
+    const contentLayer = (
+        <div className="flex h-full min-h-0 flex-col">
+            <div
+                className={cn(
+                    "min-h-0 flex-1 overflow-y-auto custom-scrollbar px-4 pb-6 sm:px-6",
+                    contentTopPaddingClassName,
+                )}
+            >
+                <div className="flex min-h-full items-center justify-center">
+                    {stepContent[step]}
+                </div>
+            </div>
+        </div>
+    );
 
     return (
-        <AppModalV1
+        <AppModalV2
             open={open}
             onOpenChange={() => {/* prevent close by backdrop */}}
-            className="sm:w-[min(520px,80vw)] sm:h-[min(600px,80vh)]"
-            hideBlur
-            floatLayer={footerNav}
-        >
-            <div className="min-h-full flex items-center justify-center">
-                {stepContent[step]}
-            </div>
-        </AppModalV1>
+            className="sm:top-0 sm:left-0 sm:h-screen sm:w-screen sm:max-h-none sm:max-w-none sm:translate-x-0 sm:translate-y-0"
+            containerClassName="bg-background shadow-none sm:rounded-none"
+            contentLayer={contentLayer}
+            floatLayer={floatLayer}
+        />
     );
 }

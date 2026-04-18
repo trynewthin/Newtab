@@ -12,6 +12,7 @@ import type { TextSurfaceFontPreset } from "@/core/textSurface";
 export interface AppearancePreferenceData {
     primaryColor: string;
     textSurfaceFontPreset: TextSurfaceFontPreset;
+    iconLabelHidden: boolean;
     surfaceTone: AppSurfaceTone;
     surfaceMaterialConfig: AppSurfaceMaterialConfigMap;
     backgroundConfig: BackgroundConfig;
@@ -22,6 +23,7 @@ export interface AppearancePreferenceData {
 export interface AppearancePreferenceActions {
     setPrimaryColor: (color: string) => void;
     setTextSurfaceFontPreset: (preset: TextSurfaceFontPreset) => void;
+    setIconLabelHidden: (hidden: boolean) => void;
     setSurfaceTone: (tone: AppSurfaceTone) => void;
     updateSurfaceMaterialConfig: <T extends keyof AppSurfaceMaterialConfigMap>(
         material: T,

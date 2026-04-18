@@ -12,6 +12,7 @@ export function createDefaultAppearancePreferenceState(): AppearancePreferenceDa
     return {
         primaryColor: "hsl(217 91% 60%)",
         textSurfaceFontPreset: "sans",
+        iconLabelHidden: false,
         surfaceTone: "auto",
         surfaceMaterialConfig: mergeSurfaceMaterialConfig(DEFAULT_APP_SURFACE_MATERIAL_CONFIG),
         backgroundConfig: {

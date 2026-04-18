@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { useThemePreferenceStore } from "@/config";
+import { useAppearancePreferenceStore, useThemePreferenceStore } from "@/config";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { SETTINGS_FIELD_CLASS, SettingsItem, SettingsSection } from "@/apps/settings/components/SettingComponents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 export type ThemeSettingsSubPage = "home" | "background" | "material";
 
@@ -42,6 +43,8 @@ export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSetti
     const { t } = useTranslation();
     const theme = useThemePreferenceStore((state) => state.theme);
     const setTheme = useThemePreferenceStore((state) => state.setTheme);
+    const iconLabelHidden = useAppearancePreferenceStore((state) => state.iconLabelHidden);
+    const setIconLabelHidden = useAppearancePreferenceStore((state) => state.setIconLabelHidden);
 
     const themeOptions = {
         light: t("light"),
@@ -69,6 +72,15 @@ export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSetti
                                     <SelectItem value="system">{t("system")}</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </SettingsItem>
+                    </SettingsSection>
+
+                    <SettingsSection title={t("icon_settings")}>
+                        <SettingsItem label={t("icon_label_hidden")}>
+                            <Switch
+                                checked={iconLabelHidden}
+                                onCheckedChange={setIconLabelHidden}
+                            />
                         </SettingsItem>
                     </SettingsSection>
 

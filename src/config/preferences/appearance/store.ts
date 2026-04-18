@@ -26,6 +26,7 @@ export const useAppearancePreferenceStore = create<AppearancePreferenceState>()(
             setPrimaryColor: (primaryColor: string) => set({ primaryColor }),
             setTextSurfaceFontPreset: (textSurfaceFontPreset: TextSurfaceFontPreset) =>
                 set({ textSurfaceFontPreset }),
+            setIconLabelHidden: (iconLabelHidden: boolean) => set({ iconLabelHidden }),
             setSurfaceTone: (surfaceTone: AppSurfaceTone) => set({ surfaceTone }),
             updateSurfaceMaterialConfig: <T extends keyof AppSurfaceMaterialConfigMap>(
                 material: T,

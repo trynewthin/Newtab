@@ -6,7 +6,7 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { cn } from "@/shared/utils"
 import { Button } from "@/components/ui/button"
 import { PORTAL_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
-import AppSurface from "@/platform/ui/surface/AppSurface"
+import { AppSurface } from "@/platform/ui"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />

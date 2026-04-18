@@ -32,20 +32,14 @@
       "@/*": [
         "./src/*"
       ],
-      "@store/*": [
-        "./src/store/*"
+      "@apps/*": [
+        "./src/apps/*"
       ],
-      "@lib/*": [
-        "./src/lib/*"
+      "@platform/*": [
+        "./src/platform/*"
       ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@newtab/*": [
-        "./src/newtab/*"
-      ],
-      "@popup/*": [
-        "./src/popup/*"
+      "@surfaces/*": [
+        "./src/surfaces/*"
       ]
     }
   },

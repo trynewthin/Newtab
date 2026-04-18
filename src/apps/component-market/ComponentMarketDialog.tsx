@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useItemStore, type NewItemInput } from "@/launcher/store";
 import type { SystemWidgetManifestItem } from "@/launcher/registry";
 import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout";
-import { AppModalV2Closable } from "@/platform/ui/modal";
+import { AppModalV2Closable } from "@/platform/ui";
 import { MarketTabBar, type MarketTab } from "./components/MarketTabBar";
 import { AppIconGrid } from "./components/AppIconGrid";
 import { WidgetGallery } from "./components/WidgetGallery";

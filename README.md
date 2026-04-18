@@ -5,7 +5,6 @@
 
 ## 当前状态
 
-- 应用内部版本：`v0.3`（`src/core/constants.ts`）
 - 扩展清单版本：`1.0.0`（`manifest.json`）
 - 包管理与脚本：`bun`
 
@@ -16,7 +15,6 @@
 - AlertDialog 与 ContextMenu 接入 AppSurface 玻璃材质体系，修复浅色模式下颜色可读性问题。
 - 设置页新增「重置并重新初始化」功能，含二次确认对话框。
 - 备份 schema 升级至 V3，支持自动迁移（`isFirstRun` 兼容）。
-- AppModalV1 新增 `hideBlur` 配置，可选隐藏上下模糊渐变。
 - 构建流程优化：启用 terser 混淆压缩，chunk 文件名 hash 化。
 
 ## v0.2 重点更新
@@ -61,13 +59,13 @@ bun run preview
 - `src/surfaces/newtab`：新标签页主界面（背景层/内容层/浮动层/路由）
 - `src/launcher`：启动台核心（网格、拖拽、文件夹、系统应用、组件）
 - `src/apps`：应用模块（settings、search、onboarding 等）
-- `src/components`：通用 UI 基建（modal、surface、动态背景、GradualBlur 等）
-- `src/state`：状态与持久化（含备份导入导出、schema 迁移）
-- `src/core`：核心工具（i18n、常量、层级管理、动态背景注册）
+- `src/components`：通用 UI primitive 与基础控件
+- `src/platform`：平台层 UI、持久化、i18n、存储适配
+- `src/config`：用户偏好与 app-state
+- `src/shared` / `src/core`：共享类型、常量、纯工具、视觉计算
 
 ## 开发说明
 
-- 系统 App 可在 `src/launcher/system/appManifest.ts` 里按需启用/屏蔽。
-- 更新日志与版本展示由 `APP_METADATA` 驱动（`src/core/constants.ts`）。
+- 系统 App 可在 `src/launcher/registry/appManifest.ts` 里按需启用/屏蔽。
 - 当前项目已全面切换为 Bun 工作流，默认使用 `bun` 执行脚本。
-- 国际化支持中文和英文（`src/core/i18n`）。
+- 国际化资源位于 `src/platform/i18n`。

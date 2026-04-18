@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useDeferredValue } from "react";
-import { AppModalEmptyState, AppModalListCard, AppModalV2Sidebar } from "@/platform/ui/modal";
+import { AppModalEmptyState, AppModalListCard, AppModalV2Sidebar } from "@/platform/ui";
 import {
     History,
     Trash2,

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useSearchPreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
-import AppSurface from "@/platform/ui/surface/AppSurface";
+import { AppSurface } from "@/platform/ui";
 
 interface SearchBarProps {
     initialQuery?: string;

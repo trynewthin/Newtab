@@ -5,7 +5,7 @@ import { cn } from "@/shared/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowRight01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { PORTAL_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
-import AppSurface from "@/platform/ui/surface/AppSurface"
+import { AppSurface } from "@/platform/ui"
 
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
   return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />

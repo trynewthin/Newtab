@@ -1,14 +1,10 @@
-import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
-import { useStorageConnection } from "@/platform/persistence/sync";
+import { lazy, Suspense, useEffect } from "react";
 import {
-    applyThemePreferenceToDOM,
     getOnboardingRoute,
     isOnboardingRoute,
     useOnboardingStateStore,
-    useLanguagePreferenceStore,
-    useThemePreferenceStore,
 } from "@/config";
-import { applyLanguagePreferenceToI18n } from "@/platform/i18n";
+import { useEntryEnvironmentSync } from "@/platform/bootstrap";
 import { AppRouter } from "./AppRouter";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { FloatLayer } from "./layers/FloatLayer";
@@ -19,37 +15,15 @@ import { useUIStore } from "@/launcher/store";
 import { cn } from "@/shared/utils";
 import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 import { parseSystemDialogRoute, useSystemDialogRouter } from "@/launcher/store";
-import { AppModalLoadingFallback } from "@/platform/ui/modal";
+import { AppModalLoadingFallback } from "@/platform/ui";
 
 const OnboardingDialog = lazy(() =>
     import("@/apps/onboarding/OnboardingDialog").then((m) => ({ default: m.OnboardingDialog }))
 );
 
-function syncThemeToDOM() {
-    applyThemePreferenceToDOM(useThemePreferenceStore.getState().theme);
-}
-
-function syncLanguageToI18n() {
-    void applyLanguagePreferenceToI18n(useLanguagePreferenceStore.getState().language);
-}
-
 function AppShell() {
-    // 监听 LocalStorage 变化并同步状态 (解决 Popup 修改后 Newtab 不刷新问题)
-    useStorageConnection();
+    useEntryEnvironmentSync();
     useSystemDialogRouter();
-
-    // 同步主题到 documentElement，使 .dark 选择器生效（如 modal-minimal-scope）
-    const theme = useThemePreferenceStore((state) => state.theme);
-    const language = useLanguagePreferenceStore((state) => state.language);
-    useLayoutEffect(syncThemeToDOM, [theme]);
-    useEffect(syncLanguageToI18n, [language]);
-    useEffect(() => {
-        // 确保 persist hydration 完成后也同步一次
-        return useThemePreferenceStore.persist.onFinishHydration(syncThemeToDOM);
-    }, []);
-    useEffect(() => {
-        return useLanguagePreferenceStore.persist.onFinishHydration(syncLanguageToI18n);
-    }, []);
 
     const activeSystemDialog = useUIStore((state) => state.activeSystemDialog);
     const isModalVisible = activeSystemDialog !== null;

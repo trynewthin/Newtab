@@ -1,25 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { useItemStore } from "@/launcher/store";
-import {
-    applyThemePreferenceToDOM,
-    useLanguagePreferenceStore,
-    useThemePreferenceStore,
-} from "@/config";
+import { useEntryEnvironmentSync } from "@/platform/bootstrap";
 import { AppDialogV1Message } from "@/platform/ui";
 import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/launcher";
 
 import { type GridItem } from "@/launcher/model/itemTypes";
 import { useTranslation } from "react-i18next";
-import { applyLanguagePreferenceToI18n } from "@/platform/i18n";
-import { useStorageConnection } from "@/platform/persistence/sync";
-import "@/platform/i18n/i18n";
 
 export default function Popup() {
     const { t } = useTranslation();
-
-    // 全局同步
-    useStorageConnection();
+    useEntryEnvironmentSync();
 
     const [url, setUrl] = useState("");
     const [title, setTitle] = useState("");
@@ -35,23 +26,12 @@ export default function Popup() {
     const addItem = useItemStore((state) => state.addItem);
     const updateItem = useItemStore((state) => state.updateItem);
 
-    const language = useLanguagePreferenceStore((state) => state.language);
-    const theme = useThemePreferenceStore((state) => state.theme);
-
-    // Sync Theme
     useEffect(() => {
-        applyThemePreferenceToDOM(theme);
-
-        // Force Popup Size
         document.documentElement.style.width = "360px";
         document.documentElement.style.height = "auto";
         document.body.style.width = "360px";
         document.body.style.minHeight = "auto";
-    }, [theme]);
-
-    useEffect(() => {
-        void applyLanguagePreferenceToI18n(language);
-    }, [language]);
+    }, []);
 
     // Initialize: Get current tab info
     useEffect(() => {

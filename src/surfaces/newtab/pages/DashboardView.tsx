@@ -1,17 +1,12 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { AppGrid } from "@/launcher";
-import { AppModalLoadingFallback } from "@/platform/ui/modal";
 import { cn } from "@/shared/utils";
 import { useUIStore } from "@/launcher/store";
 import { warmupModalRuntimes } from "@/launcher/runtime";
 import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
-import { useOnboardingStateStore } from "@/config";
 
 const HomeTools = lazy(() =>
     import("@/launcher/ui/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
-);
-const OnboardingDialog = lazy(() =>
-    import("@/apps/onboarding/OnboardingDialog").then((m) => ({ default: m.OnboardingDialog }))
 );
 
 const DASHBOARD_GRID_TOP_INSET_PX = 168;
@@ -24,8 +19,6 @@ export function DashboardView() {
     const [isNearTop, setIsNearTop] = useState(false);
     const [isToolbarHovered, setIsToolbarHovered] = useState(false);
 
-    const hasCompletedOnboarding = useOnboardingStateStore((state) => state.hasCompletedOnboarding);
-    const showOnboarding = !hasCompletedOnboarding;
     const isModalVisible = useUIStore((state) => state.activeSystemDialog !== null);
     const isFolderPreviewVisible = useUIStore((state) => state.isFolderPreviewVisible);
 
@@ -175,12 +168,6 @@ export function DashboardView() {
             >
                 <AppGrid topInsetPx={DASHBOARD_GRID_TOP_INSET_PX} />
             </div>
-
-            {showOnboarding && (
-                <Suspense fallback={<AppModalLoadingFallback fullscreen />}>
-                    <OnboardingDialog open={showOnboarding} onOpenChange={() => {}} />
-                </Suspense>
-            )}
         </div>
     );
 }

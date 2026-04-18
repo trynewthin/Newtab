@@ -1,7 +1,10 @@
-import { useEffect, useLayoutEffect } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
 import { useStorageConnection } from "@/platform/persistence/sync";
 import {
     applyThemePreferenceToDOM,
+    getOnboardingRoute,
+    isOnboardingRoute,
+    useOnboardingStateStore,
     useLanguagePreferenceStore,
     useThemePreferenceStore,
 } from "@/config";
@@ -11,11 +14,16 @@ import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { FloatLayer } from "./layers/FloatLayer";
 import { ModalLayer } from "./layers/ModalLayer";
 import { Toaster } from "@/components/ui/sonner";
-import { HashRouter, useLocation } from "react-router-dom";
+import { HashRouter, useLocation, useNavigate } from "react-router-dom";
 import { useUIStore } from "@/launcher/store";
 import { cn } from "@/shared/utils";
 import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 import { parseSystemDialogRoute, useSystemDialogRouter } from "@/launcher/store";
+import { AppModalLoadingFallback } from "@/platform/ui/modal";
+
+const OnboardingDialog = lazy(() =>
+    import("@/apps/onboarding/OnboardingDialog").then((m) => ({ default: m.OnboardingDialog }))
+);
 
 function syncThemeToDOM() {
     applyThemePreferenceToDOM(useThemePreferenceStore.getState().theme);
@@ -45,13 +53,28 @@ function AppShell() {
 
     const activeSystemDialog = useUIStore((state) => state.activeSystemDialog);
     const isModalVisible = activeSystemDialog !== null;
+    const hasCompletedOnboarding = useOnboardingStateStore((state) => state.hasCompletedOnboarding);
     const location = useLocation();
+    const navigate = useNavigate();
     const isModalRoute = parseSystemDialogRoute(location.pathname) !== null;
+    const onboardingRouteActive = isOnboardingRoute(location.pathname);
+    const shouldBlockDashboard = isModalRoute || onboardingRouteActive || !hasCompletedOnboarding;
+
+    useEffect(() => {
+        if (!hasCompletedOnboarding && !onboardingRouteActive) {
+            navigate(getOnboardingRoute(), { replace: true });
+            return;
+        }
+
+        if (hasCompletedOnboarding && onboardingRouteActive) {
+            navigate("/", { replace: true });
+        }
+    }, [hasCompletedOnboarding, navigate, onboardingRouteActive]);
 
     return (
         <div className="relative w-full h-full overflow-hidden">
             <BackgroundLayer />
-            {!isModalRoute ? (
+            {!shouldBlockDashboard ? (
                 <>
                     <div
                         style={{ zIndex: NEWTAB_LAYER_Z_INDEX.content }}
@@ -71,6 +94,11 @@ function AppShell() {
                         <FloatLayer />
                     </div>
                 </>
+            ) : null}
+            {(!hasCompletedOnboarding || onboardingRouteActive) ? (
+                <Suspense fallback={<AppModalLoadingFallback fullscreen />}>
+                    <OnboardingDialog open onOpenChange={() => {}} />
+                </Suspense>
             ) : null}
             <ModalLayer />
             <Toaster />

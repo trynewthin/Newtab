@@ -5,4 +5,5 @@ export {
     readStoredOnboardingState,
     type OnboardingStateData,
 } from "./shared";
+export { getOnboardingRoute, isOnboardingRoute } from "./routes";
 export { useOnboardingStateStore } from "./store";

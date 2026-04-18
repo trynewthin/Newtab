@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { ArrowLeft, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { GradualBlur } from "@/platform/ui/effects"
 import { cn } from "@/shared/utils"
 import { AppModalV2, type AppModalV2Props } from "./AppModalV2"
 import { AppModalV2CloseButton } from "./AppModalV2CloseButton"
@@ -25,9 +26,17 @@ export interface AppModalV2SidebarProps extends Omit<AppModalV2Props, "contentLa
     defaultSidebarCollapsed?: boolean
     closeButtonLabel?: string
     sidebarStorageKey?: string
+    headerTitle?: React.ReactNode
+    onHeaderBack?: () => void
+    headerBackLabel?: string
+    headerActions?: React.ReactNode
+    headerClassName?: string
+    bodyClassName?: string
 }
 
 const SIDEBAR_SESSION_PREFIX = "app-modal-v2-sidebar:"
+const CONTENT_HEADER_HEIGHT_CLASS = "h-16"
+const CONTENT_HEADER_HEIGHT_PX = 64
 
 function readStoredCollapsedState(storageKey?: string, fallback = false): boolean {
     if (!storageKey || typeof window === "undefined") {
@@ -63,11 +72,20 @@ export function AppModalV2Sidebar({
     defaultSidebarCollapsed = false,
     closeButtonLabel,
     sidebarStorageKey,
+    headerTitle,
+    onHeaderBack,
+    headerBackLabel = "Back",
+    headerActions,
+    headerClassName,
+    bodyClassName,
 }: AppModalV2SidebarProps) {
     const [sidebarCollapsed, setSidebarCollapsed] = React.useState(() =>
         readStoredCollapsedState(sidebarStorageKey, defaultSidebarCollapsed)
     )
     const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false)
+    const [contentTitleVisible, setContentTitleVisible] = React.useState(true)
+    const contentScrollRef = React.useRef<HTMLDivElement | null>(null)
+    const contentTitleSentinelRef = React.useRef<HTMLDivElement | null>(null)
 
     React.useEffect(() => {
         setSidebarCollapsed(readStoredCollapsedState(sidebarStorageKey, defaultSidebarCollapsed))
@@ -87,6 +105,38 @@ export function AppModalV2Sidebar({
             // Ignore storage write failures and keep runtime behavior intact.
         }
     }, [sidebarCollapsed, sidebarStorageKey])
+
+    const hasContentHeader = headerTitle !== undefined || !!onHeaderBack || headerActions !== undefined
+    const shouldShowHeaderBlur = hasContentHeader && (headerTitle === undefined || !contentTitleVisible)
+
+    React.useEffect(() => {
+        if (headerTitle === undefined) {
+            setContentTitleVisible(true)
+            return
+        }
+
+        const root = contentScrollRef.current
+        const target = contentTitleSentinelRef.current
+
+        if (!root || !target || typeof IntersectionObserver === "undefined") {
+            setContentTitleVisible(true)
+            return
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setContentTitleVisible(entry.isIntersecting)
+            },
+            {
+                root,
+                threshold: 0,
+                rootMargin: `-${CONTENT_HEADER_HEIGHT_PX}px 0px 0px 0px`,
+            }
+        )
+
+        observer.observe(target)
+        return () => observer.disconnect()
+    }, [headerTitle])
 
     const handleOpenChange = React.useCallback((nextOpen: boolean) => {
         if (!nextOpen) {
@@ -211,8 +261,79 @@ export function AppModalV2Sidebar({
     const contentLayer = (
         <div className="flex h-full min-h-0 w-full">
             {desktopSidebar}
-            <section className={cn("min-w-0 flex-1 bg-background/92", contentClassName)}>
-                {children}
+            <section className={cn("relative min-w-0 flex-1 bg-background/92", contentClassName)}>
+                {hasContentHeader ? (
+                    <div className="pointer-events-none absolute inset-x-0 top-0 z-10">
+                        <GradualBlur
+                            target="parent"
+                            preset="header"
+                            height="4.5rem"
+                            strength={2}
+                            divCount={5}
+                            curve="bezier"
+                            exponential
+                            opacity={1}
+                            zIndex={0}
+                            className="inset-x-0 top-0"
+                            style={{
+                                opacity: shouldShowHeaderBlur ? 1 : 0,
+                                transition: "opacity 180ms ease-out",
+                            }}
+                        />
+
+                        <div
+                            className={cn(
+                                "relative z-10 flex items-center justify-between px-4 sm:px-6",
+                                CONTENT_HEADER_HEIGHT_CLASS,
+                                headerClassName,
+                            )}
+                        >
+                            <div className="pointer-events-auto z-10 flex min-w-9 shrink-0 items-center justify-start">
+                                {onHeaderBack ? (
+                                    <button
+                                        type="button"
+                                        aria-label={headerBackLabel}
+                                        onClick={onHeaderBack}
+                                        className={cn(
+                                            "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-transparent text-foreground/78",
+                                            "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-all duration-200",
+                                            "hover:bg-background/18 hover:text-foreground hover:scale-[1.02]",
+                                            "active:scale-[0.98]",
+                                        )}
+                                    >
+                                        <ArrowLeft size={16} strokeWidth={2.5} />
+                                    </button>
+                                ) : null}
+                            </div>
+
+                            <div className="pointer-events-auto z-10 flex min-w-9 shrink-0 items-center justify-end gap-2">
+                                {headerActions}
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
+
+                <div
+                    ref={contentScrollRef}
+                    className={cn(
+                        "h-full min-h-0",
+                        bodyClassName,
+                    )}
+                >
+                    {headerTitle !== undefined ? (
+                        <div className="pb-6 pt-16">
+                            <div className="text-center text-2xl font-semibold tracking-[-0.05em] text-foreground sm:text-[2rem]">
+                                {headerTitle}
+                            </div>
+                            <div
+                                ref={contentTitleSentinelRef}
+                                aria-hidden="true"
+                                className="mt-4 h-px w-full"
+                            />
+                        </div>
+                    ) : null}
+                    {children}
+                </div>
             </section>
         </div>
     )

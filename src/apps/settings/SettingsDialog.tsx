@@ -50,17 +50,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             sidebarActiveId={activeTab}
             onSidebarChange={setActiveTab}
             contentClassName="min-h-0"
+            headerTitle={activeLabel}
+            bodyClassName="overflow-y-auto custom-scrollbar px-4 pb-4 sm:px-6 sm:pb-5"
         >
-            <div className="flex h-full min-h-0 flex-col">
-                <div className="flex min-h-16 items-center justify-center bg-background/64 px-4 py-3 backdrop-blur-sm sm:px-6">
-                    <span className="truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/70">
-                        {activeLabel}
-                    </span>
-                </div>
-                <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-4 py-4 sm:px-6 sm:py-5">
-                    {renderContent()}
-                </div>
-            </div>
+            {renderContent()}
         </AppModalV2Sidebar>
     );
 }

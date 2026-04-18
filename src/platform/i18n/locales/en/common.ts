@@ -6,6 +6,7 @@
     confirm: "Confirm",
     save: "Save",
     add: "Add",
+    manage: "Manage",
     close: "Close",
     edit: "Edit",
     remove: "Remove",

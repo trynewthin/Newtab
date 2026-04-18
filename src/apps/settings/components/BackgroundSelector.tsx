@@ -1,6 +1,6 @@
 ﻿import { useSettingsStore } from "@/apps/settings/store";
 import { cn } from "@/shared/utils";
-import { Check, Upload, Plus, Image as ImageIcon, Palette, Droplet, Sparkles } from "lucide-react";
+import { Check, Upload, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -246,12 +246,7 @@ export function BackgroundSelector() {
 
     return (
         <div className="space-y-8">
-            <SettingsSection
-                icon={Sparkles}
-                iconColor="text-cyan-500"
-                title={t("dynamic_backgrounds")}
-                description={t("dynamic_backgrounds_desc")}
-            >
+            <SettingsSection title={t("dynamic_backgrounds")}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {themeEffectPresets.map((theme) => (
                         <button
@@ -311,12 +306,7 @@ export function BackgroundSelector() {
             </SettingsSection>
 
             {/* 1. Custom Image Upload */}
-            <SettingsSection
-                icon={ImageIcon}
-                iconColor="text-blue-500"
-                title={t('custom_image')}
-                description={t('upload_image')}
-            >
+            <SettingsSection title={t('custom_image')}>
                 <div className="space-y-4">
                     {/* Upload & URL Row */}
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -440,12 +430,7 @@ export function BackgroundSelector() {
             </SettingsSection>
 
             {/* 2. Solid Colors */}
-            <SettingsSection
-                icon={Droplet}
-                iconColor="text-purple-500"
-                title={t('solid_colors')}
-                description={t('solid_colors_desc')}
-            >
+            <SettingsSection title={t('solid_colors')}>
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
                     {solidColors.map((color) => (
                         <div
@@ -491,12 +476,7 @@ export function BackgroundSelector() {
             </SettingsSection>
 
             {/* 3. Gradients */}
-            <SettingsSection
-                icon={Palette}
-                iconColor="text-pink-500"
-                title={t('gradients')}
-                description={t('gradients_desc')}
-            >
+            <SettingsSection title={t('gradients')}>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                     {gradientPresets.map((preset) => (
                         <button

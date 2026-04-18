@@ -1,6 +1,6 @@
 ﻿import { useSettingsStore } from "@/apps/settings/store";
 import { cn } from "@/shared/utils";
-import { Check, Plus, Palette } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { PRIMARY_COLORS } from "@/apps/settings/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
 import { SettingsSection } from "./SettingComponents";
@@ -11,12 +11,7 @@ export function ThemeColorSelector() {
     const getColorLabel = (name: string) => t(`color_${name.toLowerCase()}`);
 
     return (
-        <SettingsSection
-            icon={Palette}
-            iconColor="text-indigo-500"
-            title={t('primary_color_system')}
-            description={t('select_accent_color')}
-        >
+        <SettingsSection title={t('primary_color_system')}>
             <div className="flex flex-wrap justify-start gap-3">
                 {PRIMARY_COLORS.map((color) => (
                     <button

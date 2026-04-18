@@ -4,7 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SettingsItem } from "@/apps/settings/components/SettingComponents";
+import {
+    SETTINGS_ACTION_BUTTON_CLASS,
+    SETTINGS_FIELD_CLASS,
+    SettingsItem,
+} from "@/apps/settings/components/SettingComponents";
 import { useSettingsStore } from "@/apps/settings/store";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
@@ -77,7 +81,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                 <button
                     type="button"
                     onClick={() => resetDynamicBackgroundConfig(backgroundId)}
-                    className="inline-flex h-8 items-center gap-1 rounded-lg border border-border/70 px-2.5 text-[11px] font-semibold text-foreground/85 transition-colors hover:bg-foreground/8"
+                    className={`${SETTINGS_ACTION_BUTTON_CLASS} inline-flex h-9 items-center gap-1 px-3 text-[11px]`}
                 >
                     <RotateCcw size={12} />
                     <span>{t("reset")}</span>
@@ -111,7 +115,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                                         colors: updateArrayValue(colorBendsConfig.colors, index, event.target.value) as [string, string, string],
                                     })
                                 }
-                                className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                             />
                         </SettingsItem>
                     ))}
@@ -125,7 +129,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                             type="color"
                             value={lightPillarConfig.topColor}
                             onChange={(event) => updateConfig("light-pillar", { topColor: event.target.value })}
-                            className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                            className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                         />
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_bottom_color")}>
@@ -133,7 +137,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                             type="color"
                             value={lightPillarConfig.bottomColor}
                             onChange={(event) => updateConfig("light-pillar", { bottomColor: event.target.value })}
-                            className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                            className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                         />
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_intensity")}>
@@ -159,7 +163,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                             value={lightPillarConfig.quality}
                             onValueChange={(value) => updateConfig("light-pillar", { quality: value as "low" | "medium" | "high" })}
                         >
-                            <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
+                            <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[220px]`}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -179,7 +183,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                             type="color"
                             value={silkConfig.color}
                             onChange={(event) => updateConfig("silk", { color: event.target.value })}
-                            className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                            className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                         />
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_speed")}>
@@ -233,7 +237,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                                         linesGradient: updateArrayValue(floatingLinesConfig.linesGradient, index, event.target.value) as [string, string, string],
                                     })
                                 }
-                                className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                             />
                         </SettingsItem>
                     ))}
@@ -261,7 +265,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                                         colorStops: updateArrayValue(auroraConfig.colorStops, index, event.target.value) as [string, string, string],
                                     })
                                 }
-                                className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                             />
                         </SettingsItem>
                     ))}
@@ -298,7 +302,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                                         particleColors: updateArrayValue(particlesConfig.particleColors, index, event.target.value) as [string, string, string],
                                     })
                                 }
-                                className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                             />
                         </SettingsItem>
                     ))}
@@ -327,7 +331,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                             value={prismaticBurstConfig.animationType}
                             onValueChange={(value) => updateConfig("prismatic-burst", { animationType: value as "rotate" | "rotate3d" | "hover" })}
                         >
-                            <SelectTrigger className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85">
+                            <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[220px]`}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -347,7 +351,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                                         colors: updateArrayValue(prismaticBurstConfig.colors, index, event.target.value) as [string, string, string, string],
                                     })
                                 }
-                                className="h-9 w-[220px] rounded-xl border-border/70 bg-background/85 p-1"
+                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
                             />
                         </SettingsItem>
                     ))}

@@ -1,6 +1,6 @@
 ﻿import { useTranslation } from "react-i18next";
 import { SettingsSection, SettingsItem } from "@/apps/settings/components/SettingComponents";
-import { Info, Github, RotateCcw, User, Heart } from "lucide-react";
+import { Github, Heart } from "lucide-react";
 import { APP_METADATA } from "@/shared/constants";
 
 export function AboutSettings() {
@@ -9,11 +9,7 @@ export function AboutSettings() {
     return (
                 <div className="mx-auto max-w-3xl space-y-6">
                     {/* Version Info Section */}
-                    <SettingsSection
-                        icon={Info}
-                        iconColor="text-blue-500"
-                        title={t('version_info')}
-                    >
+                    <SettingsSection title={t('version_info')}>
                         <SettingsItem label={t('current_version')}>
                             <span className="rounded-full border border-foreground/10 bg-foreground/4 px-2 py-0.5 font-mono text-sm font-semibold text-foreground">
                                 v{APP_METADATA.version}
@@ -22,11 +18,7 @@ export function AboutSettings() {
                     </SettingsSection>
 
                     {/* Author Info Section */}
-                    <SettingsSection
-                        icon={User}
-                        iconColor="text-pink-500"
-                        title={t('author_info')}
-                    >
+                    <SettingsSection title={t('author_info')}>
                         <div className="space-y-4">
                             <SettingsItem label={t('author')}>
                                 <div className="flex items-center gap-2">
@@ -58,11 +50,7 @@ export function AboutSettings() {
                     </SettingsSection>
 
                     {/* Change Log Section */}
-                    <SettingsSection
-                        icon={RotateCcw}
-                        iconColor="text-orange-500"
-                        title={t('update_log')}
-                    >
+                    <SettingsSection title={t('update_log')}>
                         <div className="space-y-4">
                             {APP_METADATA.changelog.map((log, index) => (
                                 <div key={index} className="relative space-y-1.5 border-l-2 border-foreground/15 pl-4">

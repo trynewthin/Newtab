@@ -3,7 +3,6 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useSearchPreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
-import { SEARCH_ENGINES } from "@/shared/constants";
 import AppSurface from "@/platform/ui/surface/AppSurface";
 
 interface SearchBarProps {
@@ -19,12 +18,11 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
 
     const searchEngine = useSearchPreferenceStore((state) => state.searchEngine);
     const setSearchEngine = useSearchPreferenceStore((state) => state.setSearchEngine);
-    const customSearchEngines = useSearchPreferenceStore((state) => state.customSearchEngines);
+    const searchEngines = useSearchPreferenceStore((state) => state.searchEngines);
 
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const allEngines = [...SEARCH_ENGINES, ...customSearchEngines];
-    const currentEngine = allEngines.find((entry) => entry.value === searchEngine) || allEngines[0];
+    const currentEngine = searchEngines.find((entry) => entry.value === searchEngine) || searchEngines[0];
 
     useEffect(() => {
         const fetchSuggestions = async () => {
@@ -175,7 +173,7 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                                     </div>
                                     <div className="relative z-10 p-2">
                                         <div className="max-h-[400px] space-y-1 overflow-y-auto custom-scrollbar">
-                                            {allEngines.map((engine) => (
+                                            {searchEngines.map((engine) => (
                                                 <button
                                                     key={engine.value}
                                                     type="button"

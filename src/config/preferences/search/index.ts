@@ -4,7 +4,7 @@ export {
     readLegacySearchPreference,
     readStoredSearchPreference,
     SEARCH_PREFERENCE_STORAGE_KEY,
-    type CustomSearchEngine,
+    type SearchEnginePreferenceItem,
     type SearchPreferenceData,
 } from "./shared";
 export { useSearchPreferenceStore } from "./store";

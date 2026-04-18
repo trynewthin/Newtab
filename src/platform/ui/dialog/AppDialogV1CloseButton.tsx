@@ -2,22 +2,20 @@
 
 import { AppChromeDialogCloseButton } from "@/platform/ui/chrome"
 
-export interface AppModalV2CloseButtonProps {
-    className?: string
-    iconClassName?: string
+export interface AppDialogV1CloseButtonProps {
     label?: string
+    className?: string
 }
 
-export function AppModalV2CloseButton({
-    className,
-    iconClassName,
+export function AppDialogV1CloseButton({
     label = "Close",
-}: AppModalV2CloseButtonProps) {
+    className,
+}: AppDialogV1CloseButtonProps) {
     return (
         <AppChromeDialogCloseButton
             label={label}
             className={className}
-            iconClassName={iconClassName}
+            iconStrokeWidth={2.4}
         />
     )
 }

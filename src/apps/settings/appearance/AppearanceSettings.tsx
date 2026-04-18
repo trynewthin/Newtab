@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useThemePreferenceStore } from "@/config";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
-import { ChevronRight, Image, Settings as SettingsIcon, Sparkles } from "lucide-react";
+import { ChevronRight, Image, Sparkles } from "lucide-react";
 import { cn } from "@/shared/utils";
-import { SettingsItem, SettingsSection } from "@/apps/settings/components/SettingComponents";
+import { SETTINGS_FIELD_CLASS, SettingsItem, SettingsSection } from "@/apps/settings/components/SettingComponents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export type ThemeSettingsSubPage = "home" | "background" | "material";
@@ -65,15 +65,10 @@ export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSetti
         <div className="mx-auto max-w-3xl space-y-6">
             {isHome ? (
                 <>
-                    <SettingsSection
-                        icon={SettingsIcon}
-                        iconColor="text-blue-500"
-                        title={t("theme_mode")}
-                        description={t("theme_mode_desc")}
-                    >
+                    <SettingsSection title={t("theme_mode")}>
                         <SettingsItem label={t("theme_mode")}>
                             <Select value={theme} onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}>
-                                <SelectTrigger className="h-9 w-[180px] rounded-xl border-foreground/10 bg-foreground/4">
+                                <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[180px]`}>
                                     <SelectValue>
                                         {themeOptions[theme as keyof typeof themeOptions]}
                                     </SelectValue>

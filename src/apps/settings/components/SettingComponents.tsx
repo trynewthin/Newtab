@@ -1,68 +1,39 @@
-﻿import { cn } from "@/shared/utils";
+import { cn } from "@/shared/utils";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-/**
- * ========================================
- * Settings Section Card
- * ========================================
- * A card container that groups related settings
- * Includes an optional icon, title, description, and children
- */
+export const SETTINGS_FIELD_CLASS =
+    "h-9 rounded-xl border-border/70 bg-background/85 text-foreground shadow-none";
+
+export const SETTINGS_ACTION_BUTTON_CLASS =
+    "h-9 rounded-xl border border-border/70 bg-background/85 px-3 text-sm font-medium text-foreground/85 shadow-none transition-colors hover:bg-foreground/6 hover:text-foreground";
+
 interface SettingsSectionProps {
-    icon?: LucideIcon;
-    iconColor?: string;
     title: string;
-    description?: string;
     children: ReactNode;
     className?: string;
 }
 
 export function SettingsSection({
-    icon: Icon,
-    iconColor,
     title,
-    description,
     children,
-    className
+    className,
 }: SettingsSectionProps) {
-    void iconColor;
     return (
-        <div className={cn("space-y-3.5", className)}>
-            {/* Section Header */}
-            <div className="flex items-center gap-2">
-                {Icon && (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-background text-foreground/80">
-                        <Icon size={18} />
-                    </div>
-                )}
-                <div>
-                    <h3 className="text-sm font-semibold tracking-tight text-foreground">{title}</h3>
-                    {description && (
-                        <p className="text-xs text-muted-foreground/90">{description}</p>
-                    )}
-                </div>
+        <section className={cn("space-y-4 border-t border-border/60 pt-7 first:border-t-0 first:pt-0", className)}>
+            <div>
+                <h3 className="text-base font-semibold tracking-tight text-foreground">
+                    {title}
+                </h3>
             </div>
 
-            {/* Section Content */}
-            <div className={cn(
-                "rounded-2xl p-4 space-y-3.5",
-                "shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]",
-                "dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
-            )}>
+            <div className="space-y-3.5">
                 {children}
             </div>
-        </div>
+        </section>
     );
 }
 
-/**
- * ========================================
- * Settings Item (Single Row)
- * ========================================
- * A single setting item with label, description, and control
- * Horizontal layout: label on left, control on right
- */
 interface SettingsItemProps {
     label: string;
     description?: string;
@@ -76,34 +47,27 @@ export function SettingsItem({
     description,
     children,
     disabled = false,
-    className
+    className,
 }: SettingsItemProps) {
     return (
-        <div className={cn(
-            "flex items-center justify-between",
-            disabled && "opacity-40 pointer-events-none",
-            className
-        )}>
-            <div className="space-y-0.5 flex-1 min-w-0 pr-4">
-                <span className="text-sm font-bold text-foreground">{label}</span>
-                {description && (
-                    <p className="text-[10px] text-muted-foreground leading-tight">{description}</p>
-                )}
+        <div
+            className={cn(
+                "flex items-center justify-between",
+                disabled && "pointer-events-none opacity-40",
+                className,
+            )}
+        >
+            <div className="min-w-0 flex-1 space-y-0.5 pr-4">
+                <span className="text-sm font-normal text-foreground/88">{label}</span>
+                {description ? (
+                    <p className="text-[10px] leading-tight text-muted-foreground">{description}</p>
+                ) : null}
             </div>
-            <div className="shrink-0">
-                {children}
-            </div>
+            <div className="shrink-0">{children}</div>
         </div>
     );
 }
 
-/**
- * ========================================
- * Settings Group (Compact Card)
- * ========================================
- * A simple card for grouping settings without section header
- * Used for simple, flat setting groups
- */
 interface SettingsGroupProps {
     children: ReactNode;
     className?: string;
@@ -111,23 +75,19 @@ interface SettingsGroupProps {
 
 export function SettingsGroup({ children, className }: SettingsGroupProps) {
     return (
-        <div className={cn(
-            "rounded-2xl p-4 space-y-3.5",
-            "shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]",
-            "dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
-            className
-        )}>
+        <div
+            className={cn(
+                "rounded-2xl p-4 space-y-3.5",
+                "shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]",
+                "dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
+                className,
+            )}
+        >
             {children}
         </div>
     );
 }
 
-/**
- * ========================================
- * Settings Button Group
- * ========================================
- * Horizontal button group for simple selections
- */
 interface SettingsButtonGroupProps {
     options: Array<{
         id: string;
@@ -142,7 +102,7 @@ export function SettingsButtonGroup({
     options,
     value,
     onChange,
-    className
+    className,
 }: SettingsButtonGroupProps) {
     return (
         <div className={cn("flex gap-2", className)}>
@@ -153,13 +113,13 @@ export function SettingsButtonGroup({
                         key={option.id}
                         onClick={() => onChange(option.id)}
                         className={cn(
-                            "flex-1 flex items-center justify-center px-4 py-2 rounded-xl border transition-all",
+                            "flex h-9 flex-1 items-center justify-center rounded-xl border px-4 text-sm transition-all",
                             isActive
-                                ? "border-foreground/20 bg-foreground/8 text-foreground shadow-sm font-medium"
-                                : "border-border/60 hover:border-foreground/20 hover:bg-foreground/6 text-muted-foreground"
+                                ? "border-foreground/20 bg-foreground/8 font-medium text-foreground"
+                                : "border-border/70 bg-background/85 text-muted-foreground hover:border-foreground/20 hover:bg-foreground/6 hover:text-foreground",
                         )}
                     >
-                        <span className="text-sm">{option.label}</span>
+                        <span>{option.label}</span>
                     </button>
                 );
             })}
@@ -167,12 +127,6 @@ export function SettingsButtonGroup({
     );
 }
 
-/**
- * ========================================
- * Settings Action Buttons
- * ========================================
- * Horizontal layout for action buttons
- */
 interface SettingsActionButtonsProps {
     actions: Array<{
         id: string;
@@ -192,9 +146,12 @@ export function SettingsActionButtons({ actions, className }: SettingsActionButt
                     <button
                         key={action.id}
                         onClick={action.onClick}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border/60 p-2.5 text-foreground/80 transition-all hover:border-foreground/20 hover:bg-foreground/6"
+                        className={cn(
+                            SETTINGS_ACTION_BUTTON_CLASS,
+                            "flex flex-1 items-center justify-center gap-2 px-4",
+                        )}
                     >
-                        {Icon && <Icon size={16} />}
+                        {Icon ? <Icon size={16} /> : null}
                         <span className="text-sm font-medium">{action.label}</span>
                     </button>
                 );
@@ -202,4 +159,3 @@ export function SettingsActionButtons({ actions, className }: SettingsActionButt
         </div>
     );
 }
-

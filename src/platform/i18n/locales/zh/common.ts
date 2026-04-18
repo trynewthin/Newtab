@@ -6,6 +6,7 @@
     confirm: "确认",
     save: "保存",
     add: "添加",
+    manage: "管理",
     close: "关闭",
     edit: "编辑",
     remove: "移除",

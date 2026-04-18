@@ -1,6 +1,6 @@
 import { SEARCH_ENGINES } from "@/shared/constants";
 
-export interface CustomSearchEngine {
+export interface SearchEnginePreferenceItem {
     name: string;
     value: string;
     url: string;
@@ -9,17 +9,17 @@ export interface CustomSearchEngine {
 
 export interface SearchPreferenceData {
     searchEngine: string;
-    customSearchEngines: CustomSearchEngine[];
+    searchEngines: SearchEnginePreferenceItem[];
 }
 
 export const SEARCH_PREFERENCE_STORAGE_KEY = "app-preferences-search";
 export const LEGACY_SETTINGS_STORAGE_KEY = "app-settings";
 
-const VALID_BUILTIN_SEARCH_ENGINES = new Set(
-    SEARCH_ENGINES.map((engine) => engine.value)
-);
+function getDefaultSearchEngines(): SearchEnginePreferenceItem[] {
+    return SEARCH_ENGINES.map((engine) => ({ ...engine }));
+}
 
-function normalizeCustomSearchEngine(value: unknown): CustomSearchEngine | null {
+function normalizeSearchEngine(value: unknown): SearchEnginePreferenceItem | null {
     if (!value || typeof value !== "object") {
         return null;
     }
@@ -47,7 +47,7 @@ export function normalizeSearchPreferenceState(
 ): SearchPreferenceData {
     const fallbackState = fallback ?? {
         searchEngine: "google",
-        customSearchEngines: [],
+        searchEngines: getDefaultSearchEngines(),
     };
 
     if (!value || typeof value !== "object") {
@@ -56,26 +56,33 @@ export function normalizeSearchPreferenceState(
 
     const record = value as {
         searchEngine?: unknown;
+        searchEngines?: unknown;
         customSearchEngines?: unknown;
     };
 
-    const customSearchEngines = Array.isArray(record.customSearchEngines)
-        ? record.customSearchEngines
-            .map(normalizeCustomSearchEngine)
-            .filter((engine): engine is CustomSearchEngine => engine !== null)
-        : fallbackState.customSearchEngines;
+    const searchEngines = Array.isArray(record.searchEngines)
+        ? record.searchEngines
+            .map(normalizeSearchEngine)
+            .filter((engine): engine is SearchEnginePreferenceItem => engine !== null)
+        : Array.isArray(record.customSearchEngines)
+            ? [
+                ...getDefaultSearchEngines(),
+                ...record.customSearchEngines
+                    .map(normalizeSearchEngine)
+                    .filter((engine): engine is SearchEnginePreferenceItem => engine !== null),
+            ]
+            : fallbackState.searchEngines;
+
+    const resolvedSearchEngines = searchEngines.length > 0 ? searchEngines : fallbackState.searchEngines;
 
     const searchEngine = typeof record.searchEngine === "string" &&
-        (
-            VALID_BUILTIN_SEARCH_ENGINES.has(record.searchEngine) ||
-            customSearchEngines.some((engine) => engine.value === record.searchEngine)
-        )
+        resolvedSearchEngines.some((engine) => engine.value === record.searchEngine)
         ? record.searchEngine
-        : fallbackState.searchEngine;
+        : (resolvedSearchEngines[0]?.value ?? fallbackState.searchEngine);
 
     return {
         searchEngine,
-        customSearchEngines,
+        searchEngines: resolvedSearchEngines,
     };
 }
 
@@ -86,9 +93,11 @@ function parseSearchPreferenceFromPersistedRaw(raw: string | null): SearchPrefer
         const parsed = JSON.parse(raw) as {
             state?: {
                 searchEngine?: unknown;
+                searchEngines?: unknown;
                 customSearchEngines?: unknown;
             };
             searchEngine?: unknown;
+            searchEngines?: unknown;
             customSearchEngines?: unknown;
         };
 
@@ -109,7 +118,7 @@ export function readStoredSearchPreference(): SearchPreferenceData {
     if (typeof window === "undefined") {
         return {
             searchEngine: "google",
-            customSearchEngines: [],
+            searchEngines: getDefaultSearchEngines(),
         };
     }
 
@@ -120,7 +129,7 @@ export function readStoredSearchPreference(): SearchPreferenceData {
         ?? readLegacySearchPreference()
         ?? {
             searchEngine: "google",
-            customSearchEngines: [],
+            searchEngines: getDefaultSearchEngines(),
         }
     );
 }

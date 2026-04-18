@@ -11,6 +11,7 @@ export default defineConfig({
     webExtension({
       manifest: "manifest.json",
       additionalInputs: ["popup.html"],
+      skipManifestValidation: true,
     }),
   ],
   resolve: {

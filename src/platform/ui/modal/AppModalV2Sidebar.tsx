@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ArrowLeft, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { AppChromeIconButton } from "@/platform/ui/chrome"
 import { GradualBlur } from "@/platform/ui/effects"
 import { cn } from "@/shared/utils"
 import { AppModalV2, type AppModalV2Props } from "./AppModalV2"
@@ -180,20 +181,12 @@ export function AppModalV2Sidebar({
     ), [handleSidebarItemSelect, sidebarActiveId, sidebarFooter, sidebarItems])
 
     const mobileSidebarTrigger = (
-        <button
-            type="button"
-            aria-label="Open sidebar"
+        <AppChromeIconButton
+            label="Open sidebar"
+            icon={Menu}
             onClick={() => setMobileSidebarOpen(true)}
-            className={cn(
-                "pointer-events-auto inline-flex h-9 w-9 items-center justify-center rounded-xl sm:hidden",
-                "border border-border/70 bg-background/82 text-foreground/78 backdrop-blur-xl",
-                "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-all duration-200",
-                "hover:bg-background/92 hover:text-foreground hover:scale-[1.02]",
-                "active:scale-[0.98]",
-            )}
-        >
-            <Menu size={16} strokeWidth={2.5} />
-        </button>
+            className="pointer-events-auto sm:hidden"
+        />
     )
 
     const desktopSidebar = (
@@ -216,24 +209,17 @@ export function AppModalV2Sidebar({
                     >
                     <AppModalV2CloseButton label={closeButtonLabel} />
                     </div>
-                    <button
-                        type="button"
-                        aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    <AppChromeIconButton
+                        label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        icon={sidebarCollapsed ? PanelLeftOpen : PanelLeftClose}
                         onClick={() => setSidebarCollapsed((prev) => !prev)}
                         className={cn(
-                            "absolute top-0 inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/82 text-foreground/78 backdrop-blur-xl",
-                            "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-[left,transform,background-color,color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                            "hover:bg-background/92 hover:text-foreground hover:scale-[1.02]",
-                            "active:scale-[0.98]",
+                            "absolute top-0 transition-[left,transform,background-color,color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                             sidebarCollapsed
                                 ? "left-1/2 -translate-x-1/2"
                                 : "left-11 translate-x-0"
                         )}
-                    >
-                        {sidebarCollapsed
-                            ? <PanelLeftOpen size={16} strokeWidth={2.5} />
-                            : <PanelLeftClose size={16} strokeWidth={2.5} />}
-                    </button>
+                    />
                     {sidebarToolbarContent && !sidebarCollapsed ? (
                         <div className="absolute left-11 top-0 translate-x-11">
                             {sidebarToolbarContent}
@@ -277,19 +263,12 @@ export function AppModalV2Sidebar({
                             <div className="pointer-events-auto z-10 flex min-w-9 shrink-0 items-center justify-start gap-2">
                                 {mobileSidebarTrigger}
                                 {onHeaderBack ? (
-                                    <button
-                                        type="button"
-                                        aria-label={headerBackLabel}
+                                    <AppChromeIconButton
+                                        label={headerBackLabel}
+                                        icon={ArrowLeft}
                                         onClick={onHeaderBack}
-                                        className={cn(
-                                            "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 bg-background/76 text-foreground/82",
-                                            "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-all duration-200",
-                                            "hover:bg-background/92 hover:text-foreground hover:scale-[1.02]",
-                                            "active:scale-[0.98]",
-                                        )}
-                                    >
-                                        <ArrowLeft size={16} strokeWidth={2.5} />
-                                    </button>
+                                        className="border-border/80 bg-background/76 text-foreground/82"
+                                    />
                                 ) : null}
                             </div>
 
@@ -344,19 +323,11 @@ export function AppModalV2Sidebar({
                             <div className="flex items-center gap-2 p-3">
                                 <AppModalV2CloseButton label={closeButtonLabel} />
                                 {sidebarToolbarContent}
-                                <button
-                                    type="button"
-                                    aria-label="Close sidebar"
+                                <AppChromeIconButton
+                                    label="Close sidebar"
+                                    icon={PanelLeftClose}
                                     onClick={() => setMobileSidebarOpen(false)}
-                                    className={cn(
-                                        "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background/82 text-foreground/78 backdrop-blur-xl",
-                                        "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-all duration-200",
-                                        "hover:bg-background/92 hover:text-foreground hover:scale-[1.02]",
-                                        "active:scale-[0.98]",
-                                    )}
-                                >
-                                    <PanelLeftClose size={16} strokeWidth={2.5} />
-                                </button>
+                                />
                             </div>
 
                             <div className="min-h-0 flex-1 p-3">

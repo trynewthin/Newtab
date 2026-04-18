@@ -24,6 +24,8 @@ export const PORTAL_LAYER_Z_INDEX = {
     contextMenu: 2000,
     popover: 2100,
     select: 2200,
-    alertBackdrop: 2300,
-    alertContent: 2310,
+    dialogBackdrop: 2300,
+    dialogContent: 2310,
+    alertBackdrop: 2400,
+    alertContent: 2410,
 } as const;

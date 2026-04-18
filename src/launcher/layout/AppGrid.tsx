@@ -1,14 +1,18 @@
 ﻿import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { useItemStore } from "@/launcher/store/item";
 import { useUIStore } from "@/launcher/store/ui.store";
-import type { GridItem as GridItemType, WebTagItem } from "@/launcher/model/itemTypes";
+import type {
+    GridItem as GridItemType,
+    LauncherWidgetItem as LauncherWidgetRecord,
+    WebTagItem,
+} from "@/launcher/model/itemTypes";
 import { LauncherGridItemSurface } from "./components/LauncherGridItemSurface";
 import { LauncherGridOverlays } from "./components/LauncherGridOverlays";
 import { useLauncherGridInteractions } from "./useLauncherGridInteractions";
 
 import { isSystemAppId } from "@/launcher/registry/appManifest";
 import { useAppLauncher } from "@/launcher/runtime/useAppLauncher";
-import { resolveWidgetLaunchAppId } from "@/launcher/registry";
+import { getWidgetManifestItem, resolveWidgetLaunchAppId } from "@/launcher/registry";
 
 import { GradualBlur } from "@/platform/ui";
 import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
@@ -47,6 +51,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<WebTagItem | null>(null);
+    const [editingWidget, setEditingWidget] = useState<LauncherWidgetRecord | null>(null);
     const [openFolder, setOpenFolder] = useState<GridItemType | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<GridItemType | null>(null);
     const [motionReadyRevision, setMotionReadyRevision] = useState<number | null>(null);
@@ -128,9 +133,20 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     };
 
     const handleEditClick = (item: GridItemType) => {
-        if (item.kind !== "tag") return;
-        setEditingItem(item);
-        setIsEditDialogOpen(true);
+        if (item.kind === "tag") {
+            setEditingItem(item);
+            setIsEditDialogOpen(true);
+            return;
+        }
+
+        if (item.kind === "widget") {
+            const configFields = getWidgetManifestItem(item.widgetId)?.configFields ?? [];
+            if (configFields.length === 0) {
+                return;
+            }
+
+            setEditingWidget(item);
+        }
     };
 
     const handleDeletePrompt = (item: GridItemType) => {
@@ -243,6 +259,8 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                     isEditDialogOpen={isEditDialogOpen}
                     onEditDialogOpenChange={setIsEditDialogOpen}
                     editingItem={editingItem}
+                    editingWidget={editingWidget}
+                    onWidgetEditDialogOpenChange={(open) => !open && setEditingWidget(null)}
                     openFolder={openFolder}
                     onCloseFolder={handleCloseFolder}
                     onClickFolderItem={handleItemClick}

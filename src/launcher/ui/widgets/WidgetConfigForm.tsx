@@ -28,11 +28,7 @@ export function WidgetConfigForm({
     }
 
     return (
-        <div className="space-y-3 rounded-[1.5rem] border border-border/70 bg-background/74 p-4">
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/42">
-                {t("component_market_customize")}
-            </div>
-
+        <div className="space-y-3">
             <div className="grid gap-3 md:grid-cols-2">
                 {fields.map((field) => {
                     if (field.type === "select") {

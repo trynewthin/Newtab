@@ -12,9 +12,9 @@ import {
     type SystemWidgetManifestItem,
 } from "@/launcher/registry";
 import { type GridPresetKey } from "@/launcher/layout";
+import { WidgetConfigForm } from "@/launcher/ui/widgets";
 import { AppModalEmptyState } from "@/platform/ui";
 import type { WidgetConfig } from "@/shared/types";
-import { WidgetConfigForm } from "./WidgetConfigForm";
 import { WidgetPreviewCard } from "./WidgetPreviewCard";
 import { WidgetPreviewStage } from "./WidgetPreviewStage";
 

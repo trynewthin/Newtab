@@ -1,24 +1,22 @@
-import type { GridItem as GridItemType, WebTagItem } from "@/launcher/model/itemTypes";
+import type {
+    GridItem as GridItemType,
+    LauncherWidgetItem as LauncherWidgetRecord,
+    WebTagItem,
+} from "@/launcher/model/itemTypes";
 import { ShortcutDialog } from "@/launcher/ui/dialogs/ShortcutDialog";
+import { WidgetConfigDialog } from "@/launcher/ui/dialogs/WidgetConfigDialog";
 import { FolderPreview } from "@/launcher/ui/folder/FolderPreview";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogMedia,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { AlertCircle, Trash2, UnfoldVertical } from "lucide-react";
+import { AppDialogV1Closable } from "@/platform/ui";
+import { AppWindow, PanelTop, Trash2, UnfoldVertical } from "lucide-react";
+import { cn } from "@/shared/utils";
 import { useTranslation } from "react-i18next";
 
 interface LauncherGridOverlaysProps {
     isEditDialogOpen: boolean;
     onEditDialogOpenChange: (open: boolean) => void;
     editingItem: WebTagItem | null;
+    editingWidget: LauncherWidgetRecord | null;
+    onWidgetEditDialogOpenChange: (open: boolean) => void;
     openFolder: GridItemType | null;
     onCloseFolder: () => void;
     onClickFolderItem: (item: GridItemType) => void;
@@ -33,6 +31,8 @@ export function LauncherGridOverlays({
     isEditDialogOpen,
     onEditDialogOpenChange,
     editingItem,
+    editingWidget,
+    onWidgetEditDialogOpenChange,
     openFolder,
     onCloseFolder,
     onClickFolderItem,
@@ -43,6 +43,7 @@ export function LauncherGridOverlays({
     onConfirmDelete,
 }: LauncherGridOverlaysProps) {
     const { t } = useTranslation();
+    const deleteDialogConfig = deleteTarget ? getDeleteDialogConfig(deleteTarget, t) : null;
 
     return (
         <>
@@ -50,6 +51,12 @@ export function LauncherGridOverlays({
                 open={isEditDialogOpen}
                 onOpenChange={onEditDialogOpenChange}
                 editTag={editingItem}
+            />
+
+            <WidgetConfigDialog
+                open={!!editingWidget}
+                onOpenChange={onWidgetEditDialogOpenChange}
+                item={editingWidget}
             />
 
             {openFolder ? (
@@ -61,44 +68,115 @@ export function LauncherGridOverlays({
                 />
             ) : null}
 
-            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && onDismissDeleteTarget()}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogMedia className={deleteTarget?.kind === "folder" ? "bg-primary/10 text-primary" : "bg-rose-500/10 text-rose-500"}>
-                            {deleteTarget?.kind === "folder" ? <UnfoldVertical /> : <AlertCircle />}
-                        </AlertDialogMedia>
-                        <AlertDialogTitle>
-                            {deleteTarget?.kind === "folder" ? t("manage_folder") : t("delete_shortcut")}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {deleteTarget?.kind === "folder"
-                                ? t("delete_folder_desc", { title: deleteTarget.title })
-                                : t("delete_shortcut_confirm", { title: deleteTarget?.title })}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-
-                        {deleteTarget?.kind === "folder" ? (
-                            <AlertDialogAction
-                                onClick={onConfirmUngroup}
-                                className="bg-primary hover:bg-primary/90"
+            <AppDialogV1Closable
+                open={!!deleteTarget}
+                onOpenChange={(open) => !open && onDismissDeleteTarget()}
+                title={deleteDialogConfig?.title ?? ""}
+                closeLabel={t("close")}
+                popupClassName="w-[min(92vw,30rem)]"
+                bodyClassName="space-y-5"
+            >
+                {deleteDialogConfig ? (
+                    <>
+                        <div className="flex items-start gap-4">
+                            <div
+                                className={cn(
+                                    "flex size-11 shrink-0 items-center justify-center rounded-2xl",
+                                    deleteDialogConfig.mediaClassName
+                                )}
                             >
-                                <UnfoldVertical className="mr-2 size-4" />
-                                {t("ungroup")}
-                            </AlertDialogAction>
-                        ) : null}
+                                <deleteDialogConfig.icon className="size-5" />
+                            </div>
 
-                        <AlertDialogAction
-                            onClick={onConfirmDelete}
-                            className="bg-rose-500 hover:bg-rose-600 shadow-rose-500/10"
-                        >
-                            <Trash2 className="mr-2 size-4" />
-                            {deleteTarget?.kind === "folder" ? t("delete_all") : t("delete")}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                            <div className="space-y-2 pt-1">
+                                <div className="text-sm leading-relaxed text-muted-foreground">
+                                    {deleteDialogConfig.description}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={onDismissDeleteTarget}
+                                className="h-9 rounded-xl border border-border/70 bg-background/85 px-3 text-sm font-medium text-foreground/85 transition-colors hover:bg-foreground/6 hover:text-foreground"
+                            >
+                                {t("cancel")}
+                            </button>
+
+                            {deleteTarget?.kind === "folder" ? (
+                                <button
+                                    type="button"
+                                    onClick={onConfirmUngroup}
+                                    className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                                >
+                                    <UnfoldVertical className="size-4" />
+                                    {t("ungroup")}
+                                </button>
+                            ) : null}
+
+                            <button
+                                type="button"
+                                onClick={onConfirmDelete}
+                                className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-rose-500 px-3 text-sm font-medium text-white transition-colors hover:bg-rose-600"
+                            >
+                                <Trash2 className="size-4" />
+                                {deleteDialogConfig.confirmLabel}
+                            </button>
+                        </div>
+                    </>
+                ) : null}
+            </AppDialogV1Closable>
         </>
     );
+}
+
+function getDeleteDialogConfig(
+    target: GridItemType,
+    t: (key: string, options?: Record<string, unknown>) => string
+) {
+    const displayTitle = resolveDeleteTargetTitle(target, t);
+
+    if (target.kind === "folder") {
+        return {
+            title: t("manage_folder"),
+            description: t("delete_folder_desc", { title: displayTitle }),
+            confirmLabel: t("delete_all"),
+            icon: UnfoldVertical,
+            mediaClassName: "bg-primary/10 text-primary",
+        };
+    }
+
+    if (target.kind === "widget") {
+        return {
+            title: t("delete_widget"),
+            description: t("delete_widget_confirm", { title: displayTitle }),
+            confirmLabel: t("delete_widget"),
+            icon: PanelTop,
+            mediaClassName: "bg-amber-500/10 text-amber-500",
+        };
+    }
+
+    return {
+        title: t("delete_icon"),
+        description: t("delete_icon_confirm", { title: displayTitle }),
+        confirmLabel: t("delete_icon"),
+        icon: AppWindow,
+        mediaClassName: "bg-rose-500/10 text-rose-500",
+    };
+}
+
+function resolveDeleteTargetTitle(
+    target: GridItemType,
+    t: (key: string, options?: Record<string, unknown>) => string
+) {
+    if (target.kind === "widget") {
+        return t(target.title);
+    }
+
+    if (target.kind === "app" && target.title.startsWith("sys_")) {
+        return t(target.title);
+    }
+
+    return target.title;
 }

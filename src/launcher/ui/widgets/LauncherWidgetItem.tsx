@@ -3,8 +3,7 @@ import { cn } from "@/shared/utils";
 import { ItemActionMenu } from "@/launcher/ui/components/ItemActionMenu";
 import type { LauncherWidgetItem as LauncherWidgetRecord } from "@/launcher/model/itemTypes";
 import type { LauncherTilePreset } from "@/shared/types";
-import { getWidgetManifestItem } from "@/launcher/registry";
-import { AppShortcutWidgetRenderer } from "./widgetFrames";
+import { LauncherWidgetContent } from "./LauncherWidgetContent";
 
 interface LauncherWidgetItemProps {
     item: LauncherWidgetRecord;
@@ -28,8 +27,6 @@ export function LauncherWidgetItem({
     isOverlay,
 }: LauncherWidgetItemProps) {
     const { t } = useTranslation();
-    const widget = getWidgetManifestItem(item.widgetId);
-    const Renderer = widget?.renderer ?? AppShortcutWidgetRenderer;
 
     return (
         <div className={cn("group relative h-full w-full", className)}>
@@ -40,11 +37,10 @@ export function LauncherWidgetItem({
                 editLabel={t("edit")}
                 deleteLabel={t("remove")}
             >
-                <Renderer
+                <LauncherWidgetContent
                     item={item}
                     preset={preset}
                     gridSize={gridSize}
-                    className="h-full w-full"
                     onActivate={onActivate}
                 />
             </ItemActionMenu>

@@ -1,4 +1,5 @@
 export * from "./layout/AppGrid";
+export * from "./layout/components/LauncherGridItemSurface";
 export * from "./ui/components/AppTile";
 export * from "./ui/dialogs/TagConfigForm";
 export * from "./ui/dialogs/ShortcutDialog";
@@ -8,4 +9,5 @@ export * from "./ui/icons/DefaultItemIcon";
 export * from "./ui/icons/defaultItemIcon.shared";
 export * from "./ui/icons/systemIcons";
 export * from "./ui/folder";
+export * from "./ui/widgets/LauncherWidgetContent";
 export * from "./registry";

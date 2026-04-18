@@ -1,68 +1,40 @@
-﻿import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils";
-import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout";
-import type { SystemWidgetManifestItem } from "@/launcher/registry";
-import type { LauncherWidgetItem } from "@/launcher/model/itemTypes";
+import type { ComponentMarketItem } from "./WidgetGallery";
 
 interface WidgetPreviewCardProps {
-    widget: SystemWidgetManifestItem;
-    onAdd: (widget: SystemWidgetManifestItem, preset: GridPresetKey) => void;
+    item: ComponentMarketItem;
+    isActive: boolean;
+    onSelect: () => void;
 }
 
-export function WidgetPreviewCard({ widget, onAdd }: WidgetPreviewCardProps) {
+export function WidgetPreviewCard({
+    item,
+    isActive,
+    onSelect,
+}: WidgetPreviewCardProps) {
     const { t } = useTranslation();
-    const Renderer = widget.renderer;
-    const preset = widget.defaultPreset as GridPresetKey;
-    const size = GRID_ITEM_PRESETS[preset];
-    const fakeItem: LauncherWidgetItem = {
-        id: `preview-${widget.id}`,
-        kind: "widget",
-        widgetId: widget.id,
-        ownerAppId: widget.ownerAppId,
-        title: widget.title,
-        icon: widget.icon,
-    };
-
-    // col-span maps: 1→1, 2→2, 4→4 etc.
-    const colSpanClass =
-        size.w >= 4 ? "col-span-4"
-        : size.w >= 2 ? "col-span-2"
-        : "";
-    const rowSpanClass = size.h >= 2 ? "row-span-2" : "";
+    const supportedPresets = item.supportedPresets.map((preset) =>
+        preset.toUpperCase()
+    );
 
     return (
-        <div
+        <button
+            type="button"
+            onClick={onSelect}
             className={cn(
-                "group/widget relative",
-                colSpanClass,
-                rowSpanClass,
+                "group/widget flex h-full w-full flex-col justify-between gap-2 rounded-[1.5rem] border px-4 py-3 text-left transition-all",
+                isActive
+                    ? "border-foreground/18 bg-foreground/7 shadow-[0_16px_40px_rgba(0,0,0,0.10)]"
+                    : "border-border/70 bg-background/82 hover:border-foreground/16 hover:bg-foreground/4"
             )}
         >
-            <div
-                className="relative overflow-hidden rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]"
-                style={{ aspectRatio: `${size.w} / ${size.h}` }}
-            >
-                <Renderer
-                    item={fakeItem}
-                    preset={preset}
-                    gridSize={size}
-                    className="relative h-full w-full"
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-end p-2 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/widget:opacity-100 transition-opacity">
-                    <button
-                        onClick={() => onAdd(widget, preset)}
-                        className="flex items-center gap-1.5 rounded-xl bg-white/90 px-3 py-1.5 text-[11px] font-bold text-black shadow-lg backdrop-blur-sm transition-transform active:scale-95"
-                    >
-                        <Plus size={12} strokeWidth={3} />
-                        {t("add")}
-                    </button>
-                </div>
+            <div className="text-sm font-semibold leading-5 text-foreground">
+                {t(item.title)}
             </div>
-            <div className="mt-1.5 px-0.5">
-                <div className="truncate text-xs font-medium text-foreground/80">{t(widget.title)}</div>
-                <div className="text-[10px] text-foreground/40">{preset}</div>
+            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground/72">
+                {supportedPresets.join("  ")}
             </div>
-        </div>
+        </button>
     );
 }

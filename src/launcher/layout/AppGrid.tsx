@@ -17,16 +17,16 @@ import { useTranslation } from "react-i18next";
 import GridLayout, { noCompactor, useContainerWidth, type Layout } from "react-grid-layout";
 import {
     applyCommittedLayoutToItem,
-    clamp,
     createLayout,
     GRID_CONTAINER_PADDING,
     GRID_GAP,
-    GRID_STEP_X,
-    MAX_SEMANTIC_COLS,
-    MIN_SEMANTIC_COLS,
     normalizeGridItemGeometry,
-    TARGET_SEMANTIC_CELL_PX,
 } from "./gridLayoutEngine";
+import {
+    resolveLauncherGridRowHeight,
+    resolveLauncherGridTotalCols,
+    resolveSemanticCols,
+} from "./gridMetrics";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
@@ -52,27 +52,13 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const [motionReadyRevision, setMotionReadyRevision] = useState<number | null>(null);
     const { width, containerRef } = useContainerWidth({ initialWidth: 1440 });
 
-    const semanticCols = useMemo(() => {
-        const [marginX] = GRID_GAP;
-        const [paddingX] = GRID_CONTAINER_PADDING;
-        const availableWidth = Math.max(width - paddingX * 2, TARGET_SEMANTIC_CELL_PX);
-        const estimatedCols = Math.floor((availableWidth + marginX) / (TARGET_SEMANTIC_CELL_PX + marginX));
-        return clamp(estimatedCols, MIN_SEMANTIC_COLS, MAX_SEMANTIC_COLS);
-    }, [width]);
+    const semanticCols = useMemo(() => resolveSemanticCols(width), [width]);
 
-    const totalCols = useMemo(() => semanticCols * GRID_STEP_X, [semanticCols]);
+    const totalCols = useMemo(() => resolveLauncherGridTotalCols(semanticCols), [semanticCols]);
 
 
     // 使用“列宽=行高”的网格单位，确保 1x1 占位在视觉上始终为正方形。
-    const rowHeight = useMemo(() => {
-        const [marginX] = GRID_GAP;
-        const [paddingX] = GRID_CONTAINER_PADDING;
-        const availableWidth = Math.max(
-            width - paddingX * 2 - marginX * (totalCols - 1),
-            totalCols
-        );
-        return availableWidth / totalCols;
-    }, [width, totalCols]);
+    const rowHeight = useMemo(() => resolveLauncherGridRowHeight(width, totalCols), [width, totalCols]);
 
     const itemsRef = useRef(items);
     useEffect(() => {

@@ -4,7 +4,7 @@ import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu
 import { cn } from "@/shared/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowRight01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import { PORTAL_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
 import AppSurface from "@/platform/ui/surface/AppSurface"
 
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
@@ -45,7 +45,7 @@ function ContextMenuContent({
   return (
     <ContextMenuPrimitive.Portal>
       <ContextMenuPrimitive.Positioner
-        style={{ zIndex: LAYER_Z_INDEX.contextMenu }}
+        style={{ zIndex: PORTAL_LAYER_Z_INDEX.contextMenu }}
         className="isolate outline-none"
         align={align}
         alignOffset={alignOffset}

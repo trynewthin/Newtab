@@ -4,7 +4,7 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/shared/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { UnfoldMoreIcon, Tick02Icon, ArrowUp01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons"
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import { PORTAL_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
 
 const Select = SelectPrimitive.Root
 
@@ -78,7 +78,7 @@ function SelectContent({
         align={align}
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
-        style={{ zIndex: LAYER_Z_INDEX.select }}
+        style={{ zIndex: PORTAL_LAYER_Z_INDEX.select }}
         className="isolate"
       >
         <SelectPrimitive.Popup

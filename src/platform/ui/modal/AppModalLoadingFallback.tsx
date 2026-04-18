@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/shared/utils"
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import { MODAL_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
 
 export interface AppModalLoadingFallbackProps {
     fullscreen?: boolean
@@ -20,7 +20,7 @@ export function AppModalLoadingFallback({
         <>
             <div
                 aria-hidden="true"
-                style={{ zIndex: LAYER_Z_INDEX.overlayBackdrop }}
+                style={{ zIndex: MODAL_LAYER_Z_INDEX.backdrop }}
                 className={cn(
                     "fixed inset-0 bg-black/45 backdrop-blur-xl",
                     backdropClassName,
@@ -29,7 +29,7 @@ export function AppModalLoadingFallback({
 
             <div
                 aria-hidden="true"
-                style={{ zIndex: LAYER_Z_INDEX.overlayContent }}
+                style={{ zIndex: MODAL_LAYER_Z_INDEX.shell }}
                 className={cn(
                     "fixed inset-0 outline-none",
                     !fullscreen && [

@@ -2,7 +2,7 @@
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 
 import { cn } from "@/shared/utils"
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import { PORTAL_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
@@ -31,7 +31,7 @@ function PopoverContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        style={{ zIndex: LAYER_Z_INDEX.popover }}
+        style={{ zIndex: PORTAL_LAYER_Z_INDEX.popover }}
         className="isolate"
       >
         <PopoverPrimitive.Popup

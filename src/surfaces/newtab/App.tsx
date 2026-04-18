@@ -14,7 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { HashRouter, useLocation } from "react-router-dom";
 import { useUIStore } from "@/launcher/store";
 import { cn } from "@/shared/utils";
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
+import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 import { parseSystemDialogRoute, useSystemDialogRouter } from "@/launcher/store";
 
 function syncThemeToDOM() {
@@ -54,7 +54,7 @@ function AppShell() {
             {!isModalRoute ? (
                 <>
                     <div
-                        style={{ zIndex: LAYER_Z_INDEX.newtabContent }}
+                        style={{ zIndex: NEWTAB_LAYER_Z_INDEX.content }}
                         className={cn(
                             "relative w-full h-full transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                             isModalVisible && "pointer-events-none"

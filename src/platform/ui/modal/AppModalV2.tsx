@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Dialog } from "@base-ui/react/dialog"
 import { cn } from "@/shared/utils"
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
+import { MODAL_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex"
 
 export interface AppModalV2Props {
     open: boolean
@@ -40,7 +40,7 @@ export function AppModalV2({
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>
                 <Dialog.Backdrop
-                    style={{ zIndex: LAYER_Z_INDEX.overlayBackdrop }}
+                    style={{ zIndex: MODAL_LAYER_Z_INDEX.backdrop }}
                     className={cn(
                         "fixed inset-0 bg-black/45 backdrop-blur-xl",
                         animateOpen && "data-open:animate-in data-open:fade-in-0",
@@ -51,7 +51,7 @@ export function AppModalV2({
                 />
 
                 <Dialog.Popup
-                    style={{ zIndex: LAYER_Z_INDEX.overlayContent }}
+                    style={{ zIndex: MODAL_LAYER_Z_INDEX.shell }}
                     className={cn(
                         "fixed inset-0 outline-none",
                         animateOpen && "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-[0.97]",
@@ -72,19 +72,19 @@ export function AppModalV2({
                         }}
                     >
                         {backgroundLayer && (
-                            <div className="absolute inset-0 z-0 pointer-events-none">
+                            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: MODAL_LAYER_Z_INDEX.backgroundLayer }}>
                                 {backgroundLayer}
                             </div>
                         )}
 
                         {contentLayer && (
-                            <div className="relative z-10 h-full w-full">
+                            <div className="relative h-full w-full" style={{ zIndex: MODAL_LAYER_Z_INDEX.contentLayer }}>
                                 {contentLayer}
                             </div>
                         )}
 
                         {floatLayer && (
-                            <div className="absolute inset-0 z-20 pointer-events-none">
+                            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: MODAL_LAYER_Z_INDEX.floatLayer }}>
                                 {floatLayer}
                             </div>
                         )}

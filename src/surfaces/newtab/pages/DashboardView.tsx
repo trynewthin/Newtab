@@ -4,7 +4,7 @@ import { AppModalLoadingFallback } from "@/platform/ui/modal";
 import { cn } from "@/shared/utils";
 import { useUIStore } from "@/launcher/store";
 import { warmupModalRuntimes } from "@/launcher/runtime";
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
+import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 import { useOnboardingStateStore } from "@/config";
 
 const HomeTools = lazy(() =>
@@ -140,7 +140,7 @@ export function DashboardView() {
         <div className="w-full h-full pointer-events-auto relative py-0 px-0 flex flex-col items-center overflow-visible">
             {showTools && (
                 <div
-                    style={{ zIndex: LAYER_Z_INDEX.newtabToolbar }}
+                    style={{ zIndex: NEWTAB_LAYER_Z_INDEX.toolbar }}
                     className={cn(
                         "absolute inset-x-0 top-0 flex justify-center pt-2",
                         toolbarVisible ? "pointer-events-auto" : "pointer-events-none"
@@ -171,7 +171,7 @@ export function DashboardView() {
 
             <div
                 className="relative w-full h-full min-h-0 overflow-visible"
-                style={{ zIndex: LAYER_Z_INDEX.newtabContentOverlay }}
+                style={{ zIndex: NEWTAB_LAYER_Z_INDEX.contentOverlay }}
             >
                 <AppGrid topInsetPx={DASHBOARD_GRID_TOP_INSET_PX} />
             </div>

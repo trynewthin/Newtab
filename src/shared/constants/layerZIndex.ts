@@ -1,25 +1,29 @@
-﻿export const LAYER_Z_INDEX = {
-    // Newtab base surface stack
-    newtabBackground: 0,
-    newtabContent: 10,
-    newtabContentOverlay: 20,
-    newtabFloating: 40,
-    newtabToolbar: 60,
-    newtabModalHost: 80,
+export const NEWTAB_LAYER_Z_INDEX = {
+    background: 0,
+    content: 10,
+    contentOverlay: 20,
+    floating: 40,
+    toolbar: 60,
+    modalHost: 80,
+} as const;
 
-    // Full-screen overlays
-    overlayBackdrop: 1000,
-    overlayContent: 1010,
-    overlayDrag: 1100,
+export const MODAL_LAYER_Z_INDEX = {
+    backdrop: 1000,
+    shell: 1010,
+    backgroundLayer: 0,
+    contentLayer: 10,
+    floatLayer: 20,
+} as const;
 
-    // Portal menus
+export const OVERLAY_LAYER_Z_INDEX = {
+    backdrop: 1000,
+    drag: 1100,
+} as const;
+
+export const PORTAL_LAYER_Z_INDEX = {
     contextMenu: 2000,
     popover: 2100,
     select: 2200,
-
-    // Confirm dialogs above menus
     alertBackdrop: 2300,
     alertContent: 2310,
 } as const;
-
-export type LayerZIndexKey = keyof typeof LAYER_Z_INDEX;

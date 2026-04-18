@@ -162,22 +162,24 @@ export default function ColorBends({
   const pointerTargetRef = useRef({ x: 0, y: 0 });
   const pointerCurrentRef = useRef({ x: 0, y: 0 });
 
-  propsRef.current = {
-    className,
-    style,
-    color,
-    rotation,
-    speed,
-    colors,
-    transparent,
-    autoRotate,
-    scale,
-    frequency,
-    warpStrength,
-    mouseInfluence,
-    parallax,
-    noise,
-  };
+  useEffect(() => {
+    propsRef.current = {
+      className,
+      style,
+      color,
+      rotation,
+      speed,
+      colors,
+      transparent,
+      autoRotate,
+      scale,
+      frequency,
+      warpStrength,
+      mouseInfluence,
+      parallax,
+      noise,
+    };
+  }, [autoRotate, className, color, colors, frequency, mouseInfluence, noise, parallax, rotation, scale, speed, style, transparent, warpStrength]);
 
   useEffect(() => {
     const container = containerRef.current;

@@ -266,23 +266,25 @@ export default function FloatingLines({
   const targetParallaxRef = useRef({ x: 0, y: 0 });
   const currentParallaxRef = useRef({ x: 0, y: 0 });
 
-  propsRef.current = {
-    linesGradient,
-    enabledWaves,
-    lineCount,
-    lineDistance,
-    topWavePosition,
-    middleWavePosition,
-    bottomWavePosition,
-    animationSpeed,
-    interactive,
-    bendRadius,
-    bendStrength,
-    mouseDamping,
-    parallax,
-    parallaxStrength,
-    mixBlendMode,
-  };
+  useEffect(() => {
+    propsRef.current = {
+      linesGradient,
+      enabledWaves,
+      lineCount,
+      lineDistance,
+      topWavePosition,
+      middleWavePosition,
+      bottomWavePosition,
+      animationSpeed,
+      interactive,
+      bendRadius,
+      bendStrength,
+      mouseDamping,
+      parallax,
+      parallaxStrength,
+      mixBlendMode,
+    };
+  }, [animationSpeed, bendRadius, bendStrength, bottomWavePosition, enabledWaves, interactive, lineCount, lineDistance, linesGradient, middleWavePosition, mixBlendMode, mouseDamping, parallax, parallaxStrength, topWavePosition]);
 
   const getLineCount = (waves: Array<"top" | "middle" | "bottom">, counts: number | number[], waveType: "top" | "middle" | "bottom"): number => {
     if (typeof counts === "number") return counts;

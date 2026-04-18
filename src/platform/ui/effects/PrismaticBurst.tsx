@@ -238,6 +238,7 @@ const PrismaticBurst = ({
   const isVisibleRef = useRef<boolean>(true);
   const meshRef = useRef<Mesh | null>(null);
   const triRef = useRef<Triangle | null>(null);
+  const mixBlendModeRef = useRef<PrismaticBurstProps['mixBlendMode']>(mixBlendMode);
 
   useEffect(() => {
     pausedRef.current = paused;
@@ -245,6 +246,9 @@ const PrismaticBurst = ({
   useEffect(() => {
     hoverDampRef.current = hoverDampness;
   }, [hoverDampness]);
+  useEffect(() => {
+    mixBlendModeRef.current = mixBlendMode;
+  }, [mixBlendMode]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -259,7 +263,7 @@ const PrismaticBurst = ({
     gl.canvas.style.inset = '0';
     gl.canvas.style.width = '100%';
     gl.canvas.style.height = '100%';
-    gl.canvas.style.mixBlendMode = mixBlendMode && mixBlendMode !== 'none' ? mixBlendMode : '';
+    gl.canvas.style.mixBlendMode = mixBlendModeRef.current && mixBlendModeRef.current !== 'none' ? mixBlendModeRef.current : '';
     container.appendChild(gl.canvas);
 
     const white = new Uint8Array([255, 255, 255, 255]);
@@ -360,7 +364,7 @@ const PrismaticBurst = ({
       const sm = mouseSmoothRef.current;
       sm[0] += (tgt[0] - sm[0]) * alpha;
       sm[1] += (tgt[1] - sm[1]) * alpha;
-      program.uniforms.uMouse.value = sm as any;
+      program.uniforms.uMouse.value = [...sm] as [number, number];
       program.uniforms.uTime.value = accumTime;
       renderer.render({ scene: meshRef.current! });
       raf = requestAnimationFrame(update);
@@ -394,7 +398,7 @@ const PrismaticBurst = ({
   }, []);
 
   useEffect(() => {
-    const canvas = rendererRef.current?.gl?.canvas as HTMLCanvasElement | undefined;
+    const canvas = containerRef.current?.querySelector('canvas');
     if (canvas) {
       canvas.style.mixBlendMode = mixBlendMode && mixBlendMode !== 'none' ? mixBlendMode : '';
     }

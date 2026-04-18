@@ -177,21 +177,23 @@ const LightPillar: React.FC<LightPillarProps> = ({
   const timeRef = useRef(0);
   const [webGLSupported, setWebGLSupported] = useState(true);
 
-  propsRef.current = {
-    topColor,
-    bottomColor,
-    intensity,
-    rotationSpeed,
-    interactive,
-    className,
-    glowAmount,
-    pillarWidth,
-    pillarHeight,
-    noiseIntensity,
-    mixBlendMode,
-    pillarRotation,
-    quality,
-  };
+  useEffect(() => {
+    propsRef.current = {
+      topColor,
+      bottomColor,
+      intensity,
+      rotationSpeed,
+      interactive,
+      className,
+      glowAmount,
+      pillarWidth,
+      pillarHeight,
+      noiseIntensity,
+      mixBlendMode,
+      pillarRotation,
+      quality,
+    };
+  }, [bottomColor, className, glowAmount, intensity, interactive, mixBlendMode, noiseIntensity, pillarHeight, pillarRotation, pillarWidth, quality, rotationSpeed, topColor]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -225,7 +227,9 @@ const LightPillar: React.FC<LightPillarProps> = ({
       });
     } catch (error) {
       console.error("Failed to create WebGL renderer:", error);
-      setWebGLSupported(false);
+      requestAnimationFrame(() => {
+        setWebGLSupported(false);
+      });
       return;
     }
 

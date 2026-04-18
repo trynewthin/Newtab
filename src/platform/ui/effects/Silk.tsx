@@ -85,7 +85,9 @@ export default function Silk({
     rotation,
   });
 
-  propsRef.current = { speed, scale, color, noiseIntensity, rotation };
+  useEffect(() => {
+    propsRef.current = { speed, scale, color, noiseIntensity, rotation };
+  }, [color, noiseIntensity, rotation, scale, speed]);
 
   useEffect(() => {
     const container = containerRef.current;

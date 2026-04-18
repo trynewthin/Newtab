@@ -56,13 +56,16 @@ export const SEARCH_ENGINES = [
 ];
 
 export const APP_METADATA = {
-    version: "0.3",
+    version: "0.4.0",
     author: {
         name: "TryNewThin",
         github: "https://github.com/trynewthin",
         avatar: "https://github.com/trynewthin.png",
     },
     changelog: [
+        { date: "2026-04-18", tag: "v0.4.0", content: "完成外观与持久化架构收口：全局外观偏好迁移到独立 preferences 域，平台层不再硬编码业务 store rehydrate。" },
+        { date: "2026-04-18", tag: "v0.4.0", content: "启动台布局运行时拆分：AppGrid 拆出布局引擎、交互状态机与弹层壳，降低热点文件耦合与回归风险。" },
+        { date: "2026-04-18", tag: "v0.4.0", content: "移除未成熟的玻璃折射材质，并去掉新标签页搜索框与图标网格的首屏入场动画。" },
         { date: "2026-02-14", tag: "v0.3", content: "新增首次运行引导向导（5 步），支持备份恢复、语言/材质/主题偏好设置。" },
         { date: "2026-02-14", tag: "v0.3", content: "默认背景切换为动态色带流形（color-bends），默认材质切换为磨砂玻璃（mac-frosted）。" },
         { date: "2026-02-14", tag: "v0.3", content: "AlertDialog 与 ContextMenu 接入 AppSurface 玻璃材质体系，修复浅色模式下颜色可读性问题。" },

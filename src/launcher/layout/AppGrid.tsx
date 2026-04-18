@@ -49,7 +49,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const [editingItem, setEditingItem] = useState<WebTagItem | null>(null);
     const [openFolder, setOpenFolder] = useState<GridItemType | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<GridItemType | null>(null);
-    const [suppressInitialGridMotion, setSuppressInitialGridMotion] = useState(true);
+    const [motionReadyRevision, setMotionReadyRevision] = useState<number | null>(null);
     const { width, containerRef } = useContainerWidth({ initialWidth: 1440 });
 
     const semanticCols = useMemo(() => {
@@ -84,10 +84,8 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     }, [setFolderPreviewVisible]);
 
     useEffect(() => {
-        setSuppressInitialGridMotion(true);
-
         const frameId = window.requestAnimationFrame(() => {
-            setSuppressInitialGridMotion(false);
+            setMotionReadyRevision(layoutRevision);
         });
 
         return () => window.cancelAnimationFrame(frameId);
@@ -199,6 +197,8 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
         batchGroupItems,
         newFolderTitle: t("new_folder"),
     });
+
+    const suppressInitialGridMotion = motionReadyRevision !== layoutRevision;
 
     return (
         <section className="relative w-full h-full overflow-hidden">

@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "PTab",
-    "version": "1.0.0",
+    "version": "0.4.0",
     "description": "A beautiful, premium New Tab page with integrated AI Agent capabilities.",
     "chrome_url_overrides": {
         "newtab": "index.html"

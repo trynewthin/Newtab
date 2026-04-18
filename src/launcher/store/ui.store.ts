@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { SystemType } from "@/launcher/registry/systemRegistry";
-import { resolveInitialSystemDialogFromHash } from "./systemDialogRoutes";
+import { resolveInitialSystemDialogFromLocationHash } from "./systemDialogRoutes";
 
 export type SystemDialogType = SystemType;
 
@@ -22,7 +22,7 @@ function resolveInitialSystemDialog(): SystemDialogType | null {
         return null;
     }
 
-    return resolveInitialSystemDialogFromHash(window.location.hash);
+    return resolveInitialSystemDialogFromLocationHash(window.location.hash);
 }
 
 export const useUIStore = create<UIState>((set) => ({

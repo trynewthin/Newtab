@@ -31,6 +31,7 @@ dist-ssr
 task_plan.md
 findings.md
 progress.md
+AGENTS.md
 
 # bun-only lockfile policy
 package-lock.json

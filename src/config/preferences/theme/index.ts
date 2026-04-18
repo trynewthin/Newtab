@@ -15,3 +15,4 @@ export {
     toggleThemePreference,
     useThemePreferenceStore,
 } from "./store";
+export { ThemePreferenceToggleButton } from "./ThemePreferenceToggleButton";

@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
+import { ThemePreferenceToggleButton } from "@/config";
 import { AppModalV2Sidebar } from "@/platform/ui/modal";
 import { Settings, Palette, Info, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GeneralSettings } from "./general/GeneralSettings";
 import { AppearanceSettings, type ThemeSettingsSubPage } from "./appearance/AppearanceSettings";
 import { AboutSettings } from "./about/AboutSettings";
-import { ThemeQuickToggleButton } from "./components/ThemeQuickToggleButton";
 
 interface SettingsDialogProps {
     open: boolean;
@@ -78,7 +78,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             sidebarItems={sidebarItems}
             sidebarActiveId={activeTab}
             onSidebarChange={handleTabChange}
-            sidebarToolbarAccessory={<ThemeQuickToggleButton />}
+            sidebarToolbarContent={<ThemePreferenceToggleButton />}
             contentClassName="min-h-0"
             headerTitle={headerTitle}
             onHeaderBack={activeTab === "appearance" && appearanceSubPage !== "home" ? () => setAppearanceSubPage("home") : undefined}

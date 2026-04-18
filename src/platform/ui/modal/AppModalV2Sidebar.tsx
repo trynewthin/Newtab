@@ -26,7 +26,7 @@ export interface AppModalV2SidebarProps extends Omit<AppModalV2Props, "contentLa
     defaultSidebarCollapsed?: boolean
     closeButtonLabel?: string
     sidebarStorageKey?: string
-    sidebarToolbarAccessory?: React.ReactNode
+    sidebarToolbarContent?: React.ReactNode
     headerTitle?: React.ReactNode
     onHeaderBack?: () => void
     headerBackLabel?: string
@@ -72,7 +72,7 @@ export function AppModalV2Sidebar({
     defaultSidebarCollapsed = false,
     closeButtonLabel,
     sidebarStorageKey,
-    sidebarToolbarAccessory,
+    sidebarToolbarContent,
     headerTitle,
     onHeaderBack,
     headerBackLabel = "Back",
@@ -234,9 +234,9 @@ export function AppModalV2Sidebar({
                             ? <PanelLeftOpen size={16} strokeWidth={2.5} />
                             : <PanelLeftClose size={16} strokeWidth={2.5} />}
                     </button>
-                    {sidebarToolbarAccessory && !sidebarCollapsed ? (
+                    {sidebarToolbarContent && !sidebarCollapsed ? (
                         <div className="absolute left-11 top-0 translate-x-11">
-                            {sidebarToolbarAccessory}
+                            {sidebarToolbarContent}
                         </div>
                     ) : null}
                 </div>
@@ -343,7 +343,7 @@ export function AppModalV2Sidebar({
                         <div className="flex h-full min-h-0 flex-col">
                             <div className="flex items-center gap-2 p-3">
                                 <AppModalV2CloseButton label={closeButtonLabel} />
-                                {sidebarToolbarAccessory}
+                                {sidebarToolbarContent}
                                 <button
                                     type="button"
                                     aria-label="Close sidebar"

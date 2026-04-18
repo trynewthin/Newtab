@@ -296,8 +296,6 @@ const GradualBlur: React.FC<GradualBlurProps> = props => {
 
 const GradualBlurMemo = React.memo(GradualBlur);
 GradualBlurMemo.displayName = 'GradualBlur';
-export const GRADUAL_BLUR_PRESETS = PRESETS;
-export const GRADUAL_BLUR_CURVE_FUNCTIONS = CURVE_FUNCTIONS;
 export default GradualBlurMemo;
 
 const injectStyles = () => {

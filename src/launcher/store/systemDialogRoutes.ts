@@ -34,21 +34,11 @@ export function parseSystemDialogRoute(pathname: string): SystemType | null {
         : null
 }
 
-export function resolveInitialSystemDialogFromHash(hash: string): SystemType | null {
+export function resolveInitialSystemDialogFromLocationHash(hash: string): SystemType | null {
     const raw = hash.startsWith("#") ? hash.slice(1) : hash
     if (!raw) {
         return null
     }
 
-    const routeMatch = parseSystemDialogRoute(raw)
-    if (routeMatch) {
-        return routeMatch
-    }
-
-    const legacyDialogId = raw.split("#").at(-1)?.trim() ?? ""
-    const validTypes = getValidSystemTypes()
-
-    return validTypes.includes(legacyDialogId as SystemType)
-        ? (legacyDialogId as SystemType)
-        : null
+    return parseSystemDialogRoute(raw)
 }

@@ -181,6 +181,7 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
         <AppModalV2Sidebar
             open={open}
             onOpenChange={onOpenChange}
+            sidebarStorageKey="downloads"
             sidebarItems={sidebarItems}
             sidebarActiveId={filter}
             onSidebarChange={(id) => setFilter(id as DownloadFilter)}

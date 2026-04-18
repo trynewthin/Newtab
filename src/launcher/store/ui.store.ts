@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { SystemType } from "@/launcher/registry/systemRegistry";
+import { resolveInitialSystemDialogFromHash } from "./systemDialogRoutes";
 
 export type SystemDialogType = SystemType;
 
@@ -16,10 +17,18 @@ export interface UIState {
     setFolderPreviewVisible: (visible: boolean) => void;
 }
 
+function resolveInitialSystemDialog(): SystemDialogType | null {
+    if (typeof window === "undefined") {
+        return null;
+    }
+
+    return resolveInitialSystemDialogFromHash(window.location.hash);
+}
+
 export const useUIStore = create<UIState>((set) => ({
     isEditing: false,
     selectedTagIds: [],
-    activeSystemDialog: null,
+    activeSystemDialog: resolveInitialSystemDialog(),
     isFolderPreviewVisible: false,
 
     setEditing: (status) =>

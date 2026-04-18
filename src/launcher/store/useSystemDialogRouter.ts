@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { VALID_SYSTEM_TYPES } from "@/launcher/registry/appManifest";
-import type { SystemType } from "@/launcher/registry/systemRegistry";
 import { useUIStore } from "./ui.store";
+import {
+    getSystemDialogRoute,
+    parseSystemDialogRoute,
+} from "./systemDialogRoutes";
 
 export function useSystemDialogRouter() {
     const navigate = useNavigate();
@@ -12,9 +14,8 @@ export function useSystemDialogRouter() {
     const isUpdatingFromState = useRef(false);
 
     useEffect(() => {
-        const hash = location.hash.slice(1);
-        const validTypes = VALID_SYSTEM_TYPES as readonly SystemType[];
         const currentActiveDialog = useUIStore.getState().activeSystemDialog;
+        const routeDialog = parseSystemDialogRoute(location.pathname);
 
         if (isUpdatingFromState.current) {
             isUpdatingFromState.current = false;
@@ -23,35 +24,38 @@ export function useSystemDialogRouter() {
 
         isUpdatingFromUrl.current = true;
 
-        if (hash && validTypes.includes(hash as SystemType)) {
-            if (currentActiveDialog !== hash) {
-                setActiveSystemDialog(hash as SystemType);
+        if (routeDialog) {
+            if (currentActiveDialog !== routeDialog) {
+                setActiveSystemDialog(routeDialog);
             }
-        } else if (hash === "" && currentActiveDialog !== null) {
+        } else if (currentActiveDialog !== null) {
             setActiveSystemDialog(null);
         }
 
         setTimeout(() => {
             isUpdatingFromUrl.current = false;
         }, 0);
-    }, [location.hash, setActiveSystemDialog]);
+    }, [location.pathname, setActiveSystemDialog]);
 
     useEffect(() => {
         if (isUpdatingFromUrl.current) {
             return;
         }
 
-        const currentHash = location.hash.slice(1);
+        const currentDialogRoute = parseSystemDialogRoute(location.pathname);
         isUpdatingFromState.current = true;
 
-        if (activeSystemDialog && currentHash !== activeSystemDialog) {
-            navigate(`#${activeSystemDialog}`, { replace: false });
-        } else if (!activeSystemDialog && currentHash && currentHash !== "") {
-            navigate("#", { replace: false });
+        if (activeSystemDialog) {
+            const targetRoute = getSystemDialogRoute(activeSystemDialog);
+            if (location.pathname !== targetRoute) {
+                navigate(targetRoute, { replace: false });
+            }
+        } else if (currentDialogRoute) {
+            navigate("/", { replace: false });
         }
 
         setTimeout(() => {
             isUpdatingFromState.current = false;
         }, 0);
-    }, [activeSystemDialog, location.hash, navigate]);
+    }, [activeSystemDialog, location.pathname, navigate]);
 }

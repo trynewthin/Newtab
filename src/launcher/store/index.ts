@@ -1,5 +1,6 @@
 export * from "./item";
 export * from "./ui.store";
 export * from "./useSystemDialogRouter";
+export * from "./systemDialogRoutes";
 export * from "./item.helpers";
 export * from "./item.types";

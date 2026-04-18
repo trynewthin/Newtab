@@ -174,6 +174,7 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
         <AppModalV2Sidebar
             open={open}
             onOpenChange={onOpenChange}
+            sidebarStorageKey="bookmarks"
             sidebarItems={sidebarItems}
             sidebarActiveId={searchQuery ? undefined : currentFolderId}
             onSidebarChange={handleSidebarChange}

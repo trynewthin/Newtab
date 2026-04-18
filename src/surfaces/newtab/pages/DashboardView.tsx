@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { AppGrid } from "@/launcher";
 import { AppModalLoadingFallback } from "@/platform/ui/modal";
 import { cn } from "@/shared/utils";
-import { useUIStore, useSystemDialogRouter } from "@/launcher/store";
+import { useUIStore } from "@/launcher/store";
 import { warmupModalRuntimes } from "@/launcher/runtime";
 import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 import { useSettingsStore } from "@/apps/settings";
@@ -19,8 +19,6 @@ const TOOLBAR_TRIGGER_TOP_PX = 64;
 const TOOLBAR_TRIGGER_HALF_WIDTH_PX = 320;
 
 export function DashboardView() {
-    useSystemDialogRouter();
-
     const [showTools, setShowTools] = useState(false);
     const [supportsHoverReveal, setSupportsHoverReveal] = useState(false);
     const [isNearTop, setIsNearTop] = useState(false);

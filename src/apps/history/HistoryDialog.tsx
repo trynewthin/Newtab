@@ -202,6 +202,7 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
             <AppModalV2Sidebar
                 open={open}
                 onOpenChange={onOpenChange}
+                sidebarStorageKey="history"
                 sidebarItems={sidebarItems}
                 sidebarActiveId={filter}
                 onSidebarChange={(id) => setFilter(id as HistoryFilter)}

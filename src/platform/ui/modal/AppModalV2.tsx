@@ -26,6 +26,16 @@ export function AppModalV2({
     containerClassName,
     backdropClassName,
 }: AppModalV2Props) {
+    const [hasClosedSinceMount, setHasClosedSinceMount] = React.useState(!open)
+
+    React.useEffect(() => {
+        if (!open) {
+            setHasClosedSinceMount(true)
+        }
+    }, [open])
+
+    const animateOpen = hasClosedSinceMount || !open
+
     return (
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>
@@ -33,8 +43,8 @@ export function AppModalV2({
                     style={{ zIndex: LAYER_Z_INDEX.overlayBackdrop }}
                     className={cn(
                         "fixed inset-0 bg-black/45 backdrop-blur-xl",
-                        "data-open:animate-in data-closed:animate-out",
-                        "data-open:fade-in-0 data-closed:fade-out-0",
+                        animateOpen && "data-open:animate-in data-open:fade-in-0",
+                        "data-closed:animate-out data-closed:fade-out-0",
                         "duration-300",
                         backdropClassName,
                     )}
@@ -44,9 +54,8 @@ export function AppModalV2({
                     style={{ zIndex: LAYER_Z_INDEX.overlayContent }}
                     className={cn(
                         "fixed inset-0 outline-none",
-                        "data-open:animate-in data-closed:animate-out",
-                        "data-open:fade-in-0 data-closed:fade-out-0",
-                        "data-open:zoom-in-[0.97] data-closed:zoom-out-[0.97]",
+                        animateOpen && "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-[0.97]",
+                        "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-[0.97]",
                         "duration-300 ease-out",
                         className,
                     )}

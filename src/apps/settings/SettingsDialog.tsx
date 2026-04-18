@@ -45,6 +45,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <AppModalV2Sidebar
             open={open}
             onOpenChange={onOpenChange}
+            sidebarStorageKey="settings"
             sidebarItems={sidebarItems}
             sidebarActiveId={activeTab}
             onSidebarChange={setActiveTab}

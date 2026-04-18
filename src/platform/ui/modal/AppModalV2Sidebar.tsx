@@ -29,6 +29,7 @@ export interface AppModalV2SidebarProps extends Omit<AppModalV2Props, "contentLa
     sidebarStorageKey?: string
     sidebarToolbarContent?: React.ReactNode
     headerTitle?: React.ReactNode
+    headerCenter?: React.ReactNode
     onHeaderBack?: () => void
     headerBackLabel?: string
     headerActions?: React.ReactNode
@@ -75,6 +76,7 @@ export function AppModalV2Sidebar({
     sidebarStorageKey,
     sidebarToolbarContent,
     headerTitle,
+    headerCenter,
     onHeaderBack,
     headerBackLabel = "Back",
     headerActions,
@@ -105,7 +107,11 @@ export function AppModalV2Sidebar({
         }
     }, [sidebarCollapsed, sidebarStorageKey])
 
-    const hasContentHeader = headerTitle !== undefined || !!onHeaderBack || headerActions !== undefined
+    const hasContentHeader =
+        headerTitle !== undefined ||
+        headerCenter !== undefined ||
+        !!onHeaderBack ||
+        headerActions !== undefined
 
     const handleOpenChange = React.useCallback((nextOpen: boolean) => {
         if (!nextOpen) {
@@ -273,9 +279,15 @@ export function AppModalV2Sidebar({
                             </div>
 
                             <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-16 sm:px-20">
-                                <div className="min-w-0 max-w-full truncate text-center text-base font-semibold tracking-[-0.03em] text-foreground/92 sm:text-lg">
-                                    {headerTitle}
-                                </div>
+                                {headerCenter !== undefined ? (
+                                    <div className="pointer-events-auto flex min-w-0 w-full max-w-full items-center justify-center">
+                                        {headerCenter}
+                                    </div>
+                                ) : (
+                                    <div className="min-w-0 max-w-full truncate text-center text-base font-semibold tracking-[-0.03em] text-foreground/92 sm:text-lg">
+                                        {headerTitle}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="pointer-events-auto z-10 flex min-w-9 shrink-0 items-center justify-end gap-2">

@@ -15,6 +15,7 @@ import {
     type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { AppChromeIconButton } from "@/platform/ui";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -169,34 +170,6 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
 
     const totalFiltered = groupedHistory.reduce((sum, group) => sum + group.items.length, 0);
 
-    const topBar = (
-        <div className="flex min-h-16 items-center gap-3 bg-background/64 px-4 py-3 backdrop-blur-sm sm:px-6">
-            <div className="h-8 w-8 shrink-0" />
-            <div className="flex flex-1 justify-center">
-                <div className="relative w-full max-w-72">
-                    <Search
-                        size={12}
-                        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    />
-                    <input
-                        value={searchQuery}
-                        onChange={(event) => setSearchQuery(event.target.value)}
-                        placeholder={t("search_history")}
-                        className="h-9 w-full rounded-xl bg-foreground/8 pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:bg-foreground/12"
-                    />
-                </div>
-            </div>
-            <button
-                type="button"
-                onClick={() => setIsClearConfirmOpen(true)}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-rose-500/10 hover:text-rose-500"
-                title={t("clear_history")}
-            >
-                <Trash2 size={13} strokeWidth={2.5} />
-            </button>
-        </div>
-    );
-
     return (
         <>
             <AppModalV2Sidebar
@@ -207,10 +180,32 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                 sidebarActiveId={filter}
                 onSidebarChange={(id) => setFilter(id as HistoryFilter)}
                 contentClassName="min-h-0"
+                headerCenter={(
+                    <div className="relative w-full max-w-72">
+                        <Search
+                            size={12}
+                            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        />
+                        <input
+                            value={searchQuery}
+                            onChange={(event) => setSearchQuery(event.target.value)}
+                            placeholder={t("search_history")}
+                            className="h-9 w-full rounded-xl bg-foreground/8 pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:bg-foreground/12"
+                        />
+                    </div>
+                )}
+                headerActions={(
+                    <AppChromeIconButton
+                        label={t("clear_history")}
+                        icon={Trash2}
+                        onClick={() => setIsClearConfirmOpen(true)}
+                        className="text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
+                    />
+                )}
+                bodyClassName="overflow-y-auto custom-scrollbar px-4 pb-4 sm:px-6 sm:pb-5"
             >
-                <div className="flex h-full min-h-0 flex-col">
-                    {topBar}
-                    <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
+                <div className="flex min-h-full flex-col py-4">
+                    <div className="min-h-0 flex-1">
                         {totalFiltered === 0 ? (
                             <AppModalEmptyState
                                 icon={SearchX}

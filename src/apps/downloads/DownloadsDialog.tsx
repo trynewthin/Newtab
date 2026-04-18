@@ -160,23 +160,6 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
         [t]
     );
 
-    const topBar = (
-        <div className="flex min-h-16 items-center justify-center bg-background/64 px-4 py-3 backdrop-blur-sm sm:px-6">
-            <div className="relative w-full max-w-72">
-                <Search
-                    size={12}
-                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-                />
-                <input
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder={t("search_downloads")}
-                    className="h-9 w-full rounded-xl bg-foreground/8 pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:bg-foreground/12"
-                />
-            </div>
-        </div>
-    );
-
     return (
         <AppModalV2Sidebar
             open={open}
@@ -186,10 +169,24 @@ export function DownloadsDialog({ open, onOpenChange }: DownloadsDialogProps) {
             sidebarActiveId={filter}
             onSidebarChange={(id) => setFilter(id as DownloadFilter)}
             contentClassName="min-h-0"
+            headerCenter={(
+                <div className="relative w-full max-w-72">
+                    <Search
+                        size={12}
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <input
+                        value={searchQuery}
+                        onChange={(event) => setSearchQuery(event.target.value)}
+                        placeholder={t("search_downloads")}
+                        className="h-9 w-full rounded-xl bg-foreground/8 pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:bg-foreground/12"
+                    />
+                </div>
+            )}
+            bodyClassName="overflow-y-auto custom-scrollbar px-4 pb-4 sm:px-6 sm:pb-5"
         >
-            <div className="flex h-full min-h-0 flex-col">
-                {topBar}
-                <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
+            <div className="flex min-h-full flex-col py-4">
+                <div className="min-h-0 flex-1">
                     {filteredDownloads.length === 0 ? (
                         <AppModalEmptyState
                             icon={Inbox}

@@ -5,7 +5,6 @@ import {
     Folder,
     Trash2,
     ChevronRight,
-    Home,
     LayoutGrid,
     Inbox,
     AlertCircle,
@@ -128,9 +127,30 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
         setSearchQuery("");
     };
 
-    const topBar = (
-        <div className="flex min-h-16 items-center justify-center bg-background/64 px-4 py-3 backdrop-blur-sm sm:px-6">
-            {searchQuery || path.length === 0 ? (
+    const handleHeaderBack = path.length > 0 && !searchQuery
+        ? () => {
+            if (path.length === 1) {
+                goHome();
+                return;
+            }
+
+            const nextPath = path.slice(0, -1);
+            const previousFolder = nextPath[nextPath.length - 1];
+            setPath(nextPath);
+            setCurrentFolderId(previousFolder?.id ?? "0");
+        }
+        : undefined;
+
+    return (
+        <AppModalV2Sidebar
+            open={open}
+            onOpenChange={onOpenChange}
+            sidebarStorageKey="bookmarks"
+            sidebarItems={sidebarItems}
+            sidebarActiveId={searchQuery ? undefined : currentFolderId}
+            onSidebarChange={handleSidebarChange}
+            contentClassName="min-h-0"
+            headerCenter={(
                 <div className="relative w-full max-w-72">
                     <Search
                         size={12}
@@ -143,46 +163,35 @@ export function BookmarksDialog({ open, onOpenChange }: BookmarksDialogProps) {
                         className="h-9 w-full rounded-xl bg-foreground/8 pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:bg-foreground/12"
                     />
                 </div>
-            ) : (
-                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                    <button
-                        onClick={goHome}
-                        className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground"
-                    >
-                        <Home size={13} />
-                    </button>
-                    {path.map((entry, index) => (
-                        <React.Fragment key={entry.id}>
-                            <ChevronRight size={11} className="shrink-0 text-muted-foreground/40" />
-                            <button
-                                onClick={() => {
-                                    setPath(path.slice(0, index + 1));
-                                    setCurrentFolderId(entry.id);
-                                }}
-                                className="whitespace-nowrap rounded-md px-1.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground"
-                            >
-                                {entry.title}
-                            </button>
-                        </React.Fragment>
-                    ))}
-                </div>
             )}
-        </div>
-    );
-
-    return (
-        <AppModalV2Sidebar
-            open={open}
-            onOpenChange={onOpenChange}
-            sidebarStorageKey="bookmarks"
-            sidebarItems={sidebarItems}
-            sidebarActiveId={searchQuery ? undefined : currentFolderId}
-            onSidebarChange={handleSidebarChange}
-            contentClassName="min-h-0"
+            onHeaderBack={handleHeaderBack}
+            headerBackLabel={t("back")}
+            bodyClassName="overflow-y-auto custom-scrollbar px-4 pb-4 sm:px-6 sm:pb-5"
         >
-            <div className="flex h-full min-h-0 flex-col">
-                {topBar}
-                <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar px-5 py-4">
+            <div className="flex min-h-full flex-col gap-4 py-4">
+                <div className="flex flex-col gap-3">
+                    {!searchQuery && path.length > 0 ? (
+                        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+                            {path.map((entry, index) => (
+                                <React.Fragment key={entry.id}>
+                                    {index > 0 ? (
+                                        <ChevronRight size={11} className="shrink-0 text-muted-foreground/40" />
+                                    ) : null}
+                                    <button
+                                        onClick={() => {
+                                            setPath(path.slice(0, index + 1));
+                                            setCurrentFolderId(entry.id);
+                                        }}
+                                        className="whitespace-nowrap rounded-md px-1.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground"
+                                    >
+                                        {entry.title}
+                                    </button>
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    ) : null}
+                </div>
+                <div className="min-h-0 flex-1">
                     {bookmarks.length === 0 ? (
                         <AppModalEmptyState
                             icon={Inbox}

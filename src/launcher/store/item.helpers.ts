@@ -17,26 +17,28 @@ import { isSystemAppBlocked, isSystemAppId } from "@/launcher/registry/appManife
 import type { NewItemInput } from "./item.types";
 
 export function migrateLegacyWidgetItem(item: GridItem): GridItem {
+    const legacyAppItem = item as SystemAppItem & { tileType?: string };
+
     if (
-        item.kind === "app" &&
-        (item as any).tileType === "widget" &&
-        typeof item.appId === "string"
+        legacyAppItem.kind === "app" &&
+        legacyAppItem.tileType === "widget" &&
+        typeof legacyAppItem.appId === "string"
     ) {
-        const widgetId = resolveLegacyWidgetId(item.appId);
+        const widgetId = resolveLegacyWidgetId(legacyAppItem.appId);
         if (widgetId) {
             const widget = getWidgetManifestItem(widgetId);
             const fallbackSize = GRID_ITEM_PRESETS[widget?.defaultPreset ?? "2x2"];
             return {
-                id: item.id,
+                id: legacyAppItem.id,
                 kind: "widget",
                 widgetId,
-                ownerAppId: item.appId,
-                title: item.title || widget?.title || "widget_generic",
-                icon: item.icon || widget?.icon,
-                x: item.x,
-                y: item.y,
-                w: item.w ?? fallbackSize.w,
-                h: item.h ?? fallbackSize.h,
+                ownerAppId: legacyAppItem.appId,
+                title: legacyAppItem.title || widget?.title || "widget_generic",
+                icon: legacyAppItem.icon || widget?.icon,
+                x: legacyAppItem.x,
+                y: legacyAppItem.y,
+                w: legacyAppItem.w ?? fallbackSize.w,
+                h: legacyAppItem.h ?? fallbackSize.h,
             };
         }
     }

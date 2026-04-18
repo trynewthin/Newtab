@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { useItemStore } from "@/launcher/store/item";
 import { useUIStore } from "@/launcher/store/ui.store";
-import type { GridItem as GridItemType } from "@/launcher/model/itemTypes";
+import type { GridItem as GridItemType, WebTagItem } from "@/launcher/model/itemTypes";
 import { LauncherGridItemSurface } from "./components/LauncherGridItemSurface";
 
 import { ShortcutDialog } from "@/launcher/ui/dialogs/ShortcutDialog";
@@ -11,7 +11,7 @@ import { resolveWidgetLaunchAppId } from "@/launcher/registry";
 
 import { FolderPreview } from "@/launcher/ui/folder/FolderPreview";
 import GradualBlur from "@/platform/ui/effects/GradualBlur";
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
+import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 
 import { useTranslation } from "react-i18next";
 import GridLayout, { noCompactor, useContainerWidth, type Layout, type LayoutItem } from "react-grid-layout";
@@ -429,7 +429,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const { launchApp } = useAppLauncher();
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [editingItem, setEditingItem] = useState<GridItemType | null>(null);
+    const [editingItem, setEditingItem] = useState<WebTagItem | null>(null);
     const [openFolder, setOpenFolder] = useState<GridItemType | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<GridItemType | null>(null);
     const [hoverTargetId, setHoverTargetId] = useState<string | null>(null);
@@ -799,7 +799,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
 
         dragStartLayoutRef.current = null;
         commitLayout(shiftedLayout ?? nextLayout);
-    }, [commitLayout, totalCols, clearHoverTarget, batchGroupItems]);
+    }, [commitLayout, totalCols, clearHoverTarget, batchGroupItems, t]);
 
     const handleResizeStop = useCallback((nextLayout: Layout) => {
         isInteractingRef.current = false;
@@ -865,7 +865,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                 <ShortcutDialog
                     open={isEditDialogOpen}
                     onOpenChange={setIsEditDialogOpen}
-                    editTag={editingItem as any}
+                    editTag={editingItem}
                 />
                 {openFolder && (
                     <FolderPreview
@@ -928,7 +928,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                 curve="bezier"
                 exponential
                 opacity={1}
-                zIndex={LAYER_Z_INDEX.newtabContentOverlay}
+                zIndex={NEWTAB_LAYER_Z_INDEX.contentOverlay}
             />
 
             <GradualBlur
@@ -940,7 +940,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                 curve="bezier"
                 exponential
                 opacity={1}
-                zIndex={LAYER_Z_INDEX.newtabContentOverlay}
+                zIndex={NEWTAB_LAYER_Z_INDEX.contentOverlay}
             />
 
         </section>

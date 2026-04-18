@@ -76,7 +76,7 @@ export const useSettingsStore = create<SettingsState>()(
                     solidColors: state.solidColors.filter((entry: string) => entry !== color),
                 })),
         }),
-        createPersistConfig("app-settings", {
+        createPersistConfig<SettingsState>("app-settings", {
             merge: mergePersistedSettings,
         })
     )

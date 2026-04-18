@@ -16,6 +16,11 @@ import {
 } from "./item.helpers";
 import { mergePersistedItemState } from "./item.persistence";
 
+type PersistedItemState = {
+    items?: GridItem[];
+    layoutRevision?: number;
+};
+
 export const useItemStore = create<ItemState>()(
     persist(
         (set) => ({
@@ -64,17 +69,17 @@ export const useItemStore = create<ItemState>()(
                 })),
         }),
         {
-            ...createPersistConfig("app-items"),
+            ...createPersistConfig<ItemState, PersistedItemState>("app-items"),
             version: 9,
             merge: mergePersistedItemState,
-            migrate: (persistedState: unknown) => {
+            migrate: (persistedState: unknown): PersistedItemState => {
                 if (!persistedState || typeof persistedState !== "object") {
-                    return persistedState;
+                    return {};
                 }
 
-                const state = persistedState as { items?: GridItem[] };
+                const state = persistedState as PersistedItemState;
                 if (!Array.isArray(state.items)) {
-                    return persistedState;
+                    return state;
                 }
 
                 return {

@@ -11,7 +11,8 @@ import { AppModalLoadingFallback } from "@/platform/ui/modal";
 import type { SystemType, SystemAppId } from "@/launcher/registry/appManifest";
 import { ENABLED_SYSTEM_APP_IDS, getAppSurfaceFramePreset } from "@/launcher/registry/appManifest";
 import { getModalRenderer, resolveModalRuntimeAppId } from "@/launcher/runtime/appRuntimeRegistry";
-import { AppSurfaceBridgeProvider, createAppSurfaceBridge } from "@/launcher/runtime/appSurfaceBridge";
+import { AppSurfaceBridgeProvider } from "@/launcher/runtime/AppSurfaceBridgeProvider";
+import { createAppSurfaceBridge } from "@/launcher/runtime/appSurfaceBridge";
 import { useAppLauncher } from "@/launcher/runtime/useAppLauncher";
 
 interface SystemDialogHostProps {

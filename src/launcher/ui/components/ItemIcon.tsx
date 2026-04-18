@@ -1,6 +1,6 @@
 ﻿import { cn } from "@/shared/utils";
 import { renderSystemIcon } from "@/launcher/ui/icons/systemIcons";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Globe } from "lucide-react";
 
 export interface ItemIconProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -21,7 +21,6 @@ export interface ItemIconProps extends React.HTMLAttributes<HTMLDivElement> {
 
     // Image Handling
     fallbackIcon?: React.ReactNode; // 加载失败或无图标时显示
-    active?: boolean; // 是否处于激活/选中状态
 }
 
 export function ItemIcon({
@@ -35,10 +34,9 @@ export function ItemIcon({
     style,
     children,
     fallbackIcon,
-    active,
     ...props // 透传剩余的 HTML 属性 (onClick, role, tabIndex 等)
 }: ItemIconProps) {
-    const [imageFailed, setImageFailed] = useState(false);
+    const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
 
     // Resolve Image Source
     // 逻辑：iconDataUrl (Cache) > icon (URL/Str) > Favicon Service Fallback
@@ -48,12 +46,7 @@ export function ItemIcon({
         return "";
     }, [icon, iconDataUrl]);
 
-    // 图标来源变化后重置失败态，避免“首次失败后永久隐藏直到刷新”。
-    useEffect(() => {
-        setImageFailed(false);
-    }, [imageSrc]);
-
-    const hasImageContent = Boolean(imageSrc) && !imageFailed;
+    const hasImageContent = Boolean(imageSrc) && failedImageSrc !== imageSrc;
 
     // 判断是否有有效的图标内容
     const hasIconContent = Boolean((isSystem && icon) || (icon && icon.length < 4) || hasImageContent);
@@ -89,7 +82,7 @@ export function ItemIcon({
                         src={imageSrc}
                         alt={title || "icon"}
                         className="w-full h-full object-cover pointer-events-none select-none"
-                        onError={() => setImageFailed(true)}
+                        onError={() => setFailedImageSrc(imageSrc)}
                     />
                 </div>
             );

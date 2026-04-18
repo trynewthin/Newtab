@@ -79,7 +79,7 @@ export const useSearchPreferenceStore = create<SearchPreferenceState>()(
                     ),
                 })),
         }),
-        createPersistConfig(SEARCH_PREFERENCE_STORAGE_KEY, {
+        createPersistConfig<SearchPreferenceState>(SEARCH_PREFERENCE_STORAGE_KEY, {
             merge: mergePersistedSearchPreference,
         })
     )

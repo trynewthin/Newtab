@@ -34,39 +34,43 @@ export function useSystemAppIconDescriptor(
 // ─── Web Tag adapter ────────────────────────────────────────────────
 
 export function useTagIconDescriptor(item: WebTagItem): AppTileIconDescriptor {
-    const [bgColor, setBgColor] = useState(() => item.backgroundColor ?? "transparent");
-    const [imageDataUrl, setImageDataUrl] = useState<string>("");
+    const [resolvedImageDataUrl, setResolvedImageDataUrl] = useState<string>("");
 
     const faviconUrl = item.icon || `https://www.google.com/s2/favicons?domain=${item.url}&sz=64`;
+    const bgColor = item.backgroundColor ?? "transparent";
+    const imageDataUrl = item.iconDataUrl?.startsWith("idb://")
+        ? resolvedImageDataUrl
+        : item.iconDataUrl ?? "";
 
     useEffect(() => {
         let cancelled = false;
 
+        if (!item.iconDataUrl?.startsWith("idb://")) {
+            return () => {
+                cancelled = true;
+            };
+        }
+
+        const iconDataUrl = item.iconDataUrl;
+
         const resolveIcon = async () => {
-            if (item.iconDataUrl?.startsWith("idb://")) {
-                const key = item.iconDataUrl.replace("idb://", "");
-                try {
-                    const data = await backgroundStorage.getIcon(key);
-                    if (!cancelled && data) {
-                        setImageDataUrl(data);
-                    }
-                } catch (e) {
-                    console.error("Failed to load icon from IDB:", e);
+            const key = iconDataUrl.replace("idb://", "");
+            try {
+                const data = await backgroundStorage.getIcon(key);
+                if (!cancelled) {
+                    setResolvedImageDataUrl(data ?? "");
                 }
-            } else if (item.iconDataUrl) {
-                setImageDataUrl(item.iconDataUrl);
-            } else {
-                setImageDataUrl("");
+            } catch (e) {
+                console.error("Failed to load icon from IDB:", e);
             }
         };
 
-        setBgColor(item.backgroundColor ?? "transparent");
-        resolveIcon();
+        void resolveIcon();
 
         return () => {
             cancelled = true;
         };
-    }, [item.iconDataUrl, item.backgroundColor, item.id]);
+    }, [item.iconDataUrl]);
 
     return {
         title: item.title,
@@ -89,10 +93,7 @@ export function useFolderIconDescriptor(item: FolderItemType): {
     const { t } = useTranslation();
     const { updateItem } = useItemStore();
 
-    const previewChildren = useMemo(
-        () => item.children?.slice(0, 4) ?? [],
-        [item.children]
-    );
+    const previewChildren = useMemo(() => item.children.slice(0, 4), [item.children]);
 
     const previewSignature = useMemo(
         () =>
@@ -152,7 +153,7 @@ export function useFolderIconDescriptor(item: FolderItemType): {
         return () => {
             cancelled = true;
         };
-    }, [previewSignature]);
+    }, [previewChildren, previewSignature]);
 
     const renderGridIcon = (index: number) => {
         const child = previewChildren[index];

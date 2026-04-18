@@ -2,7 +2,7 @@
  * 浠庡浘鐗囦腑鎻愬彇涓昏壊璋?
  * 浣跨敤棰滆壊棰戠巼缁熻锛岃繑鍥炲嚭鐜版渶澶氱殑棰滆壊
  */
-export function extractDominantColor(img: HTMLImageElement, _isDarkMode?: boolean): string {
+export function extractDominantColor(img: HTMLImageElement): string {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     // Default to white for light/dark mode - solid color

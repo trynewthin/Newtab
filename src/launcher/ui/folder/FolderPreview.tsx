@@ -25,7 +25,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/shared/utils";
 import { ShortcutDialog } from "@/launcher/ui/dialogs/ShortcutDialog";
 import AppSurface from "@/platform/ui/surface/AppSurface";
-import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
+import { OVERLAY_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 
 // Global tracker for the last mouse down position (same as in Modal.tsx)
 let lastClickPos = {
@@ -59,7 +59,7 @@ interface PlaceholderItem {
 
 // 类型守卫
 function isPlaceholder(item: GridItemType | PlaceholderItem): item is PlaceholderItem {
-    return 'isPlaceholder' in item && (item as any).isPlaceholder === true;
+    return "isPlaceholder" in item && item.isPlaceholder === true;
 }
 
 // 空白占位符组件
@@ -102,7 +102,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
     const [titleDraft, setTitleDraft] = useState(folder.title);
     const [transformOrigin, setTransformOrigin] = useState<string>("center");
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [editingItem, setEditingItem] = useState<GridItemType | null>(null);
+    const [editingItem, setEditingItem] = useState<WebTagItem | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const initialPointerPosition = useRef<{ x: number; y: number } | null>(null);
@@ -157,9 +157,10 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
     const currentFolder = items.find(t => t.id === folder.id);
     const currentTitle = currentFolder?.title ?? folder.title;
 
-    // Safely access children
-    const realChildren = (currentFolder && isFolder(currentFolder)) ? currentFolder.children : [];
-    const children: GridItemType[] = (realChildren || []) as GridItemType[];
+    const children = useMemo<GridItemType[]>(
+        () => (currentFolder && isFolder(currentFolder) ? currentFolder.children : []),
+        [currentFolder]
+    );
 
     const displayItems = useMemo(() => {
         const COLS = 3;
@@ -376,7 +377,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
     };
 
     const previewLayer = (
-        <div className="fixed inset-0" style={{ zIndex: LAYER_Z_INDEX.overlayBackdrop }}>
+        <div className="fixed inset-0" style={{ zIndex: OVERLAY_LAYER_Z_INDEX.backdrop }}>
             <div
                 style={{ zIndex: 0 }}
                 className={cn(
@@ -462,7 +463,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
     );
 
     const dragOverlayLayer = (
-        <DragOverlay zIndex={LAYER_Z_INDEX.overlayDrag}>
+        <DragOverlay zIndex={OVERLAY_LAYER_Z_INDEX.drag}>
             {activeTag ? (
                 <GridItem
                     item={activeTag}
@@ -489,7 +490,7 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
             <ShortcutDialog
                 open={isEditDialogOpen}
                 onOpenChange={setIsEditDialogOpen}
-                editTag={editingItem as any}
+                editTag={editingItem}
             />
         </DndContext>
     );

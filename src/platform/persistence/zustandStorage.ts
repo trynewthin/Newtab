@@ -27,10 +27,10 @@ export const storageAdapter: StateStorage = {
     },
 };
 
-export const createPersistConfig = (
+export const createPersistConfig = <T, P = T>(
     name: string,
-    options?: Partial<PersistOptions<any>>
-): PersistOptions<any> => {
+    options?: Partial<PersistOptions<T, P>>
+): PersistOptions<T, P> => {
     storageRegistry.register({
         key: name,
         type: "localStorage",
@@ -39,7 +39,7 @@ export const createPersistConfig = (
 
     return {
         name,
-        storage: createJSONStorage(() => storageAdapter),
+        storage: createJSONStorage<P>(() => storageAdapter),
         ...options,
     };
 };

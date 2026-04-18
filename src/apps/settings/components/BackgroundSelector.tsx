@@ -22,6 +22,13 @@ import {
 } from "@/core/dynamicBackgrounds";
 import { DynamicBackgroundConfigPanel } from "./DynamicBackgroundConfigPanel";
 
+const IMAGE_BACKGROUND_SLIDER_CONFIG = [
+    { key: "blur", labelKey: "blur_intensity", max: 20, unit: "px" },
+    { key: "overlay", labelKey: "overlay_opacity", max: 80, unit: "%" },
+] as const;
+
+type ImageBackgroundSliderKey = (typeof IMAGE_BACKGROUND_SLIDER_CONFIG)[number]["key"];
+
 export function BackgroundSelector() {
     const { t } = useTranslation();
     const {
@@ -389,17 +396,18 @@ export function BackgroundSelector() {
                     {/* Effects Sliders */}
                     {backgroundConfig.type === 'image' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in zoom-in-95 duration-300">
-                            {[
-                                { key: 'blur', label: t('blur_intensity'), max: 20, unit: 'px' },
-                                { key: 'overlay', label: t('overlay_opacity'), max: 80, unit: '%' }
-                            ].map((ef) => (
+                            {IMAGE_BACKGROUND_SLIDER_CONFIG.map((ef) => {
+                                const sliderKey: ImageBackgroundSliderKey = ef.key;
+                                const sliderValue = backgroundConfig[sliderKey] || 0;
+
+                                return (
                                 <div key={ef.key} className="space-y-2 p-3 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
                                     <div className="flex items-center justify-between px-1">
                                         <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                                            {ef.label}
+                                            {t(ef.labelKey)}
                                         </label>
                                         <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                                            {(backgroundConfig as any)[ef.key] || 0}{ef.unit}
+                                            {sliderValue}{ef.unit}
                                         </span>
                                     </div>
                                     <div className="flex gap-2 items-center">
@@ -407,10 +415,10 @@ export function BackgroundSelector() {
                                             type="range"
                                             min="0"
                                             max={ef.max}
-                                            value={(backgroundConfig as any)[ef.key] || 0}
+                                            value={sliderValue}
                                             onChange={(e) => setBackgroundConfig({
                                                 ...backgroundConfig,
-                                                [ef.key]: parseInt(e.target.value)
+                                                [sliderKey]: parseInt(e.target.value)
                                             })}
                                             className="flex-1 h-1 bg-secondary/50 rounded-full appearance-none cursor-pointer accent-primary"
                                         />
@@ -418,13 +426,14 @@ export function BackgroundSelector() {
                                             size="icon"
                                             variant="ghost"
                                             className="h-6 w-6 rounded-full opacity-50 hover:opacity-100"
-                                            onClick={() => setBackgroundConfig({ ...backgroundConfig, [ef.key]: 0 })}
+                                            onClick={() => setBackgroundConfig({ ...backgroundConfig, [sliderKey]: 0 })}
                                         >
                                             <HugeiconsIcon icon={Cancel01Icon} className="w-3 h-3" />
                                         </Button>
                                     </div>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>

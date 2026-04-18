@@ -50,7 +50,7 @@ export const useOnboardingStateStore = create<OnboardingState>()(
             completeOnboarding: () => set({ hasCompletedOnboarding: true }),
             resetOnboarding: () => set({ hasCompletedOnboarding: false }),
         }),
-        createPersistConfig(ONBOARDING_STATE_STORAGE_KEY, {
+        createPersistConfig<OnboardingState>(ONBOARDING_STATE_STORAGE_KEY, {
             merge: mergePersistedOnboardingState,
         })
     )

@@ -1,5 +1,4 @@
-﻿import { createContext, useContext } from "react";
-import type { ReactNode } from "react";
+import { createContext, useContext } from "react";
 import type { AppSurface } from "@/shared/types";
 import type { SystemAppId } from "@/launcher/registry/appManifest";
 import { supportsSurface } from "@/launcher/registry/appManifest";
@@ -12,20 +11,7 @@ export interface AppSurfaceBridge {
     close: () => void;
 }
 
-const AppSurfaceBridgeContext = createContext<AppSurfaceBridge | null>(null);
-
-interface AppSurfaceBridgeProviderProps {
-    value: AppSurfaceBridge;
-    children: ReactNode;
-}
-
-export function AppSurfaceBridgeProvider({ value, children }: AppSurfaceBridgeProviderProps) {
-    return (
-        <AppSurfaceBridgeContext.Provider value={value}>
-            {children}
-        </AppSurfaceBridgeContext.Provider>
-    );
-}
+export const AppSurfaceBridgeContext = createContext<AppSurfaceBridge | null>(null);
 
 export function useAppSurfaceBridge() {
     const bridge = useContext(AppSurfaceBridgeContext);

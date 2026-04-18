@@ -36,7 +36,7 @@ export function FolderWidget({
 
     const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
     const [resolvedChildIcons, setResolvedChildIcons] = useState<Record<string, string>>({});
-    const previewChildren = useMemo(() => item.children?.slice(0, 9) ?? [], [item.children]);
+    const previewChildren = useMemo(() => item.children.slice(0, 9), [item.children]);
     const previewSignature = useMemo(
         () =>
             previewChildren
@@ -112,7 +112,7 @@ export function FolderWidget({
         return () => {
             cancelled = true;
         };
-    }, [previewSignature]);
+    }, [previewChildren, previewSignature]);
 
     const handleClick = (event?: React.MouseEvent | React.KeyboardEvent) => {
         if (isOverlay) {

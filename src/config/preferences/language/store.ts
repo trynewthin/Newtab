@@ -52,7 +52,7 @@ export const useLanguagePreferenceStore = create<LanguagePreferenceState>()(
             language: "zh",
             setLanguage: (language: SupportedLanguage) => set({ language }),
         }),
-        createPersistConfig(LANGUAGE_PREFERENCE_STORAGE_KEY, {
+        createPersistConfig<LanguagePreferenceState>(LANGUAGE_PREFERENCE_STORAGE_KEY, {
             merge: mergePersistedLanguagePreference,
         })
     )

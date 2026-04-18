@@ -33,6 +33,8 @@ export function TagConfigForm({
     children
 }: TagConfigFormProps) {
     const { t } = useTranslation();
+    const initialBackgroundColor = defaultValues?.backgroundColor || "rgb(255, 255, 255)";
+    const { hex: initHex, alpha: initAlpha } = parseColor(initialBackgroundColor);
 
     // Form States
     const [url, setUrl] = useState(defaultValues?.url || "");
@@ -41,28 +43,14 @@ export function TagConfigForm({
     const [iconSize, setIconSize] = useState(defaultValues?.iconSize || 1.0);
 
     // Color States
-    const { hex: initHex, alpha: initAlpha } = parseColor(defaultValues?.backgroundColor || "rgb(255, 255, 255)");
     const [colorHex, setColorHex] = useState(initHex);
     const [colorAlpha, setColorAlpha] = useState(initAlpha);
 
     // Derived States
     const [validIcons, setValidIcons] = useState<string[]>([]);
-    const [previewIcon, setPreviewIcon] = useState<string>(defaultValues?.iconDataUrl || "");
+    const [resolvedPreviewIcon, setResolvedPreviewIcon] = useState<string>("");
 
     const composedColor = `rgba(${parseInt(colorHex.slice(1, 3), 16)}, ${parseInt(colorHex.slice(3, 5), 16)}, ${parseInt(colorHex.slice(5, 7), 16)}, ${colorAlpha / 100})`;
-
-    // Sync with defaultValues if they change externally (important for Popup where defaultValues load async)
-    useEffect(() => {
-        if (defaultValues?.url) setUrl(defaultValues.url);
-        if (defaultValues?.title) setTitle(defaultValues.title);
-        if (defaultValues?.icon) setIconStr(defaultValues.icon);
-        if (defaultValues?.iconSize) setIconSize(defaultValues.iconSize);
-        if (defaultValues?.backgroundColor) {
-            const { hex, alpha } = parseColor(defaultValues.backgroundColor);
-            setColorHex(hex);
-            setColorAlpha(alpha);
-        }
-    }, [defaultValues]);
 
     // Load initial IDB icon if needed
     useEffect(() => {
@@ -72,15 +60,15 @@ export function TagConfigForm({
                 const key = defaultValues.iconDataUrl.replace("idb://", "");
                 try {
                     const data = await backgroundStorage.getIcon(key);
-                    if (!cancelled && data) setPreviewIcon(data);
-                } catch (e) {
-                    console.error(e);
+                    if (!cancelled) {
+                        setResolvedPreviewIcon(data ?? "");
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
-            } else if (defaultValues?.iconDataUrl) {
-                setPreviewIcon(defaultValues.iconDataUrl);
             }
         };
-        loadIdbIcon();
+        void loadIdbIcon();
         return () => { cancelled = true; };
     }, [defaultValues?.iconDataUrl]);
 
@@ -91,13 +79,6 @@ export function TagConfigForm({
             return new URL(u).hostname.replace("www.", "");
         } catch { return ""; }
     }, [url]);
-
-    // Auto title from hostname if empty
-    useEffect(() => {
-        if (hostname && !title && !defaultValues?.title) {
-            setTitle(hostname.charAt(0).toUpperCase() + hostname.slice(1));
-        }
-    }, [hostname, title, defaultValues?.title]);
 
     // Icon Candidates
     const iconCandidates = useMemo(() => {
@@ -145,12 +126,8 @@ export function TagConfigForm({
             }
         };
 
-        if (iconCandidates.length > 0) {
-            validate();
-        } else {
-            setValidIcons([]);
-            setIsValidating(false);
-        }
+        if (iconCandidates.length === 0) return;
+        void validate();
 
         return () => { cancelled = true; };
     }, [iconCandidates]);
@@ -159,9 +136,6 @@ export function TagConfigForm({
     useEffect(() => {
         let cancelled = false;
         if (!iconStr) return;
-
-        // Always update preview icon so switching back works
-        setPreviewIcon(iconStr);
 
         const extract = async () => {
             try {
@@ -179,11 +153,13 @@ export function TagConfigForm({
                     setColorHex(hex);
                     setColorAlpha(alpha);
                 }
-            } catch { } // Ignore errors
+            } catch {
+                return;
+            }
         };
-        extract();
+        void extract();
         return () => { cancelled = true; };
-    }, [iconStr, defaultValues?.icon]);
+    }, [iconStr]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -195,12 +171,7 @@ export function TagConfigForm({
         if (iconStr) {
             if (isIconChanged || !iconDataUrl) {
                 try {
-                    // 添加超时设置，防止 fetch 挂起
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
                     const dataUrl = await loadImageAsDataUrl(iconStr).catch(() => null);
-                    clearTimeout(timeoutId);
 
                     if (dataUrl && isDataURL(dataUrl)) {
                         const key = getIconKey();
@@ -228,7 +199,7 @@ export function TagConfigForm({
     };
 
     const faviconUrl = !iconStr && url ? `https://www.google.com/s2/favicons?domain=${url}&sz=128` : "";
-    const effectivePreviewIcon = previewIcon || iconStr || faviconUrl;
+    const effectivePreviewIcon = iconStr || resolvedPreviewIcon || defaultValues?.iconDataUrl || faviconUrl;
 
     return (
         <form id="tag-config-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -344,7 +315,22 @@ export function TagConfigForm({
                         <Input
                             id="url"
                             value={url}
-                            onChange={(e) => setUrl(e.target.value)}
+                            onChange={(e) => {
+                                const nextUrl = e.target.value;
+                                setUrl(nextUrl);
+                                if (!title && !defaultValues?.title) {
+                                    try {
+                                        const nextHostname = new URL(nextUrl.startsWith("http") ? nextUrl : `https://${nextUrl}`)
+                                            .hostname
+                                            .replace("www.", "");
+                                        if (nextHostname) {
+                                            setTitle(nextHostname.charAt(0).toUpperCase() + nextHostname.slice(1));
+                                        }
+                                    } catch {
+                                        return;
+                                    }
+                                }
+                            }}
                             required
                             className="h-9 bg-secondary/30 text-muted-foreground font-mono text-xs"
                             placeholder={t('url_placeholder')}

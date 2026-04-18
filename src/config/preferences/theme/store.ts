@@ -58,7 +58,7 @@ export const useThemePreferenceStore = create<ThemePreferenceState>()(
                 set({ theme: resolvedTheme === "dark" ? "light" : "dark" });
             },
         }),
-        createPersistConfig(THEME_PREFERENCE_STORAGE_KEY, {
+        createPersistConfig<ThemePreferenceState>(THEME_PREFERENCE_STORAGE_KEY, {
             merge: mergePersistedThemePreference,
         })
     )

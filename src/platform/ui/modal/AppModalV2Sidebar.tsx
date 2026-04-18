@@ -26,6 +26,7 @@ export interface AppModalV2SidebarProps extends Omit<AppModalV2Props, "contentLa
     defaultSidebarCollapsed?: boolean
     closeButtonLabel?: string
     sidebarStorageKey?: string
+    sidebarToolbarAccessory?: React.ReactNode
     headerTitle?: React.ReactNode
     onHeaderBack?: () => void
     headerBackLabel?: string
@@ -36,7 +37,6 @@ export interface AppModalV2SidebarProps extends Omit<AppModalV2Props, "contentLa
 
 const SIDEBAR_SESSION_PREFIX = "app-modal-v2-sidebar:"
 const CONTENT_HEADER_HEIGHT_CLASS = "h-16"
-const CONTENT_HEADER_HEIGHT_PX = 64
 
 function readStoredCollapsedState(storageKey?: string, fallback = false): boolean {
     if (!storageKey || typeof window === "undefined") {
@@ -72,6 +72,7 @@ export function AppModalV2Sidebar({
     defaultSidebarCollapsed = false,
     closeButtonLabel,
     sidebarStorageKey,
+    sidebarToolbarAccessory,
     headerTitle,
     onHeaderBack,
     headerBackLabel = "Back",
@@ -83,9 +84,6 @@ export function AppModalV2Sidebar({
         readStoredCollapsedState(sidebarStorageKey, defaultSidebarCollapsed)
     )
     const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false)
-    const [contentTitleVisible, setContentTitleVisible] = React.useState(true)
-    const contentScrollRef = React.useRef<HTMLDivElement | null>(null)
-    const contentTitleSentinelRef = React.useRef<HTMLDivElement | null>(null)
 
     React.useEffect(() => {
         setSidebarCollapsed(readStoredCollapsedState(sidebarStorageKey, defaultSidebarCollapsed))
@@ -107,36 +105,6 @@ export function AppModalV2Sidebar({
     }, [sidebarCollapsed, sidebarStorageKey])
 
     const hasContentHeader = headerTitle !== undefined || !!onHeaderBack || headerActions !== undefined
-    const shouldShowHeaderBlur = hasContentHeader && (headerTitle === undefined || !contentTitleVisible)
-
-    React.useEffect(() => {
-        if (headerTitle === undefined) {
-            setContentTitleVisible(true)
-            return
-        }
-
-        const root = contentScrollRef.current
-        const target = contentTitleSentinelRef.current
-
-        if (!root || !target || typeof IntersectionObserver === "undefined") {
-            setContentTitleVisible(true)
-            return
-        }
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                setContentTitleVisible(entry.isIntersecting)
-            },
-            {
-                root,
-                threshold: 0,
-                rootMargin: `-${CONTENT_HEADER_HEIGHT_PX}px 0px 0px 0px`,
-            }
-        )
-
-        observer.observe(target)
-        return () => observer.disconnect()
-    }, [headerTitle])
 
     const handleOpenChange = React.useCallback((nextOpen: boolean) => {
         if (!nextOpen) {
@@ -211,6 +179,23 @@ export function AppModalV2Sidebar({
         </div>
     ), [handleSidebarItemSelect, sidebarActiveId, sidebarFooter, sidebarItems])
 
+    const mobileSidebarTrigger = (
+        <button
+            type="button"
+            aria-label="Open sidebar"
+            onClick={() => setMobileSidebarOpen(true)}
+            className={cn(
+                "pointer-events-auto inline-flex h-9 w-9 items-center justify-center rounded-xl sm:hidden",
+                "border border-border/70 bg-background/82 text-foreground/78 backdrop-blur-xl",
+                "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-all duration-200",
+                "hover:bg-background/92 hover:text-foreground hover:scale-[1.02]",
+                "active:scale-[0.98]",
+            )}
+        >
+            <Menu size={16} strokeWidth={2.5} />
+        </button>
+    )
+
     const desktopSidebar = (
         <aside
             className={cn(
@@ -231,6 +216,16 @@ export function AppModalV2Sidebar({
                     >
                     <AppModalV2CloseButton label={closeButtonLabel} />
                     </div>
+                    <div
+                        className={cn(
+                            "absolute left-[2.75rem] top-0 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                            sidebarCollapsed
+                                ? "pointer-events-none -translate-x-2 opacity-0"
+                                : "translate-x-0 opacity-100"
+                        )}
+                    >
+                        {sidebarToolbarAccessory}
+                    </div>
                     <button
                         type="button"
                         aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -242,7 +237,7 @@ export function AppModalV2Sidebar({
                             "active:scale-[0.98]",
                             sidebarCollapsed
                                 ? "left-1/2 -translate-x-1/2"
-                                : "left-11 translate-x-0"
+                                : "left-[5.5rem] translate-x-0"
                         )}
                     >
                         {sidebarCollapsed
@@ -267,7 +262,7 @@ export function AppModalV2Sidebar({
                         <GradualBlur
                             target="parent"
                             preset="header"
-                            height="4.5rem"
+                            height="3.75rem"
                             strength={2}
                             divCount={5}
                             curve="bezier"
@@ -275,10 +270,6 @@ export function AppModalV2Sidebar({
                             opacity={1}
                             zIndex={0}
                             className="inset-x-0 top-0"
-                            style={{
-                                opacity: shouldShowHeaderBlur ? 1 : 0,
-                                transition: "opacity 180ms ease-out",
-                            }}
                         />
 
                         <div
@@ -288,22 +279,29 @@ export function AppModalV2Sidebar({
                                 headerClassName,
                             )}
                         >
-                            <div className="pointer-events-auto z-10 flex min-w-9 shrink-0 items-center justify-start">
+                            <div className="pointer-events-auto z-10 flex min-w-9 shrink-0 items-center justify-start gap-2">
+                                {mobileSidebarTrigger}
                                 {onHeaderBack ? (
                                     <button
                                         type="button"
                                         aria-label={headerBackLabel}
                                         onClick={onHeaderBack}
                                         className={cn(
-                                            "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-transparent text-foreground/78",
+                                            "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 bg-background/76 text-foreground/82",
                                             "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-all duration-200",
-                                            "hover:bg-background/18 hover:text-foreground hover:scale-[1.02]",
+                                            "hover:bg-background/92 hover:text-foreground hover:scale-[1.02]",
                                             "active:scale-[0.98]",
                                         )}
                                     >
                                         <ArrowLeft size={16} strokeWidth={2.5} />
                                     </button>
                                 ) : null}
+                            </div>
+
+                            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-16 sm:px-20">
+                                <div className="min-w-0 max-w-full truncate text-center text-base font-semibold tracking-[-0.03em] text-foreground/92 sm:text-lg">
+                                    {headerTitle}
+                                </div>
                             </div>
 
                             <div className="pointer-events-auto z-10 flex min-w-9 shrink-0 items-center justify-end gap-2">
@@ -314,24 +312,12 @@ export function AppModalV2Sidebar({
                 ) : null}
 
                 <div
-                    ref={contentScrollRef}
                     className={cn(
                         "h-full min-h-0",
+                        hasContentHeader && "pt-16",
                         bodyClassName,
                     )}
                 >
-                    {headerTitle !== undefined ? (
-                        <div className="pb-6 pt-16">
-                            <div className="text-center text-2xl font-semibold tracking-[-0.05em] text-foreground sm:text-[2rem]">
-                                {headerTitle}
-                            </div>
-                            <div
-                                ref={contentTitleSentinelRef}
-                                aria-hidden="true"
-                                className="mt-4 h-px w-full"
-                            />
-                        </div>
-                    ) : null}
                     {children}
                 </div>
             </section>
@@ -340,22 +326,11 @@ export function AppModalV2Sidebar({
 
     const combinedFloatLayer = (
         <>
-            <div className="absolute left-3 top-3 z-10 sm:hidden">
-                <button
-                    type="button"
-                    aria-label="Open sidebar"
-                    onClick={() => setMobileSidebarOpen(true)}
-                    className={cn(
-                        "pointer-events-auto inline-flex h-9 w-9 items-center justify-center rounded-xl",
-                        "border border-border/70 bg-background/82 text-foreground/78 backdrop-blur-xl",
-                        "shadow-[0_10px_30px_rgba(0,0,0,0.14)] transition-all duration-200",
-                        "hover:bg-background/92 hover:text-foreground hover:scale-[1.02]",
-                        "active:scale-[0.98]",
-                    )}
-                >
-                    <Menu size={16} strokeWidth={2.5} />
-                </button>
-            </div>
+            {!hasContentHeader ? (
+                <div className="absolute left-3 top-3 z-10 sm:hidden">
+                    {mobileSidebarTrigger}
+                </div>
+            ) : null}
 
             {mobileSidebarOpen ? (
                 <div className="absolute inset-0 z-20 sm:hidden">
@@ -373,6 +348,7 @@ export function AppModalV2Sidebar({
                         <div className="flex h-full min-h-0 flex-col">
                             <div className="flex items-center gap-2 p-3">
                                 <AppModalV2CloseButton label={closeButtonLabel} />
+                                {sidebarToolbarAccessory}
                                 <button
                                     type="button"
                                     aria-label="Close sidebar"

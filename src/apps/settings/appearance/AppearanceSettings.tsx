@@ -1,48 +1,25 @@
-﻿import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, type ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
-import { ArrowLeft, ChevronRight, Image, Settings as SettingsIcon, Sparkles } from "lucide-react";
+import { ChevronRight, Image, Settings as SettingsIcon, Sparkles } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { SettingsItem, SettingsSection } from "@/apps/settings/components/SettingComponents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettingsStore } from "@/apps/settings/store";
 
-type ThemeSettingsSubPage = "home" | "background" | "material";
+export type ThemeSettingsSubPage = "home" | "background" | "material";
 
-export function AppearanceSettings() {
-    const { t } = useTranslation();
-    const [subPage, setSubPage] = useState<ThemeSettingsSubPage>("home");
-    const { theme, setTheme } = useSettingsStore();
-
-    useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark");
-        if (theme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-            root.classList.add(systemTheme);
-        } else {
-            root.classList.add(theme);
-        }
-    }, [theme]);
-
-    const themeOptions = {
-        light: t("light"),
-        dark: t("dark"),
-        system: t("system"),
-    };
-
-    const isHome = subPage === "home";
-
-    const NavEntry = ({
-        icon: Icon,
-        title,
-        onClick,
-    }: {
-        icon: ComponentType<{ size?: number; className?: string }>;
-        title: string;
-        onClick: () => void;
-    }) => (
+function AppearanceNavEntry({
+    icon: Icon,
+    title,
+    onClick,
+}: {
+    icon: ComponentType<{ size?: number; className?: string }>;
+    title: string;
+    onClick: () => void;
+}) {
+    return (
         <button
             type="button"
             onClick={onClick}
@@ -64,61 +41,79 @@ export function AppearanceSettings() {
             <ChevronRight size={16} className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
         </button>
     );
-
-    return (
-                <div className="mx-auto max-w-3xl space-y-6">
-                    {!isHome && (
-                        <button
-                            type="button"
-                            onClick={() => setSubPage("home")}
-                            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-all hover:bg-foreground/8 hover:text-foreground"
-                        >
-                            <ArrowLeft size={14} />
-                            <span>{t("back_to_theme_settings")}</span>
-                        </button>
-                    )}
-                    {isHome ? (
-                        <>
-                            <SettingsSection
-                                icon={SettingsIcon}
-                                iconColor="text-blue-500"
-                                title={t("theme_mode")}
-                                description={t("theme_mode_desc")}
-                            >
-                                <SettingsItem label={t("theme_mode")}>
-                                    <Select value={theme} onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}>
-                                        <SelectTrigger className="h-9 w-[180px] rounded-xl border-foreground/10 bg-foreground/4">
-                                            <SelectValue>
-                                                {themeOptions[theme as keyof typeof themeOptions]}
-                                            </SelectValue>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="light">{t("light")}</SelectItem>
-                                            <SelectItem value="dark">{t("dark")}</SelectItem>
-                                            <SelectItem value="system">{t("system")}</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </SettingsItem>
-                            </SettingsSection>
-
-                            <div className="space-y-2">
-                                <NavEntry
-                                    icon={Image}
-                                    title={t("background")}
-                                    onClick={() => setSubPage("background")}
-                                />
-                                <NavEntry
-                                    icon={Sparkles}
-                                    title={t("surface_materials")}
-                                    onClick={() => setSubPage("material")}
-                                />
-                            </div>
-                        </>
-                    ) : null}
-
-                    {subPage === "background" ? <BackgroundSelector /> : null}
-                    {subPage === "material" ? <SurfaceMaterialSettings /> : null}
-                </div>
-    );
 }
 
+interface AppearanceSettingsProps {
+    subPage: ThemeSettingsSubPage;
+    onSubPageChange: (page: ThemeSettingsSubPage) => void;
+}
+
+export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSettingsProps) {
+    const { t } = useTranslation();
+    const { theme, setTheme } = useSettingsStore();
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+        root.classList.remove("light", "dark");
+        if (theme === "system") {
+            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            root.classList.add(systemTheme);
+        } else {
+            root.classList.add(theme);
+        }
+    }, [theme]);
+
+    const themeOptions = {
+        light: t("light"),
+        dark: t("dark"),
+        system: t("system"),
+    };
+
+    const isHome = subPage === "home";
+
+    return (
+        <div className="mx-auto max-w-3xl space-y-6">
+            {isHome ? (
+                <>
+                    <SettingsSection
+                        icon={SettingsIcon}
+                        iconColor="text-blue-500"
+                        title={t("theme_mode")}
+                        description={t("theme_mode_desc")}
+                    >
+                        <SettingsItem label={t("theme_mode")}>
+                            <Select value={theme} onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}>
+                                <SelectTrigger className="h-9 w-[180px] rounded-xl border-foreground/10 bg-foreground/4">
+                                    <SelectValue>
+                                        {themeOptions[theme as keyof typeof themeOptions]}
+                                    </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="light">{t("light")}</SelectItem>
+                                    <SelectItem value="dark">{t("dark")}</SelectItem>
+                                    <SelectItem value="system">{t("system")}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </SettingsItem>
+                    </SettingsSection>
+
+                    <div className="space-y-2">
+                        <AppearanceNavEntry
+                            icon={Image}
+                            title={t("background")}
+                            onClick={() => onSubPageChange("background")}
+                        />
+                        <AppearanceNavEntry
+                            icon={Sparkles}
+                            title={t("surface_materials")}
+                            onClick={() => onSubPageChange("material")}
+                        />
+                    </div>
+                </>
+            ) : null}
+
+            {subPage === "background" ? <BackgroundSelector /> : null}
+            {subPage === "material" ? <SurfaceMaterialSettings /> : null}
+        </div>
+    );
+}

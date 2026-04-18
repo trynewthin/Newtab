@@ -12,6 +12,11 @@ import type {
 } from "@/launcher/model/itemTypes";
 import type { AppTileIconDescriptor } from "./AppTile";
 import type { ItemActionMenuItem } from "./ItemActionMenu";
+import { isDefaultItemIconValue } from "@/launcher/ui/icons/defaultItemIcon.shared";
+import {
+    resolveItemIconScale,
+    resolveSmallFolderPreviewIconScale,
+} from "./itemIconScale.shared";
 
 // ─── System App adapter ─────────────────────────────────────────────
 
@@ -36,7 +41,10 @@ export function useSystemAppIconDescriptor(
 export function useTagIconDescriptor(item: WebTagItem): AppTileIconDescriptor {
     const [resolvedImageDataUrl, setResolvedImageDataUrl] = useState<string>("");
 
-    const faviconUrl = item.icon || `https://www.google.com/s2/favicons?domain=${item.url}&sz=64`;
+    const faviconUrl =
+        item.icon && !isDefaultItemIconValue(item.icon)
+            ? item.icon
+            : `https://www.google.com/s2/favicons?domain=${item.url}&sz=64`;
     const bgColor = item.backgroundColor ?? "transparent";
     const imageDataUrl = item.iconDataUrl?.startsWith("idb://")
         ? resolvedImageDataUrl
@@ -77,7 +85,7 @@ export function useTagIconDescriptor(item: WebTagItem): AppTileIconDescriptor {
         icon: item.icon,
         iconDataUrl: imageDataUrl || faviconUrl,
         isSystem: false,
-        scale: item.iconSize || 1.3,
+        scale: resolveItemIconScale(item.iconSize),
         backgroundColor: bgColor,
     };
 }
@@ -172,8 +180,9 @@ export function useFolderIconDescriptor(item: FolderItemType): {
         }
 
         const faviconUrl =
-            child.icon ||
-            `https://www.google.com/s2/favicons?domain=${child.url}&sz=64`;
+            child.icon && !isDefaultItemIconValue(child.icon)
+                ? child.icon
+                : `https://www.google.com/s2/favicons?domain=${child.url}&sz=64`;
         const resolvedIconDataUrl =
             resolvedChildIcons[child.id] ||
             (child.iconDataUrl && !child.iconDataUrl.startsWith("idb://")
@@ -187,7 +196,7 @@ export function useFolderIconDescriptor(item: FolderItemType): {
                 icon={child.icon}
                 iconDataUrl={resolvedIconDataUrl}
                 isSystem={false}
-                scale={child.iconSize || 1.3}
+                scale={resolveSmallFolderPreviewIconScale(child.iconSize)}
                 backgroundColor={child.backgroundColor ?? "transparent"}
                 className="w-full h-full rounded-[10px]"
             />

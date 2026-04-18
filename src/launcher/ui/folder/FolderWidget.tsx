@@ -12,6 +12,8 @@ import { backgroundStorage } from "@/platform/storage/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/launcher/model/itemTypes";
 import AppSurface from "@/platform/ui/surface/AppSurface";
 import { Minimize2 } from "lucide-react";
+import { isDefaultItemIconValue } from "@/launcher/ui/icons/defaultItemIcon.shared";
+import { resolveSmallFolderPreviewIconScale } from "../components/itemIconScale.shared";
 
 interface FolderWidgetProps {
     item: FolderItemType;
@@ -146,7 +148,10 @@ export function FolderWidget({
             );
         }
 
-        const faviconUrl = child.icon || `https://www.google.com/s2/favicons?domain=${child.url}&sz=64`;
+        const faviconUrl =
+            child.icon && !isDefaultItemIconValue(child.icon)
+                ? child.icon
+                : `https://www.google.com/s2/favicons?domain=${child.url}&sz=64`;
         const resolvedIconDataUrl =
             resolvedChildIcons[child.id] ||
             (child.iconDataUrl && !child.iconDataUrl.startsWith("idb://") ? child.iconDataUrl : "") ||
@@ -158,7 +163,7 @@ export function FolderWidget({
                 icon={child.icon}
                 iconDataUrl={resolvedIconDataUrl}
                 isSystem={false}
-                scale={child.iconSize || 1.3}
+                scale={resolveSmallFolderPreviewIconScale(child.iconSize)}
                 backgroundColor={child.backgroundColor ?? "transparent"}
                 className="w-full h-full rounded-[10px]"
             />

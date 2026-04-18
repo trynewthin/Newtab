@@ -9,6 +9,7 @@ export interface AppDialogV1ClosableProps extends Omit<AppDialogV1Props, "childr
     title: React.ReactNode
     children: React.ReactNode
     closeLabel?: string
+    headerActions?: React.ReactNode
     headerClassName?: string
     bodyClassName?: string
 }
@@ -17,6 +18,7 @@ export function AppDialogV1Closable({
     title,
     children,
     closeLabel,
+    headerActions,
     headerClassName,
     bodyClassName,
     contentClassName,
@@ -36,7 +38,10 @@ export function AppDialogV1Closable({
                 <div className="min-w-0 truncate pr-2 text-base font-semibold tracking-tight text-foreground">
                     {title}
                 </div>
-                <AppDialogV1CloseButton label={closeLabel} />
+                <div className="flex items-center gap-2">
+                    {headerActions}
+                    <AppDialogV1CloseButton label={closeLabel} />
+                </div>
             </div>
 
             <div className={cn("min-h-0 overflow-y-auto px-5 pb-5", bodyClassName)}>{children}</div>

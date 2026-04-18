@@ -4,6 +4,8 @@ export * from "./ui/dialogs/TagConfigForm";
 export * from "./ui/dialogs/ShortcutDialog";
 export * from "./ui/components/ItemIcon";
 export * from "./runtime/SystemDialogHost";
+export * from "./ui/icons/DefaultItemIcon";
+export * from "./ui/icons/defaultItemIcon.shared";
 export * from "./ui/icons/systemIcons";
 export * from "./ui/folder";
 export * from "./registry";

@@ -1,7 +1,10 @@
 ﻿import { cn } from "@/shared/utils";
 import { renderSystemIcon } from "@/launcher/ui/icons/systemIcons";
 import { useMemo, useState } from "react";
-import { Globe } from "lucide-react";
+import { DefaultItemIcon } from "@/launcher/ui/icons/DefaultItemIcon";
+import { isDefaultItemIconValue } from "@/launcher/ui/icons/defaultItemIcon.shared";
+
+const ITEM_ICON_CONTENT_CLASS = "w-[92%] h-[92%]";
 
 export interface ItemIconProps extends React.HTMLAttributes<HTMLDivElement> {
     // Data Source
@@ -49,7 +52,7 @@ export function ItemIcon({
     const hasImageContent = Boolean(imageSrc) && failedImageSrc !== imageSrc;
 
     // 判断是否有有效的图标内容
-    const hasIconContent = Boolean((isSystem && icon) || (icon && icon.length < 4) || hasImageContent);
+    const hasIconContent = Boolean((isSystem && icon) || isDefaultItemIconValue(icon) || (icon && icon.length < 4) || hasImageContent);
 
     const renderIconContent = () => {
         const contentStyle = { transform: `scale(${scale})` };
@@ -57,7 +60,7 @@ export function ItemIcon({
         // 1. System Icon
         if (isSystem && icon) {
             return (
-                <div style={contentStyle} className="flex items-center justify-center w-[85%] h-[85%] select-none">
+                <div style={contentStyle} className={`flex items-center justify-center ${ITEM_ICON_CONTENT_CLASS} select-none`}>
                     {renderSystemIcon(icon, "w-full h-full")}
                 </div>
             );
@@ -66,7 +69,7 @@ export function ItemIcon({
         // 2. Emoji
         if (icon && icon.length < 4) {
             return (
-                <div style={contentStyle} className="flex items-center justify-center w-[85%] h-[85%]">
+                <div style={contentStyle} className={`flex items-center justify-center ${ITEM_ICON_CONTENT_CLASS}`}>
                     <span className="text-[2em] select-none leading-none flex items-center justify-center h-full w-full grayscale-0">
                         {icon}
                     </span>
@@ -74,10 +77,19 @@ export function ItemIcon({
             );
         }
 
-        // 3. Image
+        // 3. Default Icon
+        if (isDefaultItemIconValue(icon)) {
+            return (
+                <div style={contentStyle} className={`flex items-center justify-center ${ITEM_ICON_CONTENT_CLASS} text-muted-foreground/32`}>
+                    <DefaultItemIcon />
+                </div>
+            );
+        }
+
+        // 4. Image
         if (hasImageContent) {
             return (
-                <div style={contentStyle} className="w-[85%] h-[85%] flex items-center justify-center select-none">
+                <div style={contentStyle} className={`flex items-center justify-center ${ITEM_ICON_CONTENT_CLASS} select-none`}>
                     <img
                         src={imageSrc}
                         alt={title || "icon"}
@@ -108,8 +120,8 @@ export function ItemIcon({
 
             {/* 2. Fallback: Only if no icon AND no children (children might be content like in FolderItem) */}
             {!hasIconContent && !children && (
-                <div style={{ transform: `scale(${scale})` }} className="text-muted-foreground/20 flex items-center justify-center w-[85%] h-[85%] select-none">
-                    {fallbackIcon || <Globe className="w-full h-full" />}
+                <div style={{ transform: `scale(${scale})` }} className={`text-muted-foreground/20 flex items-center justify-center ${ITEM_ICON_CONTENT_CLASS} select-none`}>
+                    {fallbackIcon || <DefaultItemIcon />}
                 </div>
             )}
 

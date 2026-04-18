@@ -5,5 +5,7 @@ export * from "./dialogs/HomeTools";
 export * from "./dialogs/ShortcutDialog";
 export * from "./dialogs/TagConfigForm";
 export * from "./folder";
+export * from "./icons/DefaultItemIcon";
+export * from "./icons/defaultItemIcon.shared";
 export * from "./icons/systemIcons";
 export * from "./widgets";

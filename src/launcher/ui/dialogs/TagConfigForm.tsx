@@ -7,6 +7,8 @@ import { backgroundStorage, getIconKey, isDataURL } from "@/platform/storage/bac
 import { cn, parseColor } from "@/shared/utils";
 import type { WebTagItem } from "@/launcher/model/itemTypes";
 import { useTranslation } from "react-i18next";
+import { DEFAULT_ITEM_ICON_VALUE, isDefaultItemIconValue } from "@/launcher/ui/icons/defaultItemIcon.shared";
+import { resolveItemIconScale } from "../components/itemIconScale.shared";
 
 export interface TagConfigData {
     title: string;
@@ -40,7 +42,7 @@ export function TagConfigForm({
     const [url, setUrl] = useState(defaultValues?.url || "");
     const [title, setTitle] = useState(defaultValues?.title || "");
     const [iconStr, setIconStr] = useState(defaultValues?.icon || "");
-    const [iconSize, setIconSize] = useState(defaultValues?.iconSize || 1.0);
+    const [iconSize, setIconSize] = useState(resolveItemIconScale(defaultValues?.iconSize));
 
     // Color States
     const [colorHex, setColorHex] = useState(initHex);
@@ -88,6 +90,7 @@ export function TagConfigForm({
             hostname ? `https://www.google.com/s2/favicons?domain=${hostname}&sz=128` : "",
             hostname ? `https://logo.clearbit.com/${hostname}` : "",
             hostname ? `https://icons.duckduckgo.com/ip3/${hostname}.ico` : "",
+            DEFAULT_ITEM_ICON_VALUE,
         ].filter(Boolean);
         return Array.from(new Set(list));
     }, [defaultValues?.icon, hostname]);
@@ -106,6 +109,12 @@ export function TagConfigForm({
             const valid = new Set<string>();
             await Promise.all(
                 iconCandidates.map(src => new Promise<void>((resolve) => {
+                    if (isDefaultItemIconValue(src)) {
+                        valid.add(src);
+                        resolve();
+                        return;
+                    }
+
                     const img = new Image();
                     img.crossOrigin = "Anonymous";
                     img.src = src;
@@ -122,7 +131,10 @@ export function TagConfigForm({
             // Auto-select first valid icon only once per candidate set
             if (ordered.length > 0 && !hasAutoSelected.current) {
                 hasAutoSelected.current = true;
-                setIconStr(prev => prev || ordered[0]);
+                const preferredIcon = ordered.find((src) => !isDefaultItemIconValue(src));
+                if (preferredIcon) {
+                    setIconStr((prev) => prev || preferredIcon);
+                }
             }
         };
 
@@ -135,7 +147,7 @@ export function TagConfigForm({
     // Auto-extract color when icon changes
     useEffect(() => {
         let cancelled = false;
-        if (!iconStr) return;
+        if (!iconStr || isDefaultItemIconValue(iconStr)) return;
 
         const extract = async () => {
             try {
@@ -168,7 +180,9 @@ export function TagConfigForm({
         let iconDataUrl = defaultValues?.iconDataUrl;
         const isIconChanged = iconStr !== defaultValues?.icon;
 
-        if (iconStr) {
+        if (isDefaultItemIconValue(iconStr)) {
+            iconDataUrl = undefined;
+        } else if (iconStr) {
             if (isIconChanged || !iconDataUrl) {
                 try {
                     const dataUrl = await loadImageAsDataUrl(iconStr).catch(() => null);
@@ -199,7 +213,9 @@ export function TagConfigForm({
     };
 
     const faviconUrl = !iconStr && url ? `https://www.google.com/s2/favicons?domain=${url}&sz=128` : "";
-    const effectivePreviewIcon = iconStr || resolvedPreviewIcon || defaultValues?.iconDataUrl || faviconUrl;
+    const effectivePreviewIcon = isDefaultItemIconValue(iconStr)
+        ? ""
+        : iconStr || resolvedPreviewIcon || defaultValues?.iconDataUrl || faviconUrl;
 
     return (
         <form id="tag-config-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -210,7 +226,7 @@ export function TagConfigForm({
                     iconDataUrl={effectivePreviewIcon}
                     scale={iconSize}
                     backgroundColor={composedColor}
-                    className="shrink-0 w-20 h-20 rounded-2xl border-2 border-transparent shadow-md ring-4 ring-background/50"
+                    className="shrink-0 h-20 w-20 rounded-[18px] shadow-lg"
                 />
 
                 {/* Right: Icon Selection List */}
@@ -229,7 +245,17 @@ export function TagConfigForm({
                                             active ? "bg-primary/10 ring-2 ring-primary/20" : "hover:bg-accent/50 opacity-70 hover:opacity-100"
                                         )}
                                     >
-                                        <img src={src} alt="icon" className="w-5 h-5 object-contain" />
+                                        {isDefaultItemIconValue(src) ? (
+                                            <ItemIcon
+                                                icon={DEFAULT_ITEM_ICON_VALUE}
+                                                className="h-8 w-8 rounded-xl text-muted-foreground/60"
+                                            />
+                                        ) : (
+                                            <ItemIcon
+                                                iconDataUrl={src}
+                                                className="h-8 w-8 rounded-xl"
+                                            />
+                                        )}
                                     </button>
                                 );
                             })}

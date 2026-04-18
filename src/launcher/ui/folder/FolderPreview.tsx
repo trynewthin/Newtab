@@ -438,5 +438,3 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
         </DndContext>
     );
 }
-
-

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
-import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useSearchPreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
@@ -8,10 +7,9 @@ import { AppSurface } from "@/platform/ui";
 
 interface SearchBarProps {
     initialQuery?: string;
-    animateContent?: boolean;
 }
 
-export function SearchBar({ initialQuery = "", animateContent = false }: SearchBarProps) {
+export function SearchBar({ initialQuery = "" }: SearchBarProps) {
     const [query, setQuery] = useState(initialQuery);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeIndex, setActiveIndex] = useState(-1);
@@ -236,20 +234,9 @@ export function SearchBar({ initialQuery = "", animateContent = false }: SearchB
                         />
                     </div>
 
-                    {animateContent ? (
-                        <motion.div
-                            className="relative z-10 h-full"
-                            initial={{ y: 32, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                        >
-                            {content}
-                        </motion.div>
-                    ) : (
-                        <div className="relative z-10 h-full">
-                            {content}
-                        </div>
-                    )}
+                    <div className="relative z-10 h-full">
+                        {content}
+                    </div>
                 </div>
             </form>
 

@@ -49,6 +49,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const [editingItem, setEditingItem] = useState<WebTagItem | null>(null);
     const [openFolder, setOpenFolder] = useState<GridItemType | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<GridItemType | null>(null);
+    const [suppressInitialGridMotion, setSuppressInitialGridMotion] = useState(true);
     const { width, containerRef } = useContainerWidth({ initialWidth: 1440 });
 
     const semanticCols = useMemo(() => {
@@ -81,6 +82,16 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     useEffect(() => {
         return () => setFolderPreviewVisible(false);
     }, [setFolderPreviewVisible]);
+
+    useEffect(() => {
+        setSuppressInitialGridMotion(true);
+
+        const frameId = window.requestAnimationFrame(() => {
+            setSuppressInitialGridMotion(false);
+        });
+
+        return () => window.cancelAnimationFrame(frameId);
+    }, [layoutRevision]);
 
     // 历史数据兜底：把旧尺寸（如 2x3）矫正到当前能力模型允许的尺寸范围。
     useEffect(() => {
@@ -202,6 +213,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                 <GridLayout
                     key={`launcher-grid-${layoutRevision}`}
                     width={width}
+                    className={suppressInitialGridMotion ? "launcher-grid launcher-grid--static-motion" : "launcher-grid"}
                     layout={layout}
                     gridConfig={{
                         cols: totalCols,
@@ -255,6 +267,13 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                     onConfirmDelete={confirmDeleteItems}
                 />
             </div>
+
+            <style>{`
+                .launcher-grid--static-motion,
+                .launcher-grid--static-motion .react-grid-item {
+                    transition: none !important;
+                }
+            `}</style>
 
             <GradualBlur
                 target="parent"

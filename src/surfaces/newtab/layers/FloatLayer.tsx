@@ -11,7 +11,7 @@ export function FloatLayer() {
             {isDashboard && (
                 <div className="mx-auto w-full max-w-2xl px-4 pt-24 pointer-events-none">
                     <div className="pointer-events-auto">
-                        <SearchBar animateContent />
+                        <SearchBar />
                     </div>
                 </div>
             )}

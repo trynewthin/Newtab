@@ -14,6 +14,7 @@ import {
     stripUnavailableItems,
     ungroupFolderItem,
 } from "./item.helpers";
+import { mergePersistedItemState } from "./item.persistence";
 
 export const useItemStore = create<ItemState>()(
     persist(
@@ -65,6 +66,7 @@ export const useItemStore = create<ItemState>()(
         {
             ...createPersistConfig("app-items"),
             version: 9,
+            merge: mergePersistedItemState,
             migrate: (persistedState: unknown) => {
                 if (!persistedState || typeof persistedState !== "object") {
                     return persistedState;

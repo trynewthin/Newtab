@@ -14,6 +14,8 @@ interface SettingsDialogProps {
 
 type SettingsTabId = "general" | "appearance" | "about";
 const SETTINGS_VIEW_STATE_STORAGE_KEY = "settings-dialog:view-state";
+const DEFAULT_SETTINGS_TAB: SettingsTabId = "general";
+const DEFAULT_APPEARANCE_SUB_PAGE: ThemeSettingsSubPage = "home";
 
 const SETTINGS_TABS: { id: SettingsTabId; icon: LucideIcon; labelKey: string }[] = [
     { id: "general", icon: Settings, labelKey: "general" },
@@ -27,8 +29,8 @@ function readStoredSettingsViewState(): {
 } {
     if (typeof window === "undefined") {
         return {
-            activeTab: "general",
-            appearanceSubPage: "home",
+            activeTab: DEFAULT_SETTINGS_TAB,
+            appearanceSubPage: DEFAULT_APPEARANCE_SUB_PAGE,
         };
     }
 
@@ -36,8 +38,8 @@ function readStoredSettingsViewState(): {
         const rawValue = window.sessionStorage.getItem(SETTINGS_VIEW_STATE_STORAGE_KEY);
         if (!rawValue) {
             return {
-                activeTab: "general",
-                appearanceSubPage: "home",
+                activeTab: DEFAULT_SETTINGS_TAB,
+                appearanceSubPage: DEFAULT_APPEARANCE_SUB_PAGE,
             };
         }
 
@@ -53,16 +55,16 @@ function readStoredSettingsViewState(): {
             activeTab:
                 activeTab === "general" || activeTab === "appearance" || activeTab === "about"
                     ? activeTab
-                    : "general",
+                    : DEFAULT_SETTINGS_TAB,
             appearanceSubPage:
                 appearanceSubPage === "background" || appearanceSubPage === "material" || appearanceSubPage === "home"
                     ? appearanceSubPage
-                    : "home",
+                    : DEFAULT_APPEARANCE_SUB_PAGE,
         };
     } catch {
         return {
-            activeTab: "general",
-            appearanceSubPage: "home",
+            activeTab: DEFAULT_SETTINGS_TAB,
+            appearanceSubPage: DEFAULT_APPEARANCE_SUB_PAGE,
         };
     }
 }
@@ -75,7 +77,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     );
 
     useEffect(() => {
-        if (typeof window === "undefined") {
+        if (!open || typeof window === "undefined") {
             return;
         }
 
@@ -90,7 +92,24 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         } catch {
             // Ignore temporary storage write failures.
         }
-    }, [activeTab, appearanceSubPage]);
+    }, [activeTab, appearanceSubPage, open]);
+
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) {
+            setActiveTab(DEFAULT_SETTINGS_TAB);
+            setAppearanceSubPage(DEFAULT_APPEARANCE_SUB_PAGE);
+
+            if (typeof window !== "undefined") {
+                try {
+                    window.sessionStorage.removeItem(SETTINGS_VIEW_STATE_STORAGE_KEY);
+                } catch {
+                    // Ignore temporary storage cleanup failures.
+                }
+            }
+        }
+
+        onOpenChange(nextOpen);
+    };
 
     const sidebarItems = useMemo(
         () => SETTINGS_TABS.map((tab) => ({ ...tab, label: t(tab.labelKey) })),
@@ -135,7 +154,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     return (
         <AppModalV2Sidebar
             open={open}
-            onOpenChange={onOpenChange}
+            onOpenChange={handleOpenChange}
             sidebarStorageKey="settings"
             sidebarItems={sidebarItems}
             sidebarActiveId={activeTab}

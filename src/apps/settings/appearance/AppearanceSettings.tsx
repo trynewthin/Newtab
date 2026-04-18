@@ -1,9 +1,8 @@
-import { type ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 import { useThemePreferenceStore } from "@/config";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
-import { ChevronRight, Image, Sparkles } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { SETTINGS_FIELD_CLASS, SettingsItem, SettingsSection } from "@/apps/settings/components/SettingComponents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,11 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export type ThemeSettingsSubPage = "home" | "background" | "material";
 
 function AppearanceNavEntry({
-    icon: Icon,
     title,
     onClick,
 }: {
-    icon: ComponentType<{ size?: number; className?: string }>;
     title: string;
     onClick: () => void;
 }) {
@@ -24,19 +21,12 @@ function AppearanceNavEntry({
             type="button"
             onClick={onClick}
             className={cn(
-                "group flex w-full items-center justify-between rounded-2xl px-4 py-3.5 text-left",
-                "shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]",
-                "dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]",
-                "transition-all hover:scale-[1.01]",
+                "group flex w-full items-center justify-between rounded-xl px-0 py-2 text-left",
+                "transition-colors hover:text-foreground",
             )}
         >
-            <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-foreground/6 text-foreground/80">
-                    <Icon size={18} />
-                </div>
-                <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-foreground">{title}</div>
-                </div>
+            <div className="min-w-0">
+                <div className="truncate text-sm font-normal text-foreground/88">{title}</div>
             </div>
             <ChevronRight size={16} className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
         </button>
@@ -82,14 +72,12 @@ export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSetti
                         </SettingsItem>
                     </SettingsSection>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 border-t border-border/60 pt-4">
                         <AppearanceNavEntry
-                            icon={Image}
                             title={t("background")}
                             onClick={() => onSubPageChange("background")}
                         />
                         <AppearanceNavEntry
-                            icon={Sparkles}
                             title={t("surface_materials")}
                             onClick={() => onSubPageChange("material")}
                         />

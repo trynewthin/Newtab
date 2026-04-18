@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ThemePreferenceToggleButton } from "@/config";
 import { AppModalV2Sidebar } from "@/platform/ui/modal";
 import { Settings, Palette, Info, type LucideIcon } from "lucide-react";
@@ -13,6 +13,7 @@ interface SettingsDialogProps {
 }
 
 type SettingsTabId = "general" | "appearance" | "about";
+const SETTINGS_VIEW_STATE_STORAGE_KEY = "settings-dialog:view-state";
 
 const SETTINGS_TABS: { id: SettingsTabId; icon: LucideIcon; labelKey: string }[] = [
     { id: "general", icon: Settings, labelKey: "general" },
@@ -20,10 +21,76 @@ const SETTINGS_TABS: { id: SettingsTabId; icon: LucideIcon; labelKey: string }[]
     { id: "about", icon: Info, labelKey: "about" },
 ];
 
+function readStoredSettingsViewState(): {
+    activeTab: SettingsTabId;
+    appearanceSubPage: ThemeSettingsSubPage;
+} {
+    if (typeof window === "undefined") {
+        return {
+            activeTab: "general",
+            appearanceSubPage: "home",
+        };
+    }
+
+    try {
+        const rawValue = window.sessionStorage.getItem(SETTINGS_VIEW_STATE_STORAGE_KEY);
+        if (!rawValue) {
+            return {
+                activeTab: "general",
+                appearanceSubPage: "home",
+            };
+        }
+
+        const parsed = JSON.parse(rawValue) as {
+            activeTab?: string;
+            appearanceSubPage?: string;
+        };
+
+        const activeTab = parsed.activeTab;
+        const appearanceSubPage = parsed.appearanceSubPage;
+
+        return {
+            activeTab:
+                activeTab === "general" || activeTab === "appearance" || activeTab === "about"
+                    ? activeTab
+                    : "general",
+            appearanceSubPage:
+                appearanceSubPage === "background" || appearanceSubPage === "material" || appearanceSubPage === "home"
+                    ? appearanceSubPage
+                    : "home",
+        };
+    } catch {
+        return {
+            activeTab: "general",
+            appearanceSubPage: "home",
+        };
+    }
+}
+
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<SettingsTabId>("general");
-    const [appearanceSubPage, setAppearanceSubPage] = useState<ThemeSettingsSubPage>("home");
+    const [activeTab, setActiveTab] = useState<SettingsTabId>(() => readStoredSettingsViewState().activeTab);
+    const [appearanceSubPage, setAppearanceSubPage] = useState<ThemeSettingsSubPage>(
+        () => readStoredSettingsViewState().appearanceSubPage
+    );
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        try {
+            window.sessionStorage.setItem(
+                SETTINGS_VIEW_STATE_STORAGE_KEY,
+                JSON.stringify({
+                    activeTab,
+                    appearanceSubPage,
+                })
+            );
+        } catch {
+            // Ignore temporary storage write failures.
+        }
+    }, [activeTab, appearanceSubPage]);
 
     const sidebarItems = useMemo(
         () => SETTINGS_TABS.map((tab) => ({ ...tab, label: t(tab.labelKey) })),
@@ -68,12 +135,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     return (
         <AppModalV2Sidebar
             open={open}
-            onOpenChange={(nextOpen) => {
-                if (!nextOpen) {
-                    setAppearanceSubPage("home");
-                }
-                onOpenChange(nextOpen);
-            }}
+            onOpenChange={onOpenChange}
             sidebarStorageKey="settings"
             sidebarItems={sidebarItems}
             sidebarActiveId={activeTab}

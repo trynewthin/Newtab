@@ -18,7 +18,6 @@ const Silk = lazy(() => import("@/platform/ui/effects/Silk"));
 const FloatingLines = lazy(() => import("@/platform/ui/effects/FloatingLines"));
 const Aurora = lazy(() => import("@/platform/ui/effects/Aurora"));
 const Particles = lazy(() => import("@/platform/ui/effects/Particles"));
-const PrismaticBurst = lazy(() => import("@/platform/ui/effects/PrismaticBurst"));
 
 export function BackgroundLayer() {
     const theme = useThemePreferenceStore((state) => state.theme);
@@ -205,25 +204,6 @@ export function BackgroundLayer() {
                     </div>
                 );
             }
-
-            case "prismatic-burst": {
-                const config = backgroundThemes["prismatic-burst"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"];
-                return (
-                    <div className="absolute inset-0 pointer-events-none">
-                        <PrismaticBurst
-                            intensity={config.intensity}
-                            speed={config.speed}
-                            animationType={config.animationType}
-                            colors={config.colors}
-                            distort={config.distort}
-                            hoverDampness={config.hoverDampness}
-                            rayCount={config.rayCount}
-                            mixBlendMode="screen"
-                        />
-                    </div>
-                );
-            }
-
             default:
                 return null;
         }

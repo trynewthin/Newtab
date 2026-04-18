@@ -1,11 +1,10 @@
-﻿export type DynamicBackgroundId =
+export type DynamicBackgroundId =
     | "color-bends"
     | "light-pillar"
     | "silk"
     | "floating-lines"
     | "aurora"
-    | "particles"
-    | "prismatic-burst";
+    | "particles";
 
 export interface DynamicColorBendsConfig {
     colors: [string, string, string];
@@ -61,16 +60,6 @@ export interface DynamicParticlesConfig {
     cameraDistance: number;
 }
 
-export interface DynamicPrismaticBurstConfig {
-    intensity: number;
-    speed: number;
-    animationType: "rotate" | "rotate3d" | "hover";
-    colors: [string, string, string, string];
-    distort: number;
-    hoverDampness: number;
-    rayCount: number;
-}
-
 export interface DynamicBackgroundConfigMap {
     "color-bends": DynamicColorBendsConfig;
     "light-pillar": DynamicLightPillarConfig;
@@ -78,7 +67,6 @@ export interface DynamicBackgroundConfigMap {
     "floating-lines": DynamicFloatingLinesConfig;
     aurora: DynamicAuroraConfig;
     particles: DynamicParticlesConfig;
-    "prismatic-burst": DynamicPrismaticBurstConfig;
 }
 
 export const DYNAMIC_BACKGROUND_IDS: readonly DynamicBackgroundId[] = [
@@ -88,7 +76,6 @@ export const DYNAMIC_BACKGROUND_IDS: readonly DynamicBackgroundId[] = [
     "floating-lines",
     "aurora",
     "particles",
-    "prismatic-burst",
 ] as const;
 
 export const DEFAULT_DYNAMIC_BACKGROUND_CONFIG: DynamicBackgroundConfigMap = {
@@ -140,15 +127,6 @@ export const DEFAULT_DYNAMIC_BACKGROUND_CONFIG: DynamicBackgroundConfigMap = {
         sizeRandomness: 0.75,
         cameraDistance: 18,
     },
-    "prismatic-burst": {
-        intensity: 1.35,
-        speed: 0.4,
-        animationType: "rotate3d",
-        colors: ["#90aeff", "#73e3d4", "#ccbcff", "#edf5ff"],
-        distort: 6,
-        hoverDampness: 0.35,
-        rayCount: 14,
-    },
 };
 
 export function isDynamicBackgroundId(value: string): value is DynamicBackgroundId {
@@ -182,10 +160,6 @@ export function mergeDynamicBackgroundConfig(
         particles: {
             ...DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles,
             ...(partial?.particles ?? {}),
-        },
-        "prismatic-burst": {
-            ...DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"],
-            ...(partial?.["prismatic-burst"] ?? {}),
         },
     };
 }

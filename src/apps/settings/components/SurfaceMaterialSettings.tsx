@@ -26,7 +26,6 @@ import Silk from "@/platform/ui/effects/Silk";
 import FloatingLines from "@/platform/ui/effects/FloatingLines";
 import Aurora from "@/platform/ui/effects/Aurora";
 import Particles from "@/platform/ui/effects/Particles";
-import PrismaticBurst from "@/platform/ui/effects/PrismaticBurst";
 
 function NumberSlider({
     value,
@@ -93,10 +92,6 @@ function MaterialPreview() {
             case "particles": {
                 const c = configs.particles ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles;
                 return <div className="absolute inset-0 pointer-events-none"><Particles particleCount={c.particleCount} particleSpread={c.particleSpread} speed={c.speed} particleColors={c.particleColors} moveParticlesOnHover={false} alphaParticles particleBaseSize={c.particleBaseSize} sizeRandomness={c.sizeRandomness} cameraDistance={c.cameraDistance} disableRotation={false} pixelRatio={1} /></div>;
-            }
-            case "prismatic-burst": {
-                const c = configs["prismatic-burst"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"];
-                return <div className="absolute inset-0 pointer-events-none"><PrismaticBurst intensity={c.intensity} speed={c.speed} animationType={c.animationType} colors={c.colors} distort={c.distort} hoverDampness={c.hoverDampness} rayCount={c.rayCount} mixBlendMode="screen" /></div>;
             }
             default:
                 return null;

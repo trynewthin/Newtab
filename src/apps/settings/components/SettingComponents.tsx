@@ -113,7 +113,7 @@ export function SettingsButtonGroup({
                         key={option.id}
                         onClick={() => onChange(option.id)}
                         className={cn(
-                            "flex h-9 flex-1 items-center justify-center rounded-xl border px-4 text-sm transition-all",
+                            "flex h-9 flex-1 items-center justify-center rounded-xl border px-4 text-sm whitespace-nowrap transition-all",
                             isActive
                                 ? "border-foreground/20 bg-foreground/8 font-medium text-foreground"
                                 : "border-border/70 bg-background/85 text-muted-foreground hover:border-foreground/20 hover:bg-foreground/6 hover:text-foreground",

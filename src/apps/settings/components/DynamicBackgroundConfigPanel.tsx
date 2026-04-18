@@ -1,4 +1,5 @@
-﻿import { useTranslation } from "react-i18next";
+import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -18,6 +19,94 @@ import {
 
 interface DynamicBackgroundConfigPanelProps {
     backgroundId: DynamicBackgroundId;
+    showTitle?: boolean;
+    unstyled?: boolean;
+}
+
+const CONFIG_CONTROL_WIDTH_CLASS = "w-[220px]";
+const CONFIG_CONTROL_SLOT_CLASS = `flex ${CONFIG_CONTROL_WIDTH_CLASS} items-center justify-end`;
+
+function ColorInputField({
+    value,
+    onChange,
+    className,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+    className: string;
+}) {
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const frameRef = useRef<number | null>(null);
+    const latestCommittedValueRef = useRef(value);
+    const latestOnChangeRef = useRef(onChange);
+    const pendingValueRef = useRef(value);
+
+    useEffect(() => {
+        latestCommittedValueRef.current = value;
+        pendingValueRef.current = value;
+
+        if (inputRef.current && inputRef.current.value !== value) {
+            inputRef.current.value = value;
+        }
+    }, [value]);
+
+    useEffect(() => {
+        latestOnChangeRef.current = onChange;
+    }, [onChange]);
+
+    useEffect(() => () => {
+        if (frameRef.current !== null) {
+            cancelAnimationFrame(frameRef.current);
+        }
+    }, []);
+
+    const commitValue = (nextValue: string) => {
+        pendingValueRef.current = nextValue;
+
+        if (frameRef.current !== null) {
+            cancelAnimationFrame(frameRef.current);
+            frameRef.current = null;
+        }
+
+        if (nextValue !== latestCommittedValueRef.current) {
+            latestOnChangeRef.current(nextValue);
+        }
+    };
+
+    const scheduleCommit = (nextValue: string) => {
+        pendingValueRef.current = nextValue;
+
+        if (frameRef.current !== null) {
+            return;
+        }
+
+        frameRef.current = requestAnimationFrame(() => {
+            frameRef.current = null;
+            const scheduledValue = pendingValueRef.current;
+
+            if (scheduledValue !== latestCommittedValueRef.current) {
+                latestOnChangeRef.current(scheduledValue);
+            }
+        });
+    };
+
+    return (
+        <Input
+            ref={inputRef}
+            type="color"
+            defaultValue={value}
+            onInput={(event) => {
+                const nextValue = event.currentTarget.value;
+                scheduleCommit(nextValue);
+            }}
+            onChange={(event) => {
+                const nextValue = event.currentTarget.value;
+                commitValue(nextValue);
+            }}
+            onBlur={() => commitValue(pendingValueRef.current)}
+            className={className}
+        />
+    );
 }
 
 function NumberSlider({
@@ -34,7 +123,7 @@ function NumberSlider({
     onChange: (value: number) => void;
 }) {
     return (
-        <div className="flex w-[220px] items-center gap-2">
+        <div className={`flex ${CONFIG_CONTROL_WIDTH_CLASS} items-center gap-2`}>
             <Slider
                 value={[value]}
                 min={min}
@@ -53,7 +142,11 @@ function updateArrayValue<T extends string>(source: readonly T[], index: number,
     return next;
 }
 
-export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackgroundConfigPanelProps) {
+export function DynamicBackgroundConfigPanel({
+    backgroundId,
+    showTitle = true,
+    unstyled = false,
+}: DynamicBackgroundConfigPanelProps) {
     const { t } = useTranslation();
     const { dynamicBackgroundConfig, updateDynamicBackgroundConfig, resetDynamicBackgroundConfig } = useSettingsStore();
     const colorBendsConfig = dynamicBackgroundConfig["color-bends"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["color-bends"];
@@ -62,7 +155,6 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
     const floatingLinesConfig = dynamicBackgroundConfig["floating-lines"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["floating-lines"];
     const auroraConfig = dynamicBackgroundConfig.aurora ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.aurora;
     const particlesConfig = dynamicBackgroundConfig.particles ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles;
-    const prismaticBurstConfig = dynamicBackgroundConfig["prismatic-burst"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"];
 
     const updateConfig = <T extends DynamicBackgroundId>(
         target: T,
@@ -71,12 +163,13 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
         updateDynamicBackgroundConfig(target, patch);
     };
     const colorLabel = (index: number) => t("dynamic_bg_field_color_n", { index: index + 1 });
+    const titleLabel = showTitle ? t("dynamic_background_config") : t("background_config");
 
     return (
-        <div className="space-y-2 rounded-2xl border border-border/65 bg-background/82 p-3.5">
+        <div className={unstyled ? "space-y-2" : "space-y-2 rounded-2xl border border-border/65 bg-background/82 p-3.5"}>
             <div className="flex items-center justify-between">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">
-                    {t("dynamic_background_config")}
+                    {titleLabel}
                 </div>
                 <button
                     type="button"
@@ -107,15 +200,14 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                     </SettingsItem>
                     {[0, 1, 2].map((index) => (
                         <SettingsItem key={`color-bends-color-${index}`} label={colorLabel(index)}>
-                            <Input
-                                type="color"
+                            <ColorInputField
                                 value={colorBendsConfig.colors[index]}
-                                onChange={(event) =>
+                                onChange={(nextValue) =>
                                     updateConfig("color-bends", {
-                                        colors: updateArrayValue(colorBendsConfig.colors, index, event.target.value) as [string, string, string],
+                                        colors: updateArrayValue(colorBendsConfig.colors, index, nextValue) as [string, string, string],
                                     })
                                 }
-                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
+                                className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
                             />
                         </SettingsItem>
                     ))}
@@ -125,19 +217,17 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
             {backgroundId === "light-pillar" ? (
                 <div className="space-y-2.5">
                     <SettingsItem label={t("dynamic_bg_field_top_color")}>
-                        <Input
-                            type="color"
+                        <ColorInputField
                             value={lightPillarConfig.topColor}
-                            onChange={(event) => updateConfig("light-pillar", { topColor: event.target.value })}
-                            className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
+                            onChange={(nextValue) => updateConfig("light-pillar", { topColor: nextValue })}
+                            className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
                         />
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_bottom_color")}>
-                        <Input
-                            type="color"
+                        <ColorInputField
                             value={lightPillarConfig.bottomColor}
-                            onChange={(event) => updateConfig("light-pillar", { bottomColor: event.target.value })}
-                            className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
+                            onChange={(nextValue) => updateConfig("light-pillar", { bottomColor: nextValue })}
+                            className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
                         />
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_intensity")}>
@@ -163,7 +253,7 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                             value={lightPillarConfig.quality}
                             onValueChange={(value) => updateConfig("light-pillar", { quality: value as "low" | "medium" | "high" })}
                         >
-                            <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[220px]`}>
+                            <SelectTrigger className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS}`}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -179,11 +269,10 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
             {backgroundId === "silk" ? (
                 <div className="space-y-2.5">
                     <SettingsItem label={t("dynamic_bg_field_color")}>
-                        <Input
-                            type="color"
+                        <ColorInputField
                             value={silkConfig.color}
-                            onChange={(event) => updateConfig("silk", { color: event.target.value })}
-                            className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
+                            onChange={(nextValue) => updateConfig("silk", { color: nextValue })}
+                            className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
                         />
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_speed")}>
@@ -207,7 +296,9 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                         <NumberSlider value={floatingLinesConfig.animationSpeed} min={0.2} max={2} step={0.01} onChange={(v) => updateConfig("floating-lines", { animationSpeed: v })} />
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_parallax")}>
-                        <Switch checked={floatingLinesConfig.parallax} onCheckedChange={(checked) => updateConfig("floating-lines", { parallax: checked })} />
+                        <div className={CONFIG_CONTROL_SLOT_CLASS}>
+                            <Switch checked={floatingLinesConfig.parallax} onCheckedChange={(checked) => updateConfig("floating-lines", { parallax: checked })} />
+                        </div>
                     </SettingsItem>
                     <SettingsItem label={t("dynamic_bg_field_top_lines")}>
                         <NumberSlider value={floatingLinesConfig.lineCount[0]} min={1} max={12} step={1} onChange={(v) => updateConfig("floating-lines", { lineCount: [Math.round(v), floatingLinesConfig.lineCount[1], floatingLinesConfig.lineCount[2]] })} />
@@ -229,15 +320,14 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                     </SettingsItem>
                     {[0, 1, 2].map((index) => (
                         <SettingsItem key={`floating-lines-color-${index}`} label={colorLabel(index)}>
-                            <Input
-                                type="color"
+                            <ColorInputField
                                 value={floatingLinesConfig.linesGradient[index]}
-                                onChange={(event) =>
+                                onChange={(nextValue) =>
                                     updateConfig("floating-lines", {
-                                        linesGradient: updateArrayValue(floatingLinesConfig.linesGradient, index, event.target.value) as [string, string, string],
+                                        linesGradient: updateArrayValue(floatingLinesConfig.linesGradient, index, nextValue) as [string, string, string],
                                     })
                                 }
-                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
+                                className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
                             />
                         </SettingsItem>
                     ))}
@@ -257,15 +347,14 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                     </SettingsItem>
                     {[0, 1, 2].map((index) => (
                         <SettingsItem key={`aurora-color-${index}`} label={colorLabel(index)}>
-                            <Input
-                                type="color"
+                            <ColorInputField
                                 value={auroraConfig.colorStops[index]}
-                                onChange={(event) =>
+                                onChange={(nextValue) =>
                                     updateConfig("aurora", {
-                                        colorStops: updateArrayValue(auroraConfig.colorStops, index, event.target.value) as [string, string, string],
+                                        colorStops: updateArrayValue(auroraConfig.colorStops, index, nextValue) as [string, string, string],
                                     })
                                 }
-                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
+                                className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
                             />
                         </SettingsItem>
                     ))}
@@ -294,64 +383,14 @@ export function DynamicBackgroundConfigPanel({ backgroundId }: DynamicBackground
                     </SettingsItem>
                     {[0, 1, 2].map((index) => (
                         <SettingsItem key={`particles-color-${index}`} label={colorLabel(index)}>
-                            <Input
-                                type="color"
+                            <ColorInputField
                                 value={particlesConfig.particleColors[index]}
-                                onChange={(event) =>
+                                onChange={(nextValue) =>
                                     updateConfig("particles", {
-                                        particleColors: updateArrayValue(particlesConfig.particleColors, index, event.target.value) as [string, string, string],
+                                        particleColors: updateArrayValue(particlesConfig.particleColors, index, nextValue) as [string, string, string],
                                     })
                                 }
-                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
-                            />
-                        </SettingsItem>
-                    ))}
-                </div>
-            ) : null}
-
-            {backgroundId === "prismatic-burst" ? (
-                <div className="space-y-2.5">
-                    <SettingsItem label={t("dynamic_bg_field_intensity")}>
-                        <NumberSlider value={prismaticBurstConfig.intensity} min={0.5} max={3} step={0.01} onChange={(v) => updateConfig("prismatic-burst", { intensity: v })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("dynamic_bg_field_speed")}>
-                        <NumberSlider value={prismaticBurstConfig.speed} min={0.1} max={1} step={0.01} onChange={(v) => updateConfig("prismatic-burst", { speed: v })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("dynamic_bg_field_distort")}>
-                        <NumberSlider value={prismaticBurstConfig.distort} min={0} max={20} step={0.1} onChange={(v) => updateConfig("prismatic-burst", { distort: v })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("dynamic_bg_field_hover_dampness")}>
-                        <NumberSlider value={prismaticBurstConfig.hoverDampness} min={0} max={1} step={0.01} onChange={(v) => updateConfig("prismatic-burst", { hoverDampness: v })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("dynamic_bg_field_ray_count")}>
-                        <NumberSlider value={prismaticBurstConfig.rayCount} min={4} max={32} step={1} onChange={(v) => updateConfig("prismatic-burst", { rayCount: Math.round(v) })} />
-                    </SettingsItem>
-                    <SettingsItem label={t("dynamic_bg_field_animation_type")}>
-                        <Select
-                            value={prismaticBurstConfig.animationType}
-                            onValueChange={(value) => updateConfig("prismatic-burst", { animationType: value as "rotate" | "rotate3d" | "hover" })}
-                        >
-                            <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[220px]`}>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="rotate">{t("dynamic_bg_option_animation_rotate")}</SelectItem>
-                                <SelectItem value="rotate3d">{t("dynamic_bg_option_animation_rotate3d")}</SelectItem>
-                                <SelectItem value="hover">{t("dynamic_bg_option_animation_hover")}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </SettingsItem>
-                    {[0, 1, 2, 3].map((index) => (
-                        <SettingsItem key={`prismatic-color-${index}`} label={colorLabel(index)}>
-                            <Input
-                                type="color"
-                                value={prismaticBurstConfig.colors[index]}
-                                onChange={(event) =>
-                                    updateConfig("prismatic-burst", {
-                                        colors: updateArrayValue(prismaticBurstConfig.colors, index, event.target.value) as [string, string, string, string],
-                                    })
-                                }
-                                className={`${SETTINGS_FIELD_CLASS} w-[220px] p-1`}
+                                className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
                             />
                         </SettingsItem>
                     ))}

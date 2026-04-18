@@ -7,7 +7,13 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { BACKGROUND_PRESETS } from "@/apps/settings/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
-import { SettingsSection } from "./SettingComponents";
+import {
+    SETTINGS_ACTION_BUTTON_CLASS,
+    SETTINGS_FIELD_CLASS,
+    SettingsButtonGroup,
+    SettingsItem,
+    SettingsSection,
+} from "./SettingComponents";
 import { useRef } from "react";
 import ColorBends from "@/platform/ui/effects/ColorBends";
 import LightPillar from "@/platform/ui/effects/LightPillar";
@@ -15,7 +21,6 @@ import Silk from "@/platform/ui/effects/Silk";
 import FloatingLines from "@/platform/ui/effects/FloatingLines";
 import Aurora from "@/platform/ui/effects/Aurora";
 import Particles from "@/platform/ui/effects/Particles";
-import PrismaticBurst from "@/platform/ui/effects/PrismaticBurst";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     isDynamicBackgroundId,
@@ -28,6 +33,7 @@ const IMAGE_BACKGROUND_SLIDER_CONFIG = [
 ] as const;
 
 type ImageBackgroundSliderKey = (typeof IMAGE_BACKGROUND_SLIDER_CONFIG)[number]["key"];
+type BackgroundSelectorType = "theme" | "image" | "solid" | "gradient";
 
 export function BackgroundSelector() {
     const { t } = useTranslation();
@@ -41,7 +47,10 @@ export function BackgroundSelector() {
     } = useSettingsStore();
 
     const gradientPresets = BACKGROUND_PRESETS.filter(p => p.type === 'gradient');
+    const currentBackgroundType = backgroundConfig.type as BackgroundSelectorType;
     const colorInputRef = useRef<HTMLInputElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+    const imageUrlInputRef = useRef<HTMLInputElement>(null);
     const activeThemeId = backgroundConfig.type === 'theme' && isDynamicBackgroundId(backgroundConfig.value)
         ? backgroundConfig.value
         : null;
@@ -76,16 +85,50 @@ export function BackgroundSelector() {
             id: "particles",
             nameKey: "theme_particles",
             descriptionKey: "theme_particles_desc",
-        },
-        {
-            id: "prismatic-burst",
-            nameKey: "theme_prismatic_burst",
-            descriptionKey: "theme_prismatic_burst_desc",
         }
     ] as const;
     const activeThemeMeta = activeThemeId
         ? themeEffectPresets.find((item) => item.id === activeThemeId) ?? null
         : null;
+
+    const handleBackgroundTypeChange = (type: string) => {
+        const nextType = type as BackgroundSelectorType;
+
+        if (nextType === "theme") {
+            setBackgroundConfig({
+                type: "theme",
+                value: activeThemeId ?? themeEffectPresets[0].id,
+            });
+            return;
+        }
+
+        if (nextType === "image") {
+            setBackgroundConfig({
+                type: "image",
+                value: backgroundConfig.type === "image" ? backgroundConfig.value : "",
+                blur: backgroundConfig.blur || 0,
+                overlay: backgroundConfig.overlay || 0,
+            });
+            return;
+        }
+
+        if (nextType === "solid") {
+            setBackgroundConfig({
+                type: "solid",
+                value: backgroundConfig.type === "solid"
+                    ? backgroundConfig.value
+                    : (solidColors[0] ?? "hsl(224 71% 4%)"),
+            });
+            return;
+        }
+
+        setBackgroundConfig({
+            type: "gradient",
+            value: backgroundConfig.type === "gradient"
+                ? backgroundConfig.value
+                : (gradientPresets[0]?.value ?? ""),
+        });
+    };
 
     const renderDynamicThemePreview = (themeId: string) => {
         switch (themeId) {
@@ -197,26 +240,6 @@ export function BackgroundSelector() {
                     </div>
                 );
                 }
-
-            case "prismatic-burst":
-                {
-                    const config = dynamicBackgroundConfig["prismatic-burst"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["prismatic-burst"];
-                return (
-                    <div className="absolute inset-0 pointer-events-none">
-                        <PrismaticBurst
-                            intensity={config.intensity}
-                            speed={config.speed}
-                            animationType={config.animationType}
-                            colors={config.colors}
-                            distort={config.distort}
-                            hoverDampness={config.hoverDampness}
-                            rayCount={config.rayCount}
-                            mixBlendMode="screen"
-                        />
-                    </div>
-                );
-                }
-
             default:
                 return null;
         }
@@ -244,147 +267,238 @@ export function BackgroundSelector() {
     };
     const getGradientLabel = (name: string) => t(`gradient_${name.toLowerCase()}`);
 
+    const applyImageBackgroundValue = (value: string) => {
+        setBackgroundConfig({
+            type: "image",
+            value,
+            blur: backgroundConfig.blur || 0,
+            overlay: backgroundConfig.overlay || 0,
+        });
+    };
+
+    const handleImageFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+            const dataUrl = loadEvent.target?.result;
+            if (typeof dataUrl === "string") {
+                applyImageBackgroundValue(dataUrl);
+            }
+        };
+        reader.readAsDataURL(file);
+        event.currentTarget.value = "";
+    };
+
+    const applyImageUrl = () => {
+        const url = imageUrlInputRef.current?.value.trim() ?? "";
+        if (!url) {
+            return;
+        }
+
+        applyImageBackgroundValue(url);
+        if (imageUrlInputRef.current) {
+            imageUrlInputRef.current.value = "";
+        }
+    };
+    const removeImageBackground = () => {
+        setBackgroundConfig({
+            type: "image",
+            value: "",
+            blur: backgroundConfig.blur || 0,
+            overlay: backgroundConfig.overlay || 0,
+        });
+    };
+
     return (
         <div className="space-y-8">
-            <SettingsSection title={t("dynamic_backgrounds")}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {themeEffectPresets.map((theme) => (
-                        <button
-                            key={theme.id}
-                            onClick={() => setBackgroundConfig({ type: 'theme', value: theme.id })}
-                            className={cn(
-                                "group relative w-full h-24 rounded-2xl overflow-hidden transition-all duration-500 border",
-                                activeThemeId === theme.id
-                                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background/10 scale-[0.99] shadow-xl shadow-primary/20 border-primary/40"
-                                    : "border-border/30 hover:border-primary/50 hover:scale-[1.01] active:scale-[0.99]"
-                            )}
-                        >
-                            <div className="absolute inset-0 pointer-events-none">
-                                <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
-                                {renderDynamicThemePreview(theme.id)}
-                            </div>
-                            <div className="absolute inset-0 bg-black/28" />
-                            <div className="relative z-10 h-full flex items-center justify-between px-4">
-                                <div className="text-left text-white">
-                                    <div className="text-xs font-bold tracking-wider uppercase">{t(theme.nameKey)}</div>
-                                    <div className="text-[11px] text-white/80">{t(theme.descriptionKey)}</div>
-                                </div>
-                                {activeThemeId === theme.id && (
-                                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white">
-                                        <Check size={12} strokeWidth={3} />
-                                    </div>
-                                )}
-                            </div>
-                        </button>
-                    ))}
-                </div>
-                {activeThemeId ? (
-                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-                        <div className="lg:sticky lg:top-2 lg:self-start">
-                            <div className="rounded-2xl p-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
-                                <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">
-                                    {t("live_preview")}
-                                </div>
-                                <div className="relative h-52 overflow-hidden rounded-xl">
+            <SettingsSection title={t("background_type")}>
+                <SettingsItem label={t("background_type")}>
+                    <SettingsButtonGroup
+                        className="flex-wrap"
+                        value={currentBackgroundType}
+                        onChange={handleBackgroundTypeChange}
+                        options={[
+                            { id: "theme", label: t("dynamic_backgrounds") },
+                            { id: "image", label: t("custom_image") },
+                            { id: "solid", label: t("solid_colors") },
+                            { id: "gradient", label: t("gradients") },
+                        ]}
+                    />
+                </SettingsItem>
+            </SettingsSection>
+
+            {currentBackgroundType === "theme" ? (
+                <>
+                    <SettingsSection title={t("dynamic_backgrounds")}>
+                        <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)]">
+                            <div className="min-w-0">
+                                <div className="relative h-64 overflow-hidden rounded-3xl border border-border/50 md:h-72">
                                     <div className="absolute inset-0 pointer-events-none">
                                         <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
-                                        {renderDynamicThemePreview(activeThemeId)}
+                                        {activeThemeId ? renderDynamicThemePreview(activeThemeId) : null}
                                     </div>
-                                    <div className="absolute inset-0 bg-black/25" />
+                                    <div className="absolute inset-0 bg-black/22" />
                                     {activeThemeMeta ? (
-                                        <div className="absolute bottom-0 left-0 right-0 z-10 bg-linear-to-t from-black/65 to-transparent px-3 py-2 text-white">
-                                            <div className="text-[11px] font-bold uppercase tracking-[0.14em]">{t(activeThemeMeta.nameKey)}</div>
-                                            <div className="text-[11px] text-white/80">{t(activeThemeMeta.descriptionKey)}</div>
+                                        <div className="absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/72 via-black/28 to-transparent px-5 py-4 text-white">
+                                            <div className="text-xl font-semibold tracking-[-0.03em]">
+                                                {t(activeThemeMeta.nameKey)}
+                                            </div>
+                                            <div className="mt-1 max-w-xl text-sm text-white/78">
+                                                {t(activeThemeMeta.descriptionKey)}
+                                            </div>
                                         </div>
                                     ) : null}
                                 </div>
                             </div>
-                        </div>
-                        <DynamicBackgroundConfigPanel backgroundId={activeThemeId} />
-                    </div>
-                ) : null}
-            </SettingsSection>
 
-            {/* 1. Custom Image Upload */}
+                            <div className="min-w-0">
+                                <div className="max-h-64 space-y-2 overflow-y-auto custom-scrollbar pr-1 md:max-h-72">
+                                    {themeEffectPresets.map((theme) => (
+                                        <button
+                                            key={theme.id}
+                                            type="button"
+                                            onClick={() => setBackgroundConfig({ type: "theme", value: theme.id })}
+                                            className={cn(
+                                                "group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border px-3 py-3 text-left transition-all duration-300",
+                                                activeThemeId === theme.id
+                                                    ? "border-primary/40 bg-foreground/[0.06]"
+                                                    : "border-border/50 bg-background/72 hover:border-primary/35 hover:bg-foreground/[0.04]"
+                                            )}
+                                        >
+                                            <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl">
+                                                <div className="absolute inset-0 pointer-events-none">
+                                                    <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
+                                                    {renderDynamicThemePreview(theme.id)}
+                                                </div>
+                                                <div className="absolute inset-0 bg-black/24" />
+                                            </div>
+
+                                            <div className="min-w-0 flex-1">
+                                                <div className="truncate text-sm font-semibold text-foreground">
+                                                    {t(theme.nameKey)}
+                                                </div>
+                                                <div className="mt-1 line-clamp-2 text-[11px] text-muted-foreground/82">
+                                                    {t(theme.descriptionKey)}
+                                                </div>
+                                            </div>
+
+                                            {activeThemeId === theme.id ? (
+                                                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+                                                    <Check size={12} strokeWidth={3} />
+                                                </div>
+                                            ) : null}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </SettingsSection>
+
+                    {activeThemeId ? (
+                        <DynamicBackgroundConfigPanel
+                            backgroundId={activeThemeId}
+                            showTitle={false}
+                            unstyled
+                        />
+                    ) : null}
+                </>
+            ) : null}
+
+            {currentBackgroundType === "image" ? (
             <SettingsSection title={t('custom_image')}>
                 <div className="space-y-4">
-                    {/* Upload & URL Row */}
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <label className="flex-1 cursor-pointer group">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                        const reader = new FileReader();
-                                        reader.onload = (event) => {
-                                            const dataUrl = event.target?.result as string;
-                                            setBackgroundConfig({
-                                                type: 'image',
-                                                value: dataUrl,
-                                                blur: backgroundConfig.blur || 0,
-                                                overlay: backgroundConfig.overlay || 0
-                                            });
-                                        };
-                                        reader.readAsDataURL(file);
-                                    }
+                    <input
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageFileChange}
+                    />
+
+                    {backgroundConfig.type === "image" && backgroundConfig.value ? (
+                        <button
+                            type="button"
+                            onClick={() => imageInputRef.current?.click()}
+                            className="group relative block h-72 w-full overflow-hidden rounded-3xl border border-border/60 bg-background/70 text-left transition-all hover:border-foreground/20 md:h-80"
+                        >
+                            <div
+                                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.02]"
+                                style={{
+                                    backgroundImage: `url(${backgroundConfig.value})`,
+                                    filter: `blur(${backgroundConfig.blur || 0}px)`,
+                                    transform: (backgroundConfig.blur || 0) > 0 ? "scale(1.08)" : undefined,
                                 }}
                             />
-                            <div className="flex flex-col items-center justify-center gap-2 py-4 px-4 rounded-2xl border-2 border-dashed border-foreground/10 hover:border-foreground/20 bg-foreground/4 hover:bg-foreground/6 transition-all group-active:scale-[0.98]">
-                                <Upload size={18} className="text-primary/60 group-hover:text-primary transition-colors" />
-                                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground">{t('upload_image')}</span>
+                            <div
+                                className="absolute inset-0 bg-black transition-opacity duration-300"
+                                style={{ opacity: (backgroundConfig.overlay || 0) / 100 }}
+                            />
+                            <div className="absolute inset-0 bg-linear-to-t from-black/78 via-black/20 to-transparent" />
+                            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 py-4 text-white">
+                                <div className="min-w-0">
+                                    <div className="text-base font-semibold tracking-tight">{t("custom_image")}</div>
+                                </div>
+                                <div className="flex shrink-0 items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            removeImageBackground();
+                                        }}
+                                        className="rounded-xl border border-white/14 bg-black/18 px-3 py-1.5 text-xs font-medium text-white/82 transition-colors hover:bg-black/28"
+                                    >
+                                        {t("remove_image")}
+                                    </button>
+                                    <div className="rounded-xl border border-white/18 bg-black/22 px-3 py-1.5 text-xs font-medium text-white/88">
+                                        {t("change_image")}
+                                    </div>
+                                </div>
                             </div>
-                        </label>
-
-                        <div className="flex-2 flex flex-col justify-center gap-2">
-                            <div className="flex gap-2 items-center h-full p-2 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)] focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                                <Input
-                                    type="url"
-                                    placeholder={t('paste_url')}
-                                    className="flex-1 border-none bg-transparent shadow-none focus-visible:ring-0 h-8 px-3 text-sm"
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            const url = e.currentTarget.value.trim();
-                                            if (url) {
-                                                setBackgroundConfig({
-                                                    type: 'image',
-                                                    value: url,
-                                                    blur: backgroundConfig.blur || 0,
-                                                    overlay: backgroundConfig.overlay || 0
-                                                });
-                                                e.currentTarget.value = '';
-                                            }
-                                        }
-                                    }}
-                                />
-                                <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    className="rounded-xl px-3 h-7 text-xs font-medium shadow-sm active:scale-95 transition-transform"
-                                    onClick={(e) => {
-                                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                                        const url = input?.value.trim();
-                                        if (url) {
-                                            setBackgroundConfig({
-                                                type: 'image',
-                                                value: url,
-                                                blur: backgroundConfig.blur || 0,
-                                                overlay: backgroundConfig.overlay || 0
-                                            });
-                                            input.value = '';
-                                        }
-                                    }}
+                        </button>
+                    ) : (
+                        <>
+                            <SettingsItem label={t("upload_image")}>
+                                <button
+                                    type="button"
+                                    onClick={() => imageInputRef.current?.click()}
+                                    className={`${SETTINGS_ACTION_BUTTON_CLASS} inline-flex items-center gap-2`}
                                 >
-                                    {t('apply')}
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                                    <Upload size={14} />
+                                    <span>{t("upload_image")}</span>
+                                </button>
+                            </SettingsItem>
+
+                            <SettingsItem label={t("paste_url")}>
+                                <div className="flex w-[320px] items-center gap-2">
+                                    <Input
+                                        ref={imageUrlInputRef}
+                                        type="url"
+                                        placeholder={t("paste_url")}
+                                        className={`${SETTINGS_FIELD_CLASS} flex-1`}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter") {
+                                                applyImageUrl();
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={applyImageUrl}
+                                        className={`${SETTINGS_ACTION_BUTTON_CLASS} shrink-0`}
+                                    >
+                                        {t("apply")}
+                                    </button>
+                                </div>
+                            </SettingsItem>
+                        </>
+                    )}
 
                     {/* Effects Sliders */}
-                    {backgroundConfig.type === 'image' && (
+                    {backgroundConfig.type === 'image' && backgroundConfig.value ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in zoom-in-95 duration-300">
                             {IMAGE_BACKGROUND_SLIDER_CONFIG.map((ef) => {
                                 const sliderKey: ImageBackgroundSliderKey = ef.key;
@@ -425,11 +539,12 @@ export function BackgroundSelector() {
                                 );
                             })}
                         </div>
-                    )}
+                    ) : null}
                 </div>
             </SettingsSection>
+            ) : null}
 
-            {/* 2. Solid Colors */}
+            {currentBackgroundType === "solid" ? (
             <SettingsSection title={t('solid_colors')}>
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
                     {solidColors.map((color) => (
@@ -474,8 +589,9 @@ export function BackgroundSelector() {
                     </label>
                 </div>
             </SettingsSection>
+            ) : null}
 
-            {/* 3. Gradients */}
+            {currentBackgroundType === "gradient" ? (
             <SettingsSection title={t('gradients')}>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                     {gradientPresets.map((preset) => (
@@ -508,6 +624,7 @@ export function BackgroundSelector() {
                     ))}
                 </div>
             </SettingsSection>
+            ) : null}
         </div>
     );
 }

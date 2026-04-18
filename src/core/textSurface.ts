@@ -281,8 +281,6 @@ function resolveThemePalette(
             return config.aurora.colorStops;
         case "particles":
             return config.particles.particleColors;
-        case "prismatic-burst":
-            return config["prismatic-burst"].colors;
         default:
             return [];
     }

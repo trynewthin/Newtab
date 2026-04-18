@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { storageRegistry } from "@/platform/persistence/registry";
 import { createPersistConfig } from "@/platform/persistence/zustandStorage";
 import {
     readLegacyThemePreference,
@@ -62,6 +63,11 @@ export const useThemePreferenceStore = create<ThemePreferenceState>()(
             merge: mergePersistedThemePreference,
         })
     )
+);
+
+storageRegistry.registerRehydrator(
+    THEME_PREFERENCE_STORAGE_KEY,
+    () => useThemePreferenceStore.persist.rehydrate()
 );
 
 export function getThemePreference(): ThemeMode {

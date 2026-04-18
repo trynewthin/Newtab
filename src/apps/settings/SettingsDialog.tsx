@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ThemePreferenceToggleButton } from "@/config";
-import { AppModalV2Sidebar } from "@/platform/ui/modal";
+import { AppModalV2Sidebar } from "@/platform/ui";
 import { Settings, Palette, Info, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GeneralSettings } from "./general/GeneralSettings";

@@ -1,18 +1,17 @@
 import {
-    DEFAULT_APP_SURFACE_MATERIAL_CONFIG,
-    mergeSurfaceMaterialConfig,
-} from "@/core/surfaceMaterials";
-import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     mergeDynamicBackgroundConfig,
 } from "@/core/dynamicBackgrounds";
-import type { SettingsStateData } from "./store.types";
+import {
+    DEFAULT_APP_SURFACE_MATERIAL_CONFIG,
+    mergeSurfaceMaterialConfig,
+} from "@/core/surfaceMaterials";
+import type { AppearancePreferenceData } from "./store.types";
 
-export function createDefaultSettingsState(): SettingsStateData {
+export function createDefaultAppearancePreferenceState(): AppearancePreferenceData {
     return {
         primaryColor: "hsl(217 91% 60%)",
         textSurfaceFontPreset: "sans",
-        surfaceMaterial: "mac-frosted",
         surfaceTone: "auto",
         surfaceMaterialConfig: mergeSurfaceMaterialConfig(DEFAULT_APP_SURFACE_MATERIAL_CONFIG),
         backgroundConfig: {

@@ -392,16 +392,15 @@ function migrateAppSettingsPayloadToV2(raw: string): string {
         const nextState: Record<string, unknown> = { ...parsed.state };
         const material = nextState.surfaceMaterial;
 
-        if (material === "glass-rays") {
-            nextState.surfaceMaterial = "glass-distortion";
-        } else if (material !== "glass-distortion" && material !== "mac-frosted") {
-            nextState.surfaceMaterial = "glass-distortion";
+        if (material !== "mac-frosted") {
+            nextState.surfaceMaterial = "mac-frosted";
         }
 
         const config = nextState.surfaceMaterialConfig;
         if (config && typeof config === "object") {
             const configRecord = { ...(config as Record<string, unknown>) };
             delete configRecord["glass-rays"];
+            delete configRecord["glass-distortion"];
             nextState.surfaceMaterialConfig = configRecord;
         }
 

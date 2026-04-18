@@ -10,7 +10,7 @@ import {
     SETTINGS_FIELD_CLASS,
     SettingsItem,
 } from "@/apps/settings/components/SettingComponents";
-import { useSettingsStore } from "@/apps/settings/store";
+import { useAppearancePreferenceStore } from "@/config";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     type DynamicBackgroundId,
@@ -148,7 +148,11 @@ export function DynamicBackgroundConfigPanel({
     unstyled = false,
 }: DynamicBackgroundConfigPanelProps) {
     const { t } = useTranslation();
-    const { dynamicBackgroundConfig, updateDynamicBackgroundConfig, resetDynamicBackgroundConfig } = useSettingsStore();
+    const {
+        dynamicBackgroundConfig,
+        updateDynamicBackgroundConfig,
+        resetDynamicBackgroundConfig,
+    } = useAppearancePreferenceStore();
     const colorBendsConfig = dynamicBackgroundConfig["color-bends"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["color-bends"];
     const lightPillarConfig = dynamicBackgroundConfig["light-pillar"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["light-pillar"];
     const silkConfig = dynamicBackgroundConfig.silk ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.silk;

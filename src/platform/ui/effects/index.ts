@@ -1,8 +1,7 @@
 export { default as Aurora } from "./Aurora";
 export { default as ColorBends } from "./ColorBends";
+export { DynamicBackgroundEffect } from "./DynamicBackgroundEffect";
 export { default as FloatingLines } from "./FloatingLines";
-export { default as GlassSurface } from "./GlassSurface";
-export type { GlassSurfaceProps } from "./GlassSurface";
 export { default as GradualBlur } from "./GradualBlur";
 export { default as LightPillar } from "./LightPillar";
 export { default as Particles } from "./Particles";

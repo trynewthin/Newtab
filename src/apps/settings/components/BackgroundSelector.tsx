@@ -1,10 +1,10 @@
-﻿import { useSettingsStore } from "@/apps/settings/store";
+import { useAppearancePreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
 import { Check, Upload, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { BACKGROUND_PRESETS } from "@/apps/settings/appearance/themeConfig";
 import { useTranslation } from "react-i18next";
 import {
@@ -15,16 +15,8 @@ import {
     SettingsSection,
 } from "./SettingComponents";
 import { useRef } from "react";
-import ColorBends from "@/platform/ui/effects/ColorBends";
-import LightPillar from "@/platform/ui/effects/LightPillar";
-import Silk from "@/platform/ui/effects/Silk";
-import FloatingLines from "@/platform/ui/effects/FloatingLines";
-import Aurora from "@/platform/ui/effects/Aurora";
-import Particles from "@/platform/ui/effects/Particles";
-import {
-    DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
-    isDynamicBackgroundId,
-} from "@/core/dynamicBackgrounds";
+import { DynamicBackgroundEffect } from "@/platform/ui/effects";
+import { isDynamicBackgroundId } from "@/core/dynamicBackgrounds";
 import { DynamicBackgroundConfigPanel } from "./DynamicBackgroundConfigPanel";
 
 const IMAGE_BACKGROUND_SLIDER_CONFIG = [
@@ -43,15 +35,15 @@ export function BackgroundSelector() {
         dynamicBackgroundConfig,
         solidColors,
         addSolidColor,
-        removeSolidColor
-    } = useSettingsStore();
+        removeSolidColor,
+    } = useAppearancePreferenceStore();
 
-    const gradientPresets = BACKGROUND_PRESETS.filter(p => p.type === 'gradient');
+    const gradientPresets = BACKGROUND_PRESETS.filter((preset) => preset.type === "gradient");
     const currentBackgroundType = backgroundConfig.type as BackgroundSelectorType;
     const colorInputRef = useRef<HTMLInputElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const imageUrlInputRef = useRef<HTMLInputElement>(null);
-    const activeThemeId = backgroundConfig.type === 'theme' && isDynamicBackgroundId(backgroundConfig.value)
+    const activeThemeId = backgroundConfig.type === "theme" && isDynamicBackgroundId(backgroundConfig.value)
         ? backgroundConfig.value
         : null;
 
@@ -85,7 +77,7 @@ export function BackgroundSelector() {
             id: "particles",
             nameKey: "theme_particles",
             descriptionKey: "theme_particles_desc",
-        }
+        },
     ] as const;
     const activeThemeMeta = activeThemeId
         ? themeEffectPresets.find((item) => item.id === activeThemeId) ?? null
@@ -130,141 +122,25 @@ export function BackgroundSelector() {
         });
     };
 
-    const renderDynamicThemePreview = (themeId: string) => {
-        switch (themeId) {
-            case "color-bends":
-                {
-                    const config = dynamicBackgroundConfig["color-bends"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["color-bends"];
-                return (
-                    <ColorBends
-                        className="absolute inset-0 pointer-events-none"
-                        colors={config.colors}
-                        rotation={0}
-                        speed={config.speed}
-                        scale={config.scale}
-                        frequency={config.frequency}
-                        warpStrength={config.warpStrength}
-                        mouseInfluence={0}
-                        parallax={0}
-                        noise={config.noise}
-                        transparent
-                        autoRotate={0}
-                        color=""
-                    />
-                );
-                }
-
-            case "light-pillar":
-                {
-                    const config = dynamicBackgroundConfig["light-pillar"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["light-pillar"];
-                return (
-                    <LightPillar
-                        className="absolute inset-0 pointer-events-none"
-                        topColor={config.topColor}
-                        bottomColor={config.bottomColor}
-                        intensity={config.intensity}
-                        rotationSpeed={config.rotationSpeed}
-                        interactive={false}
-                        glowAmount={config.glowAmount}
-                        pillarWidth={config.pillarWidth}
-                        pillarHeight={config.pillarHeight}
-                        noiseIntensity={config.noiseIntensity}
-                        mixBlendMode="screen"
-                        quality={config.quality}
-                    />
-                );
-                }
-
-            case "silk":
-                {
-                    const config = dynamicBackgroundConfig.silk ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.silk;
-                return (
-                    <div className="absolute inset-0 pointer-events-none">
-                        <Silk speed={config.speed} scale={config.scale} color={config.color} noiseIntensity={config.noiseIntensity} rotation={config.rotation} />
-                    </div>
-                );
-                }
-
-            case "floating-lines":
-                {
-                    const config = dynamicBackgroundConfig["floating-lines"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["floating-lines"];
-                return (
-                    <div className="absolute inset-0 pointer-events-none">
-                        <FloatingLines
-                            linesGradient={config.linesGradient}
-                            enabledWaves={["top", "middle", "bottom"]}
-                            lineCount={config.lineCount}
-                            lineDistance={config.lineDistance}
-                            animationSpeed={config.animationSpeed}
-                            interactive={false}
-                            parallax={config.parallax}
-                            mixBlendMode="screen"
-                        />
-                    </div>
-                );
-                }
-
-            case "aurora":
-                {
-                    const config = dynamicBackgroundConfig.aurora ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.aurora;
-                return (
-                    <div className="absolute inset-0 pointer-events-none">
-                        <Aurora
-                            colorStops={config.colorStops}
-                            amplitude={config.amplitude}
-                            blend={config.blend}
-                            speed={config.speed}
-                        />
-                    </div>
-                );
-                }
-
-            case "particles":
-                {
-                    const config = dynamicBackgroundConfig.particles ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles;
-                return (
-                    <div className="absolute inset-0 pointer-events-none">
-                        <Particles
-                            particleCount={config.particleCount}
-                            particleSpread={config.particleSpread}
-                            speed={config.speed}
-                            particleColors={config.particleColors}
-                            moveParticlesOnHover={false}
-                            alphaParticles
-                            particleBaseSize={config.particleBaseSize}
-                            sizeRandomness={config.sizeRandomness}
-                            cameraDistance={config.cameraDistance}
-                            disableRotation={false}
-                            pixelRatio={1}
-                        />
-                    </div>
-                );
-                }
-            default:
-                return null;
-        }
-    };
-
-    const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const color = e.target.value;
-        // Only update the background preview, don't add yet
+    const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const color = event.target.value;
         setBackgroundConfig({
-            type: 'solid',
-            value: color
+            type: "solid",
+            value: color,
         });
     };
 
-    const handleColorComplete = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const color = e.target.value;
-        // Add the color only when user finishes selecting
+    const handleColorComplete = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const color = event.target.value;
         if (!solidColors.includes(color)) {
             addSolidColor(color);
         }
         setBackgroundConfig({
-            type: 'solid',
-            value: color
+            type: "solid",
+            value: color,
         });
     };
+
     const getGradientLabel = (name: string) => t(`gradient_${name.toLowerCase()}`);
 
     const applyImageBackgroundValue = (value: string) => {
@@ -304,6 +180,7 @@ export function BackgroundSelector() {
             imageUrlInputRef.current.value = "";
         }
     };
+
     const removeImageBackground = () => {
         setBackgroundConfig({
             type: "image",
@@ -339,7 +216,10 @@ export function BackgroundSelector() {
                                 <div className="relative h-64 overflow-hidden rounded-3xl border border-border/50 md:h-72">
                                     <div className="absolute inset-0 pointer-events-none">
                                         <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
-                                        {activeThemeId ? renderDynamicThemePreview(activeThemeId) : null}
+                                        <DynamicBackgroundEffect
+                                            backgroundId={activeThemeId}
+                                            configMap={dynamicBackgroundConfig}
+                                        />
                                     </div>
                                     <div className="absolute inset-0 bg-black/22" />
                                     {activeThemeMeta ? (
@@ -372,7 +252,10 @@ export function BackgroundSelector() {
                                             <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl">
                                                 <div className="absolute inset-0 pointer-events-none">
                                                     <div className="absolute inset-0 bg-linear-to-b from-slate-800 to-black" />
-                                                    {renderDynamicThemePreview(theme.id)}
+                                                    <DynamicBackgroundEffect
+                                                        backgroundId={theme.id}
+                                                        configMap={dynamicBackgroundConfig}
+                                                    />
                                                 </div>
                                                 <div className="absolute inset-0 bg-black/24" />
                                             </div>
@@ -409,223 +292,235 @@ export function BackgroundSelector() {
             ) : null}
 
             {currentBackgroundType === "image" ? (
-            <SettingsSection title={t('custom_image')}>
-                <div className="space-y-4">
-                    <input
-                        ref={imageInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageFileChange}
-                    />
+                <SettingsSection title={t("custom_image")}>
+                    <div className="space-y-4">
+                        <input
+                            ref={imageInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageFileChange}
+                        />
 
-                    {backgroundConfig.type === "image" && backgroundConfig.value ? (
-                        <button
-                            type="button"
-                            onClick={() => imageInputRef.current?.click()}
-                            className="group relative block h-72 w-full overflow-hidden rounded-3xl border border-border/60 bg-background/70 text-left transition-all hover:border-foreground/20 md:h-80"
-                        >
-                            <div
-                                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.02]"
-                                style={{
-                                    backgroundImage: `url(${backgroundConfig.value})`,
-                                    filter: `blur(${backgroundConfig.blur || 0}px)`,
-                                    transform: (backgroundConfig.blur || 0) > 0 ? "scale(1.08)" : undefined,
-                                }}
-                            />
-                            <div
-                                className="absolute inset-0 bg-black transition-opacity duration-300"
-                                style={{ opacity: (backgroundConfig.overlay || 0) / 100 }}
-                            />
-                            <div className="absolute inset-0 bg-linear-to-t from-black/78 via-black/20 to-transparent" />
-                            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 py-4 text-white">
-                                <div className="min-w-0">
-                                    <div className="text-base font-semibold tracking-tight">{t("custom_image")}</div>
-                                </div>
-                                <div className="flex shrink-0 items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            removeImageBackground();
-                                        }}
-                                        className="rounded-xl border border-white/14 bg-black/18 px-3 py-1.5 text-xs font-medium text-white/82 transition-colors hover:bg-black/28"
-                                    >
-                                        {t("remove_image")}
-                                    </button>
-                                    <div className="rounded-xl border border-white/18 bg-black/22 px-3 py-1.5 text-xs font-medium text-white/88">
-                                        {t("change_image")}
+                        {backgroundConfig.type === "image" && backgroundConfig.value ? (
+                            <button
+                                type="button"
+                                onClick={() => imageInputRef.current?.click()}
+                                className="group relative block h-72 w-full overflow-hidden rounded-3xl border border-border/60 bg-background/70 text-left transition-all hover:border-foreground/20 md:h-80"
+                            >
+                                <div
+                                    className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.02]"
+                                    style={{
+                                        backgroundImage: `url(${backgroundConfig.value})`,
+                                        filter: `blur(${backgroundConfig.blur || 0}px)`,
+                                        transform: (backgroundConfig.blur || 0) > 0 ? "scale(1.08)" : undefined,
+                                    }}
+                                />
+                                <div
+                                    className="absolute inset-0 bg-black transition-opacity duration-300"
+                                    style={{ opacity: (backgroundConfig.overlay || 0) / 100 }}
+                                />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/78 via-black/20 to-transparent" />
+                                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 py-4 text-white">
+                                    <div className="min-w-0">
+                                        <div className="text-base font-semibold tracking-tight">{t("custom_image")}</div>
                                     </div>
-                                </div>
-                            </div>
-                        </button>
-                    ) : (
-                        <>
-                            <SettingsItem label={t("upload_image")}>
-                                <button
-                                    type="button"
-                                    onClick={() => imageInputRef.current?.click()}
-                                    className={`${SETTINGS_ACTION_BUTTON_CLASS} inline-flex items-center gap-2`}
-                                >
-                                    <Upload size={14} />
-                                    <span>{t("upload_image")}</span>
-                                </button>
-                            </SettingsItem>
-
-                            <SettingsItem label={t("paste_url")}>
-                                <div className="flex w-[320px] items-center gap-2">
-                                    <Input
-                                        ref={imageUrlInputRef}
-                                        type="url"
-                                        placeholder={t("paste_url")}
-                                        className={`${SETTINGS_FIELD_CLASS} flex-1`}
-                                        onKeyDown={(event) => {
-                                            if (event.key === "Enter") {
-                                                applyImageUrl();
-                                            }
-                                        }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={applyImageUrl}
-                                        className={`${SETTINGS_ACTION_BUTTON_CLASS} shrink-0`}
-                                    >
-                                        {t("apply")}
-                                    </button>
-                                </div>
-                            </SettingsItem>
-                        </>
-                    )}
-
-                    {/* Effects Sliders */}
-                    {backgroundConfig.type === 'image' && backgroundConfig.value ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in zoom-in-95 duration-300">
-                            {IMAGE_BACKGROUND_SLIDER_CONFIG.map((ef) => {
-                                const sliderKey: ImageBackgroundSliderKey = ef.key;
-                                const sliderValue = backgroundConfig[sliderKey] || 0;
-
-                                return (
-                                <div key={ef.key} className="space-y-2 p-3 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
-                                    <div className="flex items-center justify-between px-1">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                                            {t(ef.labelKey)}
-                                        </label>
-                                        <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                                            {sliderValue}{ef.unit}
-                                        </span>
-                                    </div>
-                                    <div className="flex gap-2 items-center">
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max={ef.max}
-                                            value={sliderValue}
-                                            onChange={(e) => setBackgroundConfig({
-                                                ...backgroundConfig,
-                                                [sliderKey]: parseInt(e.target.value)
-                                            })}
-                                            className="flex-1 h-1 bg-secondary/50 rounded-full appearance-none cursor-pointer accent-primary"
-                                        />
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="h-6 w-6 rounded-full opacity-50 hover:opacity-100"
-                                            onClick={() => setBackgroundConfig({ ...backgroundConfig, [sliderKey]: 0 })}
+                                    <div className="flex shrink-0 items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                removeImageBackground();
+                                            }}
+                                            className="rounded-xl border border-white/14 bg-black/18 px-3 py-1.5 text-xs font-medium text-white/82 transition-colors hover:bg-black/28"
                                         >
-                                            <HugeiconsIcon icon={Cancel01Icon} className="w-3 h-3" />
-                                        </Button>
+                                            {t("remove_image")}
+                                        </button>
+                                        <div className="rounded-xl border border-white/18 bg-black/22 px-3 py-1.5 text-xs font-medium text-white/88">
+                                            {t("change_image")}
+                                        </div>
                                     </div>
                                 </div>
-                                );
-                            })}
-                        </div>
-                    ) : null}
-                </div>
-            </SettingsSection>
+                            </button>
+                        ) : (
+                            <>
+                                <SettingsItem label={t("upload_image")}>
+                                    <button
+                                        type="button"
+                                        onClick={() => imageInputRef.current?.click()}
+                                        className={`${SETTINGS_ACTION_BUTTON_CLASS} inline-flex items-center gap-2`}
+                                    >
+                                        <Upload size={14} />
+                                        <span>{t("upload_image")}</span>
+                                    </button>
+                                </SettingsItem>
+
+                                <SettingsItem label={t("paste_url")}>
+                                    <div className="flex w-[320px] items-center gap-2">
+                                        <Input
+                                            ref={imageUrlInputRef}
+                                            type="url"
+                                            placeholder={t("paste_url")}
+                                            className={`${SETTINGS_FIELD_CLASS} flex-1`}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") {
+                                                    applyImageUrl();
+                                                }
+                                            }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={applyImageUrl}
+                                            className={`${SETTINGS_ACTION_BUTTON_CLASS} shrink-0`}
+                                        >
+                                            {t("apply")}
+                                        </button>
+                                    </div>
+                                </SettingsItem>
+                            </>
+                        )}
+
+                        {backgroundConfig.type === "image" && backgroundConfig.value ? (
+                            <div className="grid grid-cols-1 gap-3 animate-in fade-in zoom-in-95 duration-300 md:grid-cols-2">
+                                {IMAGE_BACKGROUND_SLIDER_CONFIG.map((effect) => {
+                                    const sliderKey: ImageBackgroundSliderKey = effect.key;
+                                    const sliderValue = backgroundConfig[sliderKey] || 0;
+
+                                    return (
+                                        <div
+                                            key={effect.key}
+                                            className="space-y-2 rounded-2xl p-3 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]"
+                                        >
+                                            <div className="flex items-center justify-between px-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
+                                                    {t(effect.labelKey)}
+                                                </label>
+                                                <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-bold text-primary">
+                                                    {sliderValue}{effect.unit}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max={effect.max}
+                                                    value={sliderValue}
+                                                    onChange={(event) => setBackgroundConfig({
+                                                        ...backgroundConfig,
+                                                        [sliderKey]: parseInt(event.target.value, 10),
+                                                    })}
+                                                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-secondary/50 accent-primary"
+                                                />
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="h-6 w-6 rounded-full opacity-50 hover:opacity-100"
+                                                    onClick={() => setBackgroundConfig({ ...backgroundConfig, [sliderKey]: 0 })}
+                                                >
+                                                    <HugeiconsIcon icon={Cancel01Icon} className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : null}
+                    </div>
+                </SettingsSection>
             ) : null}
 
             {currentBackgroundType === "solid" ? (
-            <SettingsSection title={t('solid_colors')}>
-                <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
-                    {solidColors.map((color) => (
-                        <div
-                            key={color}
-                            className={cn(
-                                "group relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-300",
-                                backgroundConfig.value === color && backgroundConfig.type === 'solid'
-                                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background/10 scale-95 shadow-lg shadow-primary/20"
-                                    : "hover:scale-105 active:scale-95"
-                            )}
-                            onClick={() => setBackgroundConfig({ type: 'solid', value: color })}
-                        >
-                            <div className="absolute inset-0" style={{ backgroundColor: color }} />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-
-                            {backgroundConfig.value === color && backgroundConfig.type === 'solid' && (
-                                <div className="absolute inset-0 flex items-center justify-center text-white drop-shadow-md">
-                                    <Check size={14} strokeWidth={3} />
-                                </div>
-                            )}
-
-                            <button
-                                onClick={(e) => { e.stopPropagation(); removeSolidColor(color); }}
-                                className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/20 text-white opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-md hover:bg-destructive/80"
+                <SettingsSection title={t("solid_colors")}>
+                    <div className="grid grid-cols-6 gap-2 sm:grid-cols-8 md:grid-cols-10">
+                        {solidColors.map((color) => (
+                            <div
+                                key={color}
+                                className={cn(
+                                    "group relative aspect-square cursor-pointer overflow-hidden rounded-lg transition-all duration-300",
+                                    backgroundConfig.value === color && backgroundConfig.type === "solid"
+                                        ? "scale-95 ring-2 ring-primary ring-offset-2 ring-offset-background/10 shadow-lg shadow-primary/20"
+                                        : "hover:scale-105 active:scale-95"
+                                )}
+                                onClick={() => setBackgroundConfig({ type: "solid", value: color })}
                             >
-                                <Plus size={8} className="rotate-45" />
-                            </button>
-                        </div>
-                    ))}
+                                <div className="absolute inset-0" style={{ backgroundColor: color }} />
+                                <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/5" />
 
-                    <label className="group relative aspect-square rounded-lg border-2 border-dashed border-border/30 hover:border-primary/50 transition-all cursor-pointer bg-secondary/10 flex flex-col items-center justify-center gap-0.5 hover:bg-secondary/20">
-                        <input
-                            ref={colorInputRef}
-                            type="color"
-                            className="opacity-0 absolute inset-0 cursor-pointer"
-                            onChange={handleColorChange}
-                            onBlur={handleColorComplete}
-                        />
-                        <Plus size={14} className="text-muted-foreground group-hover:text-primary transition-transform group-hover:scale-110" />
-                        <span className="text-[8px] font-bold text-muted-foreground">{t('add')}</span>
-                    </label>
-                </div>
-            </SettingsSection>
+                                {backgroundConfig.value === color && backgroundConfig.type === "solid" ? (
+                                    <div className="absolute inset-0 flex items-center justify-center text-white drop-shadow-md">
+                                        <Check size={14} strokeWidth={3} />
+                                    </div>
+                                ) : null}
+
+                                <button
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        removeSolidColor(color);
+                                    }}
+                                    className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black/20 text-white opacity-0 transition-all backdrop-blur-md group-hover:opacity-100 hover:bg-destructive/80"
+                                >
+                                    <Plus size={8} className="rotate-45" />
+                                </button>
+                            </div>
+                        ))}
+
+                        <label className="group relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-0.5 rounded-lg border-2 border-dashed border-border/30 bg-secondary/10 transition-all hover:border-primary/50 hover:bg-secondary/20">
+                            <input
+                                ref={colorInputRef}
+                                type="color"
+                                className="absolute inset-0 cursor-pointer opacity-0"
+                                onChange={handleColorChange}
+                                onBlur={handleColorComplete}
+                            />
+                            <Plus
+                                size={14}
+                                className="text-muted-foreground transition-transform group-hover:scale-110 group-hover:text-primary"
+                            />
+                            <span className="text-[8px] font-bold text-muted-foreground">{t("add")}</span>
+                        </label>
+                    </div>
+                </SettingsSection>
             ) : null}
 
             {currentBackgroundType === "gradient" ? (
-            <SettingsSection title={t('gradients')}>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                    {gradientPresets.map((preset) => (
-                        <button
-                            key={preset.name}
-                            onClick={() => setBackgroundConfig({
-                                type: preset.type as 'solid' | 'gradient',
-                                value: preset.value
-                            })}
-                            className={cn(
-                                "group relative h-14 rounded-xl overflow-hidden transition-all duration-500",
-                                backgroundConfig.value === preset.value
-                                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background/10 scale-95 shadow-xl shadow-primary/20"
-                                    : "hover:scale-[1.02] active:scale-95"
-                            )}
-                        >
-                            <div className={cn("absolute inset-0 transition-transform duration-700 group-hover:scale-110", preset.preview)} />
-                            <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                <SettingsSection title={t("gradients")}>
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+                        {gradientPresets.map((preset) => (
+                            <button
+                                key={preset.name}
+                                onClick={() => setBackgroundConfig({
+                                    type: preset.type as "solid" | "gradient",
+                                    value: preset.value,
+                                })}
+                                className={cn(
+                                    "group relative h-14 overflow-hidden rounded-xl transition-all duration-500",
+                                    backgroundConfig.value === preset.value
+                                        ? "scale-95 ring-2 ring-primary ring-offset-2 ring-offset-background/10 shadow-xl shadow-primary/20"
+                                        : "hover:scale-[1.02] active:scale-95"
+                                )}
+                            >
+                                <div
+                                    className={cn(
+                                        "absolute inset-0 transition-transform duration-700 group-hover:scale-110",
+                                        preset.preview
+                                    )}
+                                />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-40" />
 
-                            <span className="absolute bottom-1.5 left-2 text-[9px] font-bold text-white/90 uppercase tracking-wider drop-shadow-sm">
-                                {getGradientLabel(preset.name)}
-                            </span>
+                                <span className="absolute bottom-1.5 left-2 text-[9px] font-bold uppercase tracking-wider text-white/90 drop-shadow-sm">
+                                    {getGradientLabel(preset.name)}
+                                </span>
 
-                            {backgroundConfig.value === preset.value && (
-                                <div className="absolute top-1.5 right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white">
-                                    <Check size={10} strokeWidth={3} />
-                                </div>
-                            )}
-                        </button>
-                    ))}
-                </div>
-            </SettingsSection>
+                                {backgroundConfig.value === preset.value ? (
+                                    <div className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border border-white/20 bg-white/20 text-white backdrop-blur-md">
+                                        <Check size={10} strokeWidth={3} />
+                                    </div>
+                                ) : null}
+                            </button>
+                        ))}
+                    </div>
+                </SettingsSection>
             ) : null}
         </div>
     );
 }
-

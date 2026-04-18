@@ -1,38 +1,37 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createPersistConfig } from "@/platform/persistence/zustandStorage";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
+    type DynamicBackgroundConfigMap,
+    type DynamicBackgroundId,
 } from "@/core/dynamicBackgrounds";
 import type {
-    AppSurfaceMaterial,
-    AppSurfaceTone,
     AppSurfaceMaterialConfigMap,
+    AppSurfaceTone,
 } from "@/core/surfaceMaterials";
-import type { DynamicBackgroundId, DynamicBackgroundConfigMap } from "@/core/dynamicBackgrounds";
 import type { TextSurfaceFontPreset } from "@/core/textSurface";
-import type {
-    SettingsState,
-} from "./store.types";
-import { createDefaultSettingsState } from "./store.defaults";
-import { mergePersistedSettings } from "./store.persistence";
+import { storageRegistry } from "@/platform/persistence/registry";
+import { createPersistConfig } from "@/platform/persistence/zustandStorage";
+import { createDefaultAppearancePreferenceState } from "./store.defaults";
+import { mergePersistedAppearancePreference } from "./store.persistence";
+import { APPEARANCE_PREFERENCE_STORAGE_KEY } from "./shared";
+import type { AppearancePreferenceState } from "./store.types";
 
-const defaultState = createDefaultSettingsState();
+const defaultState = createDefaultAppearancePreferenceState();
 
-export const useSettingsStore = create<SettingsState>()(
+export const useAppearancePreferenceStore = create<AppearancePreferenceState>()(
     persist(
         (set) => ({
             ...defaultState,
             setPrimaryColor: (primaryColor: string) => set({ primaryColor }),
             setTextSurfaceFontPreset: (textSurfaceFontPreset: TextSurfaceFontPreset) =>
                 set({ textSurfaceFontPreset }),
-            setSurfaceMaterial: (surfaceMaterial: AppSurfaceMaterial) => set({ surfaceMaterial }),
             setSurfaceTone: (surfaceTone: AppSurfaceTone) => set({ surfaceTone }),
-            updateSurfaceMaterialConfig: <T extends AppSurfaceMaterial>(
+            updateSurfaceMaterialConfig: <T extends keyof AppSurfaceMaterialConfigMap>(
                 material: T,
                 config: Partial<AppSurfaceMaterialConfigMap[T]>
             ) =>
-                set((state: SettingsState) => ({
+                set((state: AppearancePreferenceState) => ({
                     surfaceMaterialConfig: {
                         ...state.surfaceMaterialConfig,
                         [material]: {
@@ -41,16 +40,15 @@ export const useSettingsStore = create<SettingsState>()(
                         },
                     } as AppSurfaceMaterialConfigMap,
                 })),
-
-            setBackgroundConfig: (config: Partial<SettingsState["backgroundConfig"]>) =>
-                set((state: SettingsState) => ({
+            setBackgroundConfig: (config: Partial<AppearancePreferenceState["backgroundConfig"]>) =>
+                set((state: AppearancePreferenceState) => ({
                     backgroundConfig: { ...state.backgroundConfig, ...config },
                 })),
             updateDynamicBackgroundConfig: <T extends DynamicBackgroundId>(
                 backgroundId: T,
                 config: Partial<DynamicBackgroundConfigMap[T]>
             ) =>
-                set((state: SettingsState) => ({
+                set((state: AppearancePreferenceState) => ({
                     dynamicBackgroundConfig: {
                         ...state.dynamicBackgroundConfig,
                         [backgroundId]: {
@@ -60,24 +58,28 @@ export const useSettingsStore = create<SettingsState>()(
                     } as DynamicBackgroundConfigMap,
                 })),
             resetDynamicBackgroundConfig: (backgroundId: DynamicBackgroundId) =>
-                set((state: SettingsState) => ({
+                set((state: AppearancePreferenceState) => ({
                     dynamicBackgroundConfig: {
                         ...state.dynamicBackgroundConfig,
                         [backgroundId]: DEFAULT_DYNAMIC_BACKGROUND_CONFIG[backgroundId],
                     },
                 })),
-
             addSolidColor: (color: string) =>
-                set((state: SettingsState) => ({
+                set((state: AppearancePreferenceState) => ({
                     solidColors: [...state.solidColors, color],
                 })),
             removeSolidColor: (color: string) =>
-                set((state: SettingsState) => ({
+                set((state: AppearancePreferenceState) => ({
                     solidColors: state.solidColors.filter((entry: string) => entry !== color),
                 })),
         }),
-        createPersistConfig<SettingsState>("app-settings", {
-            merge: mergePersistedSettings,
+        createPersistConfig<AppearancePreferenceState>(APPEARANCE_PREFERENCE_STORAGE_KEY, {
+            merge: mergePersistedAppearancePreference,
         })
     )
+);
+
+storageRegistry.registerRehydrator(
+    APPEARANCE_PREFERENCE_STORAGE_KEY,
+    () => useAppearancePreferenceStore.persist.rehydrate()
 );

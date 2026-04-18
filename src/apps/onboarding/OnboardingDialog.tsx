@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AppModalV2 } from "@/platform/ui/modal";
+import { AppModalV2 } from "@/platform/ui";
 import { AppDialogV1Closable, AppDialogV1Message } from "@/platform/ui";
-import { useSettingsStore } from "@/apps/settings";
 import {
     useLanguagePreferenceStore,
     useOnboardingStateStore,
@@ -29,8 +28,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
     const [restoreSuccessMessage, setRestoreSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const surfaceMaterial = useSettingsStore((s) => s.surfaceMaterial);
-    const setSurfaceMaterial = useSettingsStore((s) => s.setSurfaceMaterial);
     const currentLanguage = useLanguagePreferenceStore((s) => s.language);
     const setLanguage = useLanguagePreferenceStore((s) => s.setLanguage);
     const completeOnboarding = useOnboardingStateStore((s) => s.completeOnboarding);
@@ -142,28 +139,6 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                                 )}
                             >
                                 {t(m === "light" ? "light" : m === "dark" ? "dark" : "system")}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">{t("surface_material_type")}</label>
-                    <div className="grid grid-cols-2 gap-2">
-                        {([
-                            { id: "mac-frosted" as const, label: t("onboarding_material_frosted") },
-                            { id: "glass-distortion" as const, label: t("onboarding_material_glass") },
-                        ]).map((m) => (
-                            <button
-                                key={m.id}
-                                onClick={() => setSurfaceMaterial(m.id)}
-                                className={cn(
-                                    "py-2.5 rounded-xl text-xs font-semibold transition-all border",
-                                    surfaceMaterial === m.id
-                                        ? "bg-foreground text-background border-foreground"
-                                        : "border-foreground/10 bg-foreground/4 hover:bg-foreground/8"
-                                )}
-                            >
-                                {m.label}
                             </button>
                         ))}
                     </div>

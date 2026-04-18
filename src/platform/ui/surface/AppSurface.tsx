@@ -1,25 +1,26 @@
-﻿import type React from "react";
-import { useSettingsStore } from "@/apps/settings";
-import type { GlassSurfaceProps } from "@/platform/ui/effects/GlassSurface";
+import type React from "react";
+import { useAppearancePreferenceStore } from "@/config";
 import {
-    type AppSurfaceMaterial,
     type AppSurfaceTone,
     type AppSurfaceVariant,
     mergeSurfaceMaterialConfig,
 } from "@/core/surfaceMaterials";
 import { useResolvedTone } from "./useResolvedTone";
 import { MacFrostedSurface } from "./materials/MacFrostedSurface";
-import { DistortionGlassSurface } from "./materials/DistortionGlassSurface";
 
-export interface AppSurfaceProps extends GlassSurfaceProps {
-    material?: AppSurfaceMaterial;
+export interface AppSurfaceProps {
     variant?: AppSurfaceVariant;
     tone?: AppSurfaceTone;
     hideSurfaceBorder?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+    children?: React.ReactNode;
+    width?: string | number;
+    height?: string | number;
+    borderRadius?: number;
 }
 
 export function AppSurface({
-    material: overrideMaterial,
     variant = "base",
     tone,
     hideSurfaceBorder: hideSurfaceBorderOverride,
@@ -29,13 +30,10 @@ export function AppSurface({
     width,
     height,
     borderRadius,
-    ...restProps
 }: AppSurfaceProps) {
-    const activeMaterial = useSettingsStore((state) => state.surfaceMaterial);
     const materialConfig = mergeSurfaceMaterialConfig(
-        useSettingsStore((state) => state.surfaceMaterialConfig)
+        useAppearancePreferenceStore((state) => state.surfaceMaterialConfig)
     );
-    const resolvedMaterial = overrideMaterial ?? activeMaterial;
     const resolvedTone = useResolvedTone(tone);
     const stabilizeCorners = variant === "widget" || variant === "folder-preview";
     const hideSurfaceBorder = hideSurfaceBorderOverride ?? (variant === "widget");
@@ -45,31 +43,11 @@ export function AppSurface({
         boxSizing: "border-box",
     });
 
-    if (resolvedMaterial === "mac-frosted") {
-        return (
-            <MacFrostedSurface
-                variant={variant}
-                resolvedTone={resolvedTone}
-                config={materialConfig["mac-frosted"]}
-                className={className}
-                style={style}
-                width={width}
-                height={height}
-                borderRadius={borderRadius}
-                hideSurfaceBorder={hideSurfaceBorder}
-                stabilizeCorners={stabilizeCorners}
-                createStableCornerBorderStyle={createStableCornerBorderStyle}
-            >
-                {children}
-            </MacFrostedSurface>
-        );
-    }
-
     return (
-        <DistortionGlassSurface
+        <MacFrostedSurface
             variant={variant}
             resolvedTone={resolvedTone}
-            config={materialConfig["glass-distortion"]}
+            config={materialConfig["mac-frosted"]}
             className={className}
             style={style}
             width={width}
@@ -77,10 +55,10 @@ export function AppSurface({
             borderRadius={borderRadius}
             hideSurfaceBorder={hideSurfaceBorder}
             stabilizeCorners={stabilizeCorners}
-            restProps={restProps}
+            createStableCornerBorderStyle={createStableCornerBorderStyle}
         >
             {children}
-        </DistortionGlassSurface>
+        </MacFrostedSurface>
     );
 }
 

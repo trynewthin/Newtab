@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { storageRegistry } from "@/platform/persistence/registry";
 import { createPersistConfig } from "@/platform/persistence/zustandStorage";
 import {
     LANGUAGE_PREFERENCE_STORAGE_KEY,
@@ -56,6 +57,11 @@ export const useLanguagePreferenceStore = create<LanguagePreferenceState>()(
             merge: mergePersistedLanguagePreference,
         })
     )
+);
+
+storageRegistry.registerRehydrator(
+    LANGUAGE_PREFERENCE_STORAGE_KEY,
+    () => useLanguagePreferenceStore.persist.rehydrate()
 );
 
 export function getLanguagePreference(): SupportedLanguage {

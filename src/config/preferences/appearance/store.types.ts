@@ -1,19 +1,17 @@
 import type { BackgroundConfig } from "@/shared/types/background";
 import type {
-    AppSurfaceMaterial,
-    AppSurfaceTone,
     AppSurfaceMaterialConfigMap,
+    AppSurfaceTone,
 } from "@/core/surfaceMaterials";
 import type {
-    DynamicBackgroundId,
     DynamicBackgroundConfigMap,
+    DynamicBackgroundId,
 } from "@/core/dynamicBackgrounds";
 import type { TextSurfaceFontPreset } from "@/core/textSurface";
 
-export interface SettingsStateData {
+export interface AppearancePreferenceData {
     primaryColor: string;
     textSurfaceFontPreset: TextSurfaceFontPreset;
-    surfaceMaterial: AppSurfaceMaterial;
     surfaceTone: AppSurfaceTone;
     surfaceMaterialConfig: AppSurfaceMaterialConfigMap;
     backgroundConfig: BackgroundConfig;
@@ -21,12 +19,11 @@ export interface SettingsStateData {
     solidColors: string[];
 }
 
-export interface SettingsStateActions {
+export interface AppearancePreferenceActions {
     setPrimaryColor: (color: string) => void;
     setTextSurfaceFontPreset: (preset: TextSurfaceFontPreset) => void;
-    setSurfaceMaterial: (material: AppSurfaceMaterial) => void;
     setSurfaceTone: (tone: AppSurfaceTone) => void;
-    updateSurfaceMaterialConfig: <T extends AppSurfaceMaterial>(
+    updateSurfaceMaterialConfig: <T extends keyof AppSurfaceMaterialConfigMap>(
         material: T,
         config: Partial<AppSurfaceMaterialConfigMap[T]>
     ) => void;
@@ -40,4 +37,4 @@ export interface SettingsStateActions {
     removeSolidColor: (color: string) => void;
 }
 
-export type SettingsState = SettingsStateData & SettingsStateActions;
+export type AppearancePreferenceState = AppearancePreferenceData & AppearancePreferenceActions;

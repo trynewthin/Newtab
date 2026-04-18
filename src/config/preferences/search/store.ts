@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { storageRegistry } from "@/platform/persistence/registry";
 import { createPersistConfig } from "@/platform/persistence/zustandStorage";
 import {
     normalizeSearchPreferenceState,
@@ -121,4 +122,9 @@ export const useSearchPreferenceStore = create<SearchPreferenceState>()(
             merge: mergePersistedSearchPreference,
         })
     )
+);
+
+storageRegistry.registerRehydrator(
+    SEARCH_PREFERENCE_STORAGE_KEY,
+    () => useSearchPreferenceStore.persist.rehydrate()
 );

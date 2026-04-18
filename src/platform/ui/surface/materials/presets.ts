@@ -1,7 +1,4 @@
-﻿import type { GlassSurfaceProps } from "@/platform/ui/effects/GlassSurface";
 import type { AppSurfaceVariant } from "@/core/surfaceMaterials";
-
-export type SurfacePresetMap = Record<AppSurfaceVariant, { light: Partial<GlassSurfaceProps>; dark: Partial<GlassSurfaceProps> }>;
 
 export type FrostedPreset = {
     backgroundOpacity: number;
@@ -12,30 +9,8 @@ export type FrostedPreset = {
     shadowOpacity: number;
     borderRadius: number;
 };
-export type FrostedPresetMap = Record<AppSurfaceVariant, { light: FrostedPreset; dark: FrostedPreset }>;
 
-export const DISTORTION_VARIANT_PRESETS: SurfacePresetMap = {
-    base: {
-        light: { backgroundOpacity: 0.18, saturation: 1.18, brightness: 54, opacity: 0.93, blur: 11 },
-        dark: { backgroundOpacity: 0.24, saturation: 1.24, brightness: 58, opacity: 0.95, blur: 12 },
-    },
-    toolbar: {
-        light: { borderRadius: 28, blur: 10 },
-        dark: { borderRadius: 28, blur: 11 },
-    },
-    "search-bar": {
-        light: { width: "100%", height: "100%", borderRadius: 50, displace: 3.0 },
-        dark: { width: "100%", height: "100%", borderRadius: 50, displace: 3.0 },
-    },
-    widget: {
-        light: { width: "100%", height: "100%", borderRadius: 24, borderWidth: 0 },
-        dark: { width: "100%", height: "100%", borderRadius: 24, borderWidth: 0 },
-    },
-    "folder-preview": {
-        light: { width: "100%", height: "100%", borderRadius: 32 },
-        dark: { width: "100%", height: "100%", borderRadius: 32 },
-    },
-};
+export type FrostedPresetMap = Record<AppSurfaceVariant, { light: FrostedPreset; dark: FrostedPreset }>;
 
 export const FROSTED_VARIANT_PRESETS: FrostedPresetMap = {
     base: {
@@ -59,5 +34,3 @@ export const FROSTED_VARIANT_PRESETS: FrostedPresetMap = {
         dark: { backgroundOpacity: 0.32, saturation: 1.6, blur: 40, borderOpacity: 0.12, highlightOpacity: 0.04, shadowOpacity: 0.25, borderRadius: 32 },
     },
 };
-
-

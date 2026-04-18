@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { storageRegistry } from "@/platform/persistence/registry";
 import { createPersistConfig } from "@/platform/persistence/zustandStorage";
 import {
     normalizeOnboardingState,
@@ -54,4 +55,9 @@ export const useOnboardingStateStore = create<OnboardingState>()(
             merge: mergePersistedOnboardingState,
         })
     )
+);
+
+storageRegistry.registerRehydrator(
+    ONBOARDING_STATE_STORAGE_KEY,
+    () => useOnboardingStateStore.persist.rehydrate()
 );

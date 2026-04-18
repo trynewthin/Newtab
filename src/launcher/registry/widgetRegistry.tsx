@@ -1,14 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
-import type { WidgetManifest } from "@/shared/types";
+import type { WidgetConfig, WidgetConfigField, WidgetManifest } from "@/shared/types";
 import {
     type SystemAppId,
     isSystemAppId,
 } from "@/launcher/registry/appManifest";
-import {
-    LargeClockRenderer,
-    DayProgressRenderer,
-    WeekProgressRenderer,
-} from "@/launcher/ui/widgets/timeWidgets";
+import { ConfigurableClockWidget } from "@/launcher/ui/widgets";
 
 export type SystemWidgetManifestItem = Omit<
     WidgetManifest,
@@ -20,8 +16,8 @@ export type SystemWidgetManifestItem = Omit<
 
 export const SYSTEM_WIDGET_MANIFEST: readonly SystemWidgetManifestItem[] = [
     {
-        id: "large-clock",
-        title: "widget_large_clock",
+        id: "clock-4x2",
+        title: "widget_clock_4x2",
         icon: "Clock",
         collection: "time",
         variant: "panel",
@@ -29,31 +25,42 @@ export const SYSTEM_WIDGET_MANIFEST: readonly SystemWidgetManifestItem[] = [
         resizable: false,
         defaultPreset: "4x2",
         supportedPresets: ["4x2"],
-        renderer: LargeClockRenderer,
-    },
-    {
-        id: "day-progress",
-        title: "widget_day_progress",
-        icon: "Sun",
-        collection: "time",
-        variant: "panel",
-        draggable: true,
-        resizable: false,
-        defaultPreset: "2x1",
-        supportedPresets: ["2x1", "1x2"],
-        renderer: DayProgressRenderer,
-    },
-    {
-        id: "week-progress",
-        title: "widget_week_progress",
-        icon: "CalendarRange",
-        collection: "time",
-        variant: "panel",
-        draggable: true,
-        resizable: false,
-        defaultPreset: "2x1",
-        supportedPresets: ["2x1", "1x2"],
-        renderer: WeekProgressRenderer,
+        configFields: [
+            {
+                key: "clockStyle",
+                type: "select",
+                label: "widget_config_clock_style",
+                defaultValue: "digital",
+                options: [
+                    { value: "digital", label: "widget_clock_style_digital" },
+                    { value: "split", label: "widget_clock_style_split" },
+                    { value: "minimal", label: "widget_clock_style_minimal" },
+                ],
+            },
+            {
+                key: "showSeconds",
+                type: "switch",
+                label: "widget_config_show_seconds",
+                defaultValue: true,
+            },
+            {
+                key: "accentHue",
+                type: "range",
+                label: "widget_config_accent_hue",
+                defaultValue: 210,
+                min: 0,
+                max: 360,
+                step: 1,
+            },
+            {
+                key: "timeZoneLabel",
+                type: "text",
+                label: "widget_config_time_label",
+                defaultValue: "",
+                placeholder: "widget_clock_local_label",
+            },
+        ],
+        renderer: ConfigurableClockWidget,
     },
 ] as const;
 
@@ -66,6 +73,19 @@ export function isSystemWidgetId(value: string): value is SystemWidgetId {
 
 export function getWidgetManifestItem(widgetId: string): SystemWidgetManifestItem | null {
     return SYSTEM_WIDGET_MANIFEST.find((entry) => entry.id === widgetId) ?? null;
+}
+
+export function getWidgetDefaultConfig(widgetId: string): WidgetConfig {
+    const widget = getWidgetManifestItem(widgetId);
+    return buildDefaultWidgetConfig(widget?.configFields);
+}
+
+export function normalizeWidgetConfig(
+    widgetId: string,
+    config?: WidgetConfig
+): WidgetConfig {
+    const widget = getWidgetManifestItem(widgetId);
+    return normalizeWidgetConfigValue(widget?.configFields, config);
 }
 
 export function getWidgetsByOwnerApp(appId: SystemAppId): readonly SystemWidgetManifestItem[] {
@@ -91,10 +111,7 @@ export function resolveLegacyWidgetId(appId: string): SystemWidgetId | null {
         return null;
     }
 
-    switch (appId) {
-        default:
-            return null;
-    }
+    return null;
 }
 
 export function resolveWidgetLaunchAppId(widgetId: string, ownerAppId?: string): SystemAppId | null {
@@ -109,4 +126,59 @@ export function resolveWidgetLaunchAppId(widgetId: string, ownerAppId?: string):
         return ownerAppId;
     }
     return null;
+}
+
+function buildDefaultWidgetConfig(
+    fields: readonly WidgetConfigField[] | undefined
+): WidgetConfig {
+    if (!fields) {
+        return {};
+    }
+
+    return Object.fromEntries(
+        fields.map((field) => [field.key, field.defaultValue])
+    );
+}
+
+function normalizeWidgetConfigValue(
+    fields: readonly WidgetConfigField[] | undefined,
+    config?: WidgetConfig
+): WidgetConfig {
+    if (!fields || fields.length === 0) {
+        return {};
+    }
+
+    const source = config ?? {};
+    const next: WidgetConfig = {};
+
+    for (const field of fields) {
+        const candidate = source[field.key];
+
+        if (field.type === "text") {
+            next[field.key] = typeof candidate === "string" ? candidate : field.defaultValue;
+            continue;
+        }
+
+        if (field.type === "select") {
+            const nextValue = typeof candidate === "string"
+                ? candidate
+                : field.defaultValue;
+            next[field.key] = field.options.some((option) => option.value === nextValue)
+                ? nextValue
+                : field.defaultValue;
+            continue;
+        }
+
+        if (field.type === "switch") {
+            next[field.key] = typeof candidate === "boolean" ? candidate : field.defaultValue;
+            continue;
+        }
+
+        const rawValue = typeof candidate === "number" && Number.isFinite(candidate)
+            ? candidate
+            : field.defaultValue;
+        next[field.key] = Math.max(field.min, Math.min(field.max, rawValue));
+    }
+
+    return next;
 }

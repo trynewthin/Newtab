@@ -1,8 +1,8 @@
 import { cn } from "@/shared/utils";
 import type { LauncherWidgetItem as LauncherWidgetRecord } from "@/launcher/model/itemTypes";
 import type { LauncherTilePreset } from "@/shared/types";
-import { getWidgetManifestItem } from "@/launcher/registry";
-import { AppShortcutWidgetRenderer } from "./widgetFrames";
+import { getWidgetManifestItem, normalizeWidgetConfig } from "@/launcher/registry";
+import { WidgetUnavailableRenderer } from "./widgetFoundation";
 
 interface LauncherWidgetContentProps {
     item: LauncherWidgetRecord;
@@ -20,13 +20,17 @@ export function LauncherWidgetContent({
     onActivate,
 }: LauncherWidgetContentProps) {
     const widget = getWidgetManifestItem(item.widgetId);
-    const Renderer = widget?.renderer ?? AppShortcutWidgetRenderer;
+    const Renderer = widget?.renderer ?? WidgetUnavailableRenderer;
+    const normalizedConfig = widget
+        ? normalizeWidgetConfig(widget.id, item.config)
+        : (item.config ?? {});
 
     return (
         <Renderer
             item={item}
             preset={preset}
             gridSize={gridSize}
+            config={normalizedConfig}
             className={cn("h-full w-full", className)}
             onActivate={onActivate}
         />

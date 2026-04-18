@@ -14,6 +14,7 @@ import {
 import type { GridItem, LauncherWidgetItem, SystemAppItem } from "@/launcher/model/itemTypes";
 import { DynamicBackgroundEffect } from "@/platform/ui";
 import { cn } from "@/shared/utils";
+import type { WidgetConfig } from "@/shared/types";
 import type { BackgroundConfig } from "@/shared/types/background";
 import type { ComponentMarketItem } from "./WidgetGallery";
 
@@ -21,6 +22,7 @@ interface WidgetPreviewStageProps {
     item: ComponentMarketItem;
     preset: GridPresetKey;
     onPresetChange: (preset: GridPresetKey) => void;
+    config?: WidgetConfig;
 }
 
 function getPreviewBackgroundStyle(
@@ -52,6 +54,7 @@ export function WidgetPreviewStage({
     item,
     preset,
     onPresetChange,
+    config,
 }: WidgetPreviewStageProps) {
     const { width, containerRef } = useContainerWidth({ initialWidth: 960 });
     const { backgroundConfig, dynamicBackgroundConfig } = useAppearancePreferenceStore();
@@ -63,8 +66,8 @@ export function WidgetPreviewStage({
 
     const gridSize = resolvePresetSize(preset);
     const previewItem = useMemo<GridItem>(
-        () => buildPreviewItem(item, preset, gridSize),
-        [gridSize, item, preset]
+        () => buildPreviewItem(item, preset, gridSize, config),
+        [config, gridSize, item, preset]
     );
 
     const stageWidth = Math.max(width - 48, 320);
@@ -146,7 +149,8 @@ export function WidgetPreviewStage({
 function buildPreviewItem(
     item: ComponentMarketItem,
     preset: GridPresetKey,
-    gridSize: { w: number; h: number }
+    gridSize: { w: number; h: number },
+    config?: WidgetConfig
 ): GridItem {
     if (item.kind === "app") {
         const appItem: SystemAppItem = {
@@ -170,6 +174,7 @@ function buildPreviewItem(
         icon: item.item.icon,
         w: gridSize.w,
         h: gridSize.h,
+        config,
     };
     return widgetItem;
 }

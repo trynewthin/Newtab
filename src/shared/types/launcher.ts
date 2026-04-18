@@ -4,6 +4,8 @@ export type AppSurface = "modal" | "page";
 export type LauncherTilePreset = "1x1" | "2x1" | "1x2" | "2x2" | "2x4" | "4x2";
 export type LauncherTileVariant = "icon" | "panel";
 export type AppSurfaceFramePreset = "free" | "semi" | "sidebar";
+export type WidgetConfigValue = string | number | boolean;
+export type WidgetConfig = Record<string, WidgetConfigValue>;
 
 export interface LauncherWidgetItem {
     id: string;
@@ -16,6 +18,7 @@ export interface LauncherWidgetItem {
     y?: number;
     w?: number;
     h?: number;
+    config?: WidgetConfig;
 }
 
 export interface AppSurfaceConfig {
@@ -54,6 +57,7 @@ export interface WidgetRenderProps {
     item: LauncherWidgetItem;
     preset: LauncherTilePreset;
     gridSize: { w: number; h: number };
+    config: WidgetConfig;
     className?: string;
     onActivate?: (event?: MouseEvent) => void;
 }
@@ -68,6 +72,45 @@ export interface WidgetResizeRange {
     axis?: WidgetResizeAxis;
 }
 
+export interface WidgetConfigFieldOption {
+    value: string;
+    label: string;
+}
+
+interface WidgetConfigFieldBase<Key extends string, Value extends WidgetConfigValue> {
+    key: Key;
+    label: string;
+    description?: string;
+    defaultValue: Value;
+}
+
+export interface WidgetSelectConfigField extends WidgetConfigFieldBase<string, string> {
+    type: "select";
+    options: readonly WidgetConfigFieldOption[];
+}
+
+export interface WidgetSwitchConfigField extends WidgetConfigFieldBase<string, boolean> {
+    type: "switch";
+}
+
+export interface WidgetRangeConfigField extends WidgetConfigFieldBase<string, number> {
+    type: "range";
+    min: number;
+    max: number;
+    step?: number;
+}
+
+export interface WidgetTextConfigField extends WidgetConfigFieldBase<string, string> {
+    type: "text";
+    placeholder?: string;
+}
+
+export type WidgetConfigField =
+    | WidgetSelectConfigField
+    | WidgetSwitchConfigField
+    | WidgetRangeConfigField
+    | WidgetTextConfigField;
+
 export interface WidgetManifest {
     id: string;
     title: string;
@@ -81,6 +124,7 @@ export interface WidgetManifest {
     defaultPreset: LauncherTilePreset;
     supportedPresets: readonly LauncherTilePreset[];
     resizeRange?: WidgetResizeRange;
+    configFields?: readonly WidgetConfigField[];
     renderer: ComponentType<WidgetRenderProps>;
 }
 

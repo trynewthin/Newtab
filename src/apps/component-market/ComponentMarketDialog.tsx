@@ -6,6 +6,7 @@ import type {
 import { GRID_ITEM_PRESETS, type GridPresetKey } from "@/launcher/layout";
 import { AppModalV2, AppModalV2CloseButton, GradualBlur } from "@/platform/ui";
 import { useTranslation } from "react-i18next";
+import type { WidgetConfig } from "@/shared/types";
 import {
     WidgetGallery,
     type ComponentMarketItem,
@@ -20,8 +21,8 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
     const { t } = useTranslation();
     const { addItem } = useItemStore();
 
-    const handleAddItem = (entry: ComponentMarketItem, preset: GridPresetKey) => {
-        const newItem = buildNewItemInput(entry, preset);
+    const handleAddItem = (entry: ComponentMarketItem, preset: GridPresetKey, config?: WidgetConfig) => {
+        const newItem = buildNewItemInput(entry, preset, config);
         addItem(newItem);
         onOpenChange(false);
     };
@@ -75,10 +76,11 @@ export function ComponentMarketDialog({ open, onOpenChange }: ComponentMarketDia
 
 function buildNewItemInput(
     entry: ComponentMarketItem,
-    preset: GridPresetKey
+    preset: GridPresetKey,
+    config?: WidgetConfig
 ): NewItemInput {
     if (entry.kind === "widget") {
-        return buildWidgetInput(entry.item, preset);
+        return buildWidgetInput(entry.item, preset, config);
     }
 
     return buildAppInput(entry.item);
@@ -86,7 +88,8 @@ function buildNewItemInput(
 
 function buildWidgetInput(
     widget: SystemWidgetManifestItem,
-    preset: GridPresetKey
+    preset: GridPresetKey,
+    config?: WidgetConfig
 ): NewItemInput {
     const size = GRID_ITEM_PRESETS[preset];
     return {
@@ -96,6 +99,7 @@ function buildWidgetInput(
         icon: widget.icon,
         w: size.w,
         h: size.h,
+        config,
     };
 }
 

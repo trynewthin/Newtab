@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import {
     ENABLED_SYSTEM_APP_MANIFEST,
     SYSTEM_WIDGET_MANIFEST,
+    getWidgetDefaultConfig,
     getWidgetCollections,
     getWidgetsByCollection,
     type SystemAppManifestItem,
@@ -12,11 +13,13 @@ import {
 } from "@/launcher/registry";
 import { type GridPresetKey } from "@/launcher/layout";
 import { AppModalEmptyState } from "@/platform/ui";
+import type { WidgetConfig } from "@/shared/types";
+import { WidgetConfigForm } from "./WidgetConfigForm";
 import { WidgetPreviewCard } from "./WidgetPreviewCard";
 import { WidgetPreviewStage } from "./WidgetPreviewStage";
 
 interface WidgetGalleryProps {
-    onAddItem: (item: ComponentMarketItem, preset: GridPresetKey) => void;
+    onAddItem: (item: ComponentMarketItem, preset: GridPresetKey, config?: WidgetConfig) => void;
 }
 
 interface BaseComponentMarketItem {
@@ -86,6 +89,13 @@ export function WidgetGallery({ onAddItem }: WidgetGalleryProps) {
     const [selectedPreset, setSelectedPreset] = useState<GridPresetKey>(
         (allItems[0]?.defaultPreset as GridPresetKey | undefined) ?? "2x2"
     );
+    const [widgetConfigs, setWidgetConfigs] = useState<Record<string, WidgetConfig>>(() => {
+        return Object.fromEntries(
+            allItems
+                .filter((item): item is ComponentMarketWidgetItem => item.kind === "widget")
+                .map((item) => [item.id, getWidgetDefaultConfig(item.item.id)])
+        );
+    });
 
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -127,13 +137,38 @@ export function WidgetGallery({ onAddItem }: WidgetGalleryProps) {
         return null;
     }
 
+    const previewConfig: WidgetConfig = previewWidget.kind === "widget"
+        ? (widgetConfigs[previewWidget.id] ?? getWidgetDefaultConfig(previewWidget.item.id))
+        : {};
+    const previewConfigFields = previewWidget.kind === "widget"
+        ? (previewWidget.item.configFields ?? [])
+        : [];
+
     return (
         <div className="space-y-6">
             <WidgetPreviewStage
                 item={previewWidget}
                 preset={resolvedPreset}
                 onPresetChange={setSelectedPreset}
+                config={previewConfig}
             />
+
+            {previewConfigFields.length > 0 ? (
+                <WidgetConfigForm
+                    fields={previewConfigFields}
+                    value={previewConfig}
+                    onChange={(nextConfig) => {
+                        if (previewWidget.kind !== "widget") {
+                            return;
+                        }
+
+                        setWidgetConfigs((current) => ({
+                            ...current,
+                            [previewWidget.id]: nextConfig,
+                        }));
+                    }}
+                />
+            ) : null}
 
             <div className="flex items-center gap-3">
                 <div className="relative min-w-0 flex-1">
@@ -151,7 +186,7 @@ export function WidgetGallery({ onAddItem }: WidgetGalleryProps) {
 
                 <button
                     type="button"
-                    onClick={() => onAddItem(previewWidget, resolvedPreset)}
+                    onClick={() => onAddItem(previewWidget, resolvedPreset, previewConfig)}
                     className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-sm font-semibold text-background transition-opacity hover:opacity-90 active:scale-[0.98]"
                 >
                     <Plus size={14} strokeWidth={2.8} />
@@ -181,6 +216,18 @@ export function WidgetGallery({ onAddItem }: WidgetGalleryProps) {
                                     onSelect={() => {
                                         setSelectedWidgetId(item.id);
                                         setSelectedPreset(item.defaultPreset);
+                                        if (item.kind === "widget") {
+                                            setWidgetConfigs((current) => {
+                                                if (current[item.id]) {
+                                                    return current;
+                                                }
+
+                                                return {
+                                                    ...current,
+                                                    [item.id]: getWidgetDefaultConfig(item.item.id),
+                                                };
+                                            });
+                                        }
                                     }}
                                 />
                             ))}

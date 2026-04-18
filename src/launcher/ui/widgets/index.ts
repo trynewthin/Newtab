@@ -1,4 +1,4 @@
 export * from "./LauncherWidgetItem";
 export * from "./LauncherWidgetContent";
-export * from "./timeWidgets";
-export * from "./widgetFrames";
+export * from "./ConfigurableClockWidget";
+export * from "./widgetFoundation";

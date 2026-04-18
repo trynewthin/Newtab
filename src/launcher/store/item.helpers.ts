@@ -11,6 +11,7 @@ import { GRID_ITEM_PRESETS } from "@/launcher/layout/layoutPresets";
 import {
     getWidgetManifestItem,
     isSystemWidgetId,
+    normalizeWidgetConfig,
     resolveLegacyWidgetId,
 } from "@/launcher/registry";
 import { isSystemAppBlocked, isSystemAppId } from "@/launcher/registry/appManifest";
@@ -39,6 +40,7 @@ export function migrateLegacyWidgetItem(item: GridItem): GridItem {
                 y: legacyAppItem.y,
                 w: legacyAppItem.w ?? fallbackSize.w,
                 h: legacyAppItem.h ?? fallbackSize.h,
+                config: normalizeWidgetConfig(widgetId),
             };
         }
     }
@@ -107,6 +109,7 @@ export function buildNewGridItem(itemData: NewItemInput): GridItem {
             kind: "widget",
             title: itemData.title || widget?.title || "widget_generic",
             icon: itemData.icon || widget?.icon,
+            config: normalizeWidgetConfig(itemData.widgetId, itemData.config),
         } as LauncherWidgetItem;
     }
 

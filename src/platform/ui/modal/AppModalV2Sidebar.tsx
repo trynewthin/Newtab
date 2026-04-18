@@ -307,7 +307,7 @@ export function AppModalV2Sidebar({
             ) : null}
 
             {mobileSidebarOpen ? (
-                <div className="absolute inset-0 z-20 sm:hidden">
+                <div className="absolute inset-0 z-20 pointer-events-auto sm:hidden">
                     <div
                         className="absolute inset-0 bg-black/18 backdrop-blur-[2px] pointer-events-auto"
                         onClick={() => setMobileSidebarOpen(false)}
@@ -315,7 +315,7 @@ export function AppModalV2Sidebar({
 
                     <div
                         className={cn(
-                            "absolute inset-y-0 left-0 w-[min(18rem,88vw)] bg-foreground/[0.06] backdrop-blur-2xl",
+                            "absolute inset-y-0 left-0 w-[min(18rem,88vw)] pointer-events-auto bg-foreground/[0.06] backdrop-blur-2xl",
                             "shadow-[0_30px_80px_rgba(0,0,0,0.22)]"
                         )}
                     >

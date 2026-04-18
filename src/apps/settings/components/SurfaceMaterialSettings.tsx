@@ -57,7 +57,6 @@ function NumberSlider({
 }
 
 function MaterialPreview() {
-    const { t } = useTranslation();
     const { backgroundConfig, dynamicBackgroundConfig } = useSettingsStore();
 
     const activeThemeId =
@@ -107,25 +106,28 @@ function MaterialPreview() {
 
     return (
         <div className="rounded-2xl p-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
-            <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">
-                {t("live_preview")}
-            </div>
-            <div className="relative h-40 overflow-hidden rounded-xl">
-                {/* Background */}
+            <div className="relative h-56 overflow-hidden rounded-xl md:h-64">
                 <div className="absolute inset-0 pointer-events-none" style={getStaticBackground()}>
                     {renderBackground()}
                 </div>
-                {/* Sample surface panel */}
-                <div className="absolute inset-0 flex items-center justify-center p-4">
-                    <div className="relative w-full max-w-[280px] h-24 overflow-hidden rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.15),0_2px_6px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_16px_rgba(255,255,255,0.08),0_2px_6px_rgba(255,255,255,0.05)]">
-                        <div className="absolute inset-0 z-0">
-                            <AppSurface variant="base" width="100%" height="100%" />
+                <div className="absolute inset-0 flex items-center justify-center p-6">
+                    <div className="relative h-28 w-full max-w-[320px] overflow-hidden rounded-[24px] shadow-[0_18px_45px_rgba(0,0,0,0.35)] md:h-32 md:max-w-[360px]">
+                        <div className="absolute inset-0 z-0 pointer-events-none">
+                            <AppSurface
+                                variant="widget"
+                                hideSurfaceBorder={false}
+                                width="100%"
+                                height="100%"
+                                borderRadius={24}
+                                style={{ outline: "none", boxShadow: "none" }}
+                                className="h-full w-full rounded-[24px]"
+                            />
                         </div>
-                        <div className="relative z-10 flex h-full items-center gap-3 px-4">
-                            <div className="h-8 w-8 shrink-0 rounded-lg bg-foreground/10" />
+                        <div className="relative z-10 flex h-full items-center gap-3 px-5">
+                            <div className="h-9 w-9 shrink-0 rounded-lg bg-foreground/10" />
                             <div className="flex flex-col gap-1.5">
-                                <div className="h-2.5 w-28 rounded-full bg-foreground/15" />
-                                <div className="h-2 w-20 rounded-full bg-foreground/10" />
+                                <div className="h-2.5 w-32 rounded-full bg-foreground/15" />
+                                <div className="h-2 w-24 rounded-full bg-foreground/10" />
                             </div>
                         </div>
                     </div>
@@ -181,6 +183,8 @@ export function SurfaceMaterialSettings() {
 
     return (
         <SettingsSection title={t("surface_materials")}>
+            <MaterialPreview />
+
             <SettingsItem label={t("surface_material_type")}>
                 <Select value={surfaceMaterial} onValueChange={(value) => setSurfaceMaterial(value as AppSurfaceMaterial)}>
                     <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[220px]`}>
@@ -216,16 +220,8 @@ export function SurfaceMaterialSettings() {
                 </button>
             </SettingsItem>
 
-            <div className="h-px w-full bg-foreground/8" />
-
-            <MaterialPreview />
-
             {surfaceMaterial === "glass-distortion" ? (
-                <div className="space-y-2.5">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
-                        {t("surface_material_customize_distortion")}
-                    </div>
-
+                <div className="space-y-3.5">
                     <SettingsItem label={t("surface_field_background_opacity")}>
                         <NumberSlider value={distortionConfig.backgroundOpacity} min={0} max={1} step={0.01} onChange={(v) => updateDistortion({ backgroundOpacity: v })} />
                     </SettingsItem>
@@ -278,11 +274,7 @@ export function SurfaceMaterialSettings() {
                     </SettingsItem>
                 </div>
             ) : surfaceMaterial === "mac-frosted" ? (
-                <div className="space-y-2.5">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
-                        {t("surface_material_customize_frosted")}
-                    </div>
-
+                <div className="space-y-3.5">
                     <SettingsItem label={t("surface_field_background_opacity")}>
                         <NumberSlider value={frostedConfig.backgroundOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ backgroundOpacity: v })} />
                     </SettingsItem>

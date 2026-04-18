@@ -23,7 +23,7 @@ import {
 import { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { ShortcutDialog } from "@/launcher/ui/dialogs/ShortcutDialog";
-import AppSurface from "@/platform/ui/surface/AppSurface";
+import { AppSurface } from "@/platform/ui";
 import { OVERLAY_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 
 // Helper to check if item is folder

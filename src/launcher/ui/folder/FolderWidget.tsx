@@ -10,7 +10,7 @@ import { ItemActionMenu } from "../components/ItemActionMenu";
 import { ITEM_INTERACTION_ANIMATION_CLASS } from "../components/selectionStyles";
 import { backgroundStorage } from "@/platform/storage/backgroundStorage";
 import type { FolderItem as FolderItemType, GridItem } from "@/launcher/model/itemTypes";
-import AppSurface from "@/platform/ui/surface/AppSurface";
+import { AppSurface } from "@/platform/ui";
 import { Minimize2 } from "lucide-react";
 import { isDefaultItemIconValue } from "@/launcher/ui/icons/defaultItemIcon.shared";
 import { resolveSmallFolderPreviewIconScale } from "../components/itemIconScale.shared";

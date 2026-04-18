@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { storageRegistry } from "@/platform/persistence/registry";
 import { createPersistConfig } from "@/platform/persistence/zustandStorage";
 import type { GridItem } from "@/launcher/model/itemTypes";
 import type { ItemState, NewItemInput } from "./item.types";
@@ -20,6 +21,8 @@ type PersistedItemState = {
     items?: GridItem[];
     layoutRevision?: number;
 };
+
+const ITEM_STORAGE_KEY = "app-items";
 
 export const useItemStore = create<ItemState>()(
     persist(
@@ -69,7 +72,7 @@ export const useItemStore = create<ItemState>()(
                 })),
         }),
         {
-            ...createPersistConfig<ItemState, PersistedItemState>("app-items"),
+            ...createPersistConfig<ItemState, PersistedItemState>(ITEM_STORAGE_KEY),
             version: 9,
             merge: mergePersistedItemState,
             migrate: (persistedState: unknown): PersistedItemState => {
@@ -91,4 +94,9 @@ export const useItemStore = create<ItemState>()(
             },
         }
     )
+);
+
+storageRegistry.registerRehydrator(
+    ITEM_STORAGE_KEY,
+    () => useItemStore.persist.rehydrate()
 );

@@ -1,10 +1,22 @@
 import type { ComponentType, MouseEvent } from "react";
-import type { LauncherWidgetItem } from "@/launcher/model/itemTypes";
 
 export type AppSurface = "modal" | "page";
 export type LauncherTilePreset = "1x1" | "2x1" | "1x2" | "2x2" | "2x4" | "4x2";
 export type LauncherTileVariant = "icon" | "panel";
 export type AppSurfaceFramePreset = "free" | "semi" | "sidebar";
+
+export interface LauncherWidgetItem {
+    id: string;
+    kind: "widget";
+    widgetId: string;
+    ownerAppId?: string;
+    title: string;
+    icon?: string;
+    x?: number;
+    y?: number;
+    w?: number;
+    h?: number;
+}
 
 export interface AppSurfaceConfig {
     modal: boolean;

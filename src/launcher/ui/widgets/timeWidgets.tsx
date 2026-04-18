@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { cn } from "@/shared/utils";
 import { useTranslation } from "react-i18next";
-import AppSurface from "@/platform/ui/surface/AppSurface";
+import { AppSurface } from "@/platform/ui";
 import type { WidgetRenderProps } from "@/shared/types";
 
 // ─── Shared time utilities ───────────────────────────────────────────

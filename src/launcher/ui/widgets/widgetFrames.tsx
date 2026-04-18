@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils";
-import AppSurface from "@/platform/ui/surface/AppSurface";
+import { AppSurface } from "@/platform/ui";
 import { renderSystemIcon } from "@/launcher/ui/icons/systemIcons";
 import type { LauncherWidgetItem } from "@/launcher/model/itemTypes";
 import type { WidgetRenderProps } from "@/shared/types";

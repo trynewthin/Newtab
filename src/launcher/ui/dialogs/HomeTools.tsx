@@ -5,7 +5,7 @@ import { toggleThemePreference, useThemePreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import AppSurface from "@/platform/ui/surface/AppSurface";
+import { AppSurface } from "@/platform/ui";
 import {
     AlertDialog,
     AlertDialogAction,

@@ -7,7 +7,7 @@ import {
     useState,
 } from "react";
 import { ShortcutDialog } from "@/launcher/ui/dialogs/ShortcutDialog";
-import { AppModalLoadingFallback } from "@/platform/ui/modal";
+import { AppModalLoadingFallback } from "@/platform/ui";
 import type { SystemType, SystemAppId } from "@/launcher/registry/appManifest";
 import { ENABLED_SYSTEM_APP_IDS, getAppSurfaceFramePreset } from "@/launcher/registry/appManifest";
 import { getModalRenderer, resolveModalRuntimeAppId } from "@/launcher/runtime/appRuntimeRegistry";

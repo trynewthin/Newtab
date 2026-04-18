@@ -1,3 +1,5 @@
+import type { LauncherWidgetItem as SharedLauncherWidgetItem } from "@/shared/types";
+
 export type ItemKind = "tag" | "app" | "folder" | "widget";
 
 export interface BaseItem {
@@ -25,12 +27,7 @@ export interface SystemAppItem extends BaseItem {
     icon?: string;
 }
 
-export interface LauncherWidgetItem extends BaseItem {
-    kind: "widget";
-    widgetId: string;
-    ownerAppId?: string;
-    icon?: string;
-}
+export type LauncherWidgetItem = SharedLauncherWidgetItem;
 
 export type FolderDisplayMode = "1x1" | "2x2";
 

@@ -135,7 +135,11 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
             <form onSubmit={handleSearch} className="relative z-30">
                 <div className="relative h-12 md:h-14">
                     <div className="absolute inset-0 pointer-events-none">
-                        <AppSurface variant="search-bar" className="h-full w-full" />
+                        <AppSurface
+                            variant="search-bar"
+                            hideSurfaceBorder={false}
+                            className="h-full w-full"
+                        />
                     </div>
 
                     <div className="relative z-10 flex h-full items-center gap-2 rounded-full px-3 transition-all duration-300">
@@ -160,11 +164,12 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                                 />
                             </button>
                             {engineMenuOpen ? (
-                                <div className="absolute left-[-6px] top-[calc(100%+16px)] z-50 w-60 overflow-hidden rounded-2xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                                <div className="absolute left-[-6px] top-[calc(100%+16px)] z-50 w-60 overflow-hidden rounded-2xl shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
                                     <div className="absolute inset-0 pointer-events-none">
                                         <AppSurface
                                             variant="widget"
-                                            style={{ outline: "none", border: "none", boxShadow: "none" }}
+                                            hideSurfaceBorder={false}
+                                            style={{ outline: "none", boxShadow: "none" }}
                                             className="h-full w-full"
                                         />
                                     </div>
@@ -241,14 +246,15 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
             `}</style>
 
             {!engineMenuOpen && showSuggestions && suggestions.length > 0 ? (
-                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 overflow-hidden rounded-3xl border-2 border-border/75 shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 overflow-hidden rounded-3xl shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
                     <div className="absolute inset-0 pointer-events-none">
                         <AppSurface
                             variant="widget"
+                            hideSurfaceBorder={false}
                             width="100%"
                             height="100%"
                             borderRadius={24}
-                            style={{ outline: "none", border: "none", boxShadow: "none" }}
+                            style={{ outline: "none", boxShadow: "none" }}
                             className="h-full w-full rounded-[24px]"
                         />
                     </div>

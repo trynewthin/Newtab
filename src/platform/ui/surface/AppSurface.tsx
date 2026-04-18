@@ -15,12 +15,14 @@ export interface AppSurfaceProps extends GlassSurfaceProps {
     material?: AppSurfaceMaterial;
     variant?: AppSurfaceVariant;
     tone?: AppSurfaceTone;
+    hideSurfaceBorder?: boolean;
 }
 
 export function AppSurface({
     material: overrideMaterial,
     variant = "base",
     tone,
+    hideSurfaceBorder: hideSurfaceBorderOverride,
     className,
     style,
     children,
@@ -36,7 +38,7 @@ export function AppSurface({
     const resolvedMaterial = overrideMaterial ?? activeMaterial;
     const resolvedTone = useResolvedTone(tone);
     const stabilizeCorners = variant === "widget" || variant === "folder-preview";
-    const hideSurfaceBorder = variant === "widget";
+    const hideSurfaceBorder = hideSurfaceBorderOverride ?? (variant === "widget");
     const stableCornerBorderWidth = 1;
     const createStableCornerBorderStyle = (color: string): React.CSSProperties => ({
         border: `${stableCornerBorderWidth}px solid ${color}`,

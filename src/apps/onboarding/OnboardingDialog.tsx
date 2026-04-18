@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppModalV2 } from "@/platform/ui/modal";
+import { AppDialogV1Closable, AppDialogV1Message } from "@/platform/ui";
 import { useSettingsStore } from "@/apps/settings";
 import {
     useLanguagePreferenceStore,
@@ -25,6 +26,8 @@ const TOTAL_STEPS = 4;
 export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) {
     const { t } = useTranslation();
     const [step, setStep] = useState(0);
+    const [restoreSuccessMessage, setRestoreSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const surfaceMaterial = useSettingsStore((s) => s.surfaceMaterial);
     const setSurfaceMaterial = useSettingsStore((s) => s.setSurfaceMaterial);
@@ -49,7 +52,7 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
             try {
                 const inspection = await persistenceManager.inspectBackup(file);
                 if (!inspection.supported) {
-                    alert(t("restore_version_unsupported", {
+                    setErrorMessage(t("restore_version_unsupported", {
                         source: inspection.sourceSchemaVersion,
                         target: inspection.targetSchemaVersion,
                     }));
@@ -57,10 +60,9 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                 }
                 await persistenceManager.importData(file);
                 completeOnboarding();
-                alert(t("restore_success"));
-                window.location.reload();
+                setRestoreSuccessMessage(t("restore_success"));
             } catch {
-                alert(t("restore_fail"));
+                setErrorMessage(t("restore_fail"));
             }
         };
         input.click();
@@ -265,12 +267,56 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
     );
 
     return (
-        <AppModalV2
-            open={open}
-            onOpenChange={() => {/* prevent close by backdrop */}}
-            containerClassName="bg-background shadow-none sm:rounded-none"
-            contentLayer={contentLayer}
-            floatLayer={floatLayer}
-        />
+        <>
+            <AppModalV2
+                open={open}
+                onOpenChange={() => {/* prevent close by backdrop */}}
+                containerClassName="bg-background shadow-none sm:rounded-none"
+                contentLayer={contentLayer}
+                floatLayer={floatLayer}
+            />
+            <AppDialogV1Closable
+                open={restoreSuccessMessage !== null}
+                onOpenChange={(nextOpen) => {
+                    if (nextOpen) {
+                        return;
+                    }
+
+                    setRestoreSuccessMessage(null);
+                    window.location.reload();
+                }}
+                title={t("restore_success_title")}
+                popupClassName="w-[min(92vw,30rem)]"
+                bodyClassName="space-y-4"
+            >
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                    {restoreSuccessMessage}
+                </p>
+                <div className="flex justify-end">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setRestoreSuccessMessage(null);
+                            window.location.reload();
+                        }}
+                        className="h-9 rounded-xl border border-border/70 bg-background/85 px-3 text-sm font-medium text-foreground/85 shadow-none transition-colors hover:bg-foreground/6 hover:text-foreground"
+                    >
+                        {t("confirm")}
+                    </button>
+                </div>
+            </AppDialogV1Closable>
+            <AppDialogV1Message
+                open={errorMessage !== null}
+                onOpenChange={(nextOpen) => {
+                    if (!nextOpen) {
+                        setErrorMessage(null);
+                    }
+                }}
+                title={t("error_title")}
+                message={errorMessage}
+                confirmLabel={t("confirm")}
+                popupClassName="w-[min(92vw,30rem)]"
+            />
+        </>
     );
 }

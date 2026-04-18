@@ -5,6 +5,7 @@ import {
     useLanguagePreferenceStore,
     useThemePreferenceStore,
 } from "@/config";
+import { AppDialogV1Message } from "@/platform/ui";
 import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/launcher";
 
@@ -28,6 +29,7 @@ export default function Popup() {
     const [existingItem, setExistingItem] = useState<GridItem | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const items = useItemStore((state) => state.items);
     const addItem = useItemStore((state) => state.addItem);
@@ -102,7 +104,7 @@ export default function Popup() {
             }, 1200); // 稍微延长一点，让用户看到成功状态
         } catch (err) {
             console.error("Popup submit error:", err);
-            alert(t("save_failed"));
+            setErrorMessage(t("save_failed"));
         } finally {
             setIsSubmitting(false);
         }
@@ -146,6 +148,18 @@ export default function Popup() {
     return (
         <div className="popup-minimal-scope w-full bg-background text-foreground overflow-x-hidden flex flex-col relative px-3 py-3">
             {isSuccess && checkIcon}
+            <AppDialogV1Message
+                open={errorMessage !== null}
+                onOpenChange={(nextOpen) => {
+                    if (!nextOpen) {
+                        setErrorMessage(null);
+                    }
+                }}
+                title={t("error_title")}
+                message={errorMessage}
+                confirmLabel={t("confirm")}
+                popupClassName="w-[min(92vw,22rem)]"
+            />
 
             {isReady ? (
                 <TagConfigForm

@@ -30,6 +30,7 @@
     restore_strategy_direct: "直接恢复",
     restore_strategy_migrate: "版本迁移后恢复",
     restore_confirm_with_version: "备份信息：应用版本 {{appVersion}}，备份结构版本 {{sourceSchema}}。\n当前支持结构版本 {{targetSchema}}，将采用「{{strategy}}」。\n继续恢复并覆盖当前数据吗？",
+    restore_success_title: "数据恢复成功",
     restore_success_with_version: "数据已恢复（来源应用版本 {{appVersion}}，当前结构版本 {{schema}}）。",
     restore_version_unsupported: "该备份结构版本（{{source}}）高于当前支持版本（{{target}}），无法恢复。请先升级应用。",
     restore_success: "全量数据已成功恢复！",

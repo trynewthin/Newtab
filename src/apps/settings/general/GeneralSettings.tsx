@@ -4,20 +4,10 @@ import { ArrowDown, ArrowUp, Download, Pencil, Plus, RotateCcw, Settings2, Trash
 import { useLanguagePreferenceStore, useSearchPreferenceStore } from "@/config";
 import { APP_METADATA } from "@/shared/constants";
 import { persistenceManager } from "@/platform/persistence/manager";
-import { AppDialogV1Closable } from "@/platform/ui";
+import { AppDialogV1Closable, AppDialogV1Message } from "@/platform/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
     SETTINGS_ACTION_BUTTON_CLASS,
     SETTINGS_FIELD_CLASS,
@@ -40,6 +30,8 @@ export function GeneralSettings() {
 
     const [isManagerOpen, setIsManagerOpen] = useState(false);
     const [newEngine, setNewEngine] = useState({ name: "", url: "" });
+    const [restoreSuccessMessage, setRestoreSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const languageOptions = {
         zh: t("language_name_zh"),
@@ -54,7 +46,7 @@ export function GeneralSettings() {
             persistenceManager.downloadBackup(blob);
         } catch (error) {
             console.error("Export failed:", error);
-            alert(t("export_fail"));
+            setErrorMessage(t("export_fail"));
         }
     };
 
@@ -69,7 +61,7 @@ export function GeneralSettings() {
             try {
                 const inspection = await persistenceManager.inspectBackup(file);
                 if (!inspection.supported) {
-                    alert(t("restore_version_unsupported", {
+                    setErrorMessage(t("restore_version_unsupported", {
                         source: inspection.sourceSchemaVersion,
                         target: inspection.targetSchemaVersion,
                     }));
@@ -90,14 +82,13 @@ export function GeneralSettings() {
                 }
 
                 await persistenceManager.importData(file);
-                alert(t("restore_success_with_version", {
+                setRestoreSuccessMessage(t("restore_success_with_version", {
                     appVersion: inspection.appVersion || t("unknown"),
                     schema: inspection.targetSchemaVersion,
                 }));
-                window.location.reload();
             } catch (error) {
                 console.error("Import failed:", error);
-                alert(t("restore_fail"));
+                setErrorMessage(t("restore_fail"));
             }
         };
         input.click();
@@ -211,6 +202,48 @@ export function GeneralSettings() {
                 onRemoveEngine={removeSearchEngine}
                 onUpdateEngine={updateSearchEngine}
                 canAddEngine={canAddEngine}
+            />
+            <AppDialogV1Closable
+                open={restoreSuccessMessage !== null}
+                onOpenChange={(nextOpen) => {
+                    if (nextOpen) {
+                        return;
+                    }
+
+                    setRestoreSuccessMessage(null);
+                    window.location.reload();
+                }}
+                title={t("restore_success_title")}
+                popupClassName="w-[min(92vw,30rem)]"
+                bodyClassName="space-y-4"
+            >
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                    {restoreSuccessMessage}
+                </p>
+                <div className="flex justify-end">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setRestoreSuccessMessage(null);
+                            window.location.reload();
+                        }}
+                        className={SETTINGS_ACTION_BUTTON_CLASS}
+                    >
+                        {t("confirm")}
+                    </button>
+                </div>
+            </AppDialogV1Closable>
+            <AppDialogV1Message
+                open={errorMessage !== null}
+                onOpenChange={(nextOpen) => {
+                    if (!nextOpen) {
+                        setErrorMessage(null);
+                    }
+                }}
+                title={t("error_title")}
+                message={errorMessage}
+                confirmLabel={t("confirm")}
+                popupClassName="w-[min(92vw,30rem)]"
             />
         </div>
     );
@@ -501,25 +534,33 @@ function ResetButton() {
                 <RotateCcw size={14} className="mr-1.5" />
                 {t("reset_data_btn")}
             </Button>
-            <AlertDialog open={open} onOpenChange={setOpen}>
-                <AlertDialogContent className="rounded-3xl">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>{t("reset_data_confirm_title")}</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {t("reset_data_confirm_desc")}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="gap-2">
-                        <AlertDialogCancel className="rounded-xl">{t("cancel")}</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleReset}
-                            className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                            {t("reset_data_confirm_btn")}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <AppDialogV1Closable
+                open={open}
+                onOpenChange={setOpen}
+                title={t("reset_data_confirm_title")}
+                popupClassName="w-[min(92vw,30rem)]"
+                bodyClassName="space-y-4"
+            >
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                    {t("reset_data_confirm_desc")}
+                </p>
+                <div className="flex justify-end gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setOpen(false)}
+                        className={SETTINGS_ACTION_BUTTON_CLASS}
+                    >
+                        {t("cancel")}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleReset}
+                        className="h-9 rounded-xl bg-destructive px-3 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+                    >
+                        {t("reset_data_confirm_btn")}
+                    </button>
+                </div>
+            </AppDialogV1Closable>
         </>
     );
 }

@@ -30,6 +30,7 @@
     restore_strategy_direct: "Direct restore",
     restore_strategy_migrate: "Restore after migration",
     restore_confirm_with_version: "Backup info: app version {{appVersion}}, backup schema {{sourceSchema}}.\nCurrent supported schema is {{targetSchema}}, strategy: {{strategy}}.\nContinue and overwrite current data?",
+    restore_success_title: "Data Restored",
     restore_success_with_version: "Data restored (source app version {{appVersion}}, current schema {{schema}}).",
     restore_version_unsupported: "Backup schema {{source}} is newer than supported schema {{target}}. Please upgrade the app first.",
     restore_success: "Full data restored successfully!",

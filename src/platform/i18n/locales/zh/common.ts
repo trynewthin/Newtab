@@ -4,6 +4,7 @@
     switch_lang: "切换语言",
     cancel: "取消",
     confirm: "确认",
+    error_title: "发生错误",
     save: "保存",
     add: "添加",
     manage: "管理",

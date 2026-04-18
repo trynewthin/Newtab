@@ -4,6 +4,7 @@
     switch_lang: "Switch Language",
     cancel: "Cancel",
     confirm: "Confirm",
+    error_title: "Something Went Wrong",
     save: "Save",
     add: "Add",
     manage: "Manage",

@@ -27,17 +27,6 @@ export const SYSTEM_WIDGET_MANIFEST: readonly SystemWidgetManifestItem[] = [
         supportedPresets: ["4x2"],
         configFields: [
             {
-                key: "clockStyle",
-                type: "select",
-                label: "widget_config_clock_style",
-                defaultValue: "digital",
-                options: [
-                    { value: "digital", label: "widget_clock_style_digital" },
-                    { value: "split", label: "widget_clock_style_split" },
-                    { value: "minimal", label: "widget_clock_style_minimal" },
-                ],
-            },
-            {
                 key: "showSeconds",
                 type: "switch",
                 label: "widget_config_show_seconds",
@@ -51,13 +40,6 @@ export const SYSTEM_WIDGET_MANIFEST: readonly SystemWidgetManifestItem[] = [
                 min: 0,
                 max: 360,
                 step: 1,
-            },
-            {
-                key: "timeZoneLabel",
-                type: "text",
-                label: "widget_config_time_label",
-                defaultValue: "",
-                placeholder: "widget_clock_local_label",
             },
         ],
         renderer: ConfigurableClockWidget,

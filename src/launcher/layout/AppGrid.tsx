@@ -40,7 +40,7 @@ const GRID_STEP_Y = GRID_ITEM_PRESETS["1x1"].h;
 const MIN_SEMANTIC_COLS = 4;
 const MAX_SEMANTIC_COLS = 12;
 const TARGET_SEMANTIC_CELL_PX = 92;
-const BOTTOM_FADE_HEIGHT_REM = 7;
+const BOTTOM_FADE_HEIGHT_REM = 5;
 const SCROLL_BOTTOM_SAFE_GAP_REM = 2;
 const VACANCY_HORIZONTAL_WEIGHT = 1;
 const VACANCY_UPWARD_WEIGHT = 0.65;
@@ -433,7 +433,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
     const [openFolder, setOpenFolder] = useState<GridItemType | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<GridItemType | null>(null);
     const [hoverTargetId, setHoverTargetId] = useState<string | null>(null);
-    const { width, mounted, containerRef } = useContainerWidth({ initialWidth: 1440 });
+    const { width, containerRef } = useContainerWidth({ initialWidth: 1440 });
     const isInteractingRef = useRef(false);
     const suppressClickUntilRef = useRef(0);
     const dragStartLayoutRef = useRef<Layout | null>(null);
@@ -818,49 +818,47 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
                     paddingBottom: `calc(${BOTTOM_FADE_HEIGHT_REM}rem + ${SCROLL_BOTTOM_SAFE_GAP_REM}rem)`,
                 }}
             >
-                {mounted && (
-                    <GridLayout
-                        key={`launcher-grid-${layoutRevision}`}
-                        width={width}
-                        layout={layout}
-                        gridConfig={{
-                            cols: totalCols,
-                            rowHeight,
-                            margin: GRID_GAP,
-                            containerPadding: GRID_CONTAINER_PADDING,
-                            maxRows: Infinity,
-                        }}
-                        compactor={noCompactor}
-                        dragConfig={{
-                            enabled: true,
-                            cancel: "button,input,textarea,a,[data-no-grid-drag='true']",
-                            threshold: 8,
-                        }}
-                        resizeConfig={{
-                            enabled: isEditing,
-                            handles: ["se"],
-                        }}
-                        autoSize
-                        onDragStart={handleGridInteractionStart}
-                        onDrag={handleDrag}
-                        onDragStop={handleDragStop}
-                        onResizeStart={handleGridInteractionStart}
-                        onResizeStop={handleResizeStop}
-                    >
-                        {items.map((item) => (
-                            <div key={item.id}>
-                                <LauncherGridItemSurface
-                                    item={item}
-                                    isEditing={isEditing}
-                                    isHoverTarget={hoverTargetId === item.id}
-                                    onClick={handleItemClick}
-                                    onEdit={handleEditClick}
-                                    onDeletePrompt={handleDeletePrompt}
-                                />
-                            </div>
-                        ))}
-                    </GridLayout>
-                )}
+                <GridLayout
+                    key={`launcher-grid-${layoutRevision}`}
+                    width={width}
+                    layout={layout}
+                    gridConfig={{
+                        cols: totalCols,
+                        rowHeight,
+                        margin: GRID_GAP,
+                        containerPadding: GRID_CONTAINER_PADDING,
+                        maxRows: Infinity,
+                    }}
+                    compactor={noCompactor}
+                    dragConfig={{
+                        enabled: true,
+                        cancel: "button,input,textarea,a,[data-no-grid-drag='true']",
+                        threshold: 8,
+                    }}
+                    resizeConfig={{
+                        enabled: isEditing,
+                        handles: ["se"],
+                    }}
+                    autoSize
+                    onDragStart={handleGridInteractionStart}
+                    onDrag={handleDrag}
+                    onDragStop={handleDragStop}
+                    onResizeStart={handleGridInteractionStart}
+                    onResizeStop={handleResizeStop}
+                >
+                    {items.map((item) => (
+                        <div key={item.id}>
+                            <LauncherGridItemSurface
+                                item={item}
+                                isEditing={isEditing}
+                                isHoverTarget={hoverTargetId === item.id}
+                                onClick={handleItemClick}
+                                onEdit={handleEditClick}
+                                onDeletePrompt={handleDeletePrompt}
+                            />
+                        </div>
+                    ))}
+                </GridLayout>
 
                 <ShortcutDialog
                     open={isEditDialogOpen}
@@ -922,7 +920,7 @@ export function AppGrid({ topInsetPx = 32 }: AppGridProps) {
             <GradualBlur
                 target="parent"
                 position="top"
-                height="6rem"
+                height="4.5rem"
                 strength={2}
                 divCount={5}
                 curve="bezier"

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { useSettingsStore } from "@/apps/settings";
 import { useThemePreferenceStore } from "@/config";
 import {
@@ -11,13 +11,12 @@ import {
     resolveTextSurfaceToneForImage,
     resolveTextSurfaceToneSync,
 } from "@/core/textSurface";
-
-const ColorBends = lazy(() => import("@/platform/ui/effects/ColorBends"));
-const LightPillar = lazy(() => import("@/platform/ui/effects/LightPillar"));
-const Silk = lazy(() => import("@/platform/ui/effects/Silk"));
-const FloatingLines = lazy(() => import("@/platform/ui/effects/FloatingLines"));
-const Aurora = lazy(() => import("@/platform/ui/effects/Aurora"));
-const Particles = lazy(() => import("@/platform/ui/effects/Particles"));
+import ColorBends from "@/platform/ui/effects/ColorBends";
+import LightPillar from "@/platform/ui/effects/LightPillar";
+import Silk from "@/platform/ui/effects/Silk";
+import FloatingLines from "@/platform/ui/effects/FloatingLines";
+import Aurora from "@/platform/ui/effects/Aurora";
+import Particles from "@/platform/ui/effects/Particles";
 
 export function BackgroundLayer() {
     const theme = useThemePreferenceStore((state) => state.theme);
@@ -214,9 +213,7 @@ export function BackgroundLayer() {
             className="absolute inset-0 z-0 transition-all duration-500 ease-in-out"
             style={getBackgroundStyle()}
         >
-            <Suspense fallback={null}>
-                {renderThemeBackground()}
-            </Suspense>
+            {renderThemeBackground()}
 
             {/* Overlay mask for dimming effect */}
             {backgroundConfig.overlay != null && backgroundConfig.overlay > 0 && (

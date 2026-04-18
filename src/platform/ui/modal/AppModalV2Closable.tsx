@@ -18,7 +18,7 @@ export function AppModalV2Closable({
 }: AppModalV2ClosableProps) {
     const combinedFloatLayer = (
         <>
-            <div className="absolute left-3 top-3 z-10 sm:left-4 sm:top-4">
+            <div className="absolute left-3 top-3 z-10 pointer-events-auto sm:left-4 sm:top-4">
                 <AppModalV2CloseButton
                     className={closeButtonClassName}
                     label={closeButtonLabel}

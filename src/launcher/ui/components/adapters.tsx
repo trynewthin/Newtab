@@ -228,7 +228,7 @@ export function useFolderIconDescriptor(item: FolderItemType): {
     const iconDescriptor: AppTileIconDescriptor = {
         title: item.title,
         // Folder 1x1 uses custom content, not a single icon
-        iconClassName: "!bg-transparent !shadow-[0_10px_24px_rgba(8,24,48,0.24)] hover:!shadow-[0_14px_30px_rgba(8,24,48,0.32)]",
+        iconClassName: "!bg-transparent !shadow-none hover:!shadow-none",
         customContent,
     };
 

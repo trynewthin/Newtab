@@ -20,24 +20,11 @@ import {
     rectSortingStrategy,
     useSortable,
 } from "@dnd-kit/sortable";
-import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/shared/utils";
 import { ShortcutDialog } from "@/launcher/ui/dialogs/ShortcutDialog";
 import AppSurface from "@/platform/ui/surface/AppSurface";
 import { OVERLAY_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
-
-// Global tracker for the last mouse down position (same as in Modal.tsx)
-let lastClickPos = {
-    x: typeof window !== "undefined" ? window.innerWidth / 2 : 0,
-    y: typeof window !== "undefined" ? window.innerHeight / 2 : 0
-};
-
-if (typeof window !== "undefined") {
-    window.addEventListener("mousedown", (e) => {
-        lastClickPos = { x: e.clientX, y: e.clientY };
-    }, { capture: true, passive: true });
-}
 
 // Helper to check if item is folder
 function isFolder(item: GridItemType): item is FolderItem {
@@ -97,10 +84,8 @@ function EmptySlot({ id }: { id: string }) {
 export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProps) {
     const { items, setItems } = useItemStore();
     const [activeTag, setActiveTag] = useState<GridItemType | null>(null);
-    const [entered, setEntered] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [titleDraft, setTitleDraft] = useState(folder.title);
-    const [transformOrigin, setTransformOrigin] = useState<string>("center");
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<WebTagItem | null>(null);
 
@@ -124,35 +109,6 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
         containerRef.current = element;
         setDroppableRef(element);
     };
-
-    // Calculate Transform Origin derived from mouse click position
-    // Use useLayoutEffect to ensure it's calculated before the first mount update
-    useLayoutEffect(() => {
-        const innerWidth = window.innerWidth;
-        const innerHeight = window.innerHeight;
-
-        const containerW = 340;
-        const containerH = 340;
-
-        // Accurate viewport-to-container coordinate mapping
-        const modalX = (innerWidth - containerW) / 2;
-        const totalHeight = 40 /* title approx */ + 32 /* pb-8 */ + containerH;
-        const startY = (innerHeight - totalHeight) / 2 + 32 + 40;
-
-        const originX = ((lastClickPos.x - modalX) / containerW) * 100;
-        const originY = ((lastClickPos.y - startY) / containerH) * 100;
-
-        setTransformOrigin(`${originX}% ${originY}%`);
-
-        // Force a paint frame before triggering the transition
-        const timer = requestAnimationFrame(() => {
-            const nextTimer = requestAnimationFrame(() => {
-                setEntered(true);
-            });
-            return () => cancelAnimationFrame(nextTimer);
-        });
-        return () => cancelAnimationFrame(timer);
-    }, []);
 
     const currentFolder = items.find(t => t.id === folder.id);
     const currentTitle = currentFolder?.title ?? folder.title;
@@ -372,28 +328,20 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
 
     const handleClose = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setEntered(false);
-        setTimeout(onClose, 300); // Consistent with transition-duration
+        onClose();
     };
 
     const previewLayer = (
         <div className="fixed inset-0" style={{ zIndex: OVERLAY_LAYER_Z_INDEX.backdrop }}>
             <div
                 style={{ zIndex: 0 }}
-                className={cn(
-                    "absolute inset-0 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/24 backdrop-blur-[2px] duration-300 transition-opacity",
-                    entered ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                )}
+                className="absolute inset-0 bg-black/24 backdrop-blur-[2px] pointer-events-auto"
                 onClick={handleClose}
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ zIndex: 10 }}>
-                {/* Title Animation Wrapper */}
                 <div
-                    className={cn(
-                        "pointer-events-auto text-2xl font-medium text-white drop-shadow-md tracking-wide text-center pb-8 transition-all duration-300 ease-out",
-                        entered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
-                    )}
+                    className="pointer-events-auto pb-8 text-center text-2xl font-medium tracking-wide text-white drop-shadow-md"
                     onClick={(e) => {
                         e.stopPropagation();
                         setIsEditingTitle(true);
@@ -420,14 +368,9 @@ export function FolderPreview({ folder, onClose, onClickTag }: FolderPreviewProp
                     )}
                 </div>
 
-                {/* Main Content Animation Wrapper */}
                 <div
                     ref={setRefs}
-                    style={{ transformOrigin } as React.CSSProperties}
-                    className={cn(
-                        "pointer-events-auto relative transition-all duration-300 ease-in-out w-[340px] h-[340px] shadow-2xl",
-                        entered ? "opacity-100 scale-100" : "opacity-0 scale-50"
-                    )}
+                    className="pointer-events-auto relative h-[340px] w-[340px]"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <AppSurface variant="folder-preview" className="h-full w-full p-0">

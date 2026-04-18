@@ -205,8 +205,8 @@ export function FolderWidget({
                     }}
                     className={cn(
                         "relative flex h-full w-full items-center justify-center overflow-hidden rounded-[24px]",
-                        "cursor-pointer shadow-lg transition-all duration-200 hover:shadow-xl",
-                        isOverlay && "cursor-grabbing shadow-2xl",
+                        "cursor-pointer transition-all duration-200",
+                        isOverlay && "cursor-grabbing",
                         ITEM_INTERACTION_ANIMATION_CLASS
                     )}
                 >

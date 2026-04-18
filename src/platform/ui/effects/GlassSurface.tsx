@@ -283,7 +283,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
     if (!containerRef.current) return;
 
     const resizeObserver = new ResizeObserver(() => {
-      setTimeout(updateDisplacementMap, 0);
+      updateDisplacementMap();
     });
 
     resizeObserver.observe(containerRef.current);
@@ -294,7 +294,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   }, [updateDisplacementMap]);
 
   useEffect(() => {
-    setTimeout(updateDisplacementMap, 0);
+    updateDisplacementMap();
   }, [updateDisplacementMap, width, height]);
 
   const supportsBackdropFilter = () => {

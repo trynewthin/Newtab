@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
+import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useSearchPreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
@@ -7,9 +8,10 @@ import AppSurface from "@/platform/ui/surface/AppSurface";
 
 interface SearchBarProps {
     initialQuery?: string;
+    animateContent?: boolean;
 }
 
-export function SearchBar({ initialQuery = "" }: SearchBarProps) {
+export function SearchBar({ initialQuery = "", animateContent = false }: SearchBarProps) {
     const [query, setQuery] = useState(initialQuery);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeIndex, setActiveIndex] = useState(-1);
@@ -128,6 +130,100 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
         }
     };
 
+    const content = (
+        <div className="flex h-full items-center gap-2 rounded-full px-3 transition-all duration-300">
+            <div className="relative shrink-0">
+                <button
+                    type="button"
+                    onClick={() =>
+                        setEngineMenuOpen((prev) => {
+                            const next = !prev;
+                            if (next) {
+                                setShowSuggestions(false);
+                            }
+                            return next;
+                        })
+                    }
+                    className="btn-no-style flex h-8 w-8 items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform"
+                >
+                    <img
+                        src={currentEngine.icon}
+                        alt=""
+                        className="h-full w-full rounded-full object-contain"
+                    />
+                </button>
+                {engineMenuOpen ? (
+                    <div className="absolute left-[-6px] top-[calc(100%+16px)] z-50 w-60 overflow-hidden rounded-2xl shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+                        <div className="absolute inset-0 pointer-events-none">
+                            <AppSurface
+                                variant="widget"
+                                hideSurfaceBorder={false}
+                                style={{ outline: "none", boxShadow: "none" }}
+                                className="h-full w-full"
+                            />
+                        </div>
+                        <div className="relative z-10 p-2">
+                            <div className="max-h-[400px] space-y-1 overflow-y-auto custom-scrollbar">
+                                {searchEngines.map((engine) => (
+                                    <button
+                                        key={engine.value}
+                                        type="button"
+                                        onClick={() => {
+                                            setSearchEngine(engine.value);
+                                            setEngineMenuOpen(false);
+                                        }}
+                                        className={cn(
+                                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
+                                            engine.value === searchEngine
+                                                ? "bg-foreground/16 text-foreground font-semibold"
+                                                : "text-foreground hover:bg-foreground/12"
+                                        )}
+                                    >
+                                        <div className="flex h-5 w-5 items-center justify-center shrink-0">
+                                            <img src={engine.icon} alt="" className="h-4.5 w-4.5 rounded-sm object-contain" />
+                                        </div>
+                                        <span className="text-sm font-medium">{engine.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
+            </div>
+
+            <div className="flex h-full flex-1 items-center">
+                <Input
+                    type="text"
+                    autoFocus
+                    value={query}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        setActiveIndex(-1);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => {
+                        setEngineMenuOpen(false);
+                        if (query.trim()) {
+                            setShowSuggestions(true);
+                        }
+                    }}
+                    placeholder="Search"
+                    className="text-surface-input h-full w-full rounded-none border-0 px-0 py-0 text-base font-medium shadow-none ring-0 focus-visible:ring-0 md:text-lg"
+                />
+            </div>
+
+            <div className="flex items-center gap-1">
+                <button
+                    type="submit"
+                    className="flex h-8 w-8 items-center justify-center text-[var(--text-surface-foreground)] transition-all hover:opacity-80 active:scale-90"
+                    title="Search"
+                >
+                    <Search size={18} strokeWidth={2.5} />
+                </button>
+            </div>
+        </div>
+    );
+
     return (
         <div className="modal-minimal-scope relative w-full group" ref={containerRef}>
             <form onSubmit={handleSearch} className="relative z-30">
@@ -140,97 +236,20 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                         />
                     </div>
 
-                    <div className="relative z-10 flex h-full items-center gap-2 rounded-full px-3 transition-all duration-300">
-                        <div className="relative shrink-0">
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setEngineMenuOpen((prev) => {
-                                        const next = !prev;
-                                        if (next) {
-                                            setShowSuggestions(false);
-                                        }
-                                        return next;
-                                    })
-                                }
-                                className="btn-no-style flex h-8 w-8 items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform"
-                            >
-                                <img
-                                    src={currentEngine.icon}
-                                    alt=""
-                                    className="h-full w-full rounded-full object-contain"
-                                />
-                            </button>
-                            {engineMenuOpen ? (
-                                <div className="absolute left-[-6px] top-[calc(100%+16px)] z-50 w-60 overflow-hidden rounded-2xl shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
-                                    <div className="absolute inset-0 pointer-events-none">
-                                        <AppSurface
-                                            variant="widget"
-                                            hideSurfaceBorder={false}
-                                            style={{ outline: "none", boxShadow: "none" }}
-                                            className="h-full w-full"
-                                        />
-                                    </div>
-                                    <div className="relative z-10 p-2">
-                                        <div className="max-h-[400px] space-y-1 overflow-y-auto custom-scrollbar">
-                                            {searchEngines.map((engine) => (
-                                                <button
-                                                    key={engine.value}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSearchEngine(engine.value);
-                                                        setEngineMenuOpen(false);
-                                                    }}
-                                                    className={cn(
-                                                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 border-0 shadow-none outline-none",
-                                                        engine.value === searchEngine
-                                                            ? "bg-foreground/16 text-foreground font-semibold"
-                                                            : "text-foreground hover:bg-foreground/12"
-                                                    )}
-                                                >
-                                                    <div className="flex h-5 w-5 items-center justify-center shrink-0">
-                                                        <img src={engine.icon} alt="" className="h-4.5 w-4.5 rounded-sm object-contain" />
-                                                    </div>
-                                                    <span className="text-sm font-medium">{engine.name}</span>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : null}
+                    {animateContent ? (
+                        <motion.div
+                            className="relative z-10 h-full"
+                            initial={{ y: 32, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ type: "spring", stiffness: 320, damping: 30 }}
+                        >
+                            {content}
+                        </motion.div>
+                    ) : (
+                        <div className="relative z-10 h-full">
+                            {content}
                         </div>
-
-                        <div className="flex h-full flex-1 items-center">
-                            <Input
-                                type="text"
-                                autoFocus
-                                value={query}
-                                onChange={(event) => {
-                                    setQuery(event.target.value);
-                                    setActiveIndex(-1);
-                                }}
-                                onKeyDown={handleKeyDown}
-                                onFocus={() => {
-                                    setEngineMenuOpen(false);
-                                    if (query.trim()) {
-                                        setShowSuggestions(true);
-                                    }
-                                }}
-                                placeholder="Search"
-                                className="text-surface-input h-full w-full rounded-none border-0 px-0 py-0 text-base font-medium shadow-none ring-0 focus-visible:ring-0 md:text-lg"
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                            <button
-                                type="submit"
-                                className="flex h-8 w-8 items-center justify-center text-[var(--text-surface-foreground)] transition-all hover:opacity-80 active:scale-90"
-                                title="Search"
-                            >
-                                <Search size={18} strokeWidth={2.5} />
-                            </button>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </form>
 

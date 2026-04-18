@@ -54,11 +54,18 @@ function ContextMenuContent({
       >
         <ContextMenuPrimitive.Popup
           data-slot="context-menu-content"
-          className={cn("modal-minimal-scope relative data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 min-w-32 rounded-xl overflow-hidden shadow-lg duration-100 data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2 z-50 max-h-(--available-height) origin-(--transform-origin) outline-none", className )}
+          className={cn("modal-minimal-scope relative min-w-32 rounded-2xl overflow-hidden z-50 max-h-(--available-height) origin-(--transform-origin) outline-none", className )}
           {...props}
         >
-          <div className="absolute inset-0 z-0 rounded-xl overflow-hidden">
-            <AppSurface variant="toolbar" width="100%" height="100%" borderRadius={12} />
+          <div className="absolute inset-0 z-0">
+            <AppSurface
+              variant="widget"
+              hideSurfaceBorder={false}
+              width="100%"
+              height="100%"
+              style={{ outline: "none", boxShadow: "none" }}
+              className="h-full w-full"
+            />
           </div>
           <div className="relative z-10 p-1 overflow-x-hidden overflow-y-auto max-h-(--available-height)">
             {props.children}
@@ -151,7 +158,6 @@ function ContextMenuSubContent({
   return (
     <ContextMenuContent
       data-slot="context-menu-sub-content"
-      className="shadow-lg"
       side="right"
       {...props}
     />

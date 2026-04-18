@@ -1,5 +1,4 @@
 ﻿import { SearchBar } from "@/apps/search/components/SearchBar";
-import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 
@@ -11,15 +10,9 @@ export function FloatLayer() {
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: NEWTAB_LAYER_Z_INDEX.floating }}>
             {isDashboard && (
                 <div className="mx-auto w-full max-w-2xl px-4 pt-24 pointer-events-none">
-                    <motion.div
-                        className="pointer-events-auto"
-                        initial={{ y: 200, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -50, opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    >
-                        <SearchBar />
-                    </motion.div>
+                    <div className="pointer-events-auto">
+                        <SearchBar animateContent />
+                    </div>
                 </div>
             )}
         </div>

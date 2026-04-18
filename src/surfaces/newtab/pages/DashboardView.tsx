@@ -5,7 +5,7 @@ import { cn } from "@/shared/utils";
 import { useUIStore } from "@/launcher/store";
 import { warmupModalRuntimes } from "@/launcher/runtime";
 import { LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
-import { useSettingsStore } from "@/apps/settings";
+import { useOnboardingStateStore } from "@/config";
 
 const HomeTools = lazy(() =>
     import("@/launcher/ui/dialogs/HomeTools").then((m) => ({ default: m.HomeTools }))
@@ -24,8 +24,8 @@ export function DashboardView() {
     const [isNearTop, setIsNearTop] = useState(false);
     const [isToolbarHovered, setIsToolbarHovered] = useState(false);
 
-    const isFirstRun = useSettingsStore((state) => state.isFirstRun);
-    const showOnboarding = isFirstRun;
+    const hasCompletedOnboarding = useOnboardingStateStore((state) => state.hasCompletedOnboarding);
+    const showOnboarding = !hasCompletedOnboarding;
     const isModalVisible = useUIStore((state) => state.activeSystemDialog !== null);
     const isFolderPreviewVisible = useUIStore((state) => state.isFolderPreviewVisible);
 

@@ -10,7 +10,6 @@ import type { SettingsStateData } from "./store.types";
 
 export function createDefaultSettingsState(): SettingsStateData {
     return {
-        theme: "light",
         primaryColor: "hsl(217 91% 60%)",
         textSurfaceFontPreset: "sans",
         surfaceMaterial: "mac-frosted",
@@ -25,8 +24,5 @@ export function createDefaultSettingsState(): SettingsStateData {
             "hsl(224 71% 4%)",
             "hsl(0 0% 5%)",
         ],
-        isFirstRun: true,
-        searchEngine: "google",
-        customSearchEngines: [],
     };
 }

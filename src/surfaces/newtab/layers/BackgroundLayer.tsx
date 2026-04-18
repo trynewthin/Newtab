@@ -1,5 +1,6 @@
-﻿import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useSettingsStore } from "@/apps/settings";
+import { useThemePreferenceStore } from "@/config";
 import {
     DEFAULT_DYNAMIC_BACKGROUND_CONFIG,
     isDynamicBackgroundId,
@@ -20,11 +21,11 @@ const Particles = lazy(() => import("@/platform/ui/effects/Particles"));
 const PrismaticBurst = lazy(() => import("@/platform/ui/effects/PrismaticBurst"));
 
 export function BackgroundLayer() {
+    const theme = useThemePreferenceStore((state) => state.theme);
     const {
         backgroundConfig,
         primaryColor,
         dynamicBackgroundConfig,
-        theme,
         textSurfaceFontPreset,
     } = useSettingsStore();
     const backgroundThemes = dynamicBackgroundConfig;
@@ -32,10 +33,10 @@ export function BackgroundLayer() {
     // Apply global primary color
     useEffect(() => {
         if (primaryColor) {
-            document.documentElement.style.setProperty('--primary', primaryColor);
+            document.documentElement.style.setProperty("--primary", primaryColor);
 
-            // Also update ring color to match primary with lower opacity if needed, 
-            // or let it derive if defined differently. 
+            // Also update ring color to match primary with lower opacity if needed,
+            // or let it derive if defined differently.
             // For now, simple primary override.
         }
     }, [primaryColor]);
@@ -73,30 +74,30 @@ export function BackgroundLayer() {
         const { type, value, blur } = backgroundConfig;
         const baseStyle: React.CSSProperties = {};
 
-        if (type === 'solid') {
+        if (type === "solid") {
             baseStyle.backgroundColor = value;
-        } else if (type === 'gradient') {
+        } else if (type === "gradient") {
             baseStyle.backgroundImage = value;
-        } else if (type === 'image') {
+        } else if (type === "image") {
             baseStyle.backgroundImage = `url(${value})`;
-            baseStyle.backgroundSize = 'cover';
-            baseStyle.backgroundPosition = 'center';
-            baseStyle.backgroundRepeat = 'no-repeat';
+            baseStyle.backgroundSize = "cover";
+            baseStyle.backgroundPosition = "center";
+            baseStyle.backgroundRepeat = "no-repeat";
 
             // Apply blur if specified
             if (blur && blur > 0) {
                 baseStyle.filter = `blur(${blur}px)`;
                 // Scale up slightly to hide blur edges
-                baseStyle.transform = 'scale(1.1)';
+                baseStyle.transform = "scale(1.1)";
             }
-        } else if (type === 'theme') {
+        } else if (type === "theme") {
             baseStyle.backgroundImage = "radial-gradient(120% 120% at 50% 0%, #0b1220 0%, #050b1a 55%, #030712 100%)";
         }
 
         return baseStyle;
     };
 
-    const activeTheme = backgroundConfig.type === 'theme' && isDynamicBackgroundId(backgroundConfig.value)
+    const activeTheme = backgroundConfig.type === "theme" && isDynamicBackgroundId(backgroundConfig.value)
         ? backgroundConfig.value
         : null;
 
@@ -250,4 +251,3 @@ export function BackgroundLayer() {
         </div>
     );
 }
-

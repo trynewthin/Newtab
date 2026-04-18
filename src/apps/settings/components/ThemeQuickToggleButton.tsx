@@ -1,12 +1,12 @@
 import { Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useSettingsStore } from "@/apps/settings";
+import { useThemePreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
 
 export function ThemeQuickToggleButton() {
     const { t } = useTranslation();
-    const theme = useSettingsStore((state) => state.theme);
-    const setTheme = useSettingsStore((state) => state.setTheme);
+    const theme = useThemePreferenceStore((state) => state.theme);
+    const setTheme = useThemePreferenceStore((state) => state.setTheme);
     const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
     return (

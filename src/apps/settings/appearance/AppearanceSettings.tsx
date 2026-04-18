@@ -1,12 +1,12 @@
-import { useEffect, type ComponentType } from "react";
+import { type ComponentType } from "react";
 import { useTranslation } from "react-i18next";
+import { useThemePreferenceStore } from "@/config";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
 import { ChevronRight, Image, Settings as SettingsIcon, Sparkles } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { SettingsItem, SettingsSection } from "@/apps/settings/components/SettingComponents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSettingsStore } from "@/apps/settings/store";
 
 export type ThemeSettingsSubPage = "home" | "background" | "material";
 
@@ -50,18 +50,8 @@ interface AppearanceSettingsProps {
 
 export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSettingsProps) {
     const { t } = useTranslation();
-    const { theme, setTheme } = useSettingsStore();
-
-    useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark");
-        if (theme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-            root.classList.add(systemTheme);
-        } else {
-            root.classList.add(theme);
-        }
-    }, [theme]);
+    const theme = useThemePreferenceStore((state) => state.theme);
+    const setTheme = useThemePreferenceStore((state) => state.setTheme);
 
     const themeOptions = {
         light: t("light"),

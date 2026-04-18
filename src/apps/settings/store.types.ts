@@ -10,17 +10,7 @@ import type {
 } from "@/core/dynamicBackgrounds";
 import type { TextSurfaceFontPreset } from "@/core/textSurface";
 
-export type ThemeMode = "light" | "dark" | "system";
-
-export interface CustomSearchEngine {
-    name: string;
-    value: string;
-    url: string;
-    icon?: string;
-}
-
 export interface SettingsStateData {
-    theme: ThemeMode;
     primaryColor: string;
     textSurfaceFontPreset: TextSurfaceFontPreset;
     surfaceMaterial: AppSurfaceMaterial;
@@ -29,13 +19,9 @@ export interface SettingsStateData {
     backgroundConfig: BackgroundConfig;
     dynamicBackgroundConfig: DynamicBackgroundConfigMap;
     solidColors: string[];
-    isFirstRun: boolean;
-    searchEngine: string;
-    customSearchEngines: CustomSearchEngine[];
 }
 
 export interface SettingsStateActions {
-    setTheme: (theme: ThemeMode) => void;
     setPrimaryColor: (color: string) => void;
     setTextSurfaceFontPreset: (preset: TextSurfaceFontPreset) => void;
     setSurfaceMaterial: (material: AppSurfaceMaterial) => void;
@@ -52,14 +38,6 @@ export interface SettingsStateActions {
     resetDynamicBackgroundConfig: (backgroundId: DynamicBackgroundId) => void;
     addSolidColor: (color: string) => void;
     removeSolidColor: (color: string) => void;
-    setFirstRun: (status: boolean) => void;
-    setSearchEngine: (engine: string) => void;
-    addCustomSearchEngine: (engine: CustomSearchEngine) => void;
-    removeCustomSearchEngine: (value: string) => void;
-    updateCustomSearchEngine: (
-        value: string,
-        engine: Partial<Pick<CustomSearchEngine, "name" | "url" | "icon">>
-    ) => void;
 }
 
 export type SettingsState = SettingsStateData & SettingsStateActions;

@@ -216,16 +216,6 @@ export function AppModalV2Sidebar({
                     >
                     <AppModalV2CloseButton label={closeButtonLabel} />
                     </div>
-                    <div
-                        className={cn(
-                            "absolute left-[2.75rem] top-0 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                            sidebarCollapsed
-                                ? "pointer-events-none -translate-x-2 opacity-0"
-                                : "translate-x-0 opacity-100"
-                        )}
-                    >
-                        {sidebarToolbarAccessory}
-                    </div>
                     <button
                         type="button"
                         aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -237,13 +227,18 @@ export function AppModalV2Sidebar({
                             "active:scale-[0.98]",
                             sidebarCollapsed
                                 ? "left-1/2 -translate-x-1/2"
-                                : "left-[5.5rem] translate-x-0"
+                                : "left-11 translate-x-0"
                         )}
                     >
                         {sidebarCollapsed
                             ? <PanelLeftOpen size={16} strokeWidth={2.5} />
                             : <PanelLeftClose size={16} strokeWidth={2.5} />}
                     </button>
+                    {sidebarToolbarAccessory && !sidebarCollapsed ? (
+                        <div className="absolute left-11 top-0 translate-x-11">
+                            {sidebarToolbarAccessory}
+                        </div>
+                    ) : null}
                 </div>
             </div>
 

@@ -1,9 +1,9 @@
-﻿import { useUIStore } from "@/launcher/store/ui.store";
+import { useUIStore } from "@/launcher/store/ui.store";
 import { useItemStore } from "@/launcher/store/item";
 import { Edit2, FolderPlus, Trash2, LayoutGrid, Sun, Moon, Store } from "lucide-react";
+import { toggleThemePreference, useThemePreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
 import { useState } from "react";
-import { useSettingsStore } from "@/apps/settings";
 import { useTranslation } from "react-i18next";
 import AppSurface from "@/platform/ui/surface/AppSurface";
 import {
@@ -21,19 +21,14 @@ export function HomeTools() {
     const { t } = useTranslation();
     const { isEditing, toggleEditing, selectedTagIds, clearSelection, setActiveSystemDialog } = useUIStore();
     const { batchGroupItems, batchRemoveItems, organizeItems } = useItemStore();
-    const theme = useSettingsStore((s) => s.theme);
-    const setTheme = useSettingsStore((s) => s.setTheme);
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-    const handleToggleTheme = () => {
-        setTheme(isDark ? 'light' : 'dark');
-    };
+    const theme = useThemePreferenceStore((s) => s.theme);
+    const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const handleBatchGroup = () => {
         if (selectedTagIds.length <= 1) return;
 
-        batchGroupItems(selectedTagIds, t('new_folder'));
+        batchGroupItems(selectedTagIds, t("new_folder"));
         clearSelection();
         toggleEditing();
     };
@@ -63,11 +58,11 @@ export function HomeTools() {
                             <button
                                 onClick={handleBatchGroup}
                                 className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl transition-all shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95"
-                                title={t('group_selected')}
+                                title={t("group_selected")}
                             >
                                 <FolderPlus size={16} strokeWidth={2.5} />
                                 <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">
-                                    {t('group_button', { count: selectedTagIds.length })}
+                                    {t("group_button", { count: selectedTagIds.length })}
                                 </span>
                             </button>
                         )}
@@ -75,11 +70,11 @@ export function HomeTools() {
                         <button
                             onClick={() => setIsDeleteDialogOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-xl transition-all shadow-xl shadow-destructive/20 hover:brightness-110 active:scale-95"
-                            title={t('delete_selected')}
+                            title={t("delete_selected")}
                         >
                             <Trash2 size={16} strokeWidth={2.5} />
                             <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">
-                                {t('delete_button', { count: selectedTagIds.length })}
+                                {t("delete_button", { count: selectedTagIds.length })}
                             </span>
                         </button>
 
@@ -95,7 +90,7 @@ export function HomeTools() {
                             ? "bg-primary text-white border-primary shadow-xl shadow-primary/20"
                             : neutralToolButtonClass
                     )}
-                    title={isEditing ? t('exit_edit_mode') : t('enter_edit_mode')}
+                    title={isEditing ? t("exit_edit_mode") : t("enter_edit_mode")}
                 >
                     <Edit2 size={18} className="text-current" />
                 </button>
@@ -103,23 +98,23 @@ export function HomeTools() {
                 <button
                     onClick={handleOrganize}
                     className={neutralToolButtonClass}
-                    title={t('organize_icons')}
+                    title={t("organize_icons")}
                 >
                     <LayoutGrid size={18} className="text-current" />
                 </button>
 
                 <button
-                    onClick={handleToggleTheme}
+                    onClick={toggleThemePreference}
                     className={neutralToolButtonClass}
-                    title={isDark ? t('switch_to_light') : t('switch_to_dark')}
+                    title={isDark ? t("switch_to_light") : t("switch_to_dark")}
                 >
                     {isDark ? <Sun size={18} className="text-current" /> : <Moon size={18} className="text-current" />}
                 </button>
 
                 <button
-                    onClick={() => setActiveSystemDialog('component-market')}
+                    onClick={() => setActiveSystemDialog("component-market")}
                     className={neutralToolButtonClass}
-                    title={t('app_market')}
+                    title={t("app_market")}
                 >
                     <Store size={18} className="text-current" />
                 </button>
@@ -128,18 +123,18 @@ export function HomeTools() {
                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                     <AlertDialogContent className="glass-card border-none rounded-3xl">
                         <AlertDialogHeader>
-                            <AlertDialogTitle>{t('delete_multiple_title')}</AlertDialogTitle>
+                            <AlertDialogTitle>{t("delete_multiple_title")}</AlertDialogTitle>
                             <AlertDialogDescription>
-                                {t('delete_multiple_desc', { count: selectedTagIds.length })}
+                                {t("delete_multiple_desc", { count: selectedTagIds.length })}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter className="gap-2">
-                            <AlertDialogCancel className="rounded-xl border-none bg-secondary hover:bg-secondary/80">{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogCancel className="rounded-xl border-none bg-secondary hover:bg-secondary/80">{t("cancel")}</AlertDialogCancel>
                             <AlertDialogAction
                                 onClick={handleBatchDelete}
                                 className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
                             >
-                                {t('delete_all')}
+                                {t("delete_all")}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

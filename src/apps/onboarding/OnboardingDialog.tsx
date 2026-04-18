@@ -2,6 +2,11 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppModalV2 } from "@/platform/ui/modal";
 import { useSettingsStore } from "@/apps/settings";
+import {
+    useLanguagePreferenceStore,
+    useOnboardingStateStore,
+    useThemePreferenceStore,
+} from "@/config";
 import { persistenceManager } from "@/platform/persistence/manager";
 import { cn } from "@/shared/utils";
 import {
@@ -18,19 +23,19 @@ interface OnboardingDialogProps {
 const TOTAL_STEPS = 4;
 
 export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [step, setStep] = useState(0);
 
-    const setFirstRun = useSettingsStore((s) => s.setFirstRun);
     const surfaceMaterial = useSettingsStore((s) => s.surfaceMaterial);
     const setSurfaceMaterial = useSettingsStore((s) => s.setSurfaceMaterial);
-    const theme = useSettingsStore((s) => s.theme);
-    const setTheme = useSettingsStore((s) => s.setTheme);
-
-    const currentLanguage = i18n.language.startsWith("zh") ? "zh" : "en";
+    const currentLanguage = useLanguagePreferenceStore((s) => s.language);
+    const setLanguage = useLanguagePreferenceStore((s) => s.setLanguage);
+    const completeOnboarding = useOnboardingStateStore((s) => s.completeOnboarding);
+    const theme = useThemePreferenceStore((s) => s.theme);
+    const setTheme = useThemePreferenceStore((s) => s.setTheme);
 
     const handleFinish = () => {
-        setFirstRun(false);
+        completeOnboarding();
         onOpenChange(false);
     };
 
@@ -51,16 +56,7 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                     return;
                 }
                 await persistenceManager.importData(file);
-                try {
-                    const raw = localStorage.getItem("app-settings");
-                    if (raw) {
-                        const parsed = JSON.parse(raw);
-                        if (parsed?.state) {
-                            parsed.state.isFirstRun = false;
-                            localStorage.setItem("app-settings", JSON.stringify(parsed));
-                        }
-                    }
-                } catch { /* ignore */ }
+                completeOnboarding();
                 alert(t("restore_success"));
                 window.location.reload();
             } catch {
@@ -114,8 +110,7 @@ export function OnboardingDialog({ open, onOpenChange }: OnboardingDialogProps) 
                         value={currentLanguage}
                         onValueChange={(lang) => {
                             if (lang) {
-                                void i18n.changeLanguage(lang);
-                                localStorage.setItem("i18nextLng", lang);
+                                setLanguage(lang as "zh" | "en");
                             }
                         }}
                     >

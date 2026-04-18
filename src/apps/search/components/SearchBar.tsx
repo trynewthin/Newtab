@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useSettingsStore } from "@/apps/settings";
+import { useSearchPreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
 import { SEARCH_ENGINES } from "@/shared/constants";
 import AppSurface from "@/platform/ui/surface/AppSurface";
@@ -17,9 +17,9 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
     const [engineMenuOpen, setEngineMenuOpen] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
 
-    const searchEngine = useSettingsStore((state) => state.searchEngine);
-    const setSearchEngine = useSettingsStore((state) => state.setSearchEngine);
-    const customSearchEngines = useSettingsStore((state) => state.customSearchEngines);
+    const searchEngine = useSearchPreferenceStore((state) => state.searchEngine);
+    const setSearchEngine = useSearchPreferenceStore((state) => state.setSearchEngine);
+    const customSearchEngines = useSearchPreferenceStore((state) => state.customSearchEngines);
 
     const containerRef = useRef<HTMLDivElement>(null);
 

@@ -1,9 +1,10 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSettingsStore } from "@/apps/settings";
+import { useThemePreferenceStore } from "@/config";
 import type { AppSurfaceTone } from "@/core/surfaceMaterials";
 
 export function useResolvedTone(explicitTone: AppSurfaceTone | undefined): "light" | "dark" {
-    const theme = useSettingsStore((state) => state.theme);
+    const theme = useThemePreferenceStore((state) => state.theme);
     const globalSurfaceTone = useSettingsStore((state) => state.surfaceTone);
     const [systemDark, setSystemDark] = useState(() => {
         if (typeof window === "undefined") return false;

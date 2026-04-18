@@ -1,10 +1,13 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
+import {
+    normalizeLanguagePreference,
+    readStoredLanguagePreference,
+    type SupportedLanguage,
+} from "@/config";
 
-type SupportedLang = "en" | "zh";
-
-const loadedLanguages = new Set<SupportedLang>();
+const loadedLanguages = new Set<SupportedLanguage>();
 
 const languageLoaders = {
     en: () => Promise.all([
@@ -21,12 +24,7 @@ const languageLoaders = {
     ]),
 } as const;
 
-const normalizeLanguage = (lang?: string | null): SupportedLang => {
-    if (!lang) return "zh";
-    return lang.toLowerCase().startsWith("zh") ? "zh" : "en";
-};
-
-async function loadLanguageResources(lang: SupportedLang) {
+async function loadLanguageResources(lang: SupportedLanguage) {
     if (loadedLanguages.has(lang)) return;
 
     const [common, settings, appearance, tools] = await languageLoaders[lang]();
@@ -42,10 +40,7 @@ async function loadLanguageResources(lang: SupportedLang) {
     loadedLanguages.add(lang);
 }
 
-const initialLanguage = normalizeLanguage(
-    (typeof localStorage !== "undefined" ? localStorage.getItem("i18nextLng") : null) ||
-    (typeof navigator !== "undefined" ? navigator.language : "zh")
-);
+const initialLanguage = readStoredLanguagePreference();
 
 i18n
     .use(LanguageDetector)
@@ -66,7 +61,7 @@ i18n
 const rawChangeLanguage = i18n.changeLanguage.bind(i18n);
 
 i18n.changeLanguage = async (lng, callback) => {
-    const normalized = normalizeLanguage(lng ?? i18n.language);
+    const normalized = normalizeLanguagePreference(lng ?? i18n.language);
     await loadLanguageResources(normalized);
     return rawChangeLanguage(normalized, callback);
 };

@@ -1,11 +1,16 @@
-﻿import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useItemStore } from "@/launcher/store";
-import { useSettingsStore } from "@/apps/settings";
+import {
+    applyThemePreferenceToDOM,
+    useLanguagePreferenceStore,
+    useThemePreferenceStore,
+} from "@/config";
 import { Button } from "@/components/ui/button";
 import { TagConfigForm, type TagConfigData } from "@/launcher";
 
 import { type GridItem } from "@/launcher/model/itemTypes";
 import { useTranslation } from "react-i18next";
+import { applyLanguagePreferenceToI18n } from "@/platform/i18n";
 import { useStorageConnection } from "@/platform/persistence/sync";
 import "@/platform/i18n/i18n";
 
@@ -28,15 +33,12 @@ export default function Popup() {
     const addItem = useItemStore((state) => state.addItem);
     const updateItem = useItemStore((state) => state.updateItem);
 
-    const theme = useSettingsStore((state) => state.theme);
+    const language = useLanguagePreferenceStore((state) => state.language);
+    const theme = useThemePreferenceStore((state) => state.theme);
 
     // Sync Theme
     useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark");
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        const effectiveTheme = theme === "system" ? systemTheme : theme;
-        root.classList.add(effectiveTheme);
+        applyThemePreferenceToDOM(theme);
 
         // Force Popup Size
         document.documentElement.style.width = "360px";
@@ -44,6 +46,10 @@ export default function Popup() {
         document.body.style.width = "360px";
         document.body.style.minHeight = "auto";
     }, [theme]);
+
+    useEffect(() => {
+        void applyLanguagePreferenceToI18n(language);
+    }, [language]);
 
     // Initialize: Get current tab info
     useEffect(() => {
@@ -75,7 +81,7 @@ export default function Popup() {
             return;
         }
         const found = items.find(t =>
-            t.kind === 'tag' && t.url.replace(/\/$/, "").toLowerCase() === normCurrentUrl
+            t.kind === "tag" && t.url.replace(/\/$/, "").toLowerCase() === normCurrentUrl
         );
         setExistingItem(found || null);
     }, [normCurrentUrl, items]);
@@ -96,7 +102,7 @@ export default function Popup() {
             }, 1200); // 稍微延长一点，让用户看到成功状态
         } catch (err) {
             console.error("Popup submit error:", err);
-            alert(t('save_failed'));
+            alert(t("save_failed"));
         } finally {
             setIsSubmitting(false);
         }
@@ -110,7 +116,7 @@ export default function Popup() {
                 </svg>
             </div>
             <p className="mt-4 text-base font-semibold tracking-tight text-foreground animate-in slide-in-from-bottom-2 duration-300">
-                {existingItem ? t('updated') : t('added')}
+                {existingItem ? t("updated") : t("added")}
             </p>
         </div>
     );
@@ -124,7 +130,7 @@ export default function Popup() {
             icon: iconStr,
         };
 
-        if (existingItem && existingItem.kind === 'tag') {
+        if (existingItem && existingItem.kind === "tag") {
             return {
                 ...base,
                 backgroundColor: existingItem.backgroundColor,
@@ -155,17 +161,16 @@ export default function Popup() {
                             className="w-full h-10 rounded-xl bg-foreground text-background hover:bg-foreground/90 shadow-none font-medium transition-all active:scale-[0.98]"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? t('saving') : (existingItem ? t('update_bookmark') : t('add_bookmark'))}
+                            {isSubmitting ? t("saving") : (existingItem ? t("update_bookmark") : t("add_bookmark"))}
                         </Button>
                     </div>
                 </TagConfigForm>
             ) : (
                 <div className="flex flex-col items-center justify-center h-64 gap-3">
                     <div className="w-7 h-7 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
-                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.14em]">{t('loading')}</span>
+                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.14em]">{t("loading")}</span>
                 </div>
             )}
         </div>
     );
 }
-

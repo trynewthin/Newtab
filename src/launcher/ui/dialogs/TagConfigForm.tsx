@@ -278,6 +278,13 @@ export function TagConfigForm({
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] gap-2">
                             {validIcons.map((src) => {
                                 const active = src === iconStr;
+                                const candidateIcon = resolvePreviewIconV1(
+                                    src,
+                                    isDefaultItemIconValue(src) ? "" : src,
+                                    composedColor,
+                                    1
+                                );
+
                                 return (
                                     <button
                                         key={src}
@@ -288,26 +295,13 @@ export function TagConfigForm({
                                             active ? "bg-primary/10 ring-2 ring-primary/20" : "hover:bg-accent/50 opacity-70 hover:opacity-100"
                                         )}
                                     >
-                                        {isDefaultItemIconValue(src) ? (
-                                            <LauncherIconVisualV1
-                                                icon={{
-                                                    title: "default",
-                                                    kind: "default",
-                                                    scale: 1,
-                                                }}
-                                                className="h-8 w-8 rounded-xl text-muted-foreground/60"
-                                            />
-                                        ) : (
-                                            <LauncherIconVisualV1
-                                                icon={{
-                                                    title: "image",
-                                                    kind: "image",
-                                                    value: src,
-                                                    scale: 1,
-                                                }}
-                                                className="h-8 w-8 rounded-xl"
-                                            />
-                                        )}
+                                        <LauncherIconVisualV1
+                                            icon={candidateIcon}
+                                            className={cn(
+                                                "h-8 w-8 rounded-xl",
+                                                isDefaultItemIconValue(src) && "text-muted-foreground/60"
+                                            )}
+                                        />
                                     </button>
                                 );
                             })}

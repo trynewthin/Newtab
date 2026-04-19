@@ -16,7 +16,7 @@ const FOLDER_LAYOUT_SPECS: Record<FolderIconLayoutV1, FolderIconLayoutSpecV1> = 
         columns: 3,
         maxIcons: 9,
         gap: 8,
-        padding: 8,
+        padding: 10,
         cellRadius: 12,
     },
 };

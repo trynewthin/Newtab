@@ -17,6 +17,14 @@ function resolveTagFallbackIconUrl(item: WebTagItem) {
     return `https://www.google.com/s2/favicons?domain=${item.url}&sz=64`;
 }
 
+function isDataUrl(value: string | undefined) {
+    return typeof value === "string" && value.startsWith("data:");
+}
+
+function getRemoteIconCacheKey(source: string) {
+    return `remote-icon:${encodeURIComponent(source)}`;
+}
+
 export function resolveSystemAppIconSeedV1(
     item: SystemAppItem,
     options?: { translateTitle?: (value: string) => string }
@@ -56,19 +64,22 @@ export function resolveTagIconSeedV1(item: WebTagItem): LauncherIconSeedV1 {
     }
 
     const fallbackImageSrc = resolveTagFallbackIconUrl(item);
-    const directImageSrc = item.iconDataUrl?.startsWith("idb://")
+    const hasIdbRef = item.iconDataUrl?.startsWith("idb://") ?? false;
+    const directImageSrc = hasIdbRef
         ? undefined
         : item.iconDataUrl || (item.icon && !isDefaultItemIconValue(item.icon) ? item.icon : undefined);
+    const remoteImageSrc = directImageSrc ?? (item.icon && !isDefaultItemIconValue(item.icon) ? item.icon : fallbackImageSrc);
+    const imageRef = hasIdbRef
+        ? item.iconDataUrl?.replace("idb://", "")
+        : (remoteImageSrc && !isDataUrl(remoteImageSrc) ? getRemoteIconCacheKey(remoteImageSrc) : undefined);
 
-    if (directImageSrc || item.iconDataUrl?.startsWith("idb://")) {
+    if (directImageSrc || hasIdbRef) {
         return {
             id: item.id,
             kind: "image",
             title: item.title,
-            imageSrc: directImageSrc,
-            imageRef: item.iconDataUrl?.startsWith("idb://")
-                ? item.iconDataUrl.replace("idb://", "")
-                : undefined,
+            imageSrc: directImageSrc ?? remoteImageSrc,
+            imageRef,
             fallbackImageSrc,
             backgroundColor: item.backgroundColor ?? "transparent",
             scale,
@@ -90,6 +101,7 @@ export function resolveTagIconSeedV1(item: WebTagItem): LauncherIconSeedV1 {
         kind: "image",
         title: item.title,
         imageSrc: fallbackImageSrc,
+        imageRef: getRemoteIconCacheKey(fallbackImageSrc),
         fallbackImageSrc,
         backgroundColor: item.backgroundColor ?? "transparent",
         scale,

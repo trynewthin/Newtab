@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { loadImageAsDataUrl } from "@/core/colorExtractor";
 import { backgroundStorage } from "@/platform/storage/backgroundStorage";
+import { isDataURL } from "@/platform/storage/backgroundStorage";
 import type { LauncherIconSeedV1, ResolvedLauncherIconV1 } from "./types";
 
 function resolveSeedValue(
@@ -33,9 +35,9 @@ function resolveSeedValue(
     }
 
     if (seed.kind === "image") {
-        const value = (seed.imageRef ? resolvedRefs[seed.imageRef] : undefined)
-            ?? seed.imageSrc
-            ?? seed.fallbackImageSrc;
+        const value = seed.imageRef
+            ? resolvedRefs[seed.imageRef]
+            : (seed.imageSrc ?? seed.fallbackImageSrc);
 
         if (!value) {
             return {
@@ -72,61 +74,79 @@ function resolveSeedValue(
 export function useResolvedLauncherIconsV1(seeds: LauncherIconSeedV1[]) {
     const [resolvedRefs, setResolvedRefs] = useState<Record<string, string>>({});
 
-    const imageRefKeys = useMemo(
-        () => seeds.flatMap((seed) => (seed.kind === "image" && seed.imageRef ? [seed.imageRef] : [])),
+    const imageRefTargets = useMemo(
+        () => {
+            const targets = new Map<string, string | undefined>();
+
+            for (const seed of seeds) {
+                if (seed.kind !== "image" || !seed.imageRef) {
+                    continue;
+                }
+
+                if (!targets.has(seed.imageRef)) {
+                    targets.set(seed.imageRef, seed.imageSrc ?? seed.fallbackImageSrc);
+                }
+            }
+
+            return Array.from(targets.entries()).map(([key, source]) => ({ key, source }));
+        },
         [seeds]
     );
 
-    const imageRefSignature = useMemo(() => imageRefKeys.join("|"), [imageRefKeys]);
+    const imageRefSignature = useMemo(
+        () => imageRefTargets.map((target) => `${target.key}:${target.source ?? ""}`).join("|"),
+        [imageRefTargets]
+    );
 
     useEffect(() => {
         let cancelled = false;
 
-        if (!imageRefKeys.length) {
+        if (!imageRefTargets.length) {
             return () => {
                 cancelled = true;
             };
         }
 
-        const resolveRefs = async (attempt: 0 | 1) => {
+        const resolveRefs = async () => {
             const next: Record<string, string> = {};
-            let unresolvedCount = 0;
 
             await Promise.all(
-                imageRefKeys.map(async (key) => {
+                imageRefTargets.map(async ({ key, source }) => {
                     try {
                         const data = await backgroundStorage.getIcon(key);
-                        if (!data) {
-                            unresolvedCount += 1;
+                        if (data) {
+                            next[key] = data;
                             return;
                         }
 
-                        next[key] = data;
+                        if (!source || source.startsWith("data:")) {
+                            return;
+                        }
+
+                        const downloadedData = await loadImageAsDataUrl(source).catch(() => null);
+                        if (!downloadedData || !isDataURL(downloadedData)) {
+                            return;
+                        }
+
+                        await backgroundStorage.saveIcon(key, downloadedData).catch(() => undefined);
+                        next[key] = downloadedData;
                     } catch {
-                        unresolvedCount += 1;
+                        return;
                     }
                 })
             );
 
             if (!cancelled) {
                 setResolvedRefs(next);
-
-                if (attempt === 0 && unresolvedCount > 0) {
-                    window.setTimeout(() => {
-                        if (!cancelled) {
-                            void resolveRefs(1);
-                        }
-                    }, 180);
-                }
             }
         };
 
-        void resolveRefs(0);
+        void resolveRefs();
 
         return () => {
             cancelled = true;
         };
-    }, [imageRefKeys, imageRefSignature]);
+    }, [imageRefTargets, imageRefSignature]);
 
     return useMemo(
         () => seeds.map((seed) => resolveSeedValue(seed, resolvedRefs)),

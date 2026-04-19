@@ -31,7 +31,7 @@ export function AppDialogV1Closable({
         >
             <div
                 className={cn(
-                    "z-10 flex items-center justify-between gap-4 bg-background px-5 pb-3 pt-5",
+                    "z-10 flex items-center justify-between gap-4 px-5 pb-3 pt-5",
                     headerClassName,
                 )}
             >

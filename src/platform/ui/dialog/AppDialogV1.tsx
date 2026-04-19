@@ -32,6 +32,7 @@ export function AppDialogV1({
                     style={{ zIndex: PORTAL_LAYER_Z_INDEX.dialogBackdrop }}
                     className={cn(
                         "fixed inset-0 bg-black/24 backdrop-blur-[2px]",
+                        "dark:bg-black/42 dark:backdrop-blur-[6px]",
                         "data-open:animate-in data-open:fade-in-0",
                         "data-closed:animate-out data-closed:fade-out-0",
                         "duration-200",
@@ -42,7 +43,7 @@ export function AppDialogV1({
                 <Dialog.Popup
                     style={{ zIndex: PORTAL_LAYER_Z_INDEX.dialogContent }}
                     className={cn(
-                        "fixed left-1/2 top-1/2 w-[min(92vw,42rem)] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden outline-none",
+                        "fixed left-1/2 top-1/2 w-[min(92vw,42rem)] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.25rem] outline-none",
                         "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-[0.98]",
                         "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-[0.98]",
                         "duration-200 ease-out",
@@ -51,8 +52,10 @@ export function AppDialogV1({
                 >
                     <div
                         className={cn(
-                            "modal-minimal-scope relative isolate flex max-h-[min(88vh,48rem)] max-w-full flex-col overflow-hidden rounded-[1.25rem]",
-                            "border border-border/70 bg-background shadow-none",
+                            "modal-minimal-scope relative isolate flex max-h-[min(88vh,48rem)] max-w-full flex-col overflow-hidden",
+                            "border border-border/70 bg-background/96 shadow-none",
+                            "dark:border-white/10 dark:bg-zinc-950/88 dark:backdrop-blur-2xl",
+                            "dark:shadow-[0_12px_36px_rgba(0,0,0,0.28),0_28px_80px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.04)]",
                             className,
                         )}
                     >

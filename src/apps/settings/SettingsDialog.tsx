@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { ThemePreferenceToggleButton } from "@/config";
 import { AppModalV2Sidebar } from "@/platform/ui";
-import { Settings, Palette, Info, type LucideIcon } from "lucide-react";
+import { Settings, SlidersHorizontal, Palette, Info, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GeneralSettings } from "./general/GeneralSettings";
+import { ExperienceSettings } from "./experience/ExperienceSettings";
 import { AppearanceSettings, type ThemeSettingsSubPage } from "./appearance/AppearanceSettings";
 import { AboutSettings } from "./about/AboutSettings";
 
@@ -12,13 +13,14 @@ interface SettingsDialogProps {
     onOpenChange: (open: boolean) => void;
 }
 
-type SettingsTabId = "general" | "appearance" | "about";
+type SettingsTabId = "general" | "experience" | "appearance" | "about";
 const SETTINGS_VIEW_STATE_STORAGE_KEY = "settings-dialog:view-state";
 const DEFAULT_SETTINGS_TAB: SettingsTabId = "general";
 const DEFAULT_APPEARANCE_SUB_PAGE: ThemeSettingsSubPage = "home";
 
 const SETTINGS_TABS: { id: SettingsTabId; icon: LucideIcon; labelKey: string }[] = [
     { id: "general", icon: Settings, labelKey: "general" },
+    { id: "experience", icon: SlidersHorizontal, labelKey: "experience_settings" },
     { id: "appearance", icon: Palette, labelKey: "theme_settings" },
     { id: "about", icon: Info, labelKey: "about" },
 ];
@@ -53,7 +55,7 @@ function readStoredSettingsViewState(): {
 
         return {
             activeTab:
-                activeTab === "general" || activeTab === "appearance" || activeTab === "about"
+                activeTab === "general" || activeTab === "experience" || activeTab === "appearance" || activeTab === "about"
                     ? activeTab
                     : DEFAULT_SETTINGS_TAB,
             appearanceSubPage:
@@ -144,6 +146,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         onSubPageChange={setAppearanceSubPage}
                     />
                 );
+            case "experience":
+                return <ExperienceSettings />;
             case "about":
                 return <AboutSettings />;
             default:

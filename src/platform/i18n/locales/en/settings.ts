@@ -1,5 +1,6 @@
 ﻿export const settings = {
     general: "General",
+    experience_settings: "Experience",
     features: "Features",
     general_settings: "General",
     general_settings_desc: "Manage language, search engine, and data.",
@@ -21,6 +22,9 @@
     managed_search_engines: "Managed Search Engines",
     search_engine_count: "{{count}} managed search engines",
     all_search_engines: "Current Search Engines",
+    search_experience: "Search Experience",
+    show_local_bookmark_suggestions: "Show local bookmarks in suggestions",
+    show_local_bookmark_suggestions_desc: "Display matched local bookmarks at the top of the search suggestion panel.",
     built_in_search_engine: "Built-in",
     total_search_engine_count: "{{count}} search engines",
     data_management: "Full Data Management",

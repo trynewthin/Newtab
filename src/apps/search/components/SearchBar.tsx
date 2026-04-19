@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useSearchPreferenceStore } from "@/config";
+import { LauncherIconTileV1, useLauncherLocalIconSearch, useResolvedLauncherIconsV1 } from "@/launcher";
 import { cn } from "@/shared/utils";
 import { AppSurface } from "@/platform/ui";
 import { fetchSearchSuggestions } from "../searchSuggestions";
@@ -20,6 +21,9 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
     const searchEngine = useSearchPreferenceStore((state) => state.searchEngine);
     const setSearchEngine = useSearchPreferenceStore((state) => state.setSearchEngine);
     const searchEngines = useSearchPreferenceStore((state) => state.searchEngines);
+    const showLocalBookmarkSuggestions = useSearchPreferenceStore((state) => state.showLocalBookmarkSuggestions);
+    const { matches: localIconMatches, openMatch } = useLauncherLocalIconSearch(query);
+    const visibleLocalIconMatches = showLocalBookmarkSuggestions ? localIconMatches : [];
 
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -111,6 +115,19 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
         performSearch(query);
     };
 
+    const handleLocalIconMatchClick = (
+        matchId: string,
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        openMatch(matchId, {
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+        });
+        setQuery("");
+        setShowSuggestions(false);
+        setActiveIndex(-1);
+    };
+
     const handleKeyDown = (event: React.KeyboardEvent) => {
         if (!showSuggestions || suggestions.length === 0) return;
 
@@ -129,7 +146,7 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
     };
 
     const content = (
-        <div className="flex h-full items-center gap-2 rounded-full px-3 transition-all duration-300">
+        <div className="flex h-full items-center gap-2 rounded-full px-3 pb-0.5 transition-all duration-300">
             <div className="relative shrink-0">
                 <button
                     type="button"
@@ -251,7 +268,7 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                 }
             `}</style>
 
-            {!engineMenuOpen && showSuggestions && suggestions.length > 0 ? (
+            {!engineMenuOpen && showSuggestions && (visibleLocalIconMatches.length > 0 || suggestions.length > 0) ? (
                 <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 overflow-hidden rounded-3xl shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
                     <div className="absolute inset-0 pointer-events-none">
                         <AppSurface
@@ -264,31 +281,78 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                             className="h-full w-full rounded-[24px]"
                         />
                     </div>
-                    <div className="relative z-10 p-2">
-                        <ul className="space-y-1">
-                            {suggestions.map((suggestion, index) => (
-                                <li
-                                    key={index}
-                                    onClick={() => performSearch(suggestion)}
-                                    onMouseEnter={() => setActiveIndex(index)}
-                                    className={cn(
-                                        "flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 transition-colors",
-                                        index === activeIndex
-                                            ? "bg-foreground/16 text-foreground"
-                                            : "text-foreground hover:bg-foreground/12"
-                                    )}
-                                >
-                                    <Search
-                                        size={16}
-                                        className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")}
-                                    />
-                                    <span className="text-base font-medium">{suggestion}</span>
-                                </li>
-                            ))}
-                        </ul>
+                    <div className="relative z-10 max-h-[420px] overflow-hidden p-2">
+                        <div className="space-y-2">
+                            {visibleLocalIconMatches.length > 0 ? (
+                                <LocalIconMatchPanel
+                                    matches={visibleLocalIconMatches}
+                                    onSelect={handleLocalIconMatchClick}
+                                />
+                            ) : null}
+
+                            {suggestions.length > 0 ? (
+                                <div className="max-h-[252px] overflow-y-auto custom-scrollbar pr-1">
+                                    <ul className="space-y-1">
+                                        {suggestions.map((suggestion, index) => (
+                                            <li
+                                                key={index}
+                                                onClick={() => performSearch(suggestion)}
+                                                onMouseEnter={() => setActiveIndex(index)}
+                                                className={cn(
+                                                    "flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 transition-colors",
+                                                    index === activeIndex
+                                                        ? "bg-foreground/16 text-foreground"
+                                                        : "text-foreground hover:bg-foreground/12"
+                                                )}
+                                            >
+                                                <Search
+                                                    size={16}
+                                                    className={cn("shrink-0", index === activeIndex ? "opacity-100" : "opacity-30")}
+                                                />
+                                                <span className="text-base font-medium">{suggestion}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
                 </div>
             ) : null}
+        </div>
+    );
+}
+
+interface LocalIconMatchPanelProps {
+    matches: ReturnType<typeof useLauncherLocalIconSearch>["matches"];
+    onSelect: (matchId: string, event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+function LocalIconMatchPanel({ matches, onSelect }: LocalIconMatchPanelProps) {
+    const icons = useResolvedLauncherIconsV1(matches.map((match) => match.iconSeed));
+
+    return (
+        <div className="rounded-[22px] border border-foreground/10 bg-foreground/8 px-2.5 py-2.5">
+            <div className="max-h-[132px] overflow-y-auto custom-scrollbar pr-1">
+                <div className="grid grid-cols-5 gap-x-0 gap-y-1.5 md:grid-cols-6">
+                    {matches.map((match, index) => (
+                        <button
+                            key={match.id}
+                            type="button"
+                            onClick={(event) => onSelect(match.id, event)}
+                            className="group flex items-start justify-center rounded-xl px-0.5 py-0.5"
+                        >
+                            <LauncherIconTileV1
+                                displayTitle={match.title}
+                                icon={icons[index]}
+                                className="w-13 gap-0.5"
+                                visualClassName="h-11 w-11 rounded-[14px] p-1 transition-colors group-hover:bg-foreground/12"
+                                labelClassName="max-w-[72px] text-[10px] leading-tight"
+                            />
+                        </button>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 }

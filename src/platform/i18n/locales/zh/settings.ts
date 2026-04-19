@@ -1,5 +1,6 @@
 ﻿export const settings = {
     general: "常规",
+    experience_settings: "使用体验设置",
     features: "功能",
     general_settings: "常规设置",
     general_settings_desc: "管理语言、搜索引擎以及数据。",
@@ -21,6 +22,9 @@
     managed_search_engines: "可管理搜索引擎",
     search_engine_count: "{{count}} 个可管理搜索引擎",
     all_search_engines: "当前搜索引擎列表",
+    search_experience: "搜索体验",
+    show_local_bookmark_suggestions: "搜索联想显示本地书签",
+    show_local_bookmark_suggestions_desc: "在搜索联想面板顶部显示本地书签匹配结果。",
     built_in_search_engine: "内置",
     total_search_engine_count: "{{count}} 个搜索引擎",
     data_management: "全量数据管理",

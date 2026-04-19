@@ -12,6 +12,7 @@ import {
 
 interface SearchPreferenceState extends SearchPreferenceData {
     setSearchEngine: (engine: string) => void;
+    setShowLocalBookmarkSuggestions: (enabled: boolean) => void;
     addSearchEngine: (engine: SearchEnginePreferenceItem) => void;
     removeSearchEngine: (value: string) => void;
     moveSearchEngine: (value: string, direction: "up" | "down") => void;
@@ -30,10 +31,12 @@ function readPersistedSearchPreference(persistedState: unknown): SearchPreferenc
         searchEngine?: unknown;
         searchEngines?: unknown;
         customSearchEngines?: unknown;
+        showLocalBookmarkSuggestions?: unknown;
         state?: {
             searchEngine?: unknown;
             searchEngines?: unknown;
             customSearchEngines?: unknown;
+            showLocalBookmarkSuggestions?: unknown;
         };
     };
 
@@ -47,6 +50,7 @@ function mergePersistedSearchPreference(
     const fallbackState = readLegacySearchPreference() ?? {
         searchEngine: currentState.searchEngine,
         searchEngines: currentState.searchEngines,
+        showLocalBookmarkSuggestions: currentState.showLocalBookmarkSuggestions,
     };
     const persistedPreference = readPersistedSearchPreference(persistedState);
 
@@ -61,7 +65,10 @@ export const useSearchPreferenceStore = create<SearchPreferenceState>()(
         (set) => ({
             searchEngine: "google",
             searchEngines: normalizeSearchPreferenceState(undefined).searchEngines,
+            showLocalBookmarkSuggestions: true,
             setSearchEngine: (searchEngine: string) => set({ searchEngine }),
+            setShowLocalBookmarkSuggestions: (showLocalBookmarkSuggestions: boolean) =>
+                set({ showLocalBookmarkSuggestions }),
             addSearchEngine: (engine: SearchEnginePreferenceItem) =>
                 set((state: SearchPreferenceState) => ({
                     searchEngines: [...state.searchEngines, engine],

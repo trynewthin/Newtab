@@ -1,5 +1,6 @@
 export * from "./layout/AppGrid";
 export * from "./layout/components/LauncherGridItemSurface";
+export * from "./search";
 export * from "./ui/dialogs/TagConfigForm";
 export * from "./ui/dialogs/ShortcutDialog";
 export * from "./runtime/SystemDialogHost";

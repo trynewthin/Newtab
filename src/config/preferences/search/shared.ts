@@ -10,6 +10,7 @@ export interface SearchEnginePreferenceItem {
 export interface SearchPreferenceData {
     searchEngine: string;
     searchEngines: SearchEnginePreferenceItem[];
+    showLocalBookmarkSuggestions: boolean;
 }
 
 export const SEARCH_PREFERENCE_STORAGE_KEY = "app-preferences-search";
@@ -48,6 +49,7 @@ export function normalizeSearchPreferenceState(
     const fallbackState = fallback ?? {
         searchEngine: "google",
         searchEngines: getDefaultSearchEngines(),
+        showLocalBookmarkSuggestions: true,
     };
 
     if (!value || typeof value !== "object") {
@@ -58,6 +60,7 @@ export function normalizeSearchPreferenceState(
         searchEngine?: unknown;
         searchEngines?: unknown;
         customSearchEngines?: unknown;
+        showLocalBookmarkSuggestions?: unknown;
     };
 
     const searchEngines = Array.isArray(record.searchEngines)
@@ -83,6 +86,9 @@ export function normalizeSearchPreferenceState(
     return {
         searchEngine,
         searchEngines: resolvedSearchEngines,
+        showLocalBookmarkSuggestions: typeof record.showLocalBookmarkSuggestions === "boolean"
+            ? record.showLocalBookmarkSuggestions
+            : fallbackState.showLocalBookmarkSuggestions,
     };
 }
 
@@ -95,10 +101,12 @@ function parseSearchPreferenceFromPersistedRaw(raw: string | null): SearchPrefer
                 searchEngine?: unknown;
                 searchEngines?: unknown;
                 customSearchEngines?: unknown;
+                showLocalBookmarkSuggestions?: unknown;
             };
             searchEngine?: unknown;
             searchEngines?: unknown;
             customSearchEngines?: unknown;
+            showLocalBookmarkSuggestions?: unknown;
         };
 
         return normalizeSearchPreferenceState(parsed.state ?? parsed);
@@ -119,6 +127,7 @@ export function readStoredSearchPreference(): SearchPreferenceData {
         return {
             searchEngine: "google",
             searchEngines: getDefaultSearchEngines(),
+            showLocalBookmarkSuggestions: true,
         };
     }
 
@@ -130,6 +139,7 @@ export function readStoredSearchPreference(): SearchPreferenceData {
         ?? {
             searchEngine: "google",
             searchEngines: getDefaultSearchEngines(),
+            showLocalBookmarkSuggestions: true,
         }
     );
 }

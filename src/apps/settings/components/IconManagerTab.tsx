@@ -1,6 +1,6 @@
 import { useItemStore } from "@/launcher/store";
 import { cn } from "@/shared/utils";
-import { SYSTEM_ITEMS, ItemIcon } from "@/launcher";
+import { SYSTEM_ITEMS, LauncherIconVisualV1 } from "@/launcher";
 
 import { Plus, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -42,9 +42,14 @@ export function IconManagerTab() {
                         )}
                     >
                         <div className="relative shrink-0">
-                            <ItemIcon
-                                icon={icon.icon}
-                                isSystem={true}
+                            <LauncherIconVisualV1
+                                icon={{
+                                    title: t(`sys_${icon.type}`),
+                                    kind: "system",
+                                    value: icon.icon,
+                                    scale: 0.85,
+                                    frameClassName: "!bg-white dark:!bg-black text-black dark:text-white",
+                                }}
                                 className={cn(
                                     "w-12 h-12 rounded-2xl shadow-sm transition-all duration-500",
                                     "bg-white group-hover:scale-105",

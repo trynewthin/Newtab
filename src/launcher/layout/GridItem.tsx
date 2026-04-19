@@ -6,11 +6,17 @@
 } from "@/launcher/model/itemTypes";
 import { isSystemAppId } from "@/launcher/registry/appManifest";
 import { preloadModalRuntime } from "@/launcher/runtime/appRuntimeRegistry";
+import { useItemStore } from "@/launcher/store/item";
 import { LauncherWidgetItem as LauncherWidgetRenderer } from "@/launcher/ui/widgets";
 import { GRID_ITEM_PRESETS, resolveGridPreset } from "@/launcher/layout/layoutPresets";
-import { AppTile } from "@/launcher/ui/components/AppTile";
-import { useSystemAppIconDescriptor, useTagIconDescriptor, useFolderIconDescriptor } from "@/launcher/ui/components/adapters";
-import { FolderWidget } from "@/launcher/ui/folder/FolderWidget";
+import {
+    DesktopFolderTileV1,
+    DesktopIconTileV1,
+    resolveFolderChildIconSeedsV1,
+    resolveSystemAppIconSeedV1,
+    resolveTagIconSeedV1,
+} from "@/launcher/ui/icon-system-v1";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface GridItemProps {
@@ -61,19 +67,6 @@ export function GridItem({
         );
     }
 
-    if (item.kind === "folder" && item.displayMode === "2x2") {
-        return (
-            <FolderWidget
-                item={item as FolderItemType}
-                onEdit={onEdit as (item: FolderItemType) => void}
-                onDeletePrompt={onDeletePrompt as (item: GridItemType) => void}
-                onClick={onClick as (item: GridItemType) => void}
-                isOverlay={isOverlay}
-                sortableEnabled={sortableEnabled}
-            />
-        );
-    }
-
     // ─── App path: tag / system app / folder 1x1 ───────────────────
     if (item.kind === "app") {
         return (
@@ -120,7 +113,7 @@ export function GridItem({
     );
 }
 
-// ─── App-path thin wrappers (adapter → AppTile) ─────────────────────
+// ─── App-path thin wrappers (adapter → icon-system-v1) ──────────────
 
 interface AppPathProps {
     onClick?: (item: GridItemType, event?: React.MouseEvent) => void;
@@ -135,7 +128,7 @@ interface AppPathProps {
 function SystemAppTile({ item, onClick, onEdit, onDeletePrompt, ...rest }: AppPathProps & { item: GridItemType & { kind: "app" } }) {
     const { t } = useTranslation();
     const displayTitle = item.title?.startsWith("sys_") ? t(item.title) : item.title;
-    const iconDescriptor = useSystemAppIconDescriptor(item.title, item.icon || "");
+    const iconSeed = resolveSystemAppIconSeedV1(item, { translateTitle: t });
 
     const handlePrefetch = () => {
         if (!isSystemAppId(item.appId)) return;
@@ -143,10 +136,10 @@ function SystemAppTile({ item, onClick, onEdit, onDeletePrompt, ...rest }: AppPa
     };
 
     return (
-        <AppTile
+        <DesktopIconTileV1
             id={item.id}
             displayTitle={displayTitle}
-            iconDescriptor={iconDescriptor}
+            iconSeed={iconSeed}
             onClick={(e) => onClick?.(item, e as React.MouseEvent | undefined)}
             onEdit={() => onEdit?.(item)}
             onDelete={() => onDeletePrompt?.(item)}
@@ -157,13 +150,13 @@ function SystemAppTile({ item, onClick, onEdit, onDeletePrompt, ...rest }: AppPa
 }
 
 function TagAppTile({ item, onClick, onEdit, onDeletePrompt, ...rest }: AppPathProps & { item: WebTagItem }) {
-    const iconDescriptor = useTagIconDescriptor(item);
+    const iconSeed = resolveTagIconSeedV1(item);
 
     return (
-        <AppTile
+        <DesktopIconTileV1
             id={item.id}
             displayTitle={item.title}
-            iconDescriptor={iconDescriptor}
+            iconSeed={iconSeed}
             onClick={(e) => {
                 if (onClick) {
                     onClick(item, e as React.MouseEvent | undefined);
@@ -179,13 +172,28 @@ function TagAppTile({ item, onClick, onEdit, onDeletePrompt, ...rest }: AppPathP
 }
 
 function FolderAppTile({ item, onClick, onEdit, onDeletePrompt, ...rest }: AppPathProps & { item: FolderItemType }) {
-    const { iconDescriptor, extraMenuItems } = useFolderIconDescriptor(item);
+    const { t } = useTranslation();
+    const { updateItem } = useItemStore();
+    const layout = item.displayMode === "2x2" ? "expanded" : "compact";
+    const iconSeeds = resolveFolderChildIconSeedsV1(item, layout, { translateTitle: t });
+    const extraMenuItems = item.displayMode === "2x2"
+        ? [{
+            label: t("folder_switch_1x1"),
+            icon: <Minimize2 size={12} />,
+            onClick: () => updateItem(item.id, { displayMode: "1x1", w: 1, h: 1 } as Partial<GridItemType>),
+        }]
+        : [{
+            label: t("folder_switch_2x2"),
+            icon: <Maximize2 size={12} />,
+            onClick: () => updateItem(item.id, { displayMode: "2x2", w: 2, h: 2 } as Partial<GridItemType>),
+        }];
 
     return (
-        <AppTile
+        <DesktopFolderTileV1
             id={item.id}
             displayTitle={item.title}
-            iconDescriptor={iconDescriptor}
+            iconSeeds={iconSeeds}
+            layout={layout}
             extraMenuItems={extraMenuItems}
             onClick={(e) => onClick?.(item, e as React.MouseEvent | undefined)}
             onEdit={() => onEdit?.(item)}

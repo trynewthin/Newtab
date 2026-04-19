@@ -1,33 +1,27 @@
 import { useAppearancePreferenceStore } from "@/config";
 import { useUIStore } from "@/launcher/store/ui.store";
-import { Check } from "lucide-react";
-import { cn } from "@/shared/utils";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { ItemIcon } from "./ItemIcon";
-import { ItemActionMenu, type ItemActionMenuItem } from "./ItemActionMenu";
+import { ItemActionMenu, type ItemActionMenuItem } from "@/launcher/ui/components/ItemActionMenu";
 import {
     ITEM_HOVER_SCALE_CLASS,
     ITEM_INTERACTION_ANIMATION_CLASS,
     ITEM_SELECTED_SCALE_CLASS,
-} from "./selectionStyles";
-import { useTranslation } from "react-i18next";
+} from "@/launcher/ui/components/selectionStyles";
+import { Check } from "lucide-react";
+import { CSS } from "@dnd-kit/utilities";
+import { useSortable } from "@dnd-kit/sortable";
+import { cn } from "@/shared/utils";
+import {
+    LAUNCHER_ICON_VISUAL_CLASS_V1,
+    LAUNCHER_ICON_VISUAL_INTERACTIVE_CLASS_V1,
+} from "./iconVisualStyles";
+import type { LauncherIconSeedV1 } from "./types";
+import { LauncherIconVisualV1 } from "./LauncherIconVisualV1";
+import { useResolvedLauncherIconV1 } from "./useResolvedLauncherIconsV1";
 
-export interface AppTileIconDescriptor {
-    title: string;
-    icon?: string;
-    iconDataUrl?: string;
-    isSystem?: boolean;
-    scale?: number;
-    backgroundColor?: string;
-    iconClassName?: string;
-    customContent?: React.ReactNode;
-}
-
-export interface AppTileProps {
+export interface DesktopIconTileV1Props {
     id: string;
     displayTitle: string;
-    iconDescriptor: AppTileIconDescriptor;
+    iconSeed: LauncherIconSeedV1;
     onClick: (event?: React.MouseEvent | React.KeyboardEvent) => void;
     onEdit: () => void;
     onDelete: () => void;
@@ -39,10 +33,10 @@ export interface AppTileProps {
     sortableEnabled?: boolean;
 }
 
-export function AppTile({
+export function DesktopIconTileV1({
     id,
     displayTitle,
-    iconDescriptor,
+    iconSeed,
     onClick,
     onEdit,
     onDelete,
@@ -52,8 +46,8 @@ export function AppTile({
     isNearTarget,
     isHoverTarget,
     sortableEnabled = true,
-}: AppTileProps) {
-    const { t } = useTranslation();
+}: DesktopIconTileV1Props) {
+    const icon = useResolvedLauncherIconV1(iconSeed);
     const { isEditing, selectedTagIds, toggleTagSelection } = useUIStore();
     const iconLabelHidden = useAppearancePreferenceStore((state) => state.iconLabelHidden);
     const isSelected = selectedTagIds.includes(id);
@@ -116,8 +110,6 @@ export function AppTile({
         })()
         : undefined;
 
-    const desc = iconDescriptor;
-
     return (
         <div
             ref={setNodeRef}
@@ -136,37 +128,30 @@ export function AppTile({
                     disabled={!!isOverlay}
                     onEdit={onEdit}
                     onDelete={onDelete}
-                    editLabel={t("edit")}
-                    deleteLabel={t("remove")}
                     extraItems={extraMenuItems}
                 >
-                    <ItemIcon
-                        title={desc.title}
-                        icon={desc.icon}
-                        iconDataUrl={desc.iconDataUrl}
-                        isSystem={desc.isSystem}
-                        scale={desc.scale}
-                        backgroundColor={desc.backgroundColor}
-                        className={cn(
-                            "h-14 w-14 rounded-[18px] shadow-lg transition-shadow hover:shadow-xl",
-                            "cursor-pointer",
-                            isOverlay && "cursor-grabbing shadow-2xl",
-                            ITEM_INTERACTION_ANIMATION_CLASS,
-                            ITEM_HOVER_SCALE_CLASS,
-                            isSelected && ITEM_SELECTED_SCALE_CLASS,
-                            desc.iconClassName
-                        )}
-                        role="button"
-                        tabIndex={0}
-                        onClick={handleClick}
-                        onKeyDown={handleKeyDown}
-                        onMouseEnter={triggerPrefetch}
-                        onFocus={triggerPrefetch}
-                        onTouchStart={triggerPrefetch}
-                    >
-                        {desc.customContent}
+                    <div className="relative">
+                        <LauncherIconVisualV1
+                            icon={icon}
+                            className={cn(
+                                LAUNCHER_ICON_VISUAL_CLASS_V1,
+                                LAUNCHER_ICON_VISUAL_INTERACTIVE_CLASS_V1,
+                                "cursor-pointer",
+                                isOverlay && "cursor-grabbing shadow-2xl",
+                                ITEM_INTERACTION_ANIMATION_CLASS,
+                                ITEM_HOVER_SCALE_CLASS,
+                                isSelected && ITEM_SELECTED_SCALE_CLASS
+                            )}
+                            role="button"
+                            tabIndex={0}
+                            onClick={handleClick}
+                            onKeyDown={handleKeyDown}
+                            onMouseEnter={triggerPrefetch}
+                            onFocus={triggerPrefetch}
+                            onTouchStart={triggerPrefetch}
+                        />
 
-                        {isEditing && (
+                        {isEditing ? (
                             <div className={cn(
                                 "absolute inset-0 z-30 flex items-center justify-center transition-all pointer-events-none",
                                 isSelected ? "bg-black/5" : ""
@@ -185,11 +170,11 @@ export function AppTile({
                                             : "border-white/50 bg-black/20 hover:bg-black/30 hover:border-white/70 hover:scale-105"
                                     )}
                                 >
-                                    {isSelected && <Check size={16} strokeWidth={3} />}
+                                    {isSelected ? <Check size={16} strokeWidth={3} /> : null}
                                 </button>
                             </div>
-                        )}
-                    </ItemIcon>
+                        ) : null}
+                    </div>
                 </ItemActionMenu>
             </div>
 

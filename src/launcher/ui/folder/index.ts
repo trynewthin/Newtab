@@ -1,2 +1,1 @@
-﻿export * from './FolderWidget';
-export * from './FolderPreview';
+export * from "./FolderPreview";

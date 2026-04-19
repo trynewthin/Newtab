@@ -1,7 +1,9 @@
 ﻿import { useState, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ItemIcon } from "../components/ItemIcon";
+import { LauncherIconVisualV1 } from "@/launcher/ui/icon-system-v1";
+import type { ResolvedLauncherIconV1 } from "@/launcher/ui/icon-system-v1";
+import { LAUNCHER_ICON_VISUAL_LARGE_CLASS_V1 } from "@/launcher/ui/icon-system-v1/iconVisualStyles";
 import { extractDominantColor, loadImageAsDataUrl } from "@/core/colorExtractor";
 import { backgroundStorage, getIconKey, isDataURL } from "@/platform/storage/backgroundStorage";
 import { cn, parseColor } from "@/shared/utils";
@@ -25,6 +27,49 @@ interface TagConfigFormProps {
     showUrlField?: boolean;
     autoFocus?: boolean;
     children?: ReactNode; // 用于渲染按钮区域
+}
+
+function resolvePreviewIconV1(
+    icon: string | undefined,
+    imageSrc: string | undefined,
+    backgroundColor: string,
+    scale: number
+): ResolvedLauncherIconV1 {
+    if (icon && isDefaultItemIconValue(icon)) {
+        return {
+            title: "default",
+            kind: "default",
+            backgroundColor,
+            scale,
+        };
+    }
+
+    if (icon && icon.length < 4) {
+        return {
+            title: "emoji",
+            kind: "emoji",
+            value: icon,
+            backgroundColor,
+            scale,
+        };
+    }
+
+    if (imageSrc) {
+        return {
+            title: "image",
+            kind: "image",
+            value: imageSrc,
+            backgroundColor,
+            scale,
+        };
+    }
+
+    return {
+        title: "default",
+        kind: "default",
+        backgroundColor,
+        scale,
+    };
 }
 
 export function TagConfigForm({
@@ -216,17 +261,15 @@ export function TagConfigForm({
     const effectivePreviewIcon = isDefaultItemIconValue(iconStr)
         ? ""
         : iconStr || resolvedPreviewIcon || defaultValues?.iconDataUrl || faviconUrl;
+    const previewIcon = resolvePreviewIconV1(iconStr, effectivePreviewIcon, composedColor, iconSize);
 
     return (
         <form id="tag-config-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Top Row: Preview + selection */}
             <div className="flex gap-3 items-stretch h-20">
-                <ItemIcon
-                    icon={iconStr}
-                    iconDataUrl={effectivePreviewIcon}
-                    scale={iconSize}
-                    backgroundColor={composedColor}
-                    className="shrink-0 h-20 w-20 rounded-[18px] shadow-lg"
+                <LauncherIconVisualV1
+                    icon={previewIcon}
+                    className={cn("shrink-0", LAUNCHER_ICON_VISUAL_LARGE_CLASS_V1)}
                 />
 
                 {/* Right: Icon Selection List */}
@@ -246,13 +289,22 @@ export function TagConfigForm({
                                         )}
                                     >
                                         {isDefaultItemIconValue(src) ? (
-                                            <ItemIcon
-                                                icon={DEFAULT_ITEM_ICON_VALUE}
+                                            <LauncherIconVisualV1
+                                                icon={{
+                                                    title: "default",
+                                                    kind: "default",
+                                                    scale: 1,
+                                                }}
                                                 className="h-8 w-8 rounded-xl text-muted-foreground/60"
                                             />
                                         ) : (
-                                            <ItemIcon
-                                                iconDataUrl={src}
+                                            <LauncherIconVisualV1
+                                                icon={{
+                                                    title: "image",
+                                                    kind: "image",
+                                                    value: src,
+                                                    scale: 1,
+                                                }}
                                                 className="h-8 w-8 rounded-xl"
                                             />
                                         )}

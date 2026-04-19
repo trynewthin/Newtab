@@ -6,6 +6,7 @@ import { LauncherIconTileV1, useLauncherLocalIconSearch, useResolvedLauncherIcon
 import { cn } from "@/shared/utils";
 import { AppSurface } from "@/platform/ui";
 import { fetchSearchSuggestions } from "../searchSuggestions";
+import { useCachedRemoteImages } from "../useCachedRemoteImages";
 
 interface SearchBarProps {
     initialQuery?: string;
@@ -28,6 +29,12 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const currentEngine = searchEngines.find((entry) => entry.value === searchEngine) || searchEngines[0];
+    const currentEngineIconMap = useCachedRemoteImages([currentEngine.icon]);
+    const menuEngineIconMap = useCachedRemoteImages(
+        searchEngines.map((engine) => engine.icon),
+        { enabled: engineMenuOpen }
+    );
+    const currentEngineIconSrc = currentEngine.icon ? currentEngineIconMap[currentEngine.icon] : undefined;
 
     useEffect(() => {
         if (!query.trim() || engineMenuOpen) {
@@ -161,11 +168,15 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                     }
                     className="btn-no-style flex h-8 w-8 items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform"
                 >
-                    <img
-                        src={currentEngine.icon}
-                        alt=""
-                        className="h-full w-full rounded-full object-contain"
-                    />
+                    {currentEngineIconSrc ? (
+                        <img
+                            src={currentEngineIconSrc}
+                            alt=""
+                            className="h-full w-full rounded-full object-contain"
+                        />
+                    ) : (
+                        <div className="h-full w-full rounded-full bg-foreground/10" />
+                    )}
                 </button>
                 {engineMenuOpen ? (
                     <div className="absolute left-[-6px] top-[calc(100%+16px)] z-50 w-60 overflow-hidden rounded-2xl shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
@@ -195,7 +206,15 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                                         )}
                                     >
                                         <div className="flex h-5 w-5 items-center justify-center shrink-0">
-                                            <img src={engine.icon} alt="" className="h-4.5 w-4.5 rounded-sm object-contain" />
+                                            {engine.icon && (menuEngineIconMap[engine.icon] ?? currentEngineIconMap[engine.icon]) ? (
+                                                <img
+                                                    src={menuEngineIconMap[engine.icon] ?? currentEngineIconMap[engine.icon]}
+                                                    alt=""
+                                                    className="h-4.5 w-4.5 rounded-sm object-contain"
+                                                />
+                                            ) : (
+                                                <div className="h-4.5 w-4.5 rounded-sm bg-foreground/10" />
+                                            )}
                                         </div>
                                         <span className="text-sm font-medium">{engine.name}</span>
                                     </button>

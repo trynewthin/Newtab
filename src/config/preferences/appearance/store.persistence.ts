@@ -5,6 +5,7 @@ import {
     type DynamicBackgroundConfigMap,
 } from "@/core/dynamicBackgrounds";
 import {
+    type AppSurfaceMaterial,
     mergeSurfaceMaterialConfig,
     type AppSurfaceMaterialConfigMap,
 } from "@/core/surfaceMaterials";
@@ -36,10 +37,16 @@ export function mergePersistedAppearancePreference(
     ) ?? {};
     const persistedAppearance = { ...persisted };
     delete persistedAppearance.surfaceMaterial;
+    const surfaceMaterial = persisted.surfaceMaterial;
+    const normalizedSurfaceMaterial: AppSurfaceMaterial =
+        surfaceMaterial === "mica" || surfaceMaterial === "mac-frosted"
+            ? surfaceMaterial
+            : currentState.surfaceMaterial;
 
     return {
         ...currentState,
         ...persistedAppearance,
+        surfaceMaterial: normalizedSurfaceMaterial,
         backgroundConfig: normalizeBackgroundConfig(
             persistedAppearance.backgroundConfig ?? currentState.backgroundConfig
         ),

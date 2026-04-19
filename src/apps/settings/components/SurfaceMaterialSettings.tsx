@@ -9,10 +9,12 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import {
+    type AppSurfaceMaterial,
     DEFAULT_APP_SURFACE_MATERIAL_CONFIG,
     mergeSurfaceMaterialConfig,
     type AppSurfaceTone,
 } from "@/core/surfaceMaterials";
+import { parseColor } from "@/shared/utils";
 import {
     isDynamicBackgroundId,
 } from "@/core/dynamicBackgrounds";
@@ -99,29 +101,67 @@ function MaterialPreview() {
     );
 }
 
+function CompactColorPicker({
+    value,
+    onChange,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+}) {
+    const { hex } = parseColor(value);
+
+    return (
+        <div className="flex w-[220px] items-center gap-3">
+            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border shadow-sm ring-1 ring-border/20">
+                <input
+                    type="color"
+                    value={hex}
+                    onChange={(event) => onChange(event.target.value)}
+                    className="absolute inset-[-4px] h-[200%] w-[200%] cursor-pointer p-0 m-0"
+                />
+            </div>
+            <span className="font-mono text-[11px] text-muted-foreground">
+                {hex}
+            </span>
+        </div>
+    );
+}
+
 export function SurfaceMaterialSettings() {
     const { t } = useTranslation();
     const {
         surfaceTone,
         setSurfaceTone,
+        surfaceMaterial,
+        setSurfaceMaterial,
         surfaceMaterialConfig,
         updateSurfaceMaterialConfig,
     } = useAppearancePreferenceStore();
 
-    const frostedConfig = mergeSurfaceMaterialConfig(surfaceMaterialConfig)["mac-frosted"];
+    const materialConfigMap = mergeSurfaceMaterialConfig(surfaceMaterialConfig);
+    const frostedConfig = materialConfigMap["mac-frosted"];
+    const micaConfig = materialConfigMap["mica"];
 
     const updateFrosted = (patch: Partial<typeof frostedConfig>) => {
         updateSurfaceMaterialConfig("mac-frosted", patch);
     };
 
+    const updateMica = (patch: Partial<typeof micaConfig>) => {
+        updateSurfaceMaterialConfig("mica", patch);
+    };
+
     const resetCurrentMaterial = () => {
-        updateSurfaceMaterialConfig("mac-frosted", DEFAULT_APP_SURFACE_MATERIAL_CONFIG["mac-frosted"]);
+        updateSurfaceMaterialConfig(surfaceMaterial, DEFAULT_APP_SURFACE_MATERIAL_CONFIG[surfaceMaterial]);
     };
 
     const toneLabelMap: Record<AppSurfaceTone, string> = {
         auto: t("surface_tone_auto"),
         light: t("surface_tone_light"),
         dark: t("surface_tone_dark"),
+    };
+    const materialLabelMap: Record<AppSurfaceMaterial, string> = {
+        "mac-frosted": t("surface_material_mac_frosted"),
+        "mica": t("surface_material_mica"),
     };
 
     return (
@@ -141,6 +181,18 @@ export function SurfaceMaterialSettings() {
                 </Select>
             </SettingsItem>
 
+            <SettingsItem label={t("surface_material_type")}>
+                <Select value={surfaceMaterial} onValueChange={(value) => setSurfaceMaterial(value as AppSurfaceMaterial)}>
+                    <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[220px]`}>
+                        <SelectValue>{materialLabelMap[surfaceMaterial]}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="mac-frosted">{t("surface_material_mac_frosted")}</SelectItem>
+                        <SelectItem value="mica">{t("surface_material_mica")}</SelectItem>
+                    </SelectContent>
+                </Select>
+            </SettingsItem>
+
             <SettingsItem label={t("surface_material_reset_label")}>
                 <button
                     type="button"
@@ -151,29 +203,61 @@ export function SurfaceMaterialSettings() {
                 </button>
             </SettingsItem>
 
-            <div className="space-y-3.5">
-                <SettingsItem label={t("surface_field_background_opacity")}>
-                    <NumberSlider value={frostedConfig.backgroundOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ backgroundOpacity: v })} />
-                </SettingsItem>
-                <SettingsItem label={t("surface_field_saturation")}>
-                    <NumberSlider value={frostedConfig.saturation} min={0} max={3} step={0.01} onChange={(v) => updateFrosted({ saturation: v })} />
-                </SettingsItem>
-                <SettingsItem label={t("surface_field_blur")}>
-                    <NumberSlider value={frostedConfig.blur} min={0} max={80} step={1} onChange={(v) => updateFrosted({ blur: v })} />
-                </SettingsItem>
-                <SettingsItem label={t("surface_field_border_width")}>
-                    <NumberSlider value={frostedConfig.borderWidth} min={0} max={3} step={0.1} onChange={(v) => updateFrosted({ borderWidth: v })} />
-                </SettingsItem>
-                <SettingsItem label={t("surface_field_border_opacity")}>
-                    <NumberSlider value={frostedConfig.borderOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ borderOpacity: v })} />
-                </SettingsItem>
-                <SettingsItem label={t("surface_field_highlight_opacity")}>
-                    <NumberSlider value={frostedConfig.highlightOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ highlightOpacity: v })} />
-                </SettingsItem>
-                <SettingsItem label={t("surface_field_shadow_opacity")}>
-                    <NumberSlider value={frostedConfig.shadowOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ shadowOpacity: v })} />
-                </SettingsItem>
-            </div>
+            {surfaceMaterial === "mac-frosted" ? (
+                <div className="space-y-3.5">
+                    <SettingsItem label={t("surface_field_background_opacity")}>
+                        <NumberSlider value={frostedConfig.backgroundOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ backgroundOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_saturation")}>
+                        <NumberSlider value={frostedConfig.saturation} min={0} max={3} step={0.01} onChange={(v) => updateFrosted({ saturation: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_blur")}>
+                        <NumberSlider value={frostedConfig.blur} min={0} max={80} step={1} onChange={(v) => updateFrosted({ blur: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_border_width")}>
+                        <NumberSlider value={frostedConfig.borderWidth} min={0} max={3} step={0.1} onChange={(v) => updateFrosted({ borderWidth: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_border_opacity")}>
+                        <NumberSlider value={frostedConfig.borderOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ borderOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_highlight_opacity")}>
+                        <NumberSlider value={frostedConfig.highlightOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ highlightOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_shadow_opacity")}>
+                        <NumberSlider value={frostedConfig.shadowOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ shadowOpacity: v })} />
+                    </SettingsItem>
+                </div>
+            ) : (
+                <div className="space-y-3.5">
+                    <SettingsItem label={t("surface_field_background_opacity")}>
+                        <NumberSlider value={micaConfig.backgroundOpacity} min={0} max={1} step={0.01} onChange={(v) => updateMica({ backgroundOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_saturation")}>
+                        <NumberSlider value={micaConfig.saturation} min={0} max={3} step={0.01} onChange={(v) => updateMica({ saturation: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_blur")}>
+                        <NumberSlider value={micaConfig.blur} min={0} max={80} step={1} onChange={(v) => updateMica({ blur: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_border_width")}>
+                        <NumberSlider value={micaConfig.borderWidth} min={0} max={3} step={0.1} onChange={(v) => updateMica({ borderWidth: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_border_opacity")}>
+                        <NumberSlider value={micaConfig.borderOpacity} min={0} max={1} step={0.01} onChange={(v) => updateMica({ borderOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_tint_color")}>
+                        <CompactColorPicker value={micaConfig.tintColor} onChange={(value) => updateMica({ tintColor: value })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_tint_opacity")}>
+                        <NumberSlider value={micaConfig.tintOpacity} min={0} max={1} step={0.01} onChange={(v) => updateMica({ tintOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_noise_opacity")}>
+                        <NumberSlider value={micaConfig.noiseOpacity} min={0} max={0.2} step={0.01} onChange={(v) => updateMica({ noiseOpacity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("surface_field_shadow_opacity")}>
+                        <NumberSlider value={micaConfig.shadowOpacity} min={0} max={1} step={0.01} onChange={(v) => updateMica({ shadowOpacity: v })} />
+                    </SettingsItem>
+                </div>
+            )}
         </SettingsSection>
     );
 }

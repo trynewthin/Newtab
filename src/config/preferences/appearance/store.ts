@@ -6,6 +6,7 @@ import {
     type DynamicBackgroundId,
 } from "@/core/dynamicBackgrounds";
 import type {
+    AppSurfaceMaterial,
     AppSurfaceMaterialConfigMap,
     AppSurfaceTone,
 } from "@/core/surfaceMaterials";
@@ -29,6 +30,7 @@ export const useAppearancePreferenceStore = create<AppearancePreferenceState>()(
                 set({ textSurfaceFontPreset }),
             setIconLabelHidden: (iconLabelHidden: boolean) => set({ iconLabelHidden }),
             setIconCornerRadius: (iconCornerRadius: IconCornerRadiusPreset) => set({ iconCornerRadius }),
+            setSurfaceMaterial: (surfaceMaterial: AppSurfaceMaterial) => set({ surfaceMaterial }),
             setSurfaceTone: (surfaceTone: AppSurfaceTone) => set({ surfaceTone }),
             updateSurfaceMaterialConfig: <T extends keyof AppSurfaceMaterialConfigMap>(
                 material: T,

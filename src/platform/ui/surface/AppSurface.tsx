@@ -7,6 +7,7 @@ import {
 } from "@/core/surfaceMaterials";
 import { useResolvedTone } from "./useResolvedTone";
 import { MacFrostedSurface } from "./materials/MacFrostedSurface";
+import { MicaSurface } from "./materials/MicaSurface";
 
 export interface AppSurfaceProps {
     variant?: AppSurfaceVariant;
@@ -34,31 +35,44 @@ export function AppSurface({
     const materialConfig = mergeSurfaceMaterialConfig(
         useAppearancePreferenceStore((state) => state.surfaceMaterialConfig)
     );
+    const surfaceMaterial = useAppearancePreferenceStore((state) => state.surfaceMaterial);
     const resolvedTone = useResolvedTone(tone);
     const stabilizeCorners = variant === "widget" || variant === "folder-preview";
     const hideSurfaceBorder = hideSurfaceBorderOverride ?? (variant === "widget");
-    const borderWidth = materialConfig["mac-frosted"].borderWidth;
+    const borderWidth = materialConfig[surfaceMaterial].borderWidth;
     const createStableCornerBorderStyle = (color: string): React.CSSProperties => ({
         border: `${borderWidth}px solid ${color}`,
         boxSizing: "border-box",
     });
 
+    const commonProps = {
+        variant,
+        resolvedTone,
+        className,
+        style,
+        width,
+        height,
+        borderRadius,
+        hideSurfaceBorder,
+        stabilizeCorners,
+        createStableCornerBorderStyle,
+        children,
+    };
+
+    if (surfaceMaterial === "mica") {
+        return (
+            <MicaSurface
+                {...commonProps}
+                config={materialConfig.mica}
+            />
+        );
+    }
+
     return (
         <MacFrostedSurface
-            variant={variant}
-            resolvedTone={resolvedTone}
+            {...commonProps}
             config={materialConfig["mac-frosted"]}
-            className={className}
-            style={style}
-            width={width}
-            height={height}
-            borderRadius={borderRadius}
-            hideSurfaceBorder={hideSurfaceBorder}
-            stabilizeCorners={stabilizeCorners}
-            createStableCornerBorderStyle={createStableCornerBorderStyle}
-        >
-            {children}
-        </MacFrostedSurface>
+        />
     );
 }
 

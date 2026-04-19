@@ -14,6 +14,7 @@ export function createDefaultAppearancePreferenceState(): AppearancePreferenceDa
         textSurfaceFontPreset: "sans",
         iconLabelHidden: false,
         iconCornerRadius: 18,
+        surfaceMaterial: "mac-frosted",
         surfaceTone: "auto",
         surfaceMaterialConfig: mergeSurfaceMaterialConfig(DEFAULT_APP_SURFACE_MATERIAL_CONFIG),
         backgroundConfig: {

@@ -128,6 +128,7 @@
     surface_field_shadow_opacity: "阴影不透明度",
     icon_settings: "图标设置",
     icon_label_hidden: "无字模式",
+    icon_corner_radius: "图标圆角",
     icon_label_hidden_desc: "隐藏桌面图标下方的名称文字。",
     theme_settings_hub_desc: "管理主题色，并进入二级页面配置更细化的视觉选项。",
     theme_settings_pages: "二级页面",

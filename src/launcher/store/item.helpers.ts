@@ -142,6 +142,27 @@ export function cleanupRemovedItemIcon(items: GridItem[], id: string): void {
     findAndCleanupIcon(items);
 }
 
+export function updateItemInStructure(
+    list: GridItem[],
+    id: string,
+    updates: Partial<GridItem>
+): GridItem[] {
+    return list.map((item) => {
+        if (item.id === id) {
+            return { ...item, ...updates } as GridItem;
+        }
+
+        if (item.kind === "folder") {
+            return {
+                ...item,
+                children: updateItemInStructure(item.children, id, updates) as (WebTagItem | SystemAppItem)[],
+            };
+        }
+
+        return item;
+    });
+}
+
 export function removeItemsFromStructure(list: GridItem[], ids: readonly string[]): GridItem[] {
     const result: GridItem[] = [];
 

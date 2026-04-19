@@ -14,6 +14,7 @@ import {
     removeItemsFromStructure,
     stripUnavailableItems,
     ungroupFolderItem,
+    updateItemInStructure,
 } from "./item.helpers";
 import { mergePersistedItemState } from "./item.persistence";
 
@@ -37,9 +38,7 @@ export const useItemStore = create<ItemState>()(
 
             updateItem: (id: string, updates: Partial<GridItem>) =>
                 set((state: ItemState) => ({
-                    items: state.items.map((item) =>
-                        item.id === id ? ({ ...item, ...updates } as GridItem) : item
-                    ),
+                    items: updateItemInStructure(state.items, id, updates),
                 })),
 
             removeItem: (id: string) =>

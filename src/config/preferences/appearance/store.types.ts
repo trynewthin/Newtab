@@ -8,11 +8,13 @@ import type {
     DynamicBackgroundId,
 } from "@/core/dynamicBackgrounds";
 import type { TextSurfaceFontPreset } from "@/core/textSurface";
+import type { IconCornerRadiusPreset } from "./iconCornerRadius";
 
 export interface AppearancePreferenceData {
     primaryColor: string;
     textSurfaceFontPreset: TextSurfaceFontPreset;
     iconLabelHidden: boolean;
+    iconCornerRadius: IconCornerRadiusPreset;
     surfaceTone: AppSurfaceTone;
     surfaceMaterialConfig: AppSurfaceMaterialConfigMap;
     backgroundConfig: BackgroundConfig;
@@ -24,6 +26,7 @@ export interface AppearancePreferenceActions {
     setPrimaryColor: (color: string) => void;
     setTextSurfaceFontPreset: (preset: TextSurfaceFontPreset) => void;
     setIconLabelHidden: (hidden: boolean) => void;
+    setIconCornerRadius: (radius: IconCornerRadiusPreset) => void;
     setSurfaceTone: (tone: AppSurfaceTone) => void;
     updateSurfaceMaterialConfig: <T extends keyof AppSurfaceMaterialConfigMap>(
         material: T,

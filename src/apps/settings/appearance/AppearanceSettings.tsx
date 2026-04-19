@@ -1,5 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { useAppearancePreferenceStore, useThemePreferenceStore } from "@/config";
+import {
+    ICON_CORNER_RADIUS_PRESET_VALUES,
+    type IconCornerRadiusPreset,
+    useAppearancePreferenceStore,
+    useThemePreferenceStore,
+} from "@/config";
 import { BackgroundSelector } from "@/apps/settings/components/BackgroundSelector";
 import { SurfaceMaterialSettings } from "@/apps/settings/components/SurfaceMaterialSettings";
 import { ChevronRight } from "lucide-react";
@@ -45,6 +50,8 @@ export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSetti
     const setTheme = useThemePreferenceStore((state) => state.setTheme);
     const iconLabelHidden = useAppearancePreferenceStore((state) => state.iconLabelHidden);
     const setIconLabelHidden = useAppearancePreferenceStore((state) => state.setIconLabelHidden);
+    const iconCornerRadius = useAppearancePreferenceStore((state) => state.iconCornerRadius);
+    const setIconCornerRadius = useAppearancePreferenceStore((state) => state.setIconCornerRadius);
 
     const themeOptions = {
         light: t("light"),
@@ -81,6 +88,23 @@ export function AppearanceSettings({ subPage, onSubPageChange }: AppearanceSetti
                                 checked={iconLabelHidden}
                                 onCheckedChange={setIconLabelHidden}
                             />
+                        </SettingsItem>
+                        <SettingsItem label={t("icon_corner_radius")}>
+                            <Select
+                                value={`${iconCornerRadius}`}
+                                onValueChange={(value) => setIconCornerRadius(Number(value) as IconCornerRadiusPreset)}
+                            >
+                                <SelectTrigger className={`${SETTINGS_FIELD_CLASS} w-[120px]`}>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ICON_CORNER_RADIUS_PRESET_VALUES.map((value) => (
+                                        <SelectItem key={value} value={`${value}`}>
+                                            {value}px
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </SettingsItem>
                     </SettingsSection>
 

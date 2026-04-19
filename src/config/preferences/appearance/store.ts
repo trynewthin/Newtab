@@ -16,6 +16,7 @@ import { createDefaultAppearancePreferenceState } from "./store.defaults";
 import { mergePersistedAppearancePreference } from "./store.persistence";
 import { APPEARANCE_PREFERENCE_STORAGE_KEY } from "./shared";
 import type { AppearancePreferenceState } from "./store.types";
+import type { IconCornerRadiusPreset } from "./iconCornerRadius";
 
 const defaultState = createDefaultAppearancePreferenceState();
 
@@ -27,6 +28,7 @@ export const useAppearancePreferenceStore = create<AppearancePreferenceState>()(
             setTextSurfaceFontPreset: (textSurfaceFontPreset: TextSurfaceFontPreset) =>
                 set({ textSurfaceFontPreset }),
             setIconLabelHidden: (iconLabelHidden: boolean) => set({ iconLabelHidden }),
+            setIconCornerRadius: (iconCornerRadius: IconCornerRadiusPreset) => set({ iconCornerRadius }),
             setSurfaceTone: (surfaceTone: AppSurfaceTone) => set({ surfaceTone }),
             updateSurfaceMaterialConfig: <T extends keyof AppSurfaceMaterialConfigMap>(
                 material: T,

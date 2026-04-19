@@ -5,6 +5,7 @@
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Edit2, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface ItemActionMenuItem {
     label: string;
@@ -27,10 +28,14 @@ export function ItemActionMenu({
     disabled = false,
     onEdit,
     onDelete,
-    editLabel = "Edit",
-    deleteLabel = "Delete",
+    editLabel,
+    deleteLabel,
     extraItems,
 }: ItemActionMenuProps) {
+    const { t } = useTranslation();
+    const resolvedEditLabel = editLabel ?? t("edit");
+    const resolvedDeleteLabel = deleteLabel ?? t("remove");
+
     const handleEdit = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
         event.stopPropagation();
@@ -75,13 +80,13 @@ export function ItemActionMenu({
                     {onEdit && (
                         <ContextMenuItem onClick={handleEdit}>
                             <Edit2 size={12} />
-                            {editLabel}
+                            {resolvedEditLabel}
                         </ContextMenuItem>
                     )}
                     {onDelete && (
                         <ContextMenuItem variant="destructive" onClick={handleDelete}>
                             <Trash2 size={12} />
-                            {deleteLabel}
+                            {resolvedDeleteLabel}
                         </ContextMenuItem>
                     )}
                 </ContextMenuContent>

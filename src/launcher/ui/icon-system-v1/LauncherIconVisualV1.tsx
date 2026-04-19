@@ -1,3 +1,4 @@
+import { useAppearancePreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
 import type { CSSProperties } from "react";
 import type { ResolvedLauncherIconV1 } from "./types";
@@ -20,11 +21,14 @@ export function LauncherIconVisualV1({
     backgroundLayer,
     ...props
 }: LauncherIconVisualV1Props) {
+    const iconCornerRadius = useAppearancePreferenceStore((state) => state.iconCornerRadius);
+
     return (
         <IconFrameV1
             backgroundLayer={backgroundLayer}
             className={cn(icon.frameClassName, className)}
             style={{
+                borderRadius: `${iconCornerRadius}px`,
                 backgroundColor: icon.backgroundColor ?? "transparent",
                 ...style,
             }}

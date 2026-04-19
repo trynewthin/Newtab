@@ -128,6 +128,7 @@
     surface_field_shadow_opacity: "Shadow Opacity",
     icon_settings: "Icon Settings",
     icon_label_hidden: "Label-Free Mode",
+    icon_corner_radius: "Icon Corner Radius",
     icon_label_hidden_desc: "Hide the text labels under desktop icons.",
     theme_settings_hub_desc: "Manage theme color and open second-level pages for detailed visual settings.",
     theme_settings_pages: "Second-Level Pages",

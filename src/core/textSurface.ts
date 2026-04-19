@@ -277,6 +277,8 @@ function resolveThemePalette(
             return [config.silk.color];
         case "floating-lines":
             return config["floating-lines"].linesGradient;
+        case "line-waves":
+            return config["line-waves"].colors;
         case "aurora":
             return config.aurora.colorStops;
         case "particles":

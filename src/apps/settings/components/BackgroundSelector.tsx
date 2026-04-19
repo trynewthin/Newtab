@@ -69,6 +69,11 @@ export function BackgroundSelector() {
             descriptionKey: "theme_floating_lines_desc",
         },
         {
+            id: "line-waves",
+            nameKey: "theme_line_waves",
+            descriptionKey: "theme_line_waves_desc",
+        },
+        {
             id: "aurora",
             nameKey: "theme_aurora",
             descriptionKey: "theme_aurora_desc",

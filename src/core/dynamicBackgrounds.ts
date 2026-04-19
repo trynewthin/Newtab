@@ -3,6 +3,7 @@ export type DynamicBackgroundId =
     | "light-pillar"
     | "silk"
     | "floating-lines"
+    | "line-waves"
     | "aurora"
     | "particles";
 
@@ -50,6 +51,18 @@ export interface DynamicAuroraConfig {
     speed: number;
 }
 
+export interface DynamicLineWavesConfig {
+    colors: [string, string, string];
+    speed: number;
+    innerLineCount: number;
+    outerLineCount: number;
+    warpIntensity: number;
+    rotation: number;
+    edgeFadeWidth: number;
+    colorCycleSpeed: number;
+    brightness: number;
+}
+
 export interface DynamicParticlesConfig {
     particleCount: number;
     particleSpread: number;
@@ -65,6 +78,7 @@ export interface DynamicBackgroundConfigMap {
     "light-pillar": DynamicLightPillarConfig;
     silk: DynamicSilkConfig;
     "floating-lines": DynamicFloatingLinesConfig;
+    "line-waves": DynamicLineWavesConfig;
     aurora: DynamicAuroraConfig;
     particles: DynamicParticlesConfig;
 }
@@ -74,6 +88,7 @@ export const DYNAMIC_BACKGROUND_IDS: readonly DynamicBackgroundId[] = [
     "light-pillar",
     "silk",
     "floating-lines",
+    "line-waves",
     "aurora",
     "particles",
 ] as const;
@@ -111,6 +126,17 @@ export const DEFAULT_DYNAMIC_BACKGROUND_CONFIG: DynamicBackgroundConfigMap = {
         lineCount: [5, 5, 4],
         lineDistance: [5, 4, 3],
         parallax: false,
+    },
+    "line-waves": {
+        colors: ["#b2c8ff", "#d0b7ff", "#f5fbff"],
+        speed: 0.32,
+        innerLineCount: 28,
+        outerLineCount: 34,
+        warpIntensity: 0.82,
+        rotation: -32,
+        edgeFadeWidth: 0.16,
+        colorCycleSpeed: 0.58,
+        brightness: 0.16,
     },
     aurora: {
         colorStops: ["#5d7cff", "#49dbc9", "#9f8dff"],
@@ -152,6 +178,10 @@ export function mergeDynamicBackgroundConfig(
         "floating-lines": {
             ...DEFAULT_DYNAMIC_BACKGROUND_CONFIG["floating-lines"],
             ...(partial?.["floating-lines"] ?? {}),
+        },
+        "line-waves": {
+            ...DEFAULT_DYNAMIC_BACKGROUND_CONFIG["line-waves"],
+            ...(partial?.["line-waves"] ?? {}),
         },
         aurora: {
             ...DEFAULT_DYNAMIC_BACKGROUND_CONFIG.aurora,

@@ -6,6 +6,7 @@ import {
 import Aurora from "./Aurora";
 import ColorBends from "./ColorBends";
 import FloatingLines from "./FloatingLines";
+import LineWaves from "./LineWaves";
 import LightPillar from "./LightPillar";
 import Particles from "./Particles";
 import Silk from "./Silk";
@@ -99,6 +100,29 @@ export function DynamicBackgroundEffect({
                         interactive={false}
                         parallax={config.parallax}
                         mixBlendMode="screen"
+                    />
+                </div>
+            );
+        }
+
+        case "line-waves": {
+            const config = configMap["line-waves"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["line-waves"];
+            return (
+                <div className={className}>
+                    <LineWaves
+                        speed={config.speed}
+                        innerLineCount={config.innerLineCount}
+                        outerLineCount={config.outerLineCount}
+                        warpIntensity={config.warpIntensity}
+                        rotation={config.rotation}
+                        edgeFadeWidth={config.edgeFadeWidth}
+                        colorCycleSpeed={config.colorCycleSpeed}
+                        brightness={config.brightness}
+                        color1={config.colors[0]}
+                        color2={config.colors[1]}
+                        color3={config.colors[2]}
+                        enableMouseInteraction={false}
+                        mouseInfluence={0}
                     />
                 </div>
             );

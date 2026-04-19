@@ -157,6 +157,7 @@ export function DynamicBackgroundConfigPanel({
     const lightPillarConfig = dynamicBackgroundConfig["light-pillar"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["light-pillar"];
     const silkConfig = dynamicBackgroundConfig.silk ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.silk;
     const floatingLinesConfig = dynamicBackgroundConfig["floating-lines"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["floating-lines"];
+    const lineWavesConfig = dynamicBackgroundConfig["line-waves"] ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG["line-waves"];
     const auroraConfig = dynamicBackgroundConfig.aurora ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.aurora;
     const particlesConfig = dynamicBackgroundConfig.particles ?? DEFAULT_DYNAMIC_BACKGROUND_CONFIG.particles;
 
@@ -356,6 +357,48 @@ export function DynamicBackgroundConfigPanel({
                                 onChange={(nextValue) =>
                                     updateConfig("aurora", {
                                         colorStops: updateArrayValue(auroraConfig.colorStops, index, nextValue) as [string, string, string],
+                                    })
+                                }
+                                className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}
+                            />
+                        </SettingsItem>
+                    ))}
+                </div>
+            ) : null}
+
+            {backgroundId === "line-waves" ? (
+                <div className="space-y-2.5">
+                    <SettingsItem label={t("dynamic_bg_field_speed")}>
+                        <NumberSlider value={lineWavesConfig.speed} min={0.05} max={1.2} step={0.01} onChange={(v) => updateConfig("line-waves", { speed: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("dynamic_bg_field_inner_lines")}>
+                        <NumberSlider value={lineWavesConfig.innerLineCount} min={8} max={60} step={1} onChange={(v) => updateConfig("line-waves", { innerLineCount: Math.round(v) })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("dynamic_bg_field_outer_lines")}>
+                        <NumberSlider value={lineWavesConfig.outerLineCount} min={8} max={72} step={1} onChange={(v) => updateConfig("line-waves", { outerLineCount: Math.round(v) })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("dynamic_bg_field_warp_strength")}>
+                        <NumberSlider value={lineWavesConfig.warpIntensity} min={0} max={2} step={0.01} onChange={(v) => updateConfig("line-waves", { warpIntensity: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("dynamic_bg_field_rotation")}>
+                        <NumberSlider value={lineWavesConfig.rotation} min={-180} max={180} step={1} onChange={(v) => updateConfig("line-waves", { rotation: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("dynamic_bg_field_edge_fade_width")}>
+                        <NumberSlider value={lineWavesConfig.edgeFadeWidth} min={0} max={0.8} step={0.01} onChange={(v) => updateConfig("line-waves", { edgeFadeWidth: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("dynamic_bg_field_color_cycle_speed")}>
+                        <NumberSlider value={lineWavesConfig.colorCycleSpeed} min={0} max={2} step={0.01} onChange={(v) => updateConfig("line-waves", { colorCycleSpeed: v })} />
+                    </SettingsItem>
+                    <SettingsItem label={t("dynamic_bg_field_brightness")}>
+                        <NumberSlider value={lineWavesConfig.brightness} min={0.02} max={0.4} step={0.01} onChange={(v) => updateConfig("line-waves", { brightness: v })} />
+                    </SettingsItem>
+                    {[0, 1, 2].map((index) => (
+                        <SettingsItem key={`line-waves-color-${index}`} label={colorLabel(index)}>
+                            <ColorInputField
+                                value={lineWavesConfig.colors[index]}
+                                onChange={(nextValue) =>
+                                    updateConfig("line-waves", {
+                                        colors: updateArrayValue(lineWavesConfig.colors, index, nextValue) as [string, string, string],
                                     })
                                 }
                                 className={`${SETTINGS_FIELD_CLASS} ${CONFIG_CONTROL_WIDTH_CLASS} p-1`}

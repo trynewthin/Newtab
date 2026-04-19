@@ -161,6 +161,9 @@ export function SurfaceMaterialSettings() {
                 <SettingsItem label={t("surface_field_blur")}>
                     <NumberSlider value={frostedConfig.blur} min={0} max={80} step={1} onChange={(v) => updateFrosted({ blur: v })} />
                 </SettingsItem>
+                <SettingsItem label={t("surface_field_border_width")}>
+                    <NumberSlider value={frostedConfig.borderWidth} min={0} max={3} step={0.1} onChange={(v) => updateFrosted({ borderWidth: v })} />
+                </SettingsItem>
                 <SettingsItem label={t("surface_field_border_opacity")}>
                     <NumberSlider value={frostedConfig.borderOpacity} min={0} max={1} step={0.01} onChange={(v) => updateFrosted({ borderOpacity: v })} />
                 </SettingsItem>

@@ -81,7 +81,7 @@ export function MacFrostedSurface({
                     ? {}
                     : (stabilizeCorners && createStableCornerBorderStyle
                         ? createStableCornerBorderStyle(borderColor)
-                        : { border: `0.5px solid ${borderColor}` })),
+                        : { border: `${merged.borderWidth}px solid ${borderColor}` })),
                 boxShadow: boxShadowLayers,
                 ...style,
             }}

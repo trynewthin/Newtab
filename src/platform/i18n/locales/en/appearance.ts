@@ -122,6 +122,7 @@
     surface_field_background_opacity: "Background Opacity",
     surface_field_saturation: "Saturation",
     surface_field_blur: "Blur",
+    surface_field_border_width: "Border Width",
     surface_field_border_opacity: "Border Opacity",
     surface_field_highlight_opacity: "Highlight Opacity",
     surface_field_shadow_opacity: "Shadow Opacity",

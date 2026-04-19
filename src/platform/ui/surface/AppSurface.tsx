@@ -37,9 +37,9 @@ export function AppSurface({
     const resolvedTone = useResolvedTone(tone);
     const stabilizeCorners = variant === "widget" || variant === "folder-preview";
     const hideSurfaceBorder = hideSurfaceBorderOverride ?? (variant === "widget");
-    const stableCornerBorderWidth = 1;
+    const borderWidth = materialConfig["mac-frosted"].borderWidth;
     const createStableCornerBorderStyle = (color: string): React.CSSProperties => ({
-        border: `${stableCornerBorderWidth}px solid ${color}`,
+        border: `${borderWidth}px solid ${color}`,
         boxSizing: "border-box",
     });
 

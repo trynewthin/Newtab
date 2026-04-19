@@ -122,6 +122,7 @@
     surface_field_background_opacity: "背景不透明度",
     surface_field_saturation: "饱和度",
     surface_field_blur: "模糊",
+    surface_field_border_width: "边框粗细",
     surface_field_border_opacity: "边框不透明度",
     surface_field_highlight_opacity: "高光不透明度",
     surface_field_shadow_opacity: "阴影不透明度",

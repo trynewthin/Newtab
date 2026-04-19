@@ -5,6 +5,7 @@ export interface MacFrostedMaterialConfig {
     backgroundOpacity: number;
     saturation: number;
     blur: number;
+    borderWidth: number;
     borderOpacity: number;
     highlightOpacity: number;
     shadowOpacity: number;
@@ -19,6 +20,7 @@ export const DEFAULT_APP_SURFACE_MATERIAL_CONFIG: AppSurfaceMaterialConfigMap = 
         backgroundOpacity: 0.36,
         saturation: 1.8,
         blur: 40,
+        borderWidth: 0.5,
         borderOpacity: 0.3,
         highlightOpacity: 0.06,
         shadowOpacity: 0.12,

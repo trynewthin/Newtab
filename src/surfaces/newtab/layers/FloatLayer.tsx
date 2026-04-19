@@ -1,4 +1,4 @@
-﻿import { SearchBar } from "@/apps/search/components/SearchBar";
+import { SearchBar } from "@/apps/search";
 import { useLocation } from "react-router-dom";
 import { NEWTAB_LAYER_Z_INDEX } from "@/shared/constants/layerZIndex";
 

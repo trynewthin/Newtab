@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useSearchPreferenceStore } from "@/config";
 import { cn } from "@/shared/utils";
 import { AppSurface } from "@/platform/ui";
+import { fetchSearchSuggestions } from "../searchSuggestions";
 
 interface SearchBarProps {
     initialQuery?: string;
@@ -25,28 +26,27 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
     const currentEngine = searchEngines.find((entry) => entry.value === searchEngine) || searchEngines[0];
 
     useEffect(() => {
-        const fetchSuggestions = async () => {
-            if (!query.trim() || engineMenuOpen) {
-                setSuggestions([]);
-                setShowSuggestions(false);
+        if (!query.trim() || engineMenuOpen) {
+            return;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            const nextSuggestions = await fetchSearchSuggestions(currentEngine, query, controller.signal);
+            if (controller.signal.aborted) {
                 return;
             }
 
-            try {
-                const response = await fetch(`https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}`);
-                const data = await response.json();
-                if (Array.isArray(data) && data[1]) {
-                    setSuggestions(data[1].slice(0, 8));
-                    setShowSuggestions(true);
-                }
-            } catch (error) {
-                console.error("Failed to fetch suggestions:", error);
-            }
-        };
+            setSuggestions(nextSuggestions);
+            setShowSuggestions(nextSuggestions.length > 0);
+            setActiveIndex(-1);
+        }, 200);
 
-        const timer = setTimeout(fetchSuggestions, 200);
-        return () => clearTimeout(timer);
-    }, [engineMenuOpen, query]);
+        return () => {
+            controller.abort();
+            clearTimeout(timer);
+        };
+    }, [currentEngine, engineMenuOpen, query]);
 
     useEffect(() => {
         const closeOverlays = () => {
@@ -195,7 +195,9 @@ export function SearchBar({ initialQuery = "" }: SearchBarProps) {
                     autoFocus
                     value={query}
                     onChange={(event) => {
-                        setQuery(event.target.value);
+                        const nextQuery = event.target.value;
+                        setQuery(nextQuery);
+                        setShowSuggestions(nextQuery.trim().length > 0);
                         setActiveIndex(-1);
                     }}
                     onKeyDown={handleKeyDown}

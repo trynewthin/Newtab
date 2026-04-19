@@ -4,7 +4,7 @@ import { DefaultItemIcon } from "@/launcher/ui/icons/DefaultItemIcon";
 import { cn } from "@/shared/utils";
 import type { ResolvedLauncherIconV1 } from "./types";
 
-const ICON_CONTENT_CLASS = "h-[92%] w-[92%]";
+const ICON_GLYPH_CONTENT_CLASS = "h-[92%] w-[92%]";
 const IMAGE_PADDING_PX = 6;
 const IMAGE_ALPHA_THRESHOLD = 8;
 const IMAGE_CARRIER_MIN_ASPECT = 0.9;
@@ -162,7 +162,7 @@ export function IconGraphicV1({
     const renderContent = () => {
         if (icon.kind === "system" && icon.value) {
             return (
-                <div style={contentStyle} className={cn("flex items-center justify-center select-none", ICON_CONTENT_CLASS)}>
+                <div style={contentStyle} className={cn("flex items-center justify-center select-none", ICON_GLYPH_CONTENT_CLASS)}>
                     {renderSystemIcon(icon.value, "h-full w-full")}
                 </div>
             );
@@ -170,7 +170,7 @@ export function IconGraphicV1({
 
         if (icon.kind === "emoji" && icon.value) {
             return (
-                <div style={contentStyle} className={cn("flex items-center justify-center", ICON_CONTENT_CLASS)}>
+                <div style={contentStyle} className={cn("flex items-center justify-center", ICON_GLYPH_CONTENT_CLASS)}>
                     <span className="flex h-full w-full items-center justify-center text-[2em] leading-none select-none">
                         {icon.value}
                     </span>
@@ -181,23 +181,34 @@ export function IconGraphicV1({
         if (icon.kind === "image" && imageSrc && failedImageSrc !== imageSrc) {
             const finalImageSrc = processedImage?.src ?? imageSrc;
             const useCarrier = processedImage?.useCarrier ?? false;
+            const hasExplicitBackground = !!icon.backgroundColor && icon.backgroundColor !== "transparent";
 
             return (
-                <div style={contentStyle} className={cn("flex items-center justify-center select-none", ICON_CONTENT_CLASS)}>
+                <div
+                    className={cn(
+                        "flex h-full w-full items-center justify-center select-none overflow-hidden",
+                        useCarrier && !hasExplicitBackground && "bg-white/92 dark:bg-black/82"
+                    )}
+                    style={{
+                        borderRadius: "inherit",
+                        backgroundColor: hasExplicitBackground ? icon.backgroundColor : undefined,
+                        padding: useCarrier ? "10%" : undefined,
+                    }}
+                >
                     {useCarrier ? (
-                        <div className="flex h-full w-full items-center justify-center rounded-[22%] bg-white/92 p-[10%] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] dark:bg-black/82">
-                            <img
-                                src={finalImageSrc}
-                                alt={icon.title || "icon"}
-                                className="h-full w-full object-contain pointer-events-none select-none"
-                                onError={() => setFailedImageSrc(imageSrc)}
-                            />
-                        </div>
+                        <img
+                            src={finalImageSrc}
+                            alt={icon.title || "icon"}
+                            className="h-full w-full object-contain pointer-events-none select-none"
+                            style={contentStyle}
+                            onError={() => setFailedImageSrc(imageSrc)}
+                        />
                     ) : (
                         <img
                             src={finalImageSrc}
                             alt={icon.title || "icon"}
                             className="h-full w-full object-cover pointer-events-none select-none"
+                            style={contentStyle}
                             onError={() => setFailedImageSrc(imageSrc)}
                         />
                     )}
@@ -206,7 +217,7 @@ export function IconGraphicV1({
         }
 
         return (
-            <div style={contentStyle} className={cn("flex items-center justify-center text-muted-foreground/20", ICON_CONTENT_CLASS)}>
+            <div style={contentStyle} className={cn("flex items-center justify-center text-muted-foreground/20", ICON_GLYPH_CONTENT_CLASS)}>
                 <DefaultItemIcon />
             </div>
         );
